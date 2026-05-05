@@ -33,7 +33,7 @@ def check_for_prev_init():
         sys.exit(1)
 
 def check_file_requirements():
-    if not ENTERED_DOCUMENT_PATH and Path(ENTERED_DOCUMENT_PATH).suffix.lower() == ".docx" and Path(ENTERED_DOCUMENT_PATH).is_file():
+    if not ENTERED_DOCUMENT_PATH or Path(ENTERED_DOCUMENT_PATH).suffix.lower() != ".docx" or not Path(ENTERED_DOCUMENT_PATH).is_file():
         print("Invalid file path, make sure the file exists and is a .docx file")
         sys.exit(1)
 
