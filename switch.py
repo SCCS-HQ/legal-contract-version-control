@@ -38,98 +38,112 @@ def update_current_branch(branch):
         print(f"Error replacing current branch information: {e}")
         sys.exit(1)
 
-try:
-    with open(os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            data = json.load(f)
-            branch = data.get("current_branch")
-            branches = data.get("branches")
-        except Exception as e:
-            print(f"Error reading current branch information: {e}")
-            sys.exit(1)
-except Exception as e:
-    print(f"Error accessing current branch information: {e}")
-    sys.exit(1)
+def get_branch_data():
+    try:
+        with open(os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
+            try:
+                data = json.load(f)
+                return data.get("current_branch"), data.get("branches")
+            except Exception as e:
+                print(f"Error reading current branch information: {e}")
+                sys.exit(1)
+    except Exception as e:
+        print(f"Error accessing current branch information: {e}")
+        sys.exit(1)
 
-if branch_to_switch not in branches:
-    print(f"Error: Branch '{branch_to_switch}' does not exist.")
-    sys.exit(1)
+def check_branch_to_switch(branch_to_switch, branches):
+    if not branch_to_switch or len(branch_to_switch) == 0:
+        print("No branch specified. Please provide a branch name to switch to.")
+        sys.exit(1)
 
-try: 
-    with open(os.path.join(directory_path, ".sccs", "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            latest_commit = json.load(f).get("history")["latest_commit"]
-        except Exception as e:
-            print(f"Error reading commit history for branch '{branch}': {e}")
-            sys.exit(1)
-except Exception as e:
-    print(f"Error accessing commit history for branch '{branch}': {e}")
-    sys.exit(1)
+    if branch_to_switch not in branches:
+        print(f"Error: Branch '{branch_to_switch}' does not exist.")
+        sys.exit(1)
 
-try:
-    with open(os.path.join(directory_path, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            latest_commit_file_hash = json.load(f).get(latest_commit)
-        except Exception as e:
-            print(f"Error reading commit file hash for branch '{branch}': {e}")
-            sys.exit(1)
-except Exception as e:
-    print(f"Error accessing commit file hash for branch '{branch}': {e}")
-    sys.exit(1)
+def get_latest_commit_binary_hash(branch, latest_commit):
+    try:
+        with open(os.path.join(directory_path, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
+            try:
+                return json.load(f).get(latest_commit)
+            except Exception as e:
+                print(f"Error reading commit file hash for branch '{branch}': {e}")
+                sys.exit(1)
+    except Exception as e:
+        print(f"Error accessing commit file hash for branch '{branch}': {e}")
+        sys.exit(1)
 
-try:
-    with open(path, "rb") as f:
-        hasher = hashlib.sha256()
-        for chunk in iter(lambda: f.read(65536), b""):
-            hasher.update(chunk)
-        hashed_file = hasher.hexdigest()
-except Exception as e:
-    print(f"Error processing .docx file: {e}")
-    sys.exit(1)
+def hash_current_document():
+    try:
+        with open(path, "rb") as f:
+            hasher = hashlib.sha256()
+            for chunk in iter(lambda: f.read(65536), b""):
+                hasher.update(chunk)
+            return hasher.hexdigest()
+    except Exception as e:
+        print(f"Error processing .docx file: {e}")
+        sys.exit(1)
 
-if not hashed_file == latest_commit_file_hash:
-    print(f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches." )
-    sys.exit(1)
+def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
+    if not current_document_hash == latest_commit_binary_hash:
+        print(f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches." )
+        sys.exit(1)
 
+def sanitize_branch(branch_name):
+    return sanitize_dirname(branch_name)
 
-if branch_to_switch:
-    branch_to_switch = sanitize_dirname(branch_to_switch)
+def get_latest_commit(branch):
+    try:
+        with open(os.path.join(directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
+            try:
+                history = json.load(f)
+                try:
+                    return history["history"]["latest_commit"]
+                except KeyError as e:
+                    print(f"Error: Missing key {e} in commit history for branch '{branch}'.")
+                    sys.exit(1)
+            except Exception as e:
+                print(f"Error parsing commit history for branch '{branch}': {e}")
+                sys.exit(1)
+    except Exception as e: 
+        print(f"Error reading commit history for branch '{branch}': {e}")
+        sys.exit(1)
 
-if not branch_to_switch or len(branch_to_switch) == 0:
-    print("No branch specified. Please provide a branch name to switch to.")
-    sys.exit(1)
+def check_commit(commit):
+    if not os.path.isfile(os.path.join(directory_path, ".sccs", "objects", "docx", f"{commit}.docx")):
+        print(f"Error: Commit object '{commit}' not found.")
+        sys.exit(1)
 
-try:
-    with open(os.path.join(directory_path, ".sccs",  "branches", branch_to_switch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            commit_history = json.load(f)
-            
-        except Exception as e:
-            print(f"Error parsing commit history for branch '{branch_to_switch}': {e}")
-            sys.exit(1)
+def copy_commit_to_main(commit):
+    try:
+        shutil.copy2(os.path.join(directory_path, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(directory_path, f"{os.path.basename(directory_path)}.docx"))
+    except Exception as e:
+        print(f"Error copying commit '{commit}' to main: {e}")
+        sys.exit(1)
 
-except Exception as e: 
-    print(f"Error reading commit history for branch '{branch_to_switch}': {e}")
-    sys.exit(1)
+def print_confirmation(branch_to_switch):
+    print(f"Successfully switched to branch '{branch_to_switch}'.")
 
-try:
-    latest_commit_on_branch_to_switch = commit_history["history"]["latest_commit"]
+if __name__ == "__main__":
+    branch, branches = get_branch_data()
 
-except KeyError as e:
-    print(f"Error: Missing key {e} in commit history for branch '{branch_to_switch}'.")
-    sys.exit(1)
+    latest_commit = get_latest_commit(branch)
 
-if not os.path.isfile(os.path.join(directory_path, ".sccs", "objects", "docx", f"{latest_commit_on_branch_to_switch}.docx")):
-    print(f"Error: Commit object '{latest_commit_on_branch_to_switch}' not found.")
-    sys.exit(1)
+    latest_commit_binary_hash = get_latest_commit_binary_hash(branch, latest_commit)
 
-update_current_branch(branch_to_switch)
+    current_document_hash = hash_current_document()
 
-try:
-    shutil.copy2(os.path.join(directory_path, ".sccs", "objects", "docx", f"{latest_commit_on_branch_to_switch}.docx"), os.path.join(directory_path, f"{os.path.basename(directory_path)}.docx"))
-except Exception as e:
-    print(f"Error switching to branch '{branch_to_switch}': {e}")
-    update_current_branch(branch)
-    sys.exit(1)
+    check_for_changes(branch, latest_commit_binary_hash, current_document_hash)
 
-print(f"Successfully switched to branch '{branch_to_switch}'.")
+    check_branch_to_switch(branch_to_switch, branches)
+
+    branch_to_switch = sanitize_branch(branch_to_switch)
+
+    latest_commit_on_branch_to_switch = get_latest_commit(branch_to_switch)
+
+    check_commit(latest_commit_on_branch_to_switch)
+
+    copy_commit_to_main(latest_commit_on_branch_to_switch)
+
+    update_current_branch(branch_to_switch)
+
+    print_confirmation(branch_to_switch)
