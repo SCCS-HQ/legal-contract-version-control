@@ -28,7 +28,7 @@ def get_branch_data():
         print(f"Error reading current branch data: {e}")
         sys.exit(1)
 
-def validate_subcommand():
+def validate_subcommand(subcommand, branch_name):
     if not subcommand:
         print("No subcommand provided. Please use 'create', 'delete', or 'list' along with required arguments.")
         sys.exit(1)
