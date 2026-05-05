@@ -44,14 +44,13 @@ def hash_document():
                 hasher = hashlib.sha256()
                 for chunk in iter(lambda: f.read(65536), b""):
                     hasher.update(chunk)
-                    hashed_file = hasher.hexdigest()
+                return hasher.hexdigest()
             except Exception as e:
                 print(f"Error hashing .docx file: {e}")
                 sys.exit(1)
     except Exception as e:
         print(f"Error processing .docx file: {e}")
         sys.exit(1)
-    return hashed_file
 
 def convert_document_to_html():
     try: 
