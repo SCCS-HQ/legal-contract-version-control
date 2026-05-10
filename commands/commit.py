@@ -144,7 +144,7 @@ def update_commit_binary_hash_history(sha_hash, hash_docx_binary, cwd=None, curr
 
     commit_file_hash[f"{sha_hash}"] = hash_docx_binary
 
-    return commit_file_hash, commit_file_hash_path
+    return {commit_file_hash_path: commit_file_hash}
 
 def combine_update_dicts(*dicts):
     update_dict = {}
