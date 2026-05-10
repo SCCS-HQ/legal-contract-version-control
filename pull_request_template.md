@@ -15,3 +15,4 @@ Go through each file
 - [ ] Bugfix
 - [ ] Feature
 - [ ] Documentation
+- [ ] Refactor
