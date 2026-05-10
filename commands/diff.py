@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
     validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)
 
-    docx_current_version_html = utils.convert_current_docx_to_html()
+    docx_current_version_html = utils.convert_docx_to_html()
 
     commit_html = get_commit_html(get_entered_commit_to_diff())
 
