@@ -36,7 +36,7 @@ def get_commit_message():
     commit_message = input("Enter commit message: ").strip()
 
     if commit_message == "":
-        ("Commit message cannot be empty.")
+        print("Commit message cannot be empty.")
         sys.exit(1)
     return commit_message
 
