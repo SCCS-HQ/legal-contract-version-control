@@ -6,6 +6,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import exceptions
 import utils
 
 
@@ -18,11 +19,10 @@ def get_key_from_config(key, cwd=None):
     config_path = os.path.join(cwd, ".sccs", "config", "config.json")
 
     if not Path(config_path).is_file():
-        print(
+        raise FileNotFoundError(
             "Configuration file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
-        sys.exit(1)
 
     with open(config_path, "r", encoding="utf-8", newline="\n") as config_file:
         config = json.load(config_file)
@@ -36,8 +36,8 @@ def get_commit_message():
     commit_message = input("Enter commit message: ").strip()
 
     if commit_message == "":
-        print("Commit message cannot be empty.")
-        sys.exit(1)
+        raise exceptions.EmptyCommitMessageError("Commit message cannot be empty.")
+
     return commit_message
 
 
@@ -64,19 +64,17 @@ def get_commit_history():
 
     history_path = get_history_path()
     if not Path(history_path).is_file():
-        print(
+        raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
         )
-        sys.exit(1)
 
     try:
         with open(history_path, "r", encoding="utf-8", newline="\n") as history_file:
             history = json.load(history_file)
 
     except Exception as e:
-        print(f"Error retrieving JSON from history file: {e}")
-        sys.exit(1)
+        raise exceptions.FileOpenError from e
 
     return history
 
@@ -147,11 +145,10 @@ def update_commit_log_history(
     # Check if history file exists
     commit_history_path = get_history_path()
     if not os.path.isfile(commit_history_path):
-        print(
+        raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
         )
-        sys.exit(1)
 
     # Update history
     history["history"]["latest_commit"] = f"{sha_hash}"
@@ -182,11 +179,10 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
     )
 
     if not Path(commit_messages_path).is_file():
-        print(
+        raise FileNotFoundError(
             "Commit messages file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
-        sys.exit(1)
 
     with open(
         commit_messages_path, "r", encoding="utf-8", newline="\n"
@@ -194,8 +190,7 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
         try:
             messages = json.load(commit_messages_file)
         except Exception as e:
-            print(f"Error reading commit messages: {e}")
-            sys.exit(1)
+            raise exceptions.FileOpenError from e
 
     messages[f"{sha_hash}"] = f"{commit_message}"
 
@@ -222,19 +217,18 @@ def update_commit_binary_hash_history(
         "commit_file_hash.json",
     )
     if not Path(commit_file_hash_path).is_file():
-        print(
+        raise FileNotFoundError(
             "Commit file hash not found. Please run 'sccs init <file_path>' to "
-            "initialize SCCS for this file."
+            f"initialize SCCS for this file."
         )
-        sys.exit(1)
 
     try:
         with open(commit_file_hash_path, "r", encoding="utf-8", newline="\n") as f:
             commit_file_hash = json.load(f)
 
-    except (json.JSONDecodeError, KeyError, TypeError, OSError) as e:
-        print(f"Error loading commit file hash: {e}")
-        sys.exit(1)
+    except Exception as e:
+        raise exceptions.FileOpenError from e
+
     commit_file_hash[f"{sha_hash}"] = hash_docx_binary
 
     return {commit_file_hash_path: commit_file_hash}
@@ -259,14 +253,13 @@ def atomically_update_history(update_dict):
             ) as f:
                 json.dump(value, f)
         except Exception as e:
-            print(f"Error opening temporary file: {e}")
-            sys.exit(1)
+            raise exceptions.TemporaryFileError from e
+
     for key, value in update_dict.items():
         try:
             os.replace(f"{Path(key).with_suffix('.tmp')}", f"{Path(key)}")
         except Exception as e:
-            print(f"Error replacing temporary file: {e}")
-            sys.exit(1)
+            raise exceptions.TemporaryFileError from e
 
 
 def print_commit_confirmation_message(sha_hash):
@@ -275,7 +268,7 @@ def print_commit_confirmation_message(sha_hash):
     print(f"Commit {sha_hash} created successfully.")
 
 
-if __name__ == "__main__":
+def main():
     utils.check_sccs_layout()
 
     name = get_key_from_config("name")
@@ -321,3 +314,20 @@ if __name__ == "__main__":
     atomically_update_history(combined_history_update_dicts)
 
     print_commit_confirmation_message(sha_hash)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )

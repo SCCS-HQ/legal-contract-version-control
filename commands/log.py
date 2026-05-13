@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 
+import exceptions
 import utils
 
 
@@ -20,11 +21,10 @@ def get_log_data(cwd=None, current_branch=None):
     )
 
     if not Path(log_path).is_file():
-        print(
-            "Log file not found. Please make sure the file has been initialized with "
-            "'sccs init <file_path>'"
+        raise FileNotFoundError(
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
-        sys.exit(1)
 
     with open(log_path, "r", encoding="utf-8", newline="\n") as log_file:
         log_data = json.load(log_file)
@@ -46,8 +46,24 @@ def print_log():
         )
 
 
-if __name__ == "__main__":
-
+def main():
     utils.check_sccs_layout()
 
     print_log()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )

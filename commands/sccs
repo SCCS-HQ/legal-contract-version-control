@@ -3,6 +3,8 @@ import os
 import subprocess
 import sys
 
+import exceptions
+
 COMMANDS = [
     "init",
     "commit",
@@ -19,20 +21,10 @@ COMMANDS = [
 def get_entered_command():
     return sys.argv[1] if len(sys.argv) > 1 else None
 
+
 def get_script_directory():
     return os.path.dirname(os.path.realpath(__file__))
 
-def check_if_command_is_valid(command, COMMANDS):
-    return command in COMMANDS
-
-def print_unknown_command_error(command):
-    print(f"Unknown command: {command}")
-    print(
-        "Invalid command. Please use 'init', 'commit', 'open', 'log', 'diff', 'status"
-        "', 'help', 'branch', or 'switch', along with required arguments."
-    )
-    print("For help, use the 'sccs help' command.")
-    sys.exit(1)
 
 def run_command(command, script_directory):
     sys.exit(
@@ -43,18 +35,40 @@ def run_command(command, script_directory):
         ).returncode
     )
 
+
 def execute_command(command, script_directory, COMMANDS):
-    if not check_if_command_is_valid(command, COMMANDS):
-        print_unknown_command_error(command)
+    if command not in COMMANDS:
+        raise exceptions.UnknownCommandError(
+            f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
+            f"'diff', 'status', 'help', 'branch', or 'switch', along with required "
+            f"arguments. For help, use the 'sccs help' command."
+        )
     run_command(command, script_directory)
 
-if __name__ == "__main__":
 
+def main():
     command = get_entered_command()
 
     script_directory = get_script_directory()
-    
+
     execute_command(command, script_directory, COMMANDS)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )
 
 # If on MacOS / Linux, move this file, commit.py, init.py, open.py, log.py, diff.py,
 # status.py, help.py, branch.py , and switch.py to /usr/local/bin and make it executable

@@ -3,6 +3,7 @@ import os
 import shutil
 import sys
 
+import exceptions
 import utils
 
 
@@ -22,24 +23,22 @@ def validate_subcommand(subcommand, branch_name):
     """Validate the subcommand entered by the user."""
 
     if not subcommand:
-        print(
+        raise exceptions.InvalidSubcommandError(
             "No subcommand provided. Please use 'create', 'delete', or 'list' along "
             "with required arguments."
         )
-        sys.exit(1)
 
     if subcommand not in ["create", "delete", "list"]:
-        print(f"Unknown subcommand: {subcommand}")
-        print(
-            "Invalid subcommand. Please use 'create', 'delete', or 'list' along with "
-            "required arguments."
+        raise exceptions.InvalidSubcommandError(
+            f"Invalid subcommand: {subcommand}. Please use 'create', 'delete', or 'list"
+            f"' along with required arguments."
         )
-        sys.exit(1)
 
     if subcommand in ["create", "delete"]:
         if not branch_name:
-            print("No branch name provided. Please specify a branch name.")
-            sys.exit(1)
+            raise exceptions.InvalidArgumentError(
+                "No branch name provided. Please specify a branch name."
+            )
 
 
 def branch_create_subcommand(
@@ -56,24 +55,28 @@ def branch_create_subcommand(
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     if not sanitized_branch_name:
-        print("Invalid branch name. Please provide a valid branch name.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError(
+            "Invalid branch name. Please provide a valid branch name."
+        )
 
     if sanitized_branch_name in branch_data["branches"]:
-        print(f"Branch '{sanitized_branch_name}' already exists.")
-        sys.exit(1)
+        raise exceptions.BranchAlreadyExistsError(
+            f"Branch '{sanitized_branch_name}' already exists."
+        )
 
     if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
-        print(
-            f"Branch '{sanitized_branch_name}' already exists, or a directory with the "
-            f"same name exists."
+        raise exceptions.BranchAlreadyExistsError(
+            f"Branch '{sanitized_branch_name}' already exists."
         )
-        sys.exit(1)
 
-    shutil.copytree(
-        os.path.join(cwd, ".sccs", "branches", current_branch),
-        os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
-    )
+    try:
+        shutil.copytree(
+            os.path.join(cwd, ".sccs", "branches", current_branch),
+            os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
+        )
+    except Exception as e:
+        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
+        raise exceptions.FileCopyError from e
 
     try:
         with open(
@@ -83,14 +86,24 @@ def branch_create_subcommand(
             branch_data["current_branch"] = sanitized_branch_name
             json.dump(branch_data, current_branch_file, indent=4)
 
+    # Clean up the created directory before raising
     except Exception as e:
-        print(f"Error creating branch '{sanitized_branch_name}': {e}")
-        sys.exit(1)
+        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
+        raise exceptions.BranchCreationError from e
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
         f"and is now the current branch."
     )
+
+
+def delete_branch_after_error(branch_name, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+
+    branch_path = os.path.join(cwd, ".sccs", "branches", branch_name)
+    if os.path.isdir(branch_path):
+        shutil.rmtree(branch_path)
 
 
 def branch_delete_subcommand(
@@ -108,16 +121,19 @@ def branch_delete_subcommand(
     branch_path = os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)
 
     if sanitized_branch_name == current_branch:
-        print("Cannot delete the current branch.")
-        sys.exit(1)
+        raise exceptions.BranchDeletionError(
+            "Cannot delete the current branch. Please switch to another branch first."
+        )
 
     if not os.path.exists(branch_path):
-        print(f"Branch '{sanitized_branch_name}' does not exist.")
-        sys.exit(1)
+        raise exceptions.BranchNotFoundError(
+            f"Branch '{sanitized_branch_name}' does not exist."
+        )
 
     if not sanitized_branch_name in branch_data["branches"]:
-        print(f"Branch '{sanitized_branch_name}' does not exist in branch data.")
-        sys.exit(1)
+        raise exceptions.BranchMissingFromMetadataError(
+            f"Branch '{sanitized_branch_name}' does not exist in branch data."
+        )
 
     try:
         with open(
@@ -127,15 +143,14 @@ def branch_delete_subcommand(
             json.dump(branch_data, current_branch_file, indent=4)
 
     except Exception as e:
-        print(f"Error updating branch data: {e}")
-        sys.exit(1)
+        raise exceptions.UpdatingMetadataError from e
 
     try:
         shutil.rmtree(branch_path)
 
     except Exception as e:
-        print(f"Error deleting branch '{sanitized_branch_name}': {e}")
         rollback_changes_after_failure(current_branch_path, branch_data=branch_data)
+        raise exceptions.BranchDeletionError from e
 
     print(f"Branch '{sanitized_branch_name}' was deleted.")
 
@@ -158,11 +173,7 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
             json.dump(branch_data, current_branch_file, indent=4)
 
     except Exception as e:
-        print(
-            f"Error updating branch data after failed deletion: {e}\nThe branch '"
-            f"{sanitized_branch_name}' may be in an inconsistent state."
-        )
-        sys.exit(1)
+        raise exceptions.UpdatingMetadataError from e
 
 
 def branch_list_subcommand(current_branch, branch_data):
@@ -187,12 +198,30 @@ def run_specified_subcommand(subcommand, current_branch, branch_data):
         branch_list_subcommand(current_branch, branch_data)
 
 
-if __name__ == "__main__":
-
+def main():
     utils.check_sccs_layout()
 
     validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
 
     run_specified_subcommand(
-        get_entered_subcommand(), utils.get_current_branch(), utils.get_branch_data()
+        get_entered_subcommand(),
+        utils.get_current_branch(),
+        utils.get_branch_data(),
+    )
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
     )

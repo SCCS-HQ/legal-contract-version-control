@@ -1,3 +1,7 @@
+import sys
+
+import exceptions
+
 MESSAGES_TO_PRINT = [
     "SCCS Help",
     "Available commands:",
@@ -21,5 +25,22 @@ def print_help(messages):
         print(item)
 
 
-if __name__ == "__main__":
+def main():
     print_help(MESSAGES_TO_PRINT)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )

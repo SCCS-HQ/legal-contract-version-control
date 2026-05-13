@@ -3,6 +3,7 @@ import shutil
 import sys
 from pathlib import Path
 
+import exceptions
 import utils
 
 
@@ -13,12 +14,13 @@ def get_commit_path_input():
 
 def check_commit_path_input(commit_path):
     if commit_path == "":
-        print("Commit file path cannot be empty.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
-    if not Path(commit_path).is_file() or Path(commit_path).suffix.lower() != ".docx":
-        print("Invalid commit file path, make sure the file exists and is a .docx file")
-        sys.exit(1)
+    if not Path(commit_path).is_file():
+        raise FileNotFoundError("Commit file does not exist.")
+
+    if Path(commit_path).suffix.lower() != ".docx":
+        raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
 
 
 def confirm_before_proceeding(commit_path, docx_path=None, cwd=None):
@@ -61,8 +63,7 @@ def copy_file_commit(commit_path, docx_path=None):
     try:
         shutil.copy2(commit_path, docx_path)
     except Exception as e:
-        print(f"Error occurred while updating the file: {e}")
-        sys.exit(1)
+        raise exceptions.FileCopyError from e
 
 
 def print_rewrite_confirmation_message(commit_path, docx_path=None):
@@ -74,7 +75,7 @@ def print_rewrite_confirmation_message(commit_path, docx_path=None):
     )
 
 
-if __name__ == "__main__":
+def main():
     utils.check_sccs_layout()
 
     commit_path = get_commit_path_input()
@@ -88,3 +89,20 @@ if __name__ == "__main__":
     copy_file_commit(commit_path)
 
     print_rewrite_confirmation_message(commit_path)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )

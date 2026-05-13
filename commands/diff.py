@@ -3,6 +3,7 @@ import difflib
 import sys
 from pathlib import Path
 
+import exceptions
 import utils
 from bs4 import BeautifulSoup
 
@@ -17,25 +18,22 @@ def validate_commit(commit_to_diff, docx_current_version):
     """Validate the commit file and current docx file paths."""
 
     if not commit_to_diff:
-        print("No commit file specified.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("No commit file path provided.")
 
     if not Path(commit_to_diff).is_file():
-        print("Commit file not found. Please provide a valid commit file path.")
-        sys.exit(1)
+        raise FileNotFoundError(
+            "Commit file not found. Please provide a valid commit file path."
+        )
 
     if Path(commit_to_diff).suffix.lower() != ".html":
-        print(
+        raise exceptions.InvalidArgumentError(
             "Commit file is not a .html file. Please provide a valid .html commit file"
         )
-        sys.exit(1)
 
     if not Path(docx_current_version).is_file():
-        print(
-            "Docx file not found. Re-initialize SCCS for this file with 'sccs init"
-            "<file_path>'"
+        raise FileNotFoundError(
+            "Docx file not found. Please provide a valid docx file path."
         )
-        sys.exit(1)
 
 
 def get_commit_html(commit_path):
@@ -45,8 +43,7 @@ def get_commit_html(commit_path):
         with open(commit_path, "r", encoding="utf-8", newline="\n") as f:
             commit_html = f.read()
     except Exception as e:
-        print(f"Error reading commit file: {e}")
-        sys.exit(1)
+        raise exceptions.FileOpenError from e
     return commit_html
 
 
@@ -227,8 +224,7 @@ def write_redline_html_file(redline, filename="redline.html"):
         f.write(utils.wrap_html(str(strip_number_attribute(redline))))
 
 
-if __name__ == "__main__":
-
+def main():
     utils.check_sccs_layout()
 
     validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)
@@ -253,3 +249,20 @@ if __name__ == "__main__":
     )
 
     write_redline_html_file(redline)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
+
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
+else:
+    raise exceptions.FileImportedAsModuleError(
+        "This file cannot be run as a module. Please run it as a script."
+    )
