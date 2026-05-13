@@ -60,12 +60,12 @@ def branch_create_subcommand(
         )
 
     if sanitized_branch_name in branch_data["branches"]:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
     if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
@@ -126,7 +126,7 @@ def branch_delete_subcommand(
         )
 
     if not os.path.exists(branch_path):
-        raise exceptions.BranchDeletionError(
+        raise exceptions.BranchNotFoundError(
             f"Branch '{sanitized_branch_name}' does not exist."
         )
 
