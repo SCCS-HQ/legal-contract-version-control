@@ -32,11 +32,11 @@ A lightweight distributed version control system designed to help legal professi
 
 CLI interface to:
 
-- Initialize new .docx
+- Initialize new .docx 
 
 - Commit changes to an existing docx
 
-- Compare the current version of the docx to an earlier commit as a plain-text unified diff
+- Compare the current version of the docx to an earlier commit as HTML split diff
 
 - Open previous commits
 
@@ -46,12 +46,13 @@ CLI interface to:
 
 - Get help/tips (i.e. lists all commands and their function)
 
+- Create and switch to different branches
 
 ## 🚧 Features Coming Soon (WIP)
 
 - Host repository online like Git
 
-- Different Branches
+- Word diff engine to track changes by clause
 
 ## 📦 Installation
 
