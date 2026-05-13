@@ -189,10 +189,11 @@ class EmptyCommitMessageError(SCCSException):
 
     pass
 
+
 # Module Exceptions
+
 
 class FileImportedAsModuleError(SCCSException):
     """Raised when a module cannot be found or imported."""
 
     pass
-
