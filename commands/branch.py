@@ -197,6 +197,7 @@ def run_specified_subcommand(subcommand, current_branch, branch_data):
     elif subcommand == "list":
         branch_list_subcommand(current_branch, branch_data)
 
+
 def main():
     if __name__ == "__main__":
 
@@ -205,15 +206,18 @@ def main():
         validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
 
         run_specified_subcommand(
-            get_entered_subcommand(), utils.get_current_branch(), utils.get_branch_data()
+            get_entered_subcommand(),
+            utils.get_current_branch(),
+            utils.get_branch_data(),
         )
     else:
         raise exceptions.FileImportedAsModuleError(
             "This file cannot be run as a module. Please run it as a script."
         )
 
+
 try:
     main()
-except Exception as e: 
+except Exception as e:
     print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
     raise exceptions.SCCSException

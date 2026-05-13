@@ -324,13 +324,14 @@ def main():
         write_branch_data()
 
         confirmation_message()
-    else: 
+    else:
         raise exceptions.FileImportedAsModuleError(
             "This file cannot be run as a module. Please run it as a script."
         )
 
+
 try:
     main()
-except Exception as e: 
+except Exception as e:
     print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
     raise exceptions.SCCSException

@@ -267,6 +267,7 @@ def print_commit_confirmation_message(sha_hash):
 
     print(f"Commit {sha_hash} created successfully.")
 
+
 def main():
     if __name__ == "__main__":
         utils.check_sccs_layout()
@@ -316,11 +317,12 @@ def main():
         atomically_update_history(combined_history_update_dicts)
 
         print_commit_confirmation_message(sha_hash)
-    
+
     else:
         raise exceptions.FileImportedAsModuleError(
             "This file cannot be run as a module. Please run it as a script."
         )
+
 
 try:
     main()

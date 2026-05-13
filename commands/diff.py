@@ -223,6 +223,7 @@ def write_redline_html_file(redline, filename="redline.html"):
     with open(filename, "w", encoding="utf-8", newline="\n") as f:
         f.write(utils.wrap_html(str(strip_number_attribute(redline))))
 
+
 def main():
     if __name__ == "__main__":
 
@@ -255,10 +256,10 @@ def main():
         raise exceptions.FileImportedAsModuleError(
             "This file cannot be run as a module. Please run it as a script."
         )
-    
+
+
 try:
     main()
-except Exception as e: 
+except Exception as e:
     print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
     raise exceptions.SCCSException
-
