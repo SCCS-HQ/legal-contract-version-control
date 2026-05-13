@@ -69,6 +69,7 @@ def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
     except Exception as e:
         raise exceptions.FileOpenError from e
 
+
 def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
     if not current_document_hash == latest_commit_binary_hash:
         raise exceptions.UncommittedChangesError(
@@ -96,7 +97,7 @@ def get_latest_commit(branch, cwd=None):
             history = json.load(f)
             return history["history"]["latest_commit"]
     except Exception as e:
-        raise exceptions.FileOpenError from e 
+        raise exceptions.FileOpenError from e
 
 
 def check_commit(commit, cwd=None):

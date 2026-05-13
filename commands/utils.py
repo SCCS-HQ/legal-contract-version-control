@@ -210,7 +210,7 @@ def get_current_branch(file_path=current_branch_path):
                     "<file_path>' to initialize SCCS for this file."
                 )
     except Exception as e:
-        raise exceptions.FileOpenError from e 
+        raise exceptions.FileOpenError from e
 
     return current_branch
 

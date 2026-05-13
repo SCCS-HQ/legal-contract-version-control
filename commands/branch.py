@@ -151,7 +151,6 @@ def branch_delete_subcommand(
     except Exception as e:
         rollback_changes_after_failure(current_branch_path, branch_data=branch_data)
         raise exceptions.BranchDeletionError from e
-        
 
     print(f"Branch '{sanitized_branch_name}' was deleted.")
 
