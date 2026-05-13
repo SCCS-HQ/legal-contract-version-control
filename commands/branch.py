@@ -3,9 +3,8 @@ import os
 import shutil
 import sys
 
-import utils
 import exceptions
-
+import utils
 
 
 def get_entered_subcommand():
@@ -24,14 +23,21 @@ def validate_subcommand(subcommand, branch_name):
     """Validate the subcommand entered by the user."""
 
     if not subcommand:
-        raise exceptions.InvalidSubcommandError("No subcommand provided. Please use 'create','delete', or 'list' along with required arguments.")
+        raise exceptions.InvalidSubcommandError(
+            "No subcommand provided. Please use 'create','delete', or 'list' along with required arguments."
+        )
 
     if subcommand not in ["create", "delete", "list"]:
-        raise exceptions.InvalidSubcommandError(f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list' along with required arguments.")
+        raise exceptions.InvalidSubcommandError(
+            f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list' along with required arguments."
+        )
 
     if subcommand in ["create", "delete"]:
         if not branch_name:
-            raise exceptions.InvalidArgumentError("No branch name provided. Please specify a branch name.")
+            raise exceptions.InvalidArgumentError(
+                "No branch name provided. Please specify a branch name."
+            )
+
 
 def branch_create_subcommand(
     current_branch, branch_data, cwd=None, current_branch_path=None
@@ -47,14 +53,19 @@ def branch_create_subcommand(
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     if not sanitized_branch_name:
-        raise exceptions.InvalidArgumentError("Invalid branch name. Please provide a valid branch name.")
-
+        raise exceptions.InvalidArgumentError(
+            "Invalid branch name. Please provide a valid branch name."
+        )
 
     if sanitized_branch_name in branch_data["branches"]:
-        raise exceptions.InvalidArgumentError(f"Branch '{sanitized_branch_name}' already exists.")
+        raise exceptions.InvalidArgumentError(
+            f"Branch '{sanitized_branch_name}' already exists."
+        )
 
     if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
-        raise exceptions.InvalidArgumentError(f"Branch '{sanitized_branch_name}' already exists.")
+        raise exceptions.InvalidArgumentError(
+            f"Branch '{sanitized_branch_name}' already exists."
+        )
 
     try:
         shutil.copytree(
@@ -76,7 +87,9 @@ def branch_create_subcommand(
     # Clean up the created directory before raising
     except Exception as e:
         delete_branch_after_error(sanitized_branch_name, cwd=cwd)
-        raise exceptions.BranchCreationError(f"Error creating branch '{sanitized_branch_name}': {e}")
+        raise exceptions.BranchCreationError(
+            f"Error creating branch '{sanitized_branch_name}': {e}"
+        )
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
@@ -90,7 +103,7 @@ def delete_branch_after_error(branch_name, cwd=None):
 
     branch_path = os.path.join(cwd, ".sccs", "branches", branch_name)
     if os.path.isdir(branch_path):
-        shutil.rmtree(branch_path)   
+        shutil.rmtree(branch_path)
 
 
 def branch_delete_subcommand(
@@ -118,7 +131,9 @@ def branch_delete_subcommand(
         )
 
     if not sanitized_branch_name in branch_data["branches"]:
-        raise exceptions.BranchMissingFromMetadataError(f"Branch '{sanitized_branch_name}' does not exist in branch data.")
+        raise exceptions.BranchMissingFromMetadataError(
+            f"Branch '{sanitized_branch_name}' does not exist in branch data."
+        )
 
     try:
         with open(
@@ -161,6 +176,7 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
         raise exceptions.UpdatingMetadataError(
             f"Error updating branch data after failed deletion: {e}. The branch '{sanitized_branch_name}' may be in an inconsistent state."
         )
+
 
 def branch_list_subcommand(current_branch, branch_data):
     """List all branches."""

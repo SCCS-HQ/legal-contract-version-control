@@ -5,6 +5,7 @@ from pathlib import Path
 
 import utils
 
+
 def get_log_data(cwd=None, current_branch=None):
     """Retrieve the commit log data from the history JSON file."""
 
@@ -19,8 +20,9 @@ def get_log_data(cwd=None, current_branch=None):
     )
 
     if not Path(log_path).is_file():
-        raise FileNotFoundError("History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
-
+        raise FileNotFoundError(
+            "History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+        )
 
     with open(log_path, "r", encoding="utf-8", newline="\n") as log_file:
         log_data = json.load(log_file)

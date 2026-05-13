@@ -6,8 +6,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import utils
 import exceptions
+import utils
 
 
 def get_entered_document_path():
@@ -46,7 +46,9 @@ def check_for_prev_init():
     """Exit if the document has already been initialized with SCCS."""
 
     if Path(os.path.join(get_document_repo_path(), ".sccs")).is_dir():
-        raise exceptions.AlreadyInitializedError("This file has already been initialized with SCCS.")
+        raise exceptions.AlreadyInitializedError(
+            "This file has already been initialized with SCCS."
+        )
 
 
 def check_file_requirements():
@@ -57,9 +59,12 @@ def check_file_requirements():
         raise exceptions.InvalidArgumentError("No file path provided.")
 
     if Path(entered_path).suffix.lower() != ".docx":
-        raise exceptions.InvalidFileTypeError("File is not a .docx file. Please provide a valid .docx file.")
+        raise exceptions.InvalidFileTypeError(
+            "File is not a .docx file. Please provide a valid .docx file."
+        )
     if not Path(entered_path).is_file():
         raise exceptions.InvalidFilePathError("File does not exist.")
+
 
 def create_commit_sha_hash(timestamp, user_name, user_email):
     """Create a SHA-256 hash for the initial commit."""
@@ -75,7 +80,6 @@ def create_sccs_directory_layout():
     repo_path = get_document_repo_path()
     if not repo_path:
         raise exceptions.InvalidArgumentError("No file path provided.")
-    
 
     os.makedirs(repo_path, exist_ok=True)
     os.makedirs(os.path.join(repo_path, ".sccs"), exist_ok=True)
@@ -120,8 +124,6 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
     except Exception as e:
         raise exceptions.FileCopyError(f"Error copying document to objects: {e}")
 
-
-
     try:
         with open(
             os.path.join(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
@@ -132,7 +134,6 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
             f.write(styles + html)
     except Exception as e:
         raise exceptions.FileWriteError(f"Error writing HTML file: {e}")
-
 
     try:
         with open(
@@ -146,8 +147,6 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
             f.write(utils.wrap_html(html))
     except Exception as e:
         raise exceptions.FileWriteError(f"Error writing view HTML file: {e}")
-
-
 
 
 def get_current_iso_time():
@@ -193,8 +192,6 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
         raise exceptions.FileOpenError(f"Error opening history data file: {e}")
 
 
-
-
 def write_commit_message_data(sha_hash):
     commit_message_data = {
         f"{sha_hash}": "initial commit (This is a default commit message for initial version)"
@@ -215,6 +212,7 @@ def write_commit_message_data(sha_hash):
     except Exception as e:
         raise exceptions.FileOpenError(f"Error opening commit message data file: {e}")
 
+
 def write_config_data(config_user_name, config_user_email):
     """Write the user config JSON file."""
 
@@ -229,6 +227,7 @@ def write_config_data(config_user_name, config_user_email):
             json.dump(config_data, f, indent=4)
     except Exception as e:
         raise exceptions.UpdatingMetadataError(f"Error updating config data file: {e}")
+
 
 def write_hashed_file_commit_data(sha_hash, hashed_file):
     """Write the initial commit file binary hash JSON file."""
@@ -250,8 +249,9 @@ def write_hashed_file_commit_data(sha_hash, hashed_file):
         ) as f:
             json.dump(commit_file_hash_data, f, indent=4)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError(f"Error updating commit file hash data file: {e}")
-
+        raise exceptions.UpdatingMetadataError(
+            f"Error updating commit file hash data file: {e}"
+        )
 
 
 def write_branch_data():
@@ -272,9 +272,9 @@ def write_branch_data():
         ) as f:
             json.dump(branches_data, f, indent=4)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError(f"Error updating branches data file: {e}")
-
-
+        raise exceptions.UpdatingMetadataError(
+            f"Error updating branches data file: {e}"
+        )
 
 
 def confirmation_message():

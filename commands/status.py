@@ -4,8 +4,8 @@ import os
 import sys
 from pathlib import Path
 
-import utils
 import exceptions
+import utils
 
 
 def get_latest_commit_hash_file(current_branch, cwd=None):
@@ -20,7 +20,9 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
         )
-        raise FileNotFoundError("History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise FileNotFoundError(
+            "History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+        )
 
     try:
         with open(history_path, "r", encoding="utf-8", newline="\n") as history_file:
@@ -30,9 +32,10 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
     except Exception as e:
         raise exceptions.FileOpenError(f"Error retrieving JSON from history file: {e}")
 
-
     if not latest_commit_hash:
-        raise exceptions.InvalidMetadataError("History file is missing the latest commit information. Please reinitialize SCCS for this file.")
+        raise exceptions.InvalidMetadataError(
+            "History file is missing the latest commit information. Please reinitialize SCCS for this file."
+        )
 
     return latest_commit_hash
 
@@ -53,7 +56,9 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
         "commit_file_hash.json",
     )
     if not Path(latest_commit_file_hash_path).is_file():
-        raise FileNotFoundError("Latest commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise FileNotFoundError(
+            "Latest commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+        )
 
     try:
         with open(
@@ -63,12 +68,12 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
             latest_commit_file_hash = commit_file_hash_data.get(latest_commit_hash)
 
         if not latest_commit_file_hash:
-            raise exceptions.InvalidMetadataError("Latest commit file hash is missing from JSON. Please reinitialize SCCS for this file.")
-
+            raise exceptions.InvalidMetadataError(
+                "Latest commit file hash is missing from JSON. Please reinitialize SCCS for this file."
+            )
 
     except Exception as e:
         raise exceptions.FileOpenError(f"Error reading latest commit file hash: {e}")
-        
 
     return latest_commit_file_hash
 
@@ -82,7 +87,9 @@ def print_changes_message_and_exit(old_hash, new_hash):
         print("No changes detected since the latest commit. Nothing to commit.")
         sys.exit(0)
     else:
-        raise exceptions.UncommittedChangesError("Changes detected since the latest commit. You can proceed with committing these changes.")
+        raise exceptions.UncommittedChangesError(
+            "Changes detected since the latest commit. You can proceed with committing these changes."
+        )
 
 
 if __name__ == "__main__":

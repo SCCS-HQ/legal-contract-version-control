@@ -3,8 +3,8 @@ import shutil
 import sys
 from pathlib import Path
 
-import utils
 import exceptions
+import utils
 
 
 def get_commit_path_input():
@@ -64,6 +64,7 @@ def copy_file_commit(commit_path, docx_path=None):
         shutil.copy2(commit_path, docx_path)
     except Exception as e:
         raise exceptions.FileCopyError(f"Error copying file: {e}")
+
 
 def print_rewrite_confirmation_message(commit_path, docx_path=None):
     if docx_path is None:

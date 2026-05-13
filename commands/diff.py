@@ -3,8 +3,8 @@ import difflib
 import sys
 from pathlib import Path
 
-import utils
 import exceptions
+import utils
 from bs4 import BeautifulSoup
 
 
@@ -21,14 +21,19 @@ def validate_commit(commit_to_diff, docx_current_version):
         raise exceptions.InvalidArgumentError("No commit file path provided.")
 
     if not Path(commit_to_diff).is_file():
-            raise FileNotFoundError("Commit file not found. Please provide a valid commit file path.")
-    
+        raise FileNotFoundError(
+            "Commit file not found. Please provide a valid commit file path."
+        )
+
     if Path(commit_to_diff).suffix.lower() != ".html":
-        raise exceptions.InvalidArgumentError("Commit file is not a .html file. Please provide a valid .html commit file")
+        raise exceptions.InvalidArgumentError(
+            "Commit file is not a .html file. Please provide a valid .html commit file"
+        )
 
     if not Path(docx_current_version).is_file():
-        raise FileNotFoundError("Docx file not found. Please provide a valid docx file path.")
-
+        raise FileNotFoundError(
+            "Docx file not found. Please provide a valid docx file path."
+        )
 
 
 def get_commit_html(commit_path):
