@@ -24,13 +24,13 @@ def validate_subcommand(subcommand, branch_name):
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
-            "No subcommand provided. Please use 'create','delete', or 'list' along with"
+            "No subcommand provided. Please use 'create', 'delete', or 'list' along with"
             " required arguments."
         )
 
     if subcommand not in ["create", "delete", "list"]:
         raise exceptions.InvalidSubcommandError(
-            f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list'"
+            f"Invalid subcommand: {subcommand}. Please use 'create', 'delete', or 'list'"
             f" along with required arguments."
         )
 
