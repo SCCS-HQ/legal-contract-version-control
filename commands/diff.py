@@ -8,13 +8,13 @@ import utils
 from bs4 import BeautifulSoup
 
 
-def get_entered_commit_to_diff():
+def get_entered_commit_to_diff() -> str | None:
     """Retrieve the commit file path entered by the user."""
 
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def validate_commit(commit_to_diff, docx_current_version):
+def validate_commit(commit_to_diff: str, docx_current_version: str) -> None:
     """Validate the commit file and current docx file paths."""
 
     if not commit_to_diff:
@@ -36,7 +36,7 @@ def validate_commit(commit_to_diff, docx_current_version):
         )
 
 
-def get_commit_html(commit_path):
+def get_commit_html(commit_path: str) -> str:
     """Read and return the HTML content of a commit file."""
 
     try:
@@ -47,7 +47,7 @@ def get_commit_html(commit_path):
     return commit_html
 
 
-def number_tags(html):
+def number_tags(html: BeautifulSoup) -> BeautifulSoup:
     """Add sequential data-number attributes to all tags in the HTML."""
 
     soup = html
@@ -58,7 +58,7 @@ def number_tags(html):
     return soup
 
 
-def strip_number_attribute(html):
+def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
     """Remove data-number attributes from all tags in the HTML."""
 
     soup = html
@@ -68,14 +68,14 @@ def strip_number_attribute(html):
     return soup
 
 
-def tags_to_list(html):
+def tags_to_list(html: BeautifulSoup) -> list[str]:
     """Convert all tags in the HTML to a list of strings."""
 
     soup = html
     return [str(tag) for tag in soup.find_all()]
 
 
-def get_data_number(tag_list):
+def get_data_number(tag_list: list[str]) -> set[str]:
     """Retrieve the set of data-number values from a list of tag strings."""
 
     data_number = set()
@@ -89,7 +89,7 @@ def get_data_number(tag_list):
     return data_number
 
 
-def delete_tag(html, old_changed_strings):
+def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> BeautifulSoup:
     """Mark tags matching old_changed_strings as deleted in the HTML."""
 
     old_data_numbers = get_data_number(old_changed_strings)
@@ -107,7 +107,9 @@ def delete_tag(html, old_changed_strings):
     return soup
 
 
-def replace_tag(html, old_changed_strings, new_changed_strings):
+def replace_tag(
+    html: BeautifulSoup, old_changed_strings: list[str], new_changed_strings: list[str]
+) -> BeautifulSoup:
     """Replace tags matching old_changed_strings with new_changed_strings in the
     entered HTML.
     """
@@ -139,7 +141,9 @@ def replace_tag(html, old_changed_strings, new_changed_strings):
     return soup
 
 
-def insert_tag(html, new_changed_strings, i1):
+def insert_tag(
+    html: BeautifulSoup, new_changed_strings: list[str], i1: int
+) -> BeautifulSoup:
     """Insert new_changed_strings before the tag at index i1 in the HTML."""
 
     soup = html
@@ -162,7 +166,7 @@ def insert_tag(html, new_changed_strings, i1):
     return soup
 
 
-def remove_inline_semantics(html):
+def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
     """Remove inline semantic tags (b, i, u, strong, em) and style tags from the entered
     HTML."""
 
@@ -175,7 +179,7 @@ def remove_inline_semantics(html):
     return soup
 
 
-def convert_html_to_soup(html):
+def convert_html_to_soup(html: str) -> BeautifulSoup:
     """Convert an HTML string to a BeautifulSoup object."""
 
     return BeautifulSoup(html, "html.parser")
@@ -187,7 +191,9 @@ def format_bs4_html_list(bs4_obj):
     return tags_to_list(number_tags(remove_inline_semantics(copy.copy(bs4_obj))))
 
 
-def get_opcodes(commit_soup, current_soup):
+def get_opcodes(
+    commit_soup: BeautifulSoup, current_soup: BeautifulSoup
+) -> list[tuple[str, int, int, int, int]]:
     """Get the sequence of opcodes comparing commit HTML to current HTML."""
 
     commit_tags = tags_to_list(remove_inline_semantics(copy.copy(commit_soup)))
@@ -195,13 +201,18 @@ def get_opcodes(commit_soup, current_soup):
     return difflib.SequenceMatcher(None, commit_tags, current_tags).get_opcodes()
 
 
-def get_redline_html(commit_soup):
+def get_redline_html(commit_soup: BeautifulSoup) -> BeautifulSoup:
     """Return a numbered, inline-semantics-stripped copy of the commit HTML."""
 
     return number_tags(remove_inline_semantics(copy.copy(commit_soup)))
 
 
-def format_redline_html(redline, opcodes, commit_list, docx_current_version_list):
+def format_redline_html(
+    redline: BeautifulSoup,
+    opcodes: list[tuple[str, int, int, int, int]],
+    commit_list: list[str],
+    docx_current_version_list: list[str],
+) -> BeautifulSoup:
     """Apply opcodes to the redline HTML to produce a tracked-changes document."""
 
     for opcode in reversed(opcodes):
@@ -217,14 +228,16 @@ def format_redline_html(redline, opcodes, commit_list, docx_current_version_list
     return redline
 
 
-def write_redline_html_file(redline, filename="redline.html"):
+def write_redline_html_file(
+    redline: BeautifulSoup, filename: str = "redline.html"
+) -> None:
     """Write the redline HTML to a file."""
 
     with open(filename, "w", encoding="utf-8", newline="\n") as f:
         f.write(utils.wrap_html(str(strip_number_attribute(redline))))
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)

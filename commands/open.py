@@ -7,12 +7,12 @@ import exceptions
 import utils
 
 
-def get_commit_path_input():
+def get_commit_path_input() -> str:
     commit_path = input("Enter the path to the commit file (.docx): ").strip()
     return commit_path
 
 
-def check_commit_path_input(commit_path):
+def check_commit_path_input(commit_path: str) -> None:
     if commit_path == "":
         raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
@@ -23,7 +23,9 @@ def check_commit_path_input(commit_path):
         raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
 
 
-def confirm_before_proceeding(commit_path, docx_path=None, cwd=None):
+def confirm_before_proceeding(
+    commit_path: str, docx_path: str = None, cwd: str = None
+) -> None:
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if cwd is None:
@@ -42,7 +44,7 @@ def confirm_before_proceeding(commit_path, docx_path=None, cwd=None):
         sys.exit(0)
 
 
-def check_changes(commit_path, docx_path=None):
+def check_changes(commit_path: str, docx_path: str = None) -> None:
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if (
@@ -56,7 +58,7 @@ def check_changes(commit_path, docx_path=None):
         sys.exit(0)
 
 
-def copy_file_commit(commit_path, docx_path=None):
+def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
     if docx_path is None:
         docx_path = utils.current_file_docx_path
 
@@ -66,7 +68,7 @@ def copy_file_commit(commit_path, docx_path=None):
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(commit_path, docx_path=None):
+def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) -> None:
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(
@@ -75,7 +77,7 @@ def print_rewrite_confirmation_message(commit_path, docx_path=None):
     )
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     commit_path = get_commit_path_input()

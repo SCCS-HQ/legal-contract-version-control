@@ -30,13 +30,14 @@ current_branch_path = os.path.join(
 )
 
 
-def clean_directory_name(name):
+def clean_directory_name(name: str) -> str:
     return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
 
 
 def check_sccs_layout(
-    sccs_dir=sccs_versions_directory_path, docx_path=current_file_docx_path
-):
+    sccs_dir: str = sccs_versions_directory_path,
+    docx_path: str = current_file_docx_path,
+) -> None:
 
     if not Path(sccs_dir).is_dir():
         raise exceptions.SCCSNotInitializedError(
@@ -179,14 +180,14 @@ def check_sccs_layout(
         )
 
 
-def wrap_html(html, styles=default_html_styles):
+def wrap_html(html: str, styles: str = default_html_styles) -> str:
     return (
         f"<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head>"
         f"<body><div class='center'><div id='target'>{html}</div></div></body></html>"
     )
 
 
-def hash_current_docx_binary(docx_path=current_file_docx_path):
+def hash_current_docx_binary(docx_path: str = current_file_docx_path) -> str:
     try:
         with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
@@ -198,7 +199,7 @@ def hash_current_docx_binary(docx_path=current_file_docx_path):
     return hashed_file
 
 
-def get_current_branch(file_path=current_branch_path):
+def get_current_branch(file_path: str = current_branch_path) -> str:
     try:
         with open(
             file_path, "r", encoding="utf-8", newline="\n"
@@ -215,7 +216,9 @@ def get_current_branch(file_path=current_branch_path):
     return current_branch
 
 
-def get_branch_data(file_path=current_branch_path, key=None):
+def get_branch_data(
+    file_path: str = current_branch_path, key: str = None
+) -> dict | str | None:
     try:
         with open(file_path, "r", encoding="utf-8", newline="\n") as f:
             data = json.load(f)
@@ -227,7 +230,7 @@ def get_branch_data(file_path=current_branch_path, key=None):
         raise exceptions.FileOpenError from e
 
 
-def convert_docx_to_html(docx_path=None):
+def convert_docx_to_html(docx_path: str = None) -> str:
     if docx_path is None:
         docx_path = current_file_docx_path
     try:

@@ -10,13 +10,13 @@ import exceptions
 import utils
 
 
-def get_entered_document_path():
+def get_entered_document_path() -> str | None:
     """Retrieve the document path entered by the user."""
 
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def get_document_repo_path():
+def get_document_repo_path() -> Path | None:
     """Return the repo directory path derived from the entered document path."""
 
     path = get_entered_document_path()
@@ -25,14 +25,14 @@ def get_document_repo_path():
     return Path(path).with_suffix("")
 
 
-def check_if_arg_entered(arg):
+def check_if_arg_entered(arg: str) -> None:
     """Check that a file path argument was provided."""
 
     if not arg:
         raise exceptions.InvalidArgumentError("No file path provided.")
 
 
-def ask_config_input(data):
+def ask_config_input(data: str) -> str:
     """Prompt the user for a config value and return it."""
 
     data_value = input(f"Enter your {data}: ").strip()
@@ -42,7 +42,7 @@ def ask_config_input(data):
         return data_value
 
 
-def check_for_prev_init():
+def check_for_prev_init() -> None:
     """Exit if the document has already been initialized with SCCS."""
 
     if Path(os.path.join(get_document_repo_path(), ".sccs")).is_dir():
@@ -51,7 +51,7 @@ def check_for_prev_init():
         )
 
 
-def check_file_requirements():
+def check_file_requirements() -> None:
     """Validate that the entered path points to an existing .docx file."""
 
     entered_path = get_entered_document_path()
@@ -66,7 +66,7 @@ def check_file_requirements():
         raise FileNotFoundError("File does not exist.")
 
 
-def create_commit_sha_hash(timestamp, user_name, user_email):
+def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> str:
     """Create a SHA-256 hash for the initial commit."""
 
     return hashlib.sha256(
@@ -74,7 +74,7 @@ def create_commit_sha_hash(timestamp, user_name, user_email):
     ).hexdigest()
 
 
-def create_sccs_directory_layout():
+def create_sccs_directory_layout() -> None:
     """Create the full SCCS directory structure inside the repo path."""
 
     repo_path = get_document_repo_path()
@@ -101,13 +101,15 @@ def create_sccs_directory_layout():
     os.makedirs(os.path.join(repo_path, ".sccs", "current_branch"), exist_ok=True)
 
 
-def move_document_to_repo_directory():
+def move_document_to_repo_directory() -> None:
     """Move the source document into the repo directory."""
 
     shutil.move(get_entered_document_path(), get_document_repo_path())
 
 
-def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
+def copy_document_to_objects_as_docx_and_html(
+    sha_hash: str, html: str, styles: str | None = None
+) -> None:
     """Copy the document into objects as both .docx and .html."""
 
     if styles is None:
@@ -149,13 +151,15 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
         raise exceptions.FileWriteError from e
 
 
-def get_current_iso_time():
+def get_current_iso_time() -> str:
     """Return the current time as an ISO 8601 string."""
 
     return datetime.now().isoformat()
 
 
-def write_history_data(sha_hash, config_user_name, config_user_email):
+def write_history_data(
+    sha_hash: str, config_user_name: str, config_user_email: str
+) -> None:
     """Write the initial commit history JSON file."""
 
     history_data = {
@@ -193,7 +197,7 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
         raise exceptions.FileOpenError from e
 
 
-def write_commit_message_data(sha_hash):
+def write_commit_message_data(sha_hash: str) -> None:
     commit_message_data = {
         f"{sha_hash}": "initial commit (This is a default commit message for initial "
         "version)"
@@ -215,7 +219,7 @@ def write_commit_message_data(sha_hash):
         raise exceptions.FileOpenError from e
 
 
-def write_config_data(config_user_name, config_user_email):
+def write_config_data(config_user_name: str, config_user_email: str) -> None:
     """Write the user config JSON file."""
 
     config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
@@ -231,7 +235,7 @@ def write_config_data(config_user_name, config_user_email):
         raise exceptions.UpdatingMetadataError from e
 
 
-def write_hashed_file_commit_data(sha_hash, hashed_file):
+def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
     """Write the initial commit file binary hash JSON file."""
 
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
@@ -254,7 +258,7 @@ def write_hashed_file_commit_data(sha_hash, hashed_file):
         raise exceptions.UpdatingMetadataError from e
 
 
-def write_branch_data():
+def write_branch_data() -> None:
     """Write the initial branch tracking JSON file."""
 
     branches_data = {"current_branch": "main", "branches": ["main"]}
@@ -275,13 +279,13 @@ def write_branch_data():
         raise exceptions.UpdatingMetadataError from e
 
 
-def confirmation_message():
+def confirmation_message() -> None:
     """Print a confirmation message for successful SCCS initialization."""
 
     print("SCCS initialization complete.")
 
 
-def main():
+def main() -> None:
     check_if_arg_entered(get_entered_document_path())
 
     check_for_prev_init()
