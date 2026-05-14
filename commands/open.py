@@ -50,7 +50,7 @@ def confirm_before_proceeding(
 
 
 def check_changes(commit_path: str, docx_path: str = None) -> None:
-    """Check if there are any changes between the commit file and the current 
+    """Check if there are any changes between the commit file and the current
     document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
