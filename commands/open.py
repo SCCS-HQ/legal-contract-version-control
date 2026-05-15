@@ -12,7 +12,7 @@ def get_commit_path_input() -> Path:
     """Prompt the user for the commit file path and return it."""
     commit_path = input("Enter the path to the commit file (.docx): ").strip()
 
-    return (commit_path).resolve()
+    return Path(commit_path).resolve()
 
 
 def check_commit_path_input(commit_path: Path) -> None:
