@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Print a list of all available commands."""
 
 import sys

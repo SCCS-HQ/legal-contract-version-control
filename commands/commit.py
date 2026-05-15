@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Commit latest changes to the current branch."""
 
 import hashlib

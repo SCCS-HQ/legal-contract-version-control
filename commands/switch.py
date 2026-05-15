@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Switch between document branches."""
 
 import json

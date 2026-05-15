@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Open a commit file and update the current document."""
 
 import shutil

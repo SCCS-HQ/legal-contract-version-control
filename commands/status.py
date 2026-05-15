@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Check the status of the current document for uncommitted changes."""
 
 import json

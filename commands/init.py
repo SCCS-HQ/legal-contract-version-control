@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Initialize a document with SCCS."""
 
 import hashlib
