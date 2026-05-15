@@ -47,7 +47,7 @@ def ask_config_input(data: str) -> str:
 def check_for_prev_init() -> None:
     """Exit if the document has already been initialized with SCCS."""
 
-    if Path(get_document_repo_path(), ".sccs").is_dir():
+    if (get_document_repo_path() / ".sccs").is_dir():
         raise exceptions.AlreadyInitializedError(
             "This file has already been initialized with SCCS."
         )
