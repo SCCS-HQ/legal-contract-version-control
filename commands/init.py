@@ -2,20 +2,20 @@
 
 import hashlib
 import json
-import os
 import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import exceptions
 import utils
 
 
-def get_entered_document_path() -> str | None:
+def get_entered_document_path() -> Path | None:
     """Retrieve the document path entered by the user."""
 
-    return sys.argv[2] if len(sys.argv) > 2 else None
+    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def get_document_repo_path() -> Path | None:
@@ -27,7 +27,7 @@ def get_document_repo_path() -> Path | None:
     return Path(path).with_suffix("")
 
 
-def check_if_arg_entered(arg: str) -> None:
+def check_if_arg_entered(arg: Path) -> None:
     """Check that a file path argument was provided."""
 
     if not arg:
@@ -47,7 +47,7 @@ def ask_config_input(data: str) -> str:
 def check_for_prev_init() -> None:
     """Exit if the document has already been initialized with SCCS."""
 
-    if Path(os.path.join(get_document_repo_path(), ".sccs")).is_dir():
+    if (get_document_repo_path() / ".sccs").is_dir():
         raise exceptions.AlreadyInitializedError(
             "This file has already been initialized with SCCS."
         )
@@ -83,24 +83,23 @@ def create_sccs_directory_layout() -> None:
     if not repo_path:
         raise exceptions.InvalidArgumentError("No file path provided.")
 
-    os.makedirs(repo_path, exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "docx"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "html"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "view_html"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "branches"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "branches", "main"), exist_ok=True)
-    os.makedirs(
-        os.path.join(repo_path, ".sccs", "branches", "main", "history"), exist_ok=True
+    repo_path.mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "objects").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "objects" / "docx").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "objects" / "html").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "objects" / "view_html").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "branches").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "branches" / "main").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "branches" / "main" / "history").mkdir(
+        parents=True, exist_ok=True
     )
-    os.makedirs(
-        os.path.join(repo_path, ".sccs", "branches", "main", "commit_file_hash"),
-        exist_ok=True,
+    (repo_path / ".sccs" / "commit_messages").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "config").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "current_branch").mkdir(parents=True, exist_ok=True)
+    (repo_path / ".sccs" / "branches" / "main" / "commit_file_hash").mkdir(
+        parents=True, exist_ok=True
     )
-    os.makedirs(os.path.join(repo_path, ".sccs", "commit_messages"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "config"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "current_branch"), exist_ok=True)
 
 
 def move_document_to_repo_directory() -> None:
@@ -110,7 +109,7 @@ def move_document_to_repo_directory() -> None:
 
 
 def copy_document_to_objects_as_docx_and_html(
-    sha_hash: str, html: str, styles: str | None = None
+    sha_hash: str, html: str, styles: str = None
 ) -> None:
     """Copy the document into objects as both .docx and .html."""
 
@@ -122,15 +121,15 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         shutil.copy2(
-            os.path.join(repo_path, doc_name),
-            os.path.join(repo_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
+            (repo_path / doc_name),
+            (repo_path / ".sccs" / "objects" / "docx" / f"{sha_hash}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
     try:
         with open(
-            os.path.join(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
+            (repo_path / ".sccs" / "objects" / "html" / f"{sha_hash}.html"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -141,9 +140,7 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         with open(
-            os.path.join(
-                repo_path, ".sccs", "objects", "view_html", f"{sha_hash}.html"
-            ),
+            (repo_path / ".sccs" / "objects" / "view_html" / f"{sha_hash}.html"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -182,13 +179,13 @@ def write_history_data(
     }
     try:
         with open(
-            os.path.join(
-                get_document_repo_path(),
-                ".sccs",
-                "branches",
-                "main",
-                "history",
-                "commit_history.json",
+            (
+                get_document_repo_path()
+                / ".sccs"
+                / "branches"
+                / "main"
+                / "history"
+                / "commit_history.json"
             ),
             "w",
             encoding="utf-8",
@@ -208,11 +205,11 @@ def write_commit_message_data(sha_hash: str) -> None:
     }
     try:
         with open(
-            os.path.join(
-                get_document_repo_path(),
-                ".sccs",
-                "commit_messages",
-                "commit_messages.json",
+            (
+                get_document_repo_path()
+                / ".sccs"
+                / "commit_messages"
+                / "commit_messages.json"
             ),
             "w",
             encoding="utf-8",
@@ -229,7 +226,7 @@ def write_config_data(config_user_name: str, config_user_email: str) -> None:
     config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
     try:
         with open(
-            os.path.join(get_document_repo_path(), ".sccs", "config", "config.json"),
+            (get_document_repo_path() / ".sccs" / "config" / "config.json"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -245,13 +242,13 @@ def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
         with open(
-            os.path.join(
-                get_document_repo_path(),
-                ".sccs",
-                "branches",
-                "main",
-                "commit_file_hash",
-                "commit_file_hash.json",
+            (
+                get_document_repo_path()
+                / ".sccs"
+                / "branches"
+                / "main"
+                / "commit_file_hash"
+                / "commit_file_hash.json"
             ),
             "w",
             encoding="utf-8",
@@ -268,11 +265,11 @@ def write_branch_data() -> None:
     branches_data = {"current_branch": "main", "branches": ["main"]}
     try:
         with open(
-            os.path.join(
-                get_document_repo_path(),
-                ".sccs",
-                "current_branch",
-                "current_branch.json",
+            (
+                get_document_repo_path()
+                / ".sccs"
+                / "current_branch"
+                / "current_branch.json"
             ),
             "w",
             encoding="utf-8",
@@ -323,9 +320,7 @@ def main() -> None:
     write_config_data(config_user_name, config_user_email)
 
     current_branch_binary_hash = utils.hash_current_docx_binary(
-        docx_path=os.path.join(
-            get_document_repo_path(), Path(get_entered_document_path()).name
-        )
+        docx_path=get_document_repo_path() / Path(get_entered_document_path()).name
     )
 
     write_hashed_file_commit_data(sha_hash, current_branch_binary_hash)

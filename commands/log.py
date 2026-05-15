@@ -1,7 +1,6 @@
 """Print a list of past commits for the current branch."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -9,7 +8,7 @@ import exceptions
 import utils
 
 
-def get_log_data(cwd: str = None, current_branch: str = None) -> dict:
+def get_log_data(cwd: Path = None, current_branch: str = None) -> dict:
     """Retrieve the commit log data from the history JSON file."""
 
     if cwd is None:
@@ -18,8 +17,8 @@ def get_log_data(cwd: str = None, current_branch: str = None) -> dict:
         current_branch = utils.get_current_branch()
 
     # Get JSON log data
-    log_path = os.path.join(
-        cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
+    log_path = (
+        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
     )
 
     if not Path(log_path).is_file():

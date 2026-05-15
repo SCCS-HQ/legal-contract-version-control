@@ -1,7 +1,6 @@
 """Check the status of the current document for uncommitted changes."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -9,13 +8,13 @@ import exceptions
 import utils
 
 
-def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> str:
+def get_latest_commit_hash_file(current_branch: str = None, cwd: Path = None) -> str:
     """Retrieve the hash of the latest commit from SCCS metadata."""
     if cwd is None:
         cwd = utils.working_directory_path
     # get the latest commit filename hash from commit history
-    history_path = os.path.join(
-        cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
+    history_path = (
+        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
     )
     if not Path(history_path).is_file():
         print(
@@ -45,7 +44,7 @@ def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> 
 
 
 def get_latest_commit_file_binary_hash(
-    current_branch: str = None, cwd: str = None
+    current_branch: str = None, cwd: Path = None
 ) -> str:
     """Retrieve the hash of the latest committed file from SCCS metadata."""
 
@@ -55,13 +54,13 @@ def get_latest_commit_file_binary_hash(
         current_branch = utils.get_current_branch()
     # get the hash of the latest committed file
     latest_commit_hash = get_latest_commit_hash_file(current_branch, cwd=cwd)
-    latest_commit_file_hash_path = os.path.join(
-        cwd,
-        ".sccs",
-        "branches",
-        current_branch,
-        "commit_file_hash",
-        "commit_file_hash.json",
+    latest_commit_file_hash_path = (
+        cwd
+        / ".sccs"
+        / "branches"
+        / current_branch
+        / "commit_file_hash"
+        / "commit_file_hash.json"
     )
     if not Path(latest_commit_file_hash_path).is_file():
         raise FileNotFoundError(

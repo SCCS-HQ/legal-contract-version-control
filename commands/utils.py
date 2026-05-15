@@ -2,20 +2,18 @@
 
 import hashlib
 import json
-import os
 import re
 from pathlib import Path
 
 import exceptions
 import mammoth
 
-working_directory_path = os.getcwd()
+working_directory_path = Path.cwd()
 
-current_file_docx_path = os.path.join(
-    working_directory_path, f"{os.path.basename(working_directory_path)}.docx"
-)
 
-sccs_versions_directory_path = os.path.join(working_directory_path, ".sccs")
+current_file_docx_path = working_directory_path / f"{working_directory_path.name}.docx"
+
+sccs_versions_directory_path = working_directory_path / ".sccs"
 
 default_html_styles = (
     "<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"
@@ -26,8 +24,8 @@ default_html_styles = (
     ".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>"
 )
 
-current_branch_path = os.path.join(
-    working_directory_path, ".sccs", "current_branch", "current_branch.json"
+current_branch_path = (
+    working_directory_path / ".sccs" / "current_branch" / "current_branch.json"
 )
 
 
@@ -37,26 +35,24 @@ def clean_directory_name(name: str) -> str:
 
 
 def check_sccs_layout(
-    sccs_dir: str = sccs_versions_directory_path,
-    docx_path: str = current_file_docx_path,
+    sccs_dir: Path = sccs_versions_directory_path,
+    docx_path: Path = current_file_docx_path,
 ) -> None:
     """Validate that required SCCS folders, files, and metadata exist."""
 
-    if not Path(sccs_dir).is_dir():
+    if not sccs_dir.is_dir():
         raise exceptions.SCCSNotInitializedError(
             "This file has not been initialized with SCCS.\nPlease run 'sccs init "
             "<file_path>' to initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "current_branch")).is_dir():
+    if not (sccs_dir / "current_branch").is_dir():
         raise exceptions.BranchNotFoundError(
             "Current branch directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(
-        os.path.join(sccs_dir, "current_branch", "current_branch.json")
-    ).is_file():
+    if not (sccs_dir / "current_branch" / "current_branch.json").is_file():
         raise exceptions.BranchNotFoundError(
             "Current branch file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
@@ -64,7 +60,7 @@ def check_sccs_layout(
 
     try:
         with open(
-            os.path.join(sccs_dir, "current_branch", "current_branch.json"),
+            (sccs_dir / "current_branch" / "current_branch.json"),
             "r",
             encoding="utf-8",
             newline="\n",
@@ -82,101 +78,93 @@ def check_sccs_layout(
             "<file_path>' to initialize SCCS for this file."
         ) from e
 
-    if not Path(os.path.join(sccs_dir, "branches", current_branch)).is_dir():
+    if not (sccs_dir / "branches" / current_branch).is_dir():
         raise exceptions.BranchNotFoundError(
             "Branch directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(
-        os.path.join(sccs_dir, "branches", current_branch, "commit_file_hash")
-    ).is_dir():
+    if not (sccs_dir / "branches" / current_branch / "commit_file_hash").is_dir():
         raise FileNotFoundError(
             "Commit file hash directory not found. Please run 'sccs init <file_path>' "
             "to initialize SCCS for this file."
         )
-    if not Path(
-        os.path.join(
-            sccs_dir,
-            "branches",
-            current_branch,
-            "commit_file_hash",
-            "commit_file_hash.json",
-        )
+    if not (
+        sccs_dir
+        / "branches"
+        / current_branch
+        / "commit_file_hash"
+        / "commit_file_hash.json"
     ).is_file():
         raise FileNotFoundError(
             "Commit file hash JSON not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "commit_messages")).is_dir():
+    if not (sccs_dir / "commit_messages").is_dir():
         raise FileNotFoundError(
             "Commit messages directory not found. Please run 'sccs init <file_path>' to"
             " initialize SCCS for this file."
         )
 
-    if not Path(
-        os.path.join(sccs_dir, "commit_messages", "commit_messages.json")
-    ).is_file():
+    if not (sccs_dir / "commit_messages" / "commit_messages.json").is_file():
         raise FileNotFoundError(
             "Commit messages JSON not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "objects")).is_dir():
+    if not (sccs_dir / "objects").is_dir():
 
         raise FileNotFoundError(
             "Objects directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "objects", "docx")).is_dir():
+    if not (sccs_dir / "objects" / "docx").is_dir():
         raise FileNotFoundError(
             "Docx objects directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "objects", "html")).is_dir():
+    if not (sccs_dir / "objects" / "html").is_dir():
         raise FileNotFoundError(
             "HTML objects directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "objects", "view_html")).is_dir():
+    if not (sccs_dir / "objects" / "view_html").is_dir():
         raise FileNotFoundError(
             "View HTML objects directory not found. Please run 'sccs init <file_path>' "
             "to initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "config")).is_dir():
+    if not (sccs_dir / "config").is_dir():
         raise FileNotFoundError(
             "Config directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "config", "config.json")).is_file():
+    if not (sccs_dir / "config" / "config.json").is_file():
         raise FileNotFoundError(
             "Config file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(os.path.join(sccs_dir, "branches", current_branch, "history")).is_dir():
+    if not (sccs_dir / "branches" / current_branch / "history").is_dir():
         raise FileNotFoundError(
             "History directory not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(
-        os.path.join(
-            sccs_dir, "branches", current_branch, "history", "commit_history.json"
-        )
+    if not (
+        sccs_dir / "branches" / current_branch / "history" / "commit_history.json"
     ).is_file():
         raise FileNotFoundError(
             "Commit history JSON not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
-    if not Path(docx_path).is_file():
+    if not docx_path.is_file():
         raise FileNotFoundError(
             "Docx file not found. Re-initialize SCCS for this file with 'sccs init "
             "<file_path>'"
@@ -191,7 +179,7 @@ def wrap_html(html: str, styles: str = default_html_styles) -> str:
     )
 
 
-def hash_current_docx_binary(docx_path: str = current_file_docx_path) -> str:
+def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
     """Compute and return the SHA-256 hash of the current DOCX file bytes."""
     try:
         with open(docx_path, "rb") as f:
@@ -204,7 +192,7 @@ def hash_current_docx_binary(docx_path: str = current_file_docx_path) -> str:
     return hashed_file
 
 
-def get_current_branch(file_path: str = current_branch_path) -> str:
+def get_current_branch(file_path: Path = current_branch_path) -> str:
     """Return the active branch name from the current branch metadata file."""
     try:
         with open(
@@ -223,7 +211,7 @@ def get_current_branch(file_path: str = current_branch_path) -> str:
 
 
 def get_branch_data(
-    file_path: str = current_branch_path, key: str = None
+    file_path: Path = current_branch_path, key: str = None
 ) -> dict | str | None:
     """Return full branch metadata or a specific value by key."""
     try:
@@ -237,7 +225,7 @@ def get_branch_data(
         raise exceptions.FileOpenError from e
 
 
-def convert_docx_to_html(docx_path: str = None) -> str:
+def convert_docx_to_html(docx_path: Path = None) -> str:
     """Convert a DOCX document to HTML and return the generated markup."""
     if docx_path is None:
         docx_path = current_file_docx_path

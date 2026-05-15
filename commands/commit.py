@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import shutil
 import sys
 from datetime import datetime
@@ -12,15 +11,15 @@ import exceptions
 import utils
 
 
-def get_key_from_config(key: str, cwd: str = None) -> str:
+def get_key_from_config(key: str, cwd: Path = None) -> str:
     """Retrieve the value for a given key from the SCCS configuration file."""
 
     if cwd is None:
         cwd = utils.working_directory_path
     # Get name and email entered on init
-    config_path = os.path.join(cwd, ".sccs", "config", "config.json")
+    config_path = cwd / ".sccs" / "config" / "config.json"
 
-    if not Path(config_path).is_file():
+    if not config_path.is_file():
         raise FileNotFoundError(
             "Configuration file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
@@ -49,15 +48,15 @@ def get_timestamp() -> str:
     return datetime.now().isoformat()
 
 
-def get_history_path(cwd: str = None, current_branch: str = None) -> str:
+def get_history_path(cwd: Path = None, current_branch: str = None) -> Path:
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch is None:
         current_branch = utils.get_current_branch()
-    return os.path.join(
-        cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
+    return (
+        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
     )
 
 
@@ -65,7 +64,7 @@ def get_commit_history() -> dict:
     """Retrieve the commit history from the commit history file."""
 
     history_path = get_history_path()
-    if not Path(history_path).is_file():
+    if not history_path.is_file():
         raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
@@ -98,7 +97,9 @@ def generate_commit_hash(
     ).hexdigest()
 
 
-def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) -> None:
+def copy_docx_to_objects(
+    sha_hash: str, docx_path: Path = None, cwd: Path = None
+) -> None:
     """Copy the current document to the objects directory."""
 
     if docx_path is None:
@@ -106,13 +107,13 @@ def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) 
     if cwd is None:
         cwd = utils.working_directory_path
     shutil.copy2(
-        os.path.join(cwd, Path(docx_path).name),
-        os.path.join(cwd, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
+        cwd / docx_path.name,
+        cwd / ".sccs" / "objects" / "docx" / f"{sha_hash}.docx",
     )
 
 
 def write_diff_html(
-    sha_hash: str, docx_html: str, cwd: str = None, styles: str = None
+    sha_hash: str, docx_html: str, cwd: Path = None, styles: str = None
 ) -> None:
     """Write the diff HTML file."""
 
@@ -121,7 +122,7 @@ def write_diff_html(
     if styles is None:
         styles = utils.default_html_styles
     with open(
-        os.path.join(cwd, ".sccs", "objects", "html", f"{sha_hash}.html"),
+        cwd / ".sccs" / "objects" / "html" / f"{sha_hash}.html",
         "w",
         encoding="utf-8",
         newline="\n",
@@ -129,13 +130,13 @@ def write_diff_html(
         f.write(styles + docx_html)
 
 
-def write_view_html(sha_hash: str, docx_html: str, cwd: str = None) -> None:
+def write_view_html(sha_hash: str, docx_html: str, cwd: Path = None) -> None:
     """Write the view HTML file."""
 
     if cwd is None:
         cwd = utils.working_directory_path
     with open(
-        os.path.join(cwd, ".sccs", "objects", "view_html", f"{sha_hash}.html"),
+        cwd / ".sccs" / "objects" / "view_html" / f"{sha_hash}.html",
         "w",
         encoding="utf-8",
         newline="\n",
@@ -155,7 +156,7 @@ def update_commit_log_history(
 
     # Check if history file exists
     commit_history_path = get_history_path()
-    if not os.path.isfile(commit_history_path):
+    if not commit_history_path.is_file():
         raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
@@ -180,18 +181,16 @@ def update_commit_log_history(
 
 
 def update_commit_messages(
-    sha_hash: str, commit_message: str, cwd: str = None
+    sha_hash: str, commit_message: str, cwd: Path = None
 ) -> dict[str, dict]:
     """Update commit messages."""
 
     # Check if commit messages file exists
     if cwd is None:
         cwd = utils.working_directory_path
-    commit_messages_path = os.path.join(
-        cwd, ".sccs", "commit_messages", "commit_messages.json"
-    )
+    commit_messages_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
 
-    if not Path(commit_messages_path).is_file():
+    if not commit_messages_path.is_file():
         raise FileNotFoundError(
             "Commit messages file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
@@ -211,7 +210,7 @@ def update_commit_messages(
 
 
 def update_commit_binary_hash_history(
-    sha_hash: str, hash_docx_binary: str, cwd: str = None, current_branch: str = None
+    sha_hash: str, hash_docx_binary: str, cwd: Path = None, current_branch: str = None
 ) -> dict[str, dict]:
     """Update commit binary hash history."""
 
@@ -221,15 +220,15 @@ def update_commit_binary_hash_history(
     if current_branch is None:
         current_branch = utils.get_current_branch()
 
-    commit_file_hash_path = os.path.join(
-        cwd,
-        ".sccs",
-        "branches",
-        current_branch,
-        "commit_file_hash",
-        "commit_file_hash.json",
+    commit_file_hash_path = (
+        cwd
+        / ".sccs"
+        / "branches"
+        / current_branch
+        / "commit_file_hash"
+        / "commit_file_hash.json"
     )
-    if not Path(commit_file_hash_path).is_file():
+    if not commit_file_hash_path.is_file():
         raise FileNotFoundError(
             "Commit file hash not found. Please run 'sccs init <file_path>' to "
             f"initialize SCCS for this file."
@@ -247,7 +246,7 @@ def update_commit_binary_hash_history(
     return {commit_file_hash_path: commit_file_hash}
 
 
-def combine_update_dicts(*dicts: dict[str, dict]) -> dict[str, dict]:
+def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """Combine multiple update dictionaries into a single dictionary."""
 
     update_dict = {}
@@ -256,13 +255,13 @@ def combine_update_dicts(*dicts: dict[str, dict]) -> dict[str, dict]:
     return update_dict
 
 
-def atomically_update_history(update_dict: dict[str, dict]) -> None:
+def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     """Atomically update the history files."""
 
     for key, value in update_dict.items():
         try:
             with open(
-                f"{Path(key).with_suffix('.tmp')}", "w", encoding="utf-8", newline="\n"
+                key.with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
             ) as f:
                 json.dump(value, f)
         except Exception as e:
@@ -270,7 +269,7 @@ def atomically_update_history(update_dict: dict[str, dict]) -> None:
 
     for key, value in update_dict.items():
         try:
-            os.replace(f"{Path(key).with_suffix('.tmp')}", f"{Path(key)}")
+            key.with_suffix(".tmp").replace(key)
         except Exception as e:
             raise exceptions.TemporaryFileError from e
 

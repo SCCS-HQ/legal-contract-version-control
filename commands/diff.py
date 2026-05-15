@@ -10,35 +10,35 @@ import utils
 from bs4 import BeautifulSoup
 
 
-def get_entered_commit_to_diff() -> str | None:
+def get_entered_commit_to_diff() -> Path | None:
     """Retrieve the commit file path entered by the user."""
 
-    return sys.argv[2] if len(sys.argv) > 2 else None
+    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
-def validate_commit(commit_to_diff: str, docx_current_version: str) -> None:
+def validate_commit(commit_to_diff: Path, docx_current_version: Path) -> None:
     """Validate the commit file and current docx file paths."""
 
     if not commit_to_diff:
         raise exceptions.InvalidArgumentError("No commit file path provided.")
 
-    if not Path(commit_to_diff).is_file():
+    if not commit_to_diff.is_file():
         raise FileNotFoundError(
             "Commit file not found. Please provide a valid commit file path."
         )
 
-    if Path(commit_to_diff).suffix.lower() != ".html":
+    if commit_to_diff.suffix.lower() != ".html":
         raise exceptions.InvalidArgumentError(
             "Commit file is not a .html file. Please provide a valid .html commit file"
         )
 
-    if not Path(docx_current_version).is_file():
+    if not docx_current_version.is_file():
         raise FileNotFoundError(
             "Docx file not found. Please provide a valid docx file path."
         )
 
 
-def get_commit_html(commit_path: str) -> str:
+def get_commit_html(commit_path: Path) -> str:
     """Read and return the HTML content of a commit file."""
 
     try:
@@ -231,7 +231,7 @@ def format_redline_html(
 
 
 def write_redline_html_file(
-    redline: BeautifulSoup, filename: str = "redline.html"
+    redline: BeautifulSoup, filename: Path = Path("redline.html")
 ) -> None:
     """Write the redline HTML to a file."""
 

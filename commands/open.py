@@ -1,6 +1,5 @@
 """Open a commit file and update the current document."""
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -9,26 +8,30 @@ import exceptions
 import utils
 
 
-def get_commit_path_input() -> str:
+def get_commit_path_input() -> Path:
     """Prompt the user for the commit file path and return it."""
     commit_path = input("Enter the path to the commit file (.docx): ").strip()
-    return commit_path
 
-
-def check_commit_path_input(commit_path: str) -> None:
-    """Check the validity of the commit file path."""
-    if commit_path == "":
+    if not commit_path:
         raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
-    if not Path(commit_path).is_file():
+    return Path(commit_path).resolve()
+
+
+def check_commit_path_input(commit_path: Path) -> None:
+    """Check the validity of the commit file path."""
+    if not commit_path:
+        raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
+
+    if not commit_path.is_file():
         raise FileNotFoundError("Commit file does not exist.")
 
-    if Path(commit_path).suffix.lower() != ".docx":
+    if commit_path.suffix.lower() != ".docx":
         raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
 
 
 def confirm_before_proceeding(
-    commit_path: str, docx_path: str = None, cwd: str = None
+    commit_path: Path, docx_path: Path = None, cwd: Path = None
 ) -> None:
     """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
@@ -37,8 +40,8 @@ def confirm_before_proceeding(
         cwd = utils.working_directory_path
     confirm = (
         input(
-            f"Are you sure you want to overwrite '{cwd}/{os.path.basename(docx_path)}' "
-            f"with the contents of '{cwd}/{os.path.basename(commit_path)}'?\nThis "
+            f"Are you sure you want to overwrite '{cwd}/{docx_path.name}' "
+            f"with the contents of '{cwd}/{commit_path.name}'?\nThis "
             f"action will replace the current content of the .docx file. (Y/N): "
         )
         .strip()
@@ -49,22 +52,18 @@ def confirm_before_proceeding(
         sys.exit(0)
 
 
-def check_changes(commit_path: str, docx_path: str = None) -> None:
+def check_changes(commit_path: Path, docx_path: Path = None) -> None:
     """Check if the commit_path and docx_path refer to the same file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
-    if (
-        Path(docx_path).exists()
-        and Path(commit_path).exists()
-        and os.path.samefile(docx_path, commit_path)
-    ):
+    if docx_path.exists() and commit_path.exists() and docx_path.samefile(commit_path):
         print(
             "The commit file is the same as the current file. No changes will be made."
         )
         sys.exit(0)
 
 
-def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
+def copy_file_commit(commit_path: Path, docx_path: Path = None) -> None:
     """Copy the commit file to the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
@@ -75,13 +74,15 @@ def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) -> None:
+def print_rewrite_confirmation_message(
+    commit_path: Path, docx_path: Path = None
+) -> None:
     """Print the confirmation message after rewriting the file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(
-        f"File '{os.path.basename(docx_path)}' has been updated with the contents of "
-        f"'{os.path.basename(commit_path)}'."
+        f"File '{docx_path.name}' has been updated with the contents of "
+        f"'{commit_path.name}'."
     )
 
 

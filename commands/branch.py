@@ -1,9 +1,9 @@
 """Create, Delete, and List Branches"""
 
 import json
-import os
 import shutil
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
@@ -32,8 +32,8 @@ def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None
 
     if subcommand not in ["create", "delete", "list"]:
         raise exceptions.InvalidSubcommandError(
-            f"Invalid subcommand: {subcommand}. Please use 'create', 'delete', or 'list"
-            f"' along with required arguments."
+            f"Invalid subcommand: {subcommand}. Please use 'create', 'delete', or "
+            f"'list' along with required arguments."
         )
 
     if subcommand in ["create", "delete"]:
@@ -46,8 +46,8 @@ def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None
 def branch_create_subcommand(
     current_branch: str,
     branch_data: dict,
-    cwd: str | None = None,
-    current_branch_path: str | None = None,
+    cwd: Path | None = None,
+    current_branch_path: Path | None = None,
 ) -> None:
     """Create a new branch from the current branch."""
 
@@ -69,15 +69,15 @@ def branch_create_subcommand(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
-    if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
+    if (cwd / ".sccs" / "branches" / sanitized_branch_name).is_dir():
         raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
     try:
         shutil.copytree(
-            os.path.join(cwd, ".sccs", "branches", current_branch),
-            os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
+            cwd / ".sccs" / "branches" / current_branch,
+            cwd / ".sccs" / "branches" / sanitized_branch_name,
         )
     except Exception as e:
         delete_branch_after_error(sanitized_branch_name, cwd=cwd)
@@ -102,22 +102,22 @@ def branch_create_subcommand(
     )
 
 
-def delete_branch_after_error(branch_name: str, cwd: str = None) -> None:
+def delete_branch_after_error(branch_name: str, cwd: Path = None) -> None:
     """Delete a branch after an error has occurred during creation."""
 
     if cwd is None:
         cwd = utils.working_directory_path
 
-    branch_path = os.path.join(cwd, ".sccs", "branches", branch_name)
-    if os.path.isdir(branch_path):
+    branch_path = cwd / ".sccs" / "branches" / branch_name
+    if branch_path.is_dir():
         shutil.rmtree(branch_path)
 
 
 def branch_delete_subcommand(
     current_branch: str,
     branch_data: dict,
-    cwd: str = None,
-    current_branch_path: str = None,
+    cwd: Path = None,
+    current_branch_path: Path = None,
 ) -> None:
     """Delete an existing branch."""
 
@@ -128,14 +128,14 @@ def branch_delete_subcommand(
 
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
-    branch_path = os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)
+    branch_path = cwd / ".sccs" / "branches" / sanitized_branch_name
 
     if sanitized_branch_name == current_branch:
         raise exceptions.BranchDeletionError(
             "Cannot delete the current branch. Please switch to another branch first."
         )
 
-    if not os.path.exists(branch_path):
+    if not branch_path.exists():
         raise exceptions.BranchNotFoundError(
             f"Branch '{sanitized_branch_name}' does not exist."
         )
@@ -166,7 +166,7 @@ def branch_delete_subcommand(
 
 
 def rollback_changes_after_failure(
-    current_branch_path: str, branch_data: dict | None = None
+    current_branch_path: Path = None, branch_data: dict = None
 ) -> None:
     """Rollback changes after a failed branch deletion."""
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3 
 """SCCS - Simple Contract Control System; CLI tunnel to point to chosen command"""
 
-import os
 import subprocess
 import sys
+from pathlib import Path
 
 import exceptions
 
@@ -24,21 +24,21 @@ def get_entered_command() -> str | None:
     return sys.argv[1] if len(sys.argv) > 1 else None
 
 
-def get_script_directory() -> str:
-    return os.path.dirname(os.path.realpath(__file__))
+def get_script_directory() -> Path:
+    return Path(__file__).parent.resolve()
 
 
-def run_command(command: str, script_directory: str) -> None:
+def run_command(command: str, script_directory: Path) -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            os.path.join(script_directory, f"{command}.py")]
+            script_directory / f"{command}.py"]
              + sys.argv[1:]
         ).returncode
     )
 
 
-def execute_command(command: str, script_directory: str, COMMANDS: list) -> None:
+def execute_command(command: str, script_directory: Path, COMMANDS: list) -> None:
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "

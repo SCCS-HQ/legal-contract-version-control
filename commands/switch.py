@@ -1,9 +1,9 @@
 """Switch between document branches."""
 
 import json
-import os
 import shutil
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
@@ -15,7 +15,7 @@ def get_branch_to_switch() -> str | None:
 
 
 def update_current_branch(
-    branch: str, current_branch_path: str = None, cwd: str = None
+    branch: str, current_branch_path: Path = None, cwd: Path = None
 ) -> None:
     """Update the current branch in the SCCS metadata."""
     if cwd is None:
@@ -27,15 +27,12 @@ def update_current_branch(
             current_branch = json.load(f)
             current_branch["current_branch"] = branch
 
-        tmp_path = os.path.join(cwd, ".sccs", "current_branch", "tmp")
+        tmp_path = cwd / ".sccs" / "current_branch" / "tmp"
 
         with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
             json.dump(current_branch, f, indent=4)
 
-        os.replace(
-            tmp_path,
-            os.path.join(cwd, ".sccs", "current_branch", "current_branch.json"),
-        )
+        (tmp_path).replace((cwd / ".sccs" / "current_branch" / "current_branch.json"))
 
     except Exception as e:
         raise exceptions.UpdatingMetadataError from e
@@ -55,20 +52,20 @@ def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None
 
 
 def get_latest_commit_binary_hash(
-    branch: str, latest_commit: str, cwd: str = None
+    branch: str, latest_commit: str, cwd: Path = None
 ) -> str:
     """Retrieve the latest commit binary hash for a given branch."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
         with open(
-            os.path.join(
-                cwd,
-                ".sccs",
-                "branches",
-                branch,
-                "commit_file_hash",
-                "commit_file_hash.json",
+            (
+                cwd
+                / ".sccs"
+                / "branches"
+                / branch
+                / "commit_file_hash"
+                / "commit_file_hash.json"
             ),
             "r",
             encoding="utf-8",
@@ -95,15 +92,13 @@ def sanitize_branch(branch_name: str) -> str:
     return utils.clean_directory_name(branch_name)
 
 
-def get_latest_commit(branch: str, cwd: str = None) -> str:
+def get_latest_commit(branch: str, cwd: Path = None) -> str:
     """Retrieve the latest commit hash for a given branch."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
         with open(
-            os.path.join(
-                cwd, ".sccs", "branches", branch, "history", "commit_history.json"
-            ),
+            (cwd / ".sccs" / "branches" / branch / "history" / "commit_history.json"),
             "r",
             encoding="utf-8",
             newline="\n",
@@ -114,24 +109,22 @@ def get_latest_commit(branch: str, cwd: str = None) -> str:
         raise exceptions.FileOpenError from e
 
 
-def check_commit(commit: str, cwd: str = None) -> None:
+def check_commit(commit: str, cwd: Path = None) -> None:
     """Check if the commit object exists."""
     if cwd is None:
         cwd = utils.working_directory_path
-    if not os.path.isfile(
-        os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx")
-    ):
+    if not (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx").is_file():
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
 
-def copy_commit_to_main(commit: str, cwd: str = None) -> None:
+def copy_commit_to_main(commit: str, cwd: Path = None) -> None:
     """Copy the commit file to the main document."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
         shutil.copy2(
-            os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx"),
-            os.path.join(cwd, f"{os.path.basename(cwd)}.docx"),
+            (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx"),
+            (cwd / f"{cwd.name}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
