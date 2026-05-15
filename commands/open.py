@@ -10,7 +10,7 @@ import utils
 
 def get_commit_path_input() -> Path:
     """Prompt the user for the commit file path and return it."""
-    return (Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None)
+    return Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
 
 
 def check_commit_path_input(commit_path: Path) -> None:
