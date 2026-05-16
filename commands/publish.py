@@ -15,4 +15,5 @@ buffer.seek(0)
 
 response = requests.post("http://127.0.0.1:8000/publish", files={"file": (Path.cwd().name + ".zip", buffer, "application/zip")})
 
-print(f"Status code: {response.status_code}")
+print(response.status_code)
+print(response.json())
