@@ -22,7 +22,7 @@ def write_origin_to_config(remote: str = get_entered_origin()) -> None:
         f.truncate()
 
 
-def main():
+def main() -> None:
     """Run functions for the <sccs clone> command."""
 
     write_origin_to_config()

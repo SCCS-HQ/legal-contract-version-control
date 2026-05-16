@@ -39,7 +39,7 @@ def request_repo(url: str = resolve_entered_url()) -> requests.Response:
     return response
 
 
-def unzip_repo_file(buffer: io.BytesIO, destination: str):
+def unzip_repo_file(buffer: io.BytesIO, destination: str) -> None:
     """
     Unzip the repo file. using the buffer where the repository is held and the folder
     where it should be extracted."""
@@ -50,7 +50,7 @@ def unzip_repo_file(buffer: io.BytesIO, destination: str):
         raise exceptions.ZippingFileError from e
 
 
-def main():
+def main() -> None:
     """Run functions for the <sccs publish> command."""
 
     response = request_repo()

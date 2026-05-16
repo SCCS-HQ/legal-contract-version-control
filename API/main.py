@@ -15,23 +15,23 @@ app = FastAPI()
 
 
 @app.get("/")
-async def root():
-    return {"Boo!"}
+async def root() -> dict:
+    return {"message": "Boo!"}
 
 
 @app.post("/publish")
-async def publish(file: UploadFile = File(...)):
+async def publish(file: UploadFile = File(...)) -> dict:
     """Publish a repository to the hosted API"""
     with zipfile.ZipFile(file.file, "r") as f:
         f.extractall(f"API/repos/{Path(file.filename).stem}")
     return {
         "message": "File published successfully",
         "clone_link": f"http://127.0.0.1:8000/repos/{Path(file.filename).stem}/clone",
-    }, 
+    }
 
 
 @app.get("/repos/{repo_name}/clone")
-async def clone(repo_name: str):
+async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
     if not os.path.exists(f"API/repos/{repo_name}"):

@@ -47,7 +47,7 @@ def post_repo(buffer: io.BytesIO) -> requests.Response:
     return response
 
 
-def main():
+def main() -> None:
     """Run functions for the <sccs publish> command."""
     
     response = post_repo(zip_cwd())
