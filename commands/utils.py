@@ -238,7 +238,7 @@ def convert_docx_to_html(docx_path: Path = None) -> str:
         raise exceptions.ConvertingDocumentToHTMLError from e
 
 
-def get_api_url_from_config(key: str, cwd: Path = None) -> str:
+def get_api_url_from_config(cwd: Path = None) -> str:
     """Retrieve a specific key from the SCCS config file."""
     if cwd is None:
         cwd = working_directory_path
