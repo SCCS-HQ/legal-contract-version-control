@@ -16,7 +16,7 @@ def write_origin_to_config(remote: str = get_entered_origin()) -> None:
 
     with open(Path(utils.working_directory_path / ".sccs" / "config" / "config.json"), "r+", encoding="utf-8", newline="\n") as f:
         config = json.load(f)
-        config["remote"] = remote
+        config["api_url"] = remote
         f.seek(0)
         json.dump(config, f, indent=4)
         f.truncate()
