@@ -21,6 +21,6 @@ async def publish(file: UploadFile = File(...)):
         f.extractall(f"API/repos/{Path(file.filename).stem}")
     return {
         "message": "File published successfully",
-        "clone_link": f"http://127.0.0.1:8000/extracted/{Path(file.filename).stem}",
+        "clone_link": f"http://127.0.0.1:8000/repos/{Path(file.filename).stem}",
     }, 
 
