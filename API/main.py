@@ -32,7 +32,7 @@ async def clone(repo_name: str):
         return {"message": "Repository not found"}, 404
 
     buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w") as f:
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
         for root, dirs, files in os.walk(f"API/repos/{repo_name}"):
             for file in files:
                 f.write(filename=Path(root) / file, arcname=os.path.relpath(Path(root) / file, f"API/repos/{repo_name}"))
