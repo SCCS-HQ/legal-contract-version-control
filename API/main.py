@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-app.mount("/extracted", StaticFiles(directory="API/extracted"), name="extracted")
+app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
 
 
 @app.get("/")
@@ -22,6 +22,9 @@ async def root():
 @app.post("/publish")
 async def publish(file: UploadFile = File(...)):
     with zipfile.ZipFile(file.file, "r") as f:
-        f.extractall(f"API/repos/{file.filename}")
-    return {}
+        f.extractall(f"API/repos/{Path(file.filename).stem}")
+    return {
+        "message": "File published successfully",
+        "clone_link": f"http://127.0.0.1:8000/extracted/{Path(file.filename).stem}",
+    }, 
 
