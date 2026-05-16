@@ -7,6 +7,7 @@ import io
 import os
 import exceptions
 import sys
+import utils
 
 
 def zip_cwd() -> io.BytesIO:
@@ -14,7 +15,7 @@ def zip_cwd() -> io.BytesIO:
     try:
         buffer = io.BytesIO()
     except Exception as e:
-        raise exceptions.BufferError from e
+        raise exceptions.BufferError("Failed to create memory buffer") from e
     
     try:
         with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -22,12 +23,12 @@ def zip_cwd() -> io.BytesIO:
                 for file in files:
                     zip_file.write(Path(root) / file)
     except Exception as e:
-        raise exceptions.ZippingFileError from e
+        raise exceptions.ZippingFileError("Failed to zip current working directory") from e
 
     try:
         buffer.seek(0)
     except Exception as e:
-        raise exceptions.BufferError from e
+        raise exceptions.BufferError("Failed to reset buffer position") from e
 
     return buffer
 
@@ -43,7 +44,7 @@ def post_repo(buffer: io.BytesIO) -> requests.Response:
             }
         )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError from e
+        raise exceptions.HTTPPostRequestError(f"Failed to post repository to http://127.0.0.1:8000/publish") from e
     return response
 
 

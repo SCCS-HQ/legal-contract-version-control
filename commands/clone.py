@@ -35,7 +35,7 @@ def request_repo(url: str = resolve_entered_url()) -> requests.Response:
     try:
         response = requests.get(url)
     except Exception as e:
-        raise exceptions.HTTPGetRequestError from e
+        raise exceptions.HTTPGetRequestError(f"Failed to request repository from {url}/clone") from e
     return response
 
 
@@ -47,7 +47,7 @@ def unzip_repo_file(buffer: io.BytesIO, destination: str) -> None:
     try:
         zipfile.ZipFile(buffer, "r").extractall(destination)
     except Exception as e:
-        raise exceptions.ZippingFileError from e
+        raise exceptions.ZippingFileError(f"Failed to unzip repository file") from e
 
 
 def main() -> None:
