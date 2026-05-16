@@ -7,25 +7,34 @@ import sys
 
 def get_entered_origin() -> str | None:
     """Retrieve the origin entered by the user."""
-    
-    if len(sys.argv) > 2:
-        entered_url = sys.argv[2]
-        if not entered_url.startswith("http://") and not entered_url.startswith("https://"):
-            entered_url = "http://" + entered_url
-        
-        strs = ["/clone", "/clone/", "/publish", "/publish/"]
+    return sys.argv[2] if len(sys.argv) > 2 else None
 
-        for str in strs:
-            if entered_url.endswith(str):
-                entered_url = entered_url[:-len(str)]
 
-        return entered_url
+def resolve_entered_origin(origin: str = get_entered_origin()) -> str:
+    """
+    Resolve the entered origin by adding 'https://' if missing and appending '/clone' 
+    if missing."""
+    if origin is None:
+        print("No origin entered.")
+        raise exceptions.InvalidArgumentError("No origin entered.")
     else:
-        return None
+        origin = origin
+
+    if not origin.startswith("http://") and not origin.startswith("https://"):
+        origin = "http://" + origin
+        
+    
+    strs = ["/clone", "/clone/", "/publish", "/publish/"]
+
+    for str in strs:
+        if origin.endswith(str):
+            origin = origin[:-len(str)]
+
+    return origin
 
 
 
-def write_origin_to_config(remote: str = get_entered_origin()) -> None:
+def write_origin_to_config(remote: str = resolve_entered_origin()) -> None:
     """Write the origin to the config file."""
 
     with open(Path(utils.working_directory_path / ".sccs" / "config" / "config.json"), "r+", encoding="utf-8", newline="\n") as f:
