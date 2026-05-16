@@ -202,3 +202,32 @@ class FileImportedAsModuleError(SCCSException):
     standalone script."""
 
     pass
+
+
+# Zipping Exceptions
+
+class ZippingFileError(SCCSException):
+    """Raised when there is an error zipping a directory or file."""
+
+    pass
+
+
+# Buffer Exceptions
+
+class BufferError(SCCSException):
+    """Raised when there is an error with a buffer."""
+
+    pass
+
+
+# HTTP Request Exceptions
+
+class HTTPPostRequestError(SCCSException):
+    """Raised when there is an error making an HTTP POST request."""
+
+    pass
+
+class HTTPGetRequestError(SCCSException):
+    """Raised when there is an error making an HTTP GET request."""
+
+    pass

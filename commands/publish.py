@@ -11,24 +11,39 @@ import sys
 
 def zip_cwd():
     """Zip the current working directory."""
-    buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-        for root, dirs, files in os.walk("."):
-            for file in files:
-                zip_file.write(Path(root) / file)
-    buffer.seek(0)
+    try:
+        buffer = io.BytesIO()
+    except Exception as e:
+        raise exceptions.BufferError from e
+    
+    try:
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for root, dirs, files in os.walk("."):
+                for file in files:
+                    zip_file.write(Path(root) / file)
+    except Exception as e:
+        raise exceptions.ZippingFileError from e
+
+    try:
+        buffer.seek(0)
+    except Exception as e:
+        raise exceptions.BufferError from e
+
     return buffer
 
 
 def post_repo(buffer):
     """Post the repository to the hosted API."""
-    response = requests.post(
-    "http://127.0.0.1:8000/publish",
-    files={
-        "file": (Path.cwd().name + ".zip",
-        buffer, "application/zip")
-        }
-    )
+    try:
+        response = requests.post(
+        "http://127.0.0.1:8000/publish",
+        files={
+            "file": (Path.cwd().name + ".zip",
+            buffer, "application/zip")
+            }
+        )
+    except Exception as e:
+        raise exceptions.HTTPPostRequestError from e
     return response
 
 

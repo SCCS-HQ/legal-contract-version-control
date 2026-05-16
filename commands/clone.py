@@ -32,7 +32,11 @@ def resolve_entered_url(url=get_entered_url()):
 
 def request_repo(url=resolve_entered_url()):
     """Request the repository from the given URL."""
-    return requests.get(url)
+    try:
+        response = requests.get(url)
+    except Exception as e:
+        raise exceptions.HTTPGetRequestError from e
+    return response
 
 
 def unzip_repo_file(buffer, destination):
@@ -40,7 +44,10 @@ def unzip_repo_file(buffer, destination):
     Unzip the repo file. using the buffer where the repository is held and the folder
     where it should be extracted."""
 
-    zipfile.ZipFile(buffer, "r").extractall(destination)
+    try:
+        zipfile.ZipFile(buffer, "r").extractall(destination)
+    except Exception as e:
+        raise exceptions.ZippingFileError from e
 
 
 def main():
