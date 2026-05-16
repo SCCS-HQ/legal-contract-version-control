@@ -7,12 +7,12 @@ import sys
 import exceptions
 
 
-def get_entered_url():
+def get_entered_url() -> str | None:
     """Retrieve the URL entered by the user."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def resolve_entered_url(url=get_entered_url()):
+def resolve_entered_url(url: str = get_entered_url()) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone' 
     if missing."""
@@ -30,7 +30,7 @@ def resolve_entered_url(url=get_entered_url()):
     return url
 
 
-def request_repo(url=resolve_entered_url()):
+def request_repo(url: str = resolve_entered_url()) -> requests.Response:
     """Request the repository from the given URL."""
     try:
         response = requests.get(url)
@@ -39,7 +39,7 @@ def request_repo(url=resolve_entered_url()):
     return response
 
 
-def unzip_repo_file(buffer, destination):
+def unzip_repo_file(buffer: io.BytesIO, destination: str):
     """
     Unzip the repo file. using the buffer where the repository is held and the folder
     where it should be extracted."""

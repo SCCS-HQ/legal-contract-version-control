@@ -9,7 +9,7 @@ import exceptions
 import sys
 
 
-def zip_cwd():
+def zip_cwd() -> io.BytesIO:
     """Zip the current working directory."""
     try:
         buffer = io.BytesIO()
@@ -32,7 +32,7 @@ def zip_cwd():
     return buffer
 
 
-def post_repo(buffer):
+def post_repo(buffer: io.BytesIO) -> requests.Response:
     """Post the repository to the hosted API."""
     try:
         response = requests.post(
