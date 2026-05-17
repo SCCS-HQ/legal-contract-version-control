@@ -57,21 +57,27 @@ async def publish(
 async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
-    if ".." in repo_name or repo_name.startswith("/"):
+    base_dir = Path("API/repos").resolve()
+    repo_path = (base_dir / repo_name).resolve()
+
+    try:
+        repo_path.relative_to(base_dir)
+    except ValueError:
         raise HTTPException(status_code=400, detail="Invalid repository name")
+    
+
 
     if not os.path.exists(f"API/repos/{repo_name}"):
         raise HTTPException(status_code=404, detail="Repository not found")
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
-        for root, dirs, files in os.walk(f"API/repos/{repo_name}"):
+        for root, dirs, files in os.walk(repo_path):
             for file in files:
+                file_path = Path(root) / file
                 f.write(
-                    filename=Path(root) / file,
-                    arcname=os.path.relpath(
-                        Path(root) / file, f"API/repos/{repo_name}"
-                    ),
+                    filename=file_path,
+                    arcname=file_path.relative_to(repo_path)
                 )
 
     buffer.seek(0)
