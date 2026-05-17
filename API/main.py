@@ -95,12 +95,12 @@ async def publish(
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with open(path, "wb") as f_out:
 
-                    f_out.write(f.read(file))
-                    while True:
-                        chunk = f_out.read(1024 * 1024)
-                        if not chunk:
-                            break
-                        f_out.write(chunk)
+                    with f.open(file) as f_in:
+                        while True:
+                            chunk = f_in.read(1024 * 1024)
+                            if not chunk:
+                                break
+                            f_out.write(chunk)
 
     return {"message": "File published successfully", "repository_url": remote}
 
