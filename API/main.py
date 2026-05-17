@@ -15,7 +15,7 @@ app = FastAPI()
 
 
 @app.get("/")
-async def root() -> tuple[dict, int] | dict:
+async def root() -> dict:
     """Easter Egg Endpoint - Do Not Remove"""
 
     return {"message": "Boo!"}
@@ -24,7 +24,7 @@ async def root() -> tuple[dict, int] | dict:
 @app.post("/repos/{repo_name}/publish")
 async def publish(
     repo_name: str, file: UploadFile = File(...)
-) -> requests.models.Response:
+) -> dict:
     """Publish a repository to the hosted API"""
 
     if not Path(file.filename).stem == repo_name:
