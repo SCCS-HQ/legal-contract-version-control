@@ -238,13 +238,13 @@ def convert_docx_to_html(docx_path: Path = None) -> str:
         raise exceptions.ConvertingDocumentToHTMLError from e
 
 
-def get_api_url_from_config(cwd: Path = None) -> str:
+def get_key_from_config(key: str, cwd: Path = None) -> str:
     """Retrieve a specific key from the SCCS config file."""
     if cwd is None:
         cwd = working_directory_path
     with open(Path(cwd) / ".sccs" / "config" / "config.json", "r", encoding="utf-8", newline="\n") as f:
         config = json.load(f)
-        if config.get("api_url") is None:
-            raise exceptions.InvalidMetadataError(f"Key 'api_url' not found in config file. Please run 'sccs origin <url>' to set the API URL.")
-        return config.get("api_url")
+        if config.get(key) is None:
+            raise exceptions.InvalidMetadataError(f"Key '{key}' not found in config file. Please configure the information in the config file.")
+        return config.get(key)
     
