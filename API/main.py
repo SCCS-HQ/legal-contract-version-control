@@ -4,13 +4,11 @@
 import io
 import os
 import zipfile
-
-from fastapi import FastAPI, File, UploadFile
 from pathlib import Path
 
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import StreamingResponse
-
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -24,8 +22,8 @@ async def root() -> tuple[dict, int] | dict:
 
 @app.post("/repos/{repo_name}/publish")
 async def publish(
-        repo_name: str, file: UploadFile = File(...)
-    ) -> tuple[dict, int] | dict:
+    repo_name: str, file: UploadFile = File(...)
+) -> tuple[dict, int] | dict:
     """Publish a repository to the hosted API"""
 
     if not Path(file.filename).stem == repo_name:
@@ -49,20 +47,19 @@ async def clone(repo_name: str) -> StreamingResponse:
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
         for root, dirs, files in os.walk(f"API/repos/{repo_name}"):
             for file in files:
-                f.write(filename=Path(root) / file,
-                arcname=os.path.relpath(
-                    Path(root) / file,
-                    f"API/repos/{repo_name}"
-                    )
+                f.write(
+                    filename=Path(root) / file,
+                    arcname=os.path.relpath(
+                        Path(root) / file, f"API/repos/{repo_name}"
+                    ),
                 )
-            
+
     buffer.seek(0)
     return StreamingResponse(
         buffer,
         media_type="application/zip",
-        headers={
-            "Content-Disposition": f"attachment;filename={repo_name}.zip"}
-        )
+        headers={"Content-Disposition": f"attachment;filename={repo_name}.zip"},
+    )
 
 
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")

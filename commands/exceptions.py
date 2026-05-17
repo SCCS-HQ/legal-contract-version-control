@@ -209,6 +209,7 @@ class FileImportedAsModuleError(SCCSException):
 
 # Zipping Exceptions
 
+
 class ZippingFileError(SCCSException):
     """Raised when there is an error zipping a directory or file."""
 
@@ -216,6 +217,7 @@ class ZippingFileError(SCCSException):
 
 
 # Buffer Exceptions
+
 
 class BufferError(SCCSException):
     """Raised when there is an error with a buffer."""
@@ -225,17 +227,21 @@ class BufferError(SCCSException):
 
 # HTTP Request Exceptions
 
+
 class HTTPPostRequestError(SCCSException):
     """Raised when there is an error making an HTTP POST request."""
 
     default_message = "Failed to make HTTP POST request."
+
 
 class HTTPGetRequestError(SCCSException):
     """Raised when there is an error making an HTTP GET request."""
 
     default_message = "Failed to make HTTP GET request."
 
+
 # API URL Exceptions
+
 
 class InvalidAPIURLError(SCCSException):
     """Raised when the API URL is invalid."""

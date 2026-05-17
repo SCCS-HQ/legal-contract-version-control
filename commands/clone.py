@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Clone a hosted SCCS repository with a URL"""
+
 import io
+import sys
 import zipfile
 
-import requests
-import sys
 import exceptions
+import requests
 
 
 def get_entered_url() -> str | None:
@@ -15,7 +16,7 @@ def get_entered_url() -> str | None:
 
 def resolve_entered_url(url: str = get_entered_url()) -> str:
     """
-    Resolve the entered URL by adding 'https://' if missing and appending '/clone' 
+    Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing."""
 
     if url is None:
@@ -23,7 +24,7 @@ def resolve_entered_url(url: str = get_entered_url()) -> str:
         raise exceptions.InvalidArgumentError("No URL entered.")
 
     if not url.startswith("http://") and not url.startswith("https://"):
-       raise exceptions.InvalidArgumentError(
+        raise exceptions.InvalidArgumentError(
             "Invalid remote URL provided. Please provide a valid URL starting with "
             "'http://' or 'https://'."
         )
