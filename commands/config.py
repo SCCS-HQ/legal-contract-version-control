@@ -47,11 +47,12 @@ def resolve_entered_remote(remote: str) -> str:
     if remote.endswith("/"):
         remote = remote[:-1]
 
-    if remote.endswith in ["publish", "clone"]:
-        raise exceptions.InvalidArgumentError(
-            "Invalid remote URL provided. Please provide a valid URL. It cannot end "
-            "with '/publish' or '/clone'."
-        )
+    for i in ["publish", "clone"]:
+        if remote.endswith(i):
+            raise exceptions.InvalidArgumentError(
+                "Invalid remote URL provided. Please provide a valid URL. It cannot end "
+                f"with '/{i}'."
+            )
 
     if not remote.endswith("/repos"):
         remote += "/repos"
