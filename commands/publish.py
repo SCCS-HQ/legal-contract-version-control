@@ -62,6 +62,7 @@ def main() -> None:
     reset_current_branch()
     
     api_url = utils.get_key_from_config("api_url")
+    print(f"Publishing repository to {api_url}...")
     response = post_repo(zip_cwd(), api_url)
 
     print(response.status_code)
