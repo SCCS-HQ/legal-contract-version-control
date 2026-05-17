@@ -29,7 +29,9 @@ def get_timestamp() -> str:
     return datetime.now().isoformat()
 
 
-def get_history_path(cwd: Path = None, current_branch: str = None) -> Path:
+def get_history_path(
+        cwd: Path | None = None, current_branch: str | None = None
+    ) -> Path:
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
@@ -79,7 +81,7 @@ def generate_commit_hash(
 
 
 def copy_docx_to_objects(
-    sha_hash: str, docx_path: Path = None, cwd: Path = None
+    sha_hash: str, docx_path: Path | None = None, cwd: Path | None = None
 ) -> None:
     """Copy the current document to the objects directory."""
 
@@ -94,7 +96,7 @@ def copy_docx_to_objects(
 
 
 def write_diff_html(
-    sha_hash: str, docx_html: str, cwd: Path = None, styles: str = None
+    sha_hash: str, docx_html: str, cwd: Path | None = None, styles: str | None = None
 ) -> None:
     """Write the diff HTML file."""
 
@@ -111,7 +113,7 @@ def write_diff_html(
         f.write(styles + docx_html)
 
 
-def write_view_html(sha_hash: str, docx_html: str, cwd: Path = None) -> None:
+def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None= None) -> None:
     """Write the view HTML file."""
 
     if cwd is None:
@@ -162,7 +164,7 @@ def update_commit_log_history(
 
 
 def update_commit_messages(
-    sha_hash: str, commit_message: str, cwd: Path = None
+    sha_hash: str, commit_message: str, cwd: Path | None = None
 ) -> dict[str, dict]:
     """Update commit messages."""
 
@@ -191,7 +193,10 @@ def update_commit_messages(
 
 
 def update_commit_binary_hash_history(
-    sha_hash: str, hash_docx_binary: str, cwd: Path = None, current_branch: str = None
+    sha_hash: str,
+    hash_docx_binary: str,
+    cwd: Path | None = None,
+    current_branch: str | None = None
 ) -> dict[str, dict]:
     """Update commit binary hash history."""
 

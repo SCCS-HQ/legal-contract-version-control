@@ -12,12 +12,14 @@ def get_entered_config_key() -> str | None:
     key = sys.argv[2] if len(sys.argv) > 2 else None
     if key is None:
         raise exceptions.InvalidArgumentError(
-            "No key provided. Please provide a key to configure: 'remote', 'name', or 'email'."
+            "No key provided. Please provide a key to configure: 'remote', 'name', or "
+            "'email'."
         )
 
     if key not in ["remote", "name", "email"]:
         raise exceptions.InvalidArgumentError(
-            "Invalid key provided. Please provide a valid key to configure: 'remote', 'name', or 'email'."
+            "Invalid key provided. Please provide a valid key to configure: 'remote', "
+            "'name', or 'email'."
         )
     return key
 
@@ -50,8 +52,8 @@ def resolve_entered_remote(remote: str) -> str:
     for i in ["publish", "clone"]:
         if remote.endswith(i):
             raise exceptions.InvalidArgumentError(
-                "Invalid remote URL provided. Please provide a valid URL. It cannot end "
-                f"with '/{i}'."
+                "Invalid remote URL provided. Please provide a valid URL. It cannot end"
+                f" with '/{i}'."
             )
 
     if not remote.endswith("/repos"):

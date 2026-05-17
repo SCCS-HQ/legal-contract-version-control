@@ -16,7 +16,7 @@ def get_branch_to_switch() -> str | None:
 
 
 def update_current_branch(
-    branch: str, current_branch_path: Path = None, cwd: Path = None
+    branch: str, current_branch_path: Path | None = None, cwd: Path | None = None
 ) -> None:
     """Update the current branch in the SCCS metadata."""
     if cwd is None:
@@ -53,7 +53,7 @@ def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None
 
 
 def get_latest_commit_binary_hash(
-    branch: str, latest_commit: str, cwd: Path = None
+    branch: str, latest_commit: str, cwd: Path | None = None
 ) -> str:
     """Retrieve the latest commit binary hash for a given branch."""
     if cwd is None:
@@ -93,7 +93,7 @@ def sanitize_branch(branch_name: str) -> str:
     return utils.clean_directory_name(branch_name)
 
 
-def get_latest_commit(branch: str, cwd: Path = None) -> str:
+def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
     """Retrieve the latest commit hash for a given branch."""
     if cwd is None:
         cwd = utils.working_directory_path
@@ -110,7 +110,7 @@ def get_latest_commit(branch: str, cwd: Path = None) -> str:
         raise exceptions.FileOpenError from e
 
 
-def check_commit(commit: str, cwd: Path = None) -> None:
+def check_commit(commit: str, cwd: Path | None = None) -> None:
     """Check if the commit object exists."""
     if cwd is None:
         cwd = utils.working_directory_path
@@ -118,7 +118,7 @@ def check_commit(commit: str, cwd: Path = None) -> None:
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
 
-def copy_commit_to_main(commit: str, cwd: Path = None) -> None:
+def copy_commit_to_main(commit: str, cwd: Path | None = None) -> None:
     """Copy the commit file to the main document."""
     if cwd is None:
         cwd = utils.working_directory_path

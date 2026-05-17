@@ -188,7 +188,7 @@ def convert_html_to_soup(html: str) -> BeautifulSoup:
     return BeautifulSoup(html, "html.parser")
 
 
-def format_bs4_html_list(bs4_obj):
+def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
     """Format a BeautifulSoup object into a numbered list of tag strings."""
 
     return tags_to_list(number_tags(remove_inline_semantics(copy.copy(bs4_obj))))

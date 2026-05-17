@@ -103,7 +103,7 @@ def branch_create_subcommand(
     )
 
 
-def delete_branch_after_error(branch_name: str, cwd: Path = None) -> None:
+def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None:
     """Delete a branch after an error has occurred during creation."""
 
     if cwd is None:
@@ -117,8 +117,8 @@ def delete_branch_after_error(branch_name: str, cwd: Path = None) -> None:
 def branch_delete_subcommand(
     current_branch: str,
     branch_data: dict,
-    cwd: Path = None,
-    current_branch_path: Path = None,
+    cwd: Path | None = None,
+    current_branch_path: Path | None = None,
 ) -> None:
     """Delete an existing branch."""
 
@@ -167,7 +167,7 @@ def branch_delete_subcommand(
 
 
 def rollback_changes_after_failure(
-    current_branch_path: Path = None, branch_data: dict = None
+    current_branch_path: Path | None = None, branch_data: dict | None = None
 ) -> None:
     """Rollback changes after a failed branch deletion."""
 

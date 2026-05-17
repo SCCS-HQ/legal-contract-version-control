@@ -110,7 +110,7 @@ def move_document_to_repo_directory() -> None:
 
 
 def copy_document_to_objects_as_docx_and_html(
-    sha_hash: str, html: str, styles: str = None
+    sha_hash: str, html: str, styles: str | None = None
 ) -> None:
     """Copy the document into objects as both .docx and .html."""
 

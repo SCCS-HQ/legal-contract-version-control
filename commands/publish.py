@@ -14,7 +14,7 @@ import requests
 import utils
 
 
-def reset_current_branch(cwd: Path = None) -> None:
+def reset_current_branch(cwd: Path | None = None) -> None:
     """Reset the current branch to 'main'."""
 
     if cwd is None:

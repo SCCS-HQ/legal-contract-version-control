@@ -212,7 +212,7 @@ def get_current_branch(file_path: Path = current_branch_path) -> str:
 
 
 def get_branch_data(
-    file_path: Path = current_branch_path, key: str = None
+    file_path: Path = current_branch_path, key: str | None = None
 ) -> dict | str | None:
     """Return full branch metadata or a specific value by key."""
     try:
@@ -226,7 +226,7 @@ def get_branch_data(
         raise exceptions.FileOpenError from e
 
 
-def convert_docx_to_html(docx_path: Path = None) -> str:
+def convert_docx_to_html(docx_path: Path | None = None) -> str:
     """Convert a DOCX document to HTML and return the generated markup."""
     if docx_path is None:
         docx_path = current_file_docx_path
@@ -238,7 +238,7 @@ def convert_docx_to_html(docx_path: Path = None) -> str:
         raise exceptions.ConvertingDocumentToHTMLError from e
 
 
-def get_key_from_config(key: str, cwd: Path = None) -> str:
+def get_key_from_config(key: str, cwd: Path | None = None) -> str:
     """Retrieve a specific key from the SCCS config file."""
     if cwd is None:
         cwd = working_directory_path
@@ -258,7 +258,7 @@ def get_key_from_config(key: str, cwd: Path = None) -> str:
         return value
 
 
-def write_key_to_config(key: str, value: str, cwd: Path = None) -> None:
+def write_key_to_config(key: str, value: str, cwd: Path | None = None) -> None:
     """Write a specific key to the config file."""
     if cwd is None:
         cwd = working_directory_path

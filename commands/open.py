@@ -27,7 +27,7 @@ def check_commit_path_input(commit_path: Path) -> None:
 
 
 def confirm_before_proceeding(
-    commit_path: Path, docx_path: Path = None, cwd: Path = None
+    commit_path: Path, docx_path: Path | None = None, cwd: Path | None = None
 ) -> None:
     """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
@@ -48,7 +48,7 @@ def confirm_before_proceeding(
         sys.exit(0)
 
 
-def check_changes(commit_path: Path, docx_path: Path = None) -> None:
+def check_changes(commit_path: Path, docx_path: Path | None = None) -> None:
     """Check if the commit_path and docx_path refer to the same file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
@@ -59,7 +59,7 @@ def check_changes(commit_path: Path, docx_path: Path = None) -> None:
         sys.exit(0)
 
 
-def copy_file_commit(commit_path: Path, docx_path: Path = None) -> None:
+def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
     """Copy the commit file to the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
@@ -71,7 +71,7 @@ def copy_file_commit(commit_path: Path, docx_path: Path = None) -> None:
 
 
 def print_rewrite_confirmation_message(
-    commit_path: Path, docx_path: Path = None
+    commit_path: Path, docx_path: Path | None = None
 ) -> None:
     """Print the confirmation message after rewriting the file."""
     if docx_path is None:
