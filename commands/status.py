@@ -15,6 +15,9 @@ def get_latest_commit_hash_file(
     """Retrieve the hash of the latest commit from SCCS metadata."""
     if cwd is None:
         cwd = utils.working_directory_path
+
+    if current_branch is None:
+        current_branch = utils.get_current_branch()
     # get the latest commit filename hash from commit history
     history_path = (
         cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
