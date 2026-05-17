@@ -23,7 +23,10 @@ def resolve_entered_url(url: str = get_entered_url()) -> str:
         raise exceptions.InvalidArgumentError("No URL entered.")
 
     if not url.startswith("http://") and not url.startswith("https://"):
-        url = "http://" + url
+       raise exceptions.InvalidArgumentError(
+            "Invalid remote URL provided. Please provide a valid URL starting with "
+            "'http://' or 'https://'."
+        )
 
     if not url.endswith("/clone"):
         url += "/clone"
