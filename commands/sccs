@@ -19,7 +19,7 @@ COMMANDS = [
     "switch",
     "publish",
     "clone",
-    "origin"
+    "config"
 ]
 
 
