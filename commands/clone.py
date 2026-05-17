@@ -66,8 +66,13 @@ def main() -> None:
 
     unzip_repo_file(buffer, resolve_entered_url().split("/")[-2])
 
-    print(response.status_code)
-    print(f"Repository cloned successfully to ./{resolve_entered_url().split('/')[-2]}")
+    print(f"Status Code: {response.status_code}")
+    if list(str(response.status_code))[0] != "2":
+        raise exceptions.HTTPGetRequestError(
+            f"Failed to clone repository: {response.text}"
+        )
+    else:
+        print(f"Repository cloned successfully to ./{resolve_entered_url().split('/')[-2]}")
 
 
 if __name__ == "__main__":
