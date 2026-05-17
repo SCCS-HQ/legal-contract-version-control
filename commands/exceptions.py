@@ -234,3 +234,10 @@ class HTTPGetRequestError(SCCSException):
     """Raised when there is an error making an HTTP GET request."""
 
     pass
+
+# API URL Exceptions
+
+class InvalidAPIURLError(SCCSException):
+    """Raised when the API URL is invalid."""
+
+    pass

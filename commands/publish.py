@@ -44,6 +44,10 @@ def zip_cwd() -> io.BytesIO:
 
 def post_repo(buffer: io.BytesIO, api_url: str) -> requests.Response:
     """Post the repository to the hosted API."""
+
+    if not api_url.split("/")[-2] == "repos":
+        raise exceptions.InvalidAPIURLError("API URL must end with '/repos/<repo_name>'")
+
     try:
         response = requests.post(
         f"{api_url}/publish",

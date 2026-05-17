@@ -20,9 +20,11 @@ async def root() -> dict:
     return {"message": "Boo!"}
 
 
-@app.post("/publish")
-async def publish(file: UploadFile = File(...)) -> dict:
+@app.post("/repos/{repo_name}/publish")
+async def publish(repo_name: str, file: UploadFile = File(...)) -> dict:
     """Publish a repository to the hosted API"""
+    if not Path(file.filename).stem == repo_name:
+        return {"message": "Repository name mismatch"}, 400
     with zipfile.ZipFile(file.file, "r") as f:
         f.extractall(f"API/repos/{Path(file.filename).stem}")
     return {
