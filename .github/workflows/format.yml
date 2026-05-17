@@ -15,8 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -32,6 +34,9 @@ jobs:
         run: black .
 
       - name: Commit changes
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-format with black + isort"
+  
+
