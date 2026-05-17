@@ -19,7 +19,8 @@ COMMANDS = [
     "switch",
     "publish",
     "clone",
-    "config"
+    "config",
+    "revert"
 ]
 
 
