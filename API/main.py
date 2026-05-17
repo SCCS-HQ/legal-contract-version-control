@@ -29,7 +29,15 @@ async def publish(
 
     if not Path(file.filename).stem == repo_name:
         return {"message": "Repository name mismatch"}, 400
+    
+    if Path(file.filename).stem in os.listdir("API/repos"):
+        return {"message": "Repository already exists"}, 400
+
     with zipfile.ZipFile(file.file, "r") as f:
+        for file in f.infolist():
+            if ".." in file.filename or file.filename.startswith("/"):
+                return {"message": "Invalid file path in zip"}, 400
+
         f.extractall(f"API/repos/{Path(file.filename).stem}")
     return {
         "message": "File published successfully",
@@ -40,6 +48,9 @@ async def publish(
 @app.get("/repos/{repo_name}/clone")
 async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
+
+    if ".." in repo_name or repo_name.startswith("/"):
+        return {"message": "Invalid repository name"}, 400
 
     if not os.path.exists(f"API/repos/{repo_name}"):
         return {"message": "Repository not found"}, 404
