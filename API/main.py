@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """API Endpoints for hosted SCCS Repositories"""
 
-from http.client import HTTPException
 import io
 import os
 import zipfile
 from pathlib import Path
+import json
 
 import requests
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -24,12 +24,16 @@ async def root() -> dict:
 
 @app.post("/repos/{repo_name}/publish")
 async def publish(
-    repo_name: str, file: UploadFile = File(...), remote: str = None
+    repo_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
     """Publish a repository to the hosted API"""
+    
+    try: remote = json.loads(data)["remote"]
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid JSON data") from e
 
     if not remote:
-        raise HTTPException(status_code=400, detail="No remote URL provided")
+        raise HTTPException(status_code=400, detail="Remote URL is required")
 
     if not Path(file.filename).stem == repo_name:
         raise HTTPException(
@@ -47,8 +51,8 @@ async def publish(
                 raise HTTPException(
                     status_code=400, detail="Invalid file path in zip"
                 )
+        f.extractall(f"API/repos/{repo_name}")
 
-        f.extractall(f"API/repos/{Path(file.filename).stem}")
     return {
         "message": "File published successfully",
         "repository_url": remote
