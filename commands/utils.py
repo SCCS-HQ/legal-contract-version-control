@@ -319,7 +319,7 @@ def get_commit_history() -> dict:
     return history
 
 
-def get_parent_hash(history: dict | None = None) -> str:
+def get_parent_hash(history: dict | None = None) -> str | None:
     """Retrieve the parent hash from the commit history."""
     if history is None:
         history = get_commit_history()
