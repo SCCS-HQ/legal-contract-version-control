@@ -2,6 +2,7 @@
 """Publish a SCCS repository to a hosted API"""
 
 import io
+import json
 import os
 import sys
 import zipfile
@@ -68,7 +69,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
             f"{remote}/publish",
             files=[
                 ("file", (Path.cwd().name + ".zip", buffer, "application/zip")),
-                ("data", (None, f'{{"remote": "{remote}"}}', "application/json")),
+                ("data", (None, json.dumps({"remote": remote}), "application/json")),
             ],
         )
     except Exception as e:
