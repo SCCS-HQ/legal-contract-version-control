@@ -4,9 +4,9 @@
 import io
 import json
 import os
+import re
 import zipfile
 from pathlib import Path
-import re
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
@@ -14,18 +14,21 @@ from fastapi.staticfiles import StaticFiles
 
 REPO_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 
+
 def resolve_path(path: Path) -> Path:
     """Resolve a path and ensure it is not attempting directory traversal."""
 
     if ".." in path.parts or path.is_absolute():
         raise HTTPException(status_code=400, detail="Invalid file path")
-    
+
     if not REPO_NAME_PATTERN.fullmatch(path.name):
         raise HTTPException(status_code=400, detail="Invalid repository name")
-    
+
     return path
 
+
 app = FastAPI()
+
 
 @app.get("/")
 async def root() -> dict:
