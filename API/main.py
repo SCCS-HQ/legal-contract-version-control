@@ -68,13 +68,22 @@ async def publish(
         raise HTTPException(status_code=400, detail="Repository already exists")
 
     with zipfile.ZipFile(file.file, "r") as f:
+        total_size = sum(file.file_size for file in f.infolist())
+        if total_size > 250 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Uploaded file is too large")
+
         for file in f.infolist():
-            file_path = (repo_path / file.filename).resolve()
+            path = Path(base_dir / repo_name / file.filename).resolve()
             try:
-                file_path.relative_to(base_dir)
+                path.relative_to(base_dir)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
-        f.extractall(repo_path)
+            if file.is_dir():
+                path.mkdir(parents=True, exist_ok=True)
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with open(path, "wb") as f_out:
+                    f_out.write(f.read(file))
 
     return {"message": "File published successfully", "repository_url": remote}
 
