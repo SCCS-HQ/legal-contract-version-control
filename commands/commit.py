@@ -30,7 +30,8 @@ def get_timestamp() -> str:
 
 
 def get_history_path(
-    cwd: Path | None = None, current_branch: str | None = None
+    cwd: Path | None = None,
+    current_branch: str | None = None
 ) -> Path:
     """Retrieve the path to the commit history file."""
 

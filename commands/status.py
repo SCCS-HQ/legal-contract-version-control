@@ -10,7 +10,8 @@ import utils
 
 
 def get_latest_commit_hash_file(
-    current_branch: str | None = None, cwd: Path | None = None
+    current_branch: str | None = None,
+    cwd: Path | None = None
 ) -> str:
     """Retrieve the hash of the latest commit from SCCS metadata."""
     if cwd is None:
