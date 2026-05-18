@@ -81,7 +81,7 @@ def main() -> None:
 
     history = utils.get_commit_history()
 
-    parent_hash = utils.get_parent_hash()
+    parent_hash = utils.get_parent_hash(history)
 
     sha_hash = utils.generate_commit_hash(
         timestamp, commit_message, name, email, parent_hash
