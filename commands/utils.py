@@ -10,7 +10,6 @@ from pathlib import Path
 
 import exceptions
 import mammoth
-from requests import utils
 
 working_directory_path = Path.cwd()
 
