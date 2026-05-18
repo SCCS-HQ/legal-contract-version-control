@@ -71,7 +71,6 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
                 ("data", (None, f'{{"remote": "{remote}"}}', "application/json")),
             ],
         )
-        print(Path.cwd().name + ".zip")
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
             f"Failed to post repository to {remote}/publish"

@@ -59,7 +59,7 @@ async def publish(
     if not remote:
         raise HTTPException(status_code=400, detail="Remote URL is required")
 
-    if not Path(file.filename).stem == repo_name:
+    if not Path(Path(file.filename).stem) == repo_name:
         raise HTTPException(
             status_code=400, detail="Repository name does not match file name"
         )
@@ -69,7 +69,10 @@ async def publish(
 
     with zipfile.ZipFile(file.file, "r") as f:
         for file in f.infolist():
-            if ".." in file.filename or file.filename.startswith("/"):
+            file_path = (repo_path / file.filename).resolve()
+            try:
+                file_path.relative_to(base_dir)
+            except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
         f.extractall(repo_path)
 
@@ -94,6 +97,12 @@ async def clone(repo_name: str) -> StreamingResponse:
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
+        for file in f.infolist():
+            file_path = (repo_path / file.filename).resolve()
+            try:
+                file_path.relative_to(base_dir)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid file path in zip")
         for root, dirs, files in os.walk(repo_path):
             for file in files:
                 file_path = Path(root) / file
