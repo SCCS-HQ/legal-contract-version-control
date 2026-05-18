@@ -47,7 +47,7 @@ def revert(src: Path, dst: Path | None = None) -> None:
     if dst is None:
         dst = utils.current_file_docx_path
 
-    shutil.copy(src, dst)
+    shutil.copy2(src, dst)
 
 
 def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> None:
