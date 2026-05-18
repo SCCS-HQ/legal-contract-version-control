@@ -78,7 +78,9 @@ async def publish(
                     status_code=400, detail=f"File {file.filename} is too large"
                 )
         if total_num_files > 1000:
-            raise HTTPException(status_code=400, detail="Too many files in the uploaded zip")
+            raise HTTPException(
+                status_code=400, detail="Too many files in the uploaded zip"
+            )
 
         for file in f.infolist():
             path = Path(base_dir / repo_name / file.filename).resolve()
