@@ -12,7 +12,7 @@ def get_entered_commit() -> Path | None:
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
-def validate_commit(cwd: Path | None = None, commit: Path | None = None) -> Path | None:
+def validate_commit(cwd: Path | None = None, commit: Path | None = None) -> Path:
     """Validate the commit file path entered by the user."""
 
     if cwd is None:
