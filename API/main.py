@@ -78,6 +78,13 @@ async def publish(
                 path.relative_to(base_dir)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
+            
+            for i in ["..", "/", "\\"]:
+                for part in path.parts:
+                    if i in part:
+                        raise HTTPException(status_code=400, detail="Invalid file path in zip")
+            
+
             if file.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
