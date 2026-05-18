@@ -80,6 +80,7 @@ def main() -> None:
             f"Failed to clone repository: {response.text}"
         )
 
+
 if __name__ == "__main__":
     try:
         main()
