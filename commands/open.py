@@ -111,7 +111,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
         sys.exit(2)
-else:
-    raise exceptions.FileImportedAsModuleError(
-        "This file cannot be run as a module. Please run it as a script."
-    )

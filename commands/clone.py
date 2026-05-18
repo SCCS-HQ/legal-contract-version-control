@@ -13,13 +13,15 @@ def get_entered_url() -> str | None:
     """Retrieve the URL entered by the user."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
-
-def resolve_entered_url(url: str = get_entered_url()) -> str:
+def resolve_entered_url(url: str | None = None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing."""
 
     if url is None:
+        url = get_entered_url()
+
+    if url == "":
         print("No URL entered.")
         raise exceptions.InvalidArgumentError("No URL entered.")
 
@@ -35,8 +37,12 @@ def resolve_entered_url(url: str = get_entered_url()) -> str:
     return url
 
 
-def request_repo(url: str = resolve_entered_url()) -> requests.Response:
+def request_repo(url: str | None = None) -> requests.Response:
     """Request the repository from the given URL."""
+
+    if url is None:
+        url = resolve_entered_url()
+
     try:
         response = requests.get(url)
     except Exception as e:
@@ -92,7 +98,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
         sys.exit(2)
-else:
-    raise exceptions.FileImportedAsModuleError(
-        "This file cannot be run as a module. Please run it as a script."
-    )
