@@ -69,29 +69,36 @@ async def publish(
 
     with zipfile.ZipFile(file.file, "r") as f:
         total_size = sum(file.file_size for file in f.infolist())
-        if total_size > 250 * 1024 * 1024:
+        if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
+        total_num_files = len(f.infolist())
+        for file in f.infolist():
+            if file.file_size > 10 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=400, detail=f"File {file.filename} is too large"
+                )
+        if total_num_files > 1000:
+            raise HTTPException(status_code=400, detail="Too many files in the uploaded zip")
 
         for file in f.infolist():
             path = Path(base_dir / repo_name / file.filename).resolve()
             try:
-                path.relative_to(repo_path)
+                Path(file.filename).relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
-
-            for i in ["..", "/", "\\"]:
-                for part in path.parts:
-                    if i in part:
-                        raise HTTPException(
-                            status_code=400, detail="Invalid file path in zip"
-                        )
 
             if file.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with open(path, "wb") as f_out:
+
                     f_out.write(f.read(file))
+                    while True:
+                        chunk = f_out.read(1024 * 1024)
+                        if not chunk:
+                            break
+                        f_out.write(chunk)
 
     return {"message": "File published successfully", "repository_url": remote}
 
@@ -114,12 +121,6 @@ async def clone(repo_name: str) -> StreamingResponse:
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
-        for file in f.infolist():
-            file_path = (repo_path / file.filename).resolve()
-            try:
-                file_path.relative_to(base_dir)
-            except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid file path in zip")
         for root, dirs, files in os.walk(repo_path):
             for file in files:
                 file_path = Path(root) / file
