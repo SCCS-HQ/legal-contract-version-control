@@ -6,14 +6,26 @@ import json
 import os
 import zipfile
 from pathlib import Path
+import re
 
-import requests
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI()
+REPO_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 
+def resolve_path(path: Path) -> Path:
+    """Resolve a path and ensure it is not attempting directory traversal."""
+
+    if ".." in path.parts or path.is_absolute():
+        raise HTTPException(status_code=400, detail="Invalid file path")
+    
+    if not REPO_NAME_PATTERN.fullmatch(path.name):
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+    
+    return path
+
+app = FastAPI()
 
 @app.get("/")
 async def root() -> dict:
@@ -27,7 +39,7 @@ async def publish(
     repo_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
     """Publish a repository to the hosted API"""
-
+    repo_name = resolve_path(Path(repo_name))
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
 
@@ -65,6 +77,7 @@ async def publish(
 async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
+    repo_name = resolve_path(Path(repo_name))
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
 
