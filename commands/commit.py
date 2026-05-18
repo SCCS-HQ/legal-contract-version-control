@@ -30,8 +30,8 @@ def get_timestamp() -> str:
 
 
 def get_history_path(
-        cwd: Path | None = None, current_branch: str | None = None
-    ) -> Path:
+    cwd: Path | None = None, current_branch: str | None = None
+) -> Path:
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
@@ -113,7 +113,7 @@ def write_diff_html(
         f.write(styles + docx_html)
 
 
-def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None= None) -> None:
+def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None = None) -> None:
     """Write the view HTML file."""
 
     if cwd is None:
@@ -196,7 +196,7 @@ def update_commit_binary_hash_history(
     sha_hash: str,
     hash_docx_binary: str,
     cwd: Path | None = None,
-    current_branch: str | None = None
+    current_branch: str | None = None,
 ) -> dict[str, dict]:
     """Update commit binary hash history."""
 
