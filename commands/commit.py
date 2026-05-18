@@ -12,26 +12,6 @@ import exceptions
 import utils
 
 
-def get_key_from_config(key: str, cwd: Path = None) -> str:
-    """Retrieve the value for a given key from the SCCS configuration file."""
-
-    if cwd is None:
-        cwd = utils.working_directory_path
-    # Get name and email entered on init
-    config_path = cwd / ".sccs" / "config" / "config.json"
-
-    if not config_path.is_file():
-        raise FileNotFoundError(
-            "Configuration file not found. Please run 'sccs init <file_path>' to "
-            "initialize SCCS for this file."
-        )
-
-    with open(config_path, "r", encoding="utf-8", newline="\n") as config_file:
-        config = json.load(config_file)
-        value = config.get(key)
-    return value
-
-
 def get_commit_message() -> str:
     """Retrieve the commit message from the user."""
 
@@ -285,9 +265,9 @@ def main() -> None:
     """Run functions for the <sccs commit> command."""
     utils.check_sccs_layout()
 
-    name = get_key_from_config("name")
+    name = utils.get_key_from_config("name")
 
-    email = get_key_from_config("email")
+    email = utils.get_key_from_config("email")
 
     docx_html = utils.convert_docx_to_html()
 

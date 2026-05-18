@@ -205,3 +205,45 @@ class FileImportedAsModuleError(SCCSException):
     standalone script."""
 
     default_message = "This file cannot be imported as a module."
+
+
+# Zipping Exceptions
+
+
+class ZippingFileError(SCCSException):
+    """Raised when there is an error zipping a directory or file."""
+
+    default_message = "Failed to zip file or directory."
+
+
+# Buffer Exceptions
+
+
+class BufferError(SCCSException):
+    """Raised when there is an error with a buffer."""
+
+    default_message = "An error occurred with the buffer."
+
+
+# HTTP Request Exceptions
+
+
+class HTTPPostRequestError(SCCSException):
+    """Raised when there is an error making an HTTP POST request."""
+
+    default_message = "Failed to make HTTP POST request."
+
+
+class HTTPGetRequestError(SCCSException):
+    """Raised when there is an error making an HTTP GET request."""
+
+    default_message = "Failed to make HTTP GET request."
+
+
+# API URL Exceptions
+
+
+class InvalidAPIURLError(SCCSException):
+    """Raised when the API URL is invalid."""
+
+    default_message = "The API URL is invalid."
