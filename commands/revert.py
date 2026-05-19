@@ -45,10 +45,6 @@ def revert(src: Path, dst: Path | None = None) -> None:
     if dst is None:
         dst = utils.current_file_docx_path
 
-    if not dst.is_file():
-        raise exceptions.InvalidArgumentError(
-            f"Destination file '{dst}' does not exist."
-        )
 
     shutil.copy(src, dst)
 
