@@ -42,7 +42,9 @@ def main() -> None:
 
     parent_hash = utils.get_parent_hash()
 
-    sha_hash = utils.generate_commit_hash(timestamp, commit_message, name, email, parent_hash)
+    sha_hash = utils.generate_commit_hash(
+        timestamp, commit_message, name, email, parent_hash
+    )
 
     utils.copy_docx_to_objects(sha_hash)
 

@@ -28,7 +28,8 @@ def validate_commit(cwd: Path | None = None, commit: Path | None = None) -> Path
 
     if not commit.is_file():
         raise exceptions.InvalidArgumentError(
-            f"Commit file '{commit}' does not exist. Please provide a valid commit file path."
+            f"Commit file '{commit}' does not exist. Please provide a valid commit file"
+            f" path."
         )
 
     return commit
@@ -44,10 +45,12 @@ def revert(src: Path, dst: Path | None = None) -> None:
         dst = utils.current_file_docx_path
 
     if not dst.is_file():
-        raise exceptions.InvalidArgumentError(f"Destination file '{dst}' does not exist.")
+        raise exceptions.InvalidArgumentError(
+            f"Destination file '{dst}' does not exist."
+        )
 
     shutil.copy(src, dst)
-    print(f"Document successfully reverted to commit '{src.name}'.")
+    print_revert_confirmation_message(src)
 
 
 def print_revert_confirmation_message(commit: Path) -> None:
@@ -79,7 +82,9 @@ def main() -> None:
 
     parent_hash = utils.get_parent_hash()
 
-    sha_hash = utils.generate_commit_hash(timestamp, commit_message, name, email, parent_hash)
+    sha_hash = utils.generate_commit_hash(
+        timestamp, commit_message, name, email, parent_hash
+    )
 
     utils.copy_docx_to_objects(sha_hash)
 
