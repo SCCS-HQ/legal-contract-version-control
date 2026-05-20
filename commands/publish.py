@@ -81,6 +81,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
 
 def main() -> None:
     """Run functions for the <sccs publish> command."""
+    utils.check_sccs_layout()
     reset_current_branch()
 
     remote = utils.get_key_from_config("remote")
