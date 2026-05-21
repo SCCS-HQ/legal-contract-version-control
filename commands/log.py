@@ -40,7 +40,7 @@ def print_log() -> None:
     for entry in log_data["log"]:
         print(
             "------------------------------\n"
-            f"Commit File: {entry}\n"
+            f"Commit File: {entry[:10]}\n"
             f"Author: {log_data['log'][entry]['author']}\n"
             f"Date: {log_data['log'][entry]['timestamp']}\n"
             f"Message: {log_data['log'][entry]['message']}\n"

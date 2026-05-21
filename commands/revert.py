@@ -12,30 +12,6 @@ def get_entered_commit() -> Path | None:
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
-def validate_commit(cwd: Path | None = None, commit: Path | None = None) -> Path:
-    """Validate the commit file path entered by the user."""
-
-    if cwd is None:
-        cwd = utils.working_directory_path
-
-    if commit is None:
-        raise exceptions.InvalidArgumentError(
-            "No commit file path provided. Please specify a commit file path."
-        )
-
-    commit = commit.with_suffix(".docx")
-
-    commit = cwd / ".sccs" / "objects" / "docx" / commit.name
-
-    if not commit.is_file():
-        raise exceptions.InvalidArgumentError(
-            f"Commit file '{commit.stem}' does not exist. Please provide a valid commit file"
-            f" path."
-        )
-
-    return commit
-
-
 def revert(src: Path, dst: Path | None = None) -> None:
     """Revert the current document to the specified commit."""
 
@@ -64,7 +40,7 @@ def main() -> None:
 
     cwd = utils.working_directory_path
     commit = get_entered_commit()
-    validated_commit = validate_commit(cwd, commit)
+    validated_commit = utils.validate_commit("docx", cwd, commit)
     revert(validated_commit)
 
     new_commit_hash = utils.commit_changes(
