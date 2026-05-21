@@ -597,11 +597,11 @@ def validate_commit(
             matching_files.append(file)
 
     if not matching_files:
-         raise exceptions.InvalidArgumentError(
+        raise exceptions.InvalidArgumentError(
             f"Commit file '{commit}' does not exist. Please provide a valid commit file"
             f" path."
         )
-    
+
     if len(matching_files) > 1:
         raise exceptions.InvalidArgumentError(
             f"Multiple commit files found matching '{commit}'. Please provide a full, 64 character commit hash."
