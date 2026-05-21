@@ -572,6 +572,8 @@ def validate_commit(
 ) -> Path:
     """Validate the commit file path entered by the user."""
 
+    commit = Path(commit.strip()) if commit else None
+
     if cwd is None:
         cwd = working_directory_path
 
@@ -587,14 +589,22 @@ def validate_commit(
 
     objects_dir = cwd / ".sccs" / "objects" / folder
 
-    for file in objects_dir.iterdir():
-        if str(file.stem).startswith(str(commit)):
-            commit = file
+    matching_files = []
 
-    if not commit.is_file():
-        raise exceptions.InvalidArgumentError(
+    for file in objects_dir.iterdir():
+
+        if str(file.stem).startswith(str(commit.stem.strip())):
+            matching_files.append(file)
+
+    if not matching_files:
+         raise exceptions.InvalidArgumentError(
             f"Commit file '{commit}' does not exist. Please provide a valid commit file"
             f" path."
         )
+    
+    if len(matching_files) > 1:
+        raise exceptions.InvalidArgumentError(
+            f"Multiple commit files found matching '{commit}'. Please provide a full, 64 character commit hash."
+        )
 
-    return commit
+    return matching_files[0]
