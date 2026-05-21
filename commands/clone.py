@@ -13,6 +13,7 @@ def get_entered_url() -> str | None:
     """Retrieve the URL entered by the user."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
+
 def resolve_entered_url(url: str | None = None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'

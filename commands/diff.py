@@ -224,7 +224,11 @@ def main() -> None:
 
     docx_current_version_html = utils.convert_docx_to_html()
 
-    commit_html = get_commit_html(utils.validate_commit("html", utils.working_directory_path, get_entered_commit_to_diff()))
+    commit_html = get_commit_html(
+        utils.validate_commit(
+            "html", utils.working_directory_path, get_entered_commit_to_diff()
+        )
+    )
 
     bs4_docx_current_version_soup = convert_html_to_soup(docx_current_version_html)
 

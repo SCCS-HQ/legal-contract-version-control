@@ -75,7 +75,9 @@ def main() -> None:
 
     utils.check_sccs_layout()
 
-    commit_path = utils.validate_commit("docx", utils.working_directory_path, get_commit_path_input())
+    commit_path = utils.validate_commit(
+        "docx", utils.working_directory_path, get_commit_path_input()
+    )
 
     check_changes(commit_path)
 

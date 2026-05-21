@@ -565,7 +565,11 @@ def commit_changes(commit_msg: str) -> str:
     return sha_hash
 
 
-def validate_commit(folder: str, cwd: Path | None = None, commit: Path | None = None, ) -> Path:
+def validate_commit(
+    folder: str,
+    cwd: Path | None = None,
+    commit: Path | None = None,
+) -> Path:
     """Validate the commit file path entered by the user."""
 
     if cwd is None:
@@ -575,7 +579,7 @@ def validate_commit(folder: str, cwd: Path | None = None, commit: Path | None = 
         raise exceptions.InvalidArgumentError(
             "No commit file path provided. Please specify a commit file path."
         )
-    
+
     if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
         raise exceptions.InvalidArgumentError(
             "Invalid commit file name. Please provide a shortened, 10 character commit hash or the full 64 character commit hash as the commit identifier."
@@ -588,9 +592,9 @@ def validate_commit(folder: str, cwd: Path | None = None, commit: Path | None = 
             commit = file
 
     if not commit.is_file():
-         raise exceptions.InvalidArgumentError(
+        raise exceptions.InvalidArgumentError(
             f"Commit file '{commit}' does not exist. Please provide a valid commit file"
             f" path."
         )
-    
+
     return commit
