@@ -563,3 +563,34 @@ def commit_changes(commit_msg: str) -> str:
     atomically_update_history(combined_history_update_dicts)
 
     return sha_hash
+
+
+def validate_commit(folder: str, cwd: Path | None = None, commit: Path | None = None, ) -> Path:
+    """Validate the commit file path entered by the user."""
+
+    if cwd is None:
+        cwd = working_directory_path
+
+    if commit is None:
+        raise exceptions.InvalidArgumentError(
+            "No commit file path provided. Please specify a commit file path."
+        )
+    
+    if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
+        raise exceptions.InvalidArgumentError(
+            "Invalid commit file name. Please provide a shortened, 10 character commit hash or the full 64 character commit hash as the commit identifier."
+        )
+
+    objects_dir = cwd / ".sccs" / "objects" / folder
+
+    for file in objects_dir.iterdir():
+        if str(file.stem).startswith(str(commit)):
+            commit = file
+
+    if not commit.is_file():
+         raise exceptions.InvalidArgumentError(
+            f"Commit file '{commit}' does not exist. Please provide a valid commit file"
+            f" path."
+        )
+    
+    return commit

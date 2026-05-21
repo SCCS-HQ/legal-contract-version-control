@@ -17,28 +17,6 @@ def get_entered_commit_to_diff() -> Path | None:
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
-def validate_commit(commit_to_diff: Path, docx_current_version: Path) -> None:
-    """Validate the commit file and current docx file paths."""
-
-    if not commit_to_diff:
-        raise exceptions.InvalidArgumentError("No commit file path provided.")
-
-    if not commit_to_diff.is_file():
-        raise FileNotFoundError(
-            "Commit file not found. Please provide a valid commit file path."
-        )
-
-    if commit_to_diff.suffix.lower() != ".html":
-        raise exceptions.InvalidArgumentError(
-            "Commit file is not a .html file. Please provide a valid .html commit file"
-        )
-
-    if not docx_current_version.is_file():
-        raise FileNotFoundError(
-            "Docx file not found. Please provide a valid docx file path."
-        )
-
-
 def get_commit_html(commit_path: Path) -> str:
     """Read and return the HTML content of a commit file."""
 
@@ -244,11 +222,9 @@ def main() -> None:
     """Run functions for the <sccs diff> command."""
     utils.check_sccs_layout()
 
-    validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)
-
     docx_current_version_html = utils.convert_docx_to_html()
 
-    commit_html = get_commit_html(get_entered_commit_to_diff())
+    commit_html = get_commit_html(utils.validate_commit("html", utils.working_directory_path, get_entered_commit_to_diff()))
 
     bs4_docx_current_version_soup = convert_html_to_soup(docx_current_version_html)
 

@@ -11,19 +11,7 @@ import utils
 
 def get_commit_path_input() -> Path | None:
     """Get the absolute path of the commit file from the command-line arguments."""
-    return Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
-
-
-def check_commit_path_input(commit_path: Path) -> None:
-    """Check the validity of the commit file path."""
-    if not commit_path:
-        raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
-
-    if not commit_path.is_file():
-        raise FileNotFoundError("Commit file does not exist.")
-
-    if commit_path.suffix.lower() != ".docx":
-        raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
+    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def confirm_before_proceeding(
@@ -87,9 +75,7 @@ def main() -> None:
 
     utils.check_sccs_layout()
 
-    commit_path = get_commit_path_input()
-
-    check_commit_path_input(commit_path)
+    commit_path = utils.validate_commit("docx", utils.working_directory_path, get_commit_path_input())
 
     check_changes(commit_path)
 
