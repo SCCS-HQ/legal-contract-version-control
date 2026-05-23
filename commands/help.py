@@ -11,13 +11,12 @@ MESSAGES_TO_PRINT = [
     "  help    - Show this help message"
 ]
 
-def print_help():
-    for item in MESSAGES_TO_PRINT:
+def print_help(messages):
+    for item in messages:
         print(item)
 
 if __name__ == "__main__":
-    print_help()
-
+    print_help(MESSAGES_TO_PRINT)
 
 
 
