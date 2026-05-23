@@ -4,11 +4,13 @@ import json
 import shutil
 import utils
 
-subcommand = sys.argv[2] if len(sys.argv) > 2 else None
-
-branch_name = sys.argv[3] if len(sys.argv) > 3 else None
-
 current_branch_path = os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json")
+
+def get_entered_subcommand():
+    return sys.argv[2] if len(sys.argv) > 2 else None
+
+def get_entered_branch_name():
+    return sys.argv[3] if len(sys.argv) > 3 else None
 
 def validate_subcommand(subcommand, branch_name):
     if not subcommand:
@@ -26,7 +28,7 @@ def validate_subcommand(subcommand, branch_name):
             sys.exit(1)
 
 def branch_create_subcommand(current_branch, branch_data):
-    sanitized_branch_name = utils.clean_directory_name(branch_name)
+    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     if not sanitized_branch_name:
         print("Invalid branch name. Please provide a valid branch name.")
@@ -59,7 +61,7 @@ def branch_create_subcommand(current_branch, branch_data):
 
 def branch_delete_subcommand(current_branch, branch_data):
 
-    sanitized_branch_name = utils.clean_directory_name(branch_name)
+    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     branch_path = os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name)
 
@@ -119,12 +121,8 @@ if __name__ == "__main__":
 
     utils.check_sccs_layout()
 
-    branch_data = utils.get_branch_data(current_branch_path)
-
-    current_branch = utils.get_current_branch(current_branch_path)
-
     validate_subcommand()
 
-    run_specified_subcommand(subcommand, current_branch, branch_data)
+    run_specified_subcommand(get_entered_subcommand(), utils.get_current_branch(current_branch_path), utils.get_branch_data(current_branch_path))
 
     
