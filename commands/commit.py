@@ -9,18 +9,22 @@ import mammoth
 import utils
 
 
-def convert_docx_to_html():
+def convert_docx_to_html(docx_path=None):
+    if docx_path is None:
+        docx_path = utils.current_file_docx_path
     try: 
-        with open(utils.current_file_docx_path, "rb") as f:
+        with open(docx_path, "rb") as f:
             result = mammoth.convert_to_html(f)
             return result.value
     except Exception as e:
         print(f"Error converting .docx to HTML: {e}")
         sys.exit(1)
 
-def get_obj_from_config(object):
+def get_obj_from_config(object, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
     # Get name and email entered on init
-    config_path = os.path.join(utils.working_directory_path, ".sccs", "config", "config.json")
+    config_path = os.path.join(cwd, ".sccs", "config", "config.json")
     if not Path(config_path).is_file():
         print("Configuration file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
@@ -44,8 +48,12 @@ def get_commit_message():
 def get_timestamp():
     return datetime.now().isoformat()
 
-def get_history_path():
-    return os.path.join(utils.working_directory_path, ".sccs", "branches", utils.current_branch, "history", "commit_history.json")
+def get_history_path(cwd=None, current_branch=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if current_branch is None:
+        current_branch = utils.current_branch
+    return os.path.join(cwd, ".sccs", "branches", current_branch, "history", "commit_history.json")
 
 def get_commit_history():
     history_path = get_history_path()
@@ -71,15 +79,24 @@ def get_parent_hash(history):
 def generate_commit_hash(timestamp, commit_message, name, email, parent_hash):
     return hashlib.sha256(f'{timestamp}/{commit_message}/{name}/{email}/{parent_hash}'.encode()).hexdigest()
 
-def copy_docx_to_objects(sha_hash):
-    shutil.copy2(os.path.join(utils.working_directory_path, Path(utils.current_file_docx_path).name) , os.path.join(utils.working_directory_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"))
+def copy_docx_to_objects(sha_hash, docx_path=None, cwd=None):
+    if docx_path is None:
+        docx_path = utils.current_file_docx_path
+    if cwd is None:
+        cwd = utils.working_directory_path
+    shutil.copy2(os.path.join(cwd, Path(docx_path).name) , os.path.join(cwd, ".sccs", "objects", "docx", f"{sha_hash}.docx"))
 
-def write_diff_html(sha_hash, docx_html):
-    with open(os.path.join(utils.working_directory_path, ".sccs", "objects", "html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(utils.styles + docx_html)
-
-def write_view_html(sha_hash, docx_html):
-    with open(os.path.join(utils.working_directory_path, ".sccs", "objects", "view_html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
+def write_diff_html(sha_hash, docx_html, cwd=None, styles=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if styles is None:
+        styles = utils.default_html_styles
+    with open(os.path.join(cwd, ".sccs", "objects", "html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
+        f.write(styles + docx_html)
+def write_view_html(sha_hash, docx_html, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    with open(os.path.join(cwd, ".sccs", "objects", "view_html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(utils.wrap_html(docx_html))
 
 def update_commit_log_history(history, sha_hash, timestamp, name, email, commit_message):
@@ -100,9 +117,11 @@ def update_commit_log_history(history, sha_hash, timestamp, name, email, commit_
     }
     return {history: commit_history_file}
 
-def update_commit_messages(sha_hash, commit_message):
+def update_commit_messages(sha_hash, commit_message, cwd=None):
     # Update commit messages
-    commit_messages_path = os.path.join(utils.working_directory_path, ".sccs", "commit_messages", "commit_messages.json")
+    if cwd is None:
+        cwd = utils.working_directory_path
+    commit_messages_path = os.path.join(cwd, ".sccs", "commit_messages", "commit_messages.json")
     if not Path(commit_messages_path).is_file():
         print("Commit messages file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
@@ -118,9 +137,13 @@ def update_commit_messages(sha_hash, commit_message):
 
     return {messages: commit_messages_path}
 
-def update_commit_binary_hash_history(sha_hash, hash_docx_binary):
+def update_commit_binary_hash_history(sha_hash, hash_docx_binary, cwd=None, current_branch=None):
     # Update commit file hash
-    commit_file_hash_path = os.path.join(utils.working_directory_path, ".sccs", "branches", utils.current_branch, "commit_file_hash", "commit_file_hash.json")
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if current_branch is None:
+        current_branch = utils.current_branch
+    commit_file_hash_path = os.path.join(cwd, ".sccs", "branches", current_branch, "commit_file_hash", "commit_file_hash.json")
     if not Path(commit_file_hash_path).is_file():
         print("Commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
