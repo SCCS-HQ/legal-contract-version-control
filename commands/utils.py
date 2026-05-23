@@ -170,3 +170,5 @@ justify-content: center;
 current_branch_path = os.path.join(working_directory_path, ".sccs", "current_branch", "current_branch.json")
 
 current_branch = get_current_branch(current_branch_path)
+
+branch_data = get_branch_data(current_branch_path)
