@@ -192,36 +192,37 @@ def write_branch_data():
 def confirmation_message():
     print("SCCS initialization complete.")
 
-check_if_arg_entered(ENTERED_DOCUMENT_PATH)
+if __name__ == "__main__":
+    check_if_arg_entered(ENTERED_DOCUMENT_PATH)
 
-check_for_prev_init()
+    check_for_prev_init()
 
-check_file_requirements()
+    check_file_requirements()
 
-hashed_file = hash_document()
+    hashed_file = hash_document()
 
-html = convert_document_to_html()
+    html = convert_document_to_html()
 
-config_user_name = ask_config_input("name")
+    config_user_name = ask_config_input("name")
 
-config_user_email = ask_config_input("email")
+    config_user_email = ask_config_input("email")
 
-sha_hash = create_commit_sha_hash(get_current_iso_time(), config_user_name, config_user_email)
+    sha_hash = create_commit_sha_hash(get_current_iso_time(), config_user_name, config_user_email)
 
-create_sccs_directory_layout()
+    create_sccs_directory_layout()
 
-move_document_to_repo_directory()
+    move_document_to_repo_directory()
 
-copy_document_to_objects_as_docx_and_html()
+    copy_document_to_objects_as_docx_and_html()
 
-write_history_data()
+    write_history_data()
 
-write_commit_message_data()
+    write_commit_message_data()
 
-write_config_data()
+    write_config_data()
 
-write_hashed_file_commit_data()
+    write_hashed_file_commit_data()
 
-write_branch_data()
+    write_branch_data()
 
-confirmation_message()
+    confirmation_message()
