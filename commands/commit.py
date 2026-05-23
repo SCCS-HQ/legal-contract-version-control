@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 import mammoth
 from default_css_styles import styles
-from sccs_layout_check import check_sccs, path, directory_path, wrap_html
+from utils import check_sccs, path, directory_path, wrap_html
 
 check_sccs()
 

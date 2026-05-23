@@ -3,9 +3,9 @@ from pathlib import Path
 import os
 import sys
 
-from sccs_layout_check import directory_path
+from utils import directory_path
 
-from sccs_layout_check import check_sccs
+from utils import check_sccs
 
 CURRENT_BRANCH_PATH = os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json")
 

@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 import mammoth
 from default_css_styles import styles
-from sccs_layout_check import wrap_html
+from utils import wrap_html
 # Get user inputted path argument
 INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
 ENTERED_DOCUMENT_PATH = sys.argv[2] if len(sys.argv) > 2 else None

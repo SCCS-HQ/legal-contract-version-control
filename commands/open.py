@@ -3,7 +3,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from sccs_layout_check import path, check_sccs, directory_path
+from utils import path, check_sccs, directory_path
 
 def get_commit_path_input():
     commit_path = input("Enter the path to the commit file (.docx): ").strip()

@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import shutil
-from sccs_layout_check import check_sccs, directory_path, sanitize_dirname
+from utils import check_sccs, directory_path, sanitize_dirname
 
 check_sccs()
 

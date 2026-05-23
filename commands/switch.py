@@ -1,4 +1,4 @@
-from sccs_layout_check import check_sccs, directory_path, sanitize_dirname, path
+from utils import check_sccs, directory_path, sanitize_dirname, path
 import hashlib
 import sys
 import os
