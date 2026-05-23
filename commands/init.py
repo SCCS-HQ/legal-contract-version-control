@@ -7,9 +7,6 @@ from datetime import datetime
 import json
 import mammoth
 import utils
-# Get user inputted path argument
-INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
-    
 # Strip .docx extension from the file name to create a directory
 def get_entered_document_path():
     return sys.argv[2] if len(sys.argv) > 2 else None
@@ -104,7 +101,7 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
             f"{sha_hash}": {
                 "timestamp": get_current_iso_time(),
                 "author": f"{config_user_name} <{config_user_email}>",
-                "message": INITIAL_COMMIT_MESSAGE
+                "message": "initial commit (This is a default commit message for initial version)"
             }
         }
     }
@@ -121,7 +118,7 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
 
 def write_commit_message_data(sha_hash):
     commit_message_data = {
-        f"{sha_hash}": INITIAL_COMMIT_MESSAGE
+        f"{sha_hash}": "initial commit (This is a default commit message for initial version)"
     }
     try:
         with open(os.path.join(get_document_repo_path(), ".sccs", "commit_messages", "commit_messages.json"), "w", encoding="utf-8", newline="\n") as f:
