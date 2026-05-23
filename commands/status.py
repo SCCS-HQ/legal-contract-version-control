@@ -5,7 +5,7 @@ import hashlib
 import json
 import utils
 
-CURRENT_BRANCH_PATH = os.path.join(utils.directory_path, ".sccs", "current_branch", "current_branch.json")
+CURRENT_BRANCH_PATH = os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json")
 
 def get_current_branch():
     try:
@@ -38,7 +38,7 @@ def hash_current_docx_binary(file_path):
 
 def get_latest_commit_hash_file(current_branch):
     # get the latest commit filename hash from commit history
-    history_path = os.path.join(utils.directory_path, ".sccs", "branches", current_branch, "history", "commit_history.json")
+    history_path = os.path.join(utils.working_directory_path, ".sccs", "branches", current_branch, "history", "commit_history.json")
     if not Path(history_path).is_file():
         print("History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
@@ -64,7 +64,7 @@ def get_latest_commit_hash_file(current_branch):
 def get_latest_commit_file_binary_hash(current_branch):
     # get the hash of the latest committed file
     latest_commit_hash = get_latest_commit_hash_file(current_branch)
-    latest_commit_file_hash_path = os.path.join(utils.directory_path, ".sccs", "branches", current_branch, "commit_file_hash", "commit_file_hash.json")
+    latest_commit_file_hash_path = os.path.join(utils.working_directory_path, ".sccs", "branches", current_branch, "commit_file_hash", "commit_file_hash.json")
     if not Path(latest_commit_file_hash_path).is_file():
         print("Latest commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
@@ -107,6 +107,6 @@ def print_changes_message_and_exit(old_hash, new_hash):
         sys.exit(1)
 
 if __name__ == "__main__":
-    utils.check_sccs()
+    utils.check_sccs_layout()
     current_branch = get_current_branch()
-    print_changes_message_and_exit(get_latest_commit_file_binary_hash(current_branch), hash_current_docx_binary(utils.path))
+    print_changes_message_and_exit(get_latest_commit_file_binary_hash(current_branch), hash_current_docx_binary(utils.current_file_docx_path))

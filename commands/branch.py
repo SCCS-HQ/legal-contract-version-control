@@ -9,7 +9,7 @@ subcommand = sys.argv[2] if len(sys.argv) > 2 else None
 branch_name = sys.argv[3] if len(sys.argv) > 3 else None
 
 def get_current_branch_path():
-    return os.path.join(utils.directory_path, ".sccs", "current_branch", "current_branch.json")
+    return os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json")
 
 def get_branch_data():
     try:
@@ -42,7 +42,7 @@ def validate_subcommand(subcommand, branch_name):
             sys.exit(1)
 
 def branch_create_subcommand(current_branch, branch_data):
-    sanitized_branch_name = utils.sanitize_dirname(branch_name)
+    sanitized_branch_name = utils.clean_directory_name(branch_name)
 
     if not sanitized_branch_name:
         print("Invalid branch name. Please provide a valid branch name.")
@@ -52,11 +52,11 @@ def branch_create_subcommand(current_branch, branch_data):
         print(f"Branch '{sanitized_branch_name}' already exists.")
         sys.exit(1)
 
-    if os.path.isdir(os.path.join(utils.directory_path, ".sccs", "branches", sanitized_branch_name)):
+    if os.path.isdir(os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name)):
         print(f"Branch '{sanitized_branch_name}' already exists, or a directory with the same name exists.")
         sys.exit(1)
         
-    shutil.copytree(os.path.join(utils.directory_path, ".sccs", "branches", current_branch), os.path.join(utils.directory_path, ".sccs", "branches", sanitized_branch_name))
+    shutil.copytree(os.path.join(utils.working_directory_path, ".sccs", "branches", current_branch), os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name))
     try:
         with open(get_current_branch_path(), "w", encoding="utf-8", newline="\n") as current_branch_file:
             try:    
@@ -75,9 +75,9 @@ def branch_create_subcommand(current_branch, branch_data):
 
 def branch_delete_subcommand(current_branch, branch_data):
 
-    sanitized_branch_name = utils.sanitize_dirname(branch_name)
+    sanitized_branch_name = utils.clean_directory_name(branch_name)
 
-    branch_path = os.path.join(utils.directory_path, ".sccs", "branches", sanitized_branch_name)
+    branch_path = os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name)
 
     if sanitized_branch_name == current_branch:
         print("Cannot delete the current branch.")
@@ -133,7 +133,7 @@ def run_specified_subcommand(subcommand, current_branch, branch_data):
 
 if __name__ == "__main__":
 
-    utils.check_sccs()
+    utils.check_sccs_layout()
 
     current_branch, branch_data = get_branch_data()
 

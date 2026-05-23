@@ -7,7 +7,7 @@ import difflib
 import utils
 import copy
 COMMIT_TO_DIFF = sys.argv[2] if len(sys.argv) > 2 else None 
-DOCX_CURRENT_VERSION = os.path.join(utils.directory_path, f"{os.path.basename(utils.directory_path)}.docx")
+DOCX_CURRENT_VERSION = os.path.join(utils.working_directory_path, f"{os.path.basename(utils.working_directory_path)}.docx")
 
 def validate_commit(commit_to_diff, docx_current_version):
     if not commit_to_diff:
@@ -178,7 +178,7 @@ def write_redline_html_file(redline, filename="redline.html"):
 
 if __name__ == "__main__":
 
-    utils.check_sccs()
+    utils.check_sccs_layout()
 
     validate_commit(COMMIT_TO_DIFF, DOCX_CURRENT_VERSION)
 

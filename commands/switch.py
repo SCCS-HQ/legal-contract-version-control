@@ -9,7 +9,7 @@ branch_to_switch = sys.argv[2] if len(sys.argv) > 2 else None
 
 def update_current_branch(branch):
     try:
-        with open(os.path.join(utils.directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 current_branch = json.load(f)
                 current_branch["current_branch"] = branch
@@ -32,14 +32,14 @@ def update_current_branch(branch):
         sys.exit(1)
     
     try: 
-        os.replace("tmp", os.path.join(utils.directory_path, ".sccs", "current_branch", "current_branch.json"))
+        os.replace("tmp", os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json"))
     except Exception as e:
         print(f"Error replacing current branch information: {e}")
         sys.exit(1)
 
 def get_branch_data():
     try:
-        with open(os.path.join(utils.directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 data = json.load(f)
                 return data.get("current_branch"), data.get("branches")
@@ -61,7 +61,7 @@ def check_branch_to_switch(branch_to_switch, branches):
 
 def get_latest_commit_binary_hash(branch, latest_commit):
     try:
-        with open(os.path.join(utils.directory_path, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(utils.working_directory_path, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 return json.load(f).get(latest_commit)
             except Exception as e:
@@ -73,7 +73,7 @@ def get_latest_commit_binary_hash(branch, latest_commit):
 
 def hash_current_document():
     try:
-        with open(utils.path, "rb") as f:
+        with open(utils.current_file_docx_path, "rb") as f:
             hasher = hashlib.sha256()
             for chunk in iter(lambda: f.read(65536), b""):
                 hasher.update(chunk)
@@ -88,11 +88,11 @@ def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
         sys.exit(1)
 
 def sanitize_branch(branch_name):
-    return utils.sanitize_dirname(branch_name)
+    return utils.clean_directory_name(branch_name)
 
 def get_latest_commit(branch):
     try:
-        with open(os.path.join(utils.directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(utils.working_directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 history = json.load(f)
                 try:
@@ -108,13 +108,13 @@ def get_latest_commit(branch):
         sys.exit(1)
 
 def check_commit(commit):
-    if not os.path.isfile(os.path.join(utils.directory_path, ".sccs", "objects", "docx", f"{commit}.docx")):
+    if not os.path.isfile(os.path.join(utils.working_directory_path, ".sccs", "objects", "docx", f"{commit}.docx")):
         print(f"Error: Commit object '{commit}' not found.")
         sys.exit(1)
 
 def copy_commit_to_main(commit):
     try:
-        shutil.copy2(os.path.join(utils.directory_path, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(utils.directory_path, f"{os.path.basename(utils.directory_path)}.docx"))
+        shutil.copy2(os.path.join(utils.working_directory_path, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(utils.working_directory_path, f"{os.path.basename(utils.working_directory_path)}.docx"))
     except Exception as e:
         print(f"Error copying commit '{commit}' to main: {e}")
         sys.exit(1)
@@ -123,7 +123,7 @@ def print_confirmation(branch_to_switch):
     print(f"Successfully switched to branch '{branch_to_switch}'.")
 
 if __name__ == "__main__":
-    utils.check_sccs()
+    utils.check_sccs_layout()
 
     branch, branches = get_branch_data()
 
