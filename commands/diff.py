@@ -6,19 +6,19 @@ import mammoth
 import difflib
 import utils
 import copy
-commit_to_diff = sys.argv[2] if len(sys.argv) > 2 else None 
-docx_current_version = os.path.join(utils.working_directory_path, f"{os.path.basename(utils.working_directory_path)}.docx")
+def get_entered_commit_to_diff():
+    return sys.argv[2] if len(sys.argv) > 2 else None
 
-def validate_commit(commit_to_diff, docx_current_version):
-    if not commit_to_diff:
+def validate_commit(get_entered_commit_to_diff, docx_current_version):
+    if not get_entered_commit_to_diff:
         print("No commit file specified.")
         sys.exit(1)
 
-    if not Path(commit_to_diff).is_file():
+    if not Path(get_entered_commit_to_diff).is_file():
         print("Commit file not found. Please provide a valid commit file path.")
         sys.exit(1)
 
-    if Path(commit_to_diff).suffix.lower() != ".html":
+    if Path(get_entered_commit_to_diff).suffix.lower() != ".html":
         print("Commit file is not a .html file. Please provide a valid .html commit file.")
         sys.exit(1)
 
@@ -180,11 +180,11 @@ if __name__ == "__main__":
 
     utils.check_sccs_layout()
 
-    validate_commit(commit_to_diff, docx_current_version)
+    validate_commit(get_entered_commit_to_diff, utils.current_file_docx_path)
 
-    docx_current_version_html = convert_current_docx_to_html(docx_current_version)
+    docx_current_version_html = convert_current_docx_to_html(utils.current_file_docx_path)
 
-    commit_html = get_commit_html(commit_to_diff)
+    commit_html = get_commit_html(get_entered_commit_to_diff)
 
     bs4_docx_current_version_soup = convert_html_to_soup(docx_current_version_html)
 
