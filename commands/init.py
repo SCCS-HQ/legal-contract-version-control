@@ -90,7 +90,7 @@ def create_sccs_directory_layout():
 def move_document_to_repo_directory():
     shutil.move(get_entered_document_path(), get_document_repo_path())
 
-def copy_document_to_objects_as_docx_and_html():
+def copy_document_to_objects_as_docx_and_html(sha_hash, html):
     shutil.copy2(os.path.join(get_document_repo_path(), Path(get_entered_document_path()).name), os.path.join(get_document_repo_path(), ".sccs", "objects", "docx", f"{sha_hash}.docx"))
 
     with open(os.path.join(get_document_repo_path(), ".sccs", "objects", "html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
@@ -102,7 +102,7 @@ def copy_document_to_objects_as_docx_and_html():
 def get_current_iso_time():
     return datetime.now().isoformat()
 
-def write_history_data():
+def write_history_data(sha_hash, config_user_name, config_user_email):
     history_data = {
         "history": {
             "initial_commit": f"{sha_hash}",
@@ -131,7 +131,7 @@ def write_history_data():
         print(f"Error opening commit history file: {e}")
         sys.exit(1)
 
-def write_commit_message_data():
+def write_commit_message_data(sha_hash):
     commit_message_data = {
         f"{sha_hash}": INITIAL_COMMIT_MESSAGE
     }
@@ -146,7 +146,7 @@ def write_commit_message_data():
         print(f"Error opening commit message data file: {e}")
         sys.exit(1)
 
-def write_config_data():
+def write_config_data(config_user_name, config_user_email):
     config_data = {
         "name": f"{config_user_name}",
         "email": f"{config_user_email}"
@@ -162,7 +162,7 @@ def write_config_data():
         print(f"Error opening config data file: {e}")
         sys.exit(1)
 
-def write_hashed_file_commit_data():
+def write_hashed_file_commit_data(sha_hash, hashed_file):
     commit_file_hash_data = {
         f"{sha_hash}": hashed_file
     }
@@ -203,10 +203,6 @@ if __name__ == "__main__":
 
     check_file_requirements()
 
-    hashed_file = hash_document()
-
-    html = convert_document_to_html()
-
     config_user_name = ask_config_input("name")
 
     config_user_email = ask_config_input("email")
@@ -217,15 +213,15 @@ if __name__ == "__main__":
 
     move_document_to_repo_directory()
 
-    copy_document_to_objects_as_docx_and_html()
+    copy_document_to_objects_as_docx_and_html(sha_hash, convert_document_to_html())
 
-    write_history_data()
+    write_history_data(sha_hash, config_user_name, config_user_email)
 
-    write_commit_message_data()
+    write_commit_message_data(sha_hash)
 
-    write_config_data()
+    write_config_data(config_user_name, config_user_email)
 
-    write_hashed_file_commit_data()
+    write_hashed_file_commit_data(sha_hash, hash_document())
 
     write_branch_data()
 
