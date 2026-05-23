@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 import re
 import sys
-from default_css_styles import styles
 
 directory_path = os.getcwd()
 
@@ -98,3 +97,36 @@ def check_sccs():
 
 def wrap_html(html):
     return f"<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
+
+styles = """<style>
+* {
+font-family: Arial, Helvetica, sans-serif;}
+
+.inserted {
+
+background-color: #d4fcbc;
+
+display: block;
+
+width: fit-content;
+}
+
+.deleted {
+
+background-color: #fbb6c2;
+
+display: block;
+
+width: fit-content;
+
+}
+
+.center {
+
+display: flex;
+
+justify-content: center;
+
+}
+
+</style>"""
