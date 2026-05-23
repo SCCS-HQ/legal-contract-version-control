@@ -4,8 +4,9 @@ import sys
 import os
 import json
 import shutil
+def get_branch_to_switch():
+    return sys.argv[2] if len(sys.argv) > 2 else None
 
-branch_to_switch = sys.argv[2] if len(sys.argv) > 2 else None
 
 def update_current_branch(branch):
     try:
@@ -112,6 +113,8 @@ if __name__ == "__main__":
     current_document_hash = utils.hash_current_docx_binary()
 
     check_for_changes(current_branch, latest_commit_binary_hash, current_document_hash)
+
+    branch_to_switch = get_branch_to_switch()
 
     check_branch_to_switch(branch_to_switch, branches)
 
