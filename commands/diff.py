@@ -9,16 +9,16 @@ import copy
 def get_entered_commit_to_diff():
     return sys.argv[2] if len(sys.argv) > 2 else None
 
-def validate_commit(get_entered_commit_to_diff, docx_current_version):
-    if not get_entered_commit_to_diff:
+def validate_commit(commit_to_diff, docx_current_version):
+    if not commit_to_diff:
         print("No commit file specified.")
         sys.exit(1)
 
-    if not Path(get_entered_commit_to_diff).is_file():
+    if not Path(commit_to_diff).is_file():
         print("Commit file not found. Please provide a valid commit file path.")
         sys.exit(1)
 
-    if Path(get_entered_commit_to_diff).suffix.lower() != ".html":
+    if Path(commit_to_diff).suffix.lower() != ".html":
         print("Commit file is not a .html file. Please provide a valid .html commit file.")
         sys.exit(1)
 
@@ -174,17 +174,17 @@ def format_redline_html(redline, opcodes, commit_list, docx_current_version_list
 
 def write_redline_html_file(redline, filename="redline.html"):
     with open(filename, "w", encoding="utf-8", newline="\n") as f:
-        f.write(utils.wrap_html(str(utils.strip_number_attribute(redline))))
+        f.write(utils.wrap_html(str(strip_number_attribute(redline))))
 
 if __name__ == "__main__":
 
     utils.check_sccs_layout()
 
-    validate_commit(get_entered_commit_to_diff, utils.current_file_docx_path)
+    validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)
 
     docx_current_version_html = convert_current_docx_to_html(utils.current_file_docx_path)
 
-    commit_html = get_commit_html(get_entered_commit_to_diff)
+    commit_html = get_commit_html(get_entered_commit_to_diff())
 
     bs4_docx_current_version_soup = convert_html_to_soup(docx_current_version_html)
 
@@ -195,6 +195,8 @@ if __name__ == "__main__":
 
     opcodes = get_opcodes(bs4_commit_soup, bs4_docx_current_version_soup)
 
-    redline = format_redline_html(get_redline_html(bs4_commit_soup), opcodes, commit_list, docx_current_version_list)
+    base_redline_html = get_redline_html(bs4_commit_soup)
+
+    redline = format_redline_html(base_redline_html, opcodes, commit_list, docx_current_version_list)
 
     write_redline_html_file(redline)
