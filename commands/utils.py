@@ -5,37 +5,6 @@ from pathlib import Path
 import re
 import sys
 
-working_directory_path = os.getcwd()
-
-current_file_docx_path = os.path.join(working_directory_path, f"{os.path.basename(working_directory_path)}.docx")
-
-sccs_versions_directory_path = os.path.join(working_directory_path, ".sccs")
-
-default_html_styles = """<style>
-* {
-font-family: Arial, Helvetica, sans-serif;
-}
-
-.inserted {
-background-color: #d4fcbc;
-display: block;
-width: fit-content;
-}
-
-.deleted {
-background-color: #fbb6c2;
-display: block;
-width: fit-content;
-}
-
-.center {
-display: flex;
-justify-content: center;
-}
-</style>"""
-
-current_branch_path = os.path.join(working_directory_path, ".sccs", "current_branch", "current_branch.json")
-
 def clean_directory_name(name):
     return re.sub(r'[\\/:*?"<>|]', '-', name).strip('. ')
 
@@ -168,3 +137,36 @@ def get_branch_data(file_path, key=None, ):
     except Exception as e:
         print(f"Error reading current branch data: {e}")
         sys.exit(1)
+
+working_directory_path = os.getcwd()
+
+current_file_docx_path = os.path.join(working_directory_path, f"{os.path.basename(working_directory_path)}.docx")
+
+sccs_versions_directory_path = os.path.join(working_directory_path, ".sccs")
+
+default_html_styles = """<style>
+* {
+font-family: Arial, Helvetica, sans-serif;
+}
+
+.inserted {
+background-color: #d4fcbc;
+display: block;
+width: fit-content;
+}
+
+.deleted {
+background-color: #fbb6c2;
+display: block;
+width: fit-content;
+}
+
+.center {
+display: flex;
+justify-content: center;
+}
+</style>"""
+
+current_branch_path = os.path.join(working_directory_path, ".sccs", "current_branch", "current_branch.json")
+
+current_branch = get_current_branch(current_branch_path)
