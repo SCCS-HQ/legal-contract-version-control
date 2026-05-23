@@ -572,7 +572,7 @@ def validate_commit(
 ) -> Path:
     """Validate the commit file path entered by the user."""
 
-    commit = Path(commit.strip()) if commit else None
+    commit = Path(str(commit).strip()) if commit else None
 
     if cwd is None:
         cwd = working_directory_path
