@@ -104,6 +104,18 @@ def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
 def sanitize_branch(branch_name):
     return sanitize_dirname(branch_name)
 
+def get_commit_history(branch):
+    try:
+        with open(os.path.join(directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
+            try:
+                return json.load(f)
+            except Exception as e:
+                print(f"Error parsing commit history for branch '{branch}': {e}")
+                sys.exit(1)
+    except Exception as e: 
+        print(f"Error reading commit history for branch '{branch}': {e}")
+        sys.exit(1)
+
 branch, branches = get_branch_data()
 
 latest_commit = get_latest_commit(branch)
@@ -118,18 +130,7 @@ branch_to_switch = sanitize_branch(branch_to_switch)
 
 check_branch_to_switch(branch_to_switch, branches)
 
-try:
-    with open(os.path.join(directory_path, ".sccs",  "branches", branch_to_switch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            commit_history = json.load(f)
-            
-        except Exception as e:
-            print(f"Error parsing commit history for branch '{branch_to_switch}': {e}")
-            sys.exit(1)
-
-except Exception as e: 
-    print(f"Error reading commit history for branch '{branch_to_switch}': {e}")
-    sys.exit(1)
+commit_history = get_commit_history(branch_to_switch)
 
 try:
     latest_commit_on_branch_to_switch = commit_history["history"]["latest_commit"]
