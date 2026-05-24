@@ -44,7 +44,7 @@ def hash_document():
                 hasher = hashlib.sha256()
                 for chunk in iter(lambda: f.read(65536), b""):
                     hasher.update(chunk)
-                    hashed_file = hasher.hexdigest()
+                hashed_file = hasher.hexdigest()
             except Exception as e:
                 print(f"Error hashing .docx file: {e}")
                 sys.exit(1)
