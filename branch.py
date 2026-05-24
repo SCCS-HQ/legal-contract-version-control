@@ -42,11 +42,7 @@ def validate_subcommand():
             print("No branch name provided. Please specify a branch name.")
             sys.exit(1)
 
-current_branch, branch_data = get_branch_data()
-
-validate_subcommand()
-
-if subcommand == 'create':
+def branch_create_subcommand(current_branch, branch_data):
     sanitized_branch_name = sanitize_dirname(branch_name)
 
     if not len(sanitized_branch_name) > 0:
@@ -79,9 +75,9 @@ if subcommand == 'create':
         sys.exit(1)
 
     print(f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', and is now the current branch.")
-         
 
-if subcommand == 'delete':
+def branch_delete_subcommand(current_branch, branch_data):
+
     sanitized_branch_name = sanitize_dirname(branch_name)
 
     branch_path = os.path.join(directory_path, ".sccs", "branches", sanitized_branch_name)
@@ -117,10 +113,26 @@ if subcommand == 'delete':
     
     print(f"Branch '{sanitized_branch_name}' was deleted.")
 
-if subcommand == "list":
+def branch_list_subcommand(current_branch, branch_data):
     print("Branches:")
     for branch in branch_data.get("branches", []):
         if branch == current_branch:
             print(f"* {branch} (current)")
         else:
             print(f"  {branch}")
+
+def run_specified_subcommand(subcommand, current_branch, branch_data):
+    if subcommand == "create":
+        branch_create_subcommand(current_branch, branch_data)
+    elif subcommand == "delete":
+        branch_delete_subcommand(current_branch, branch_data)
+    elif subcommand == "list":
+        branch_list_subcommand(current_branch, branch_data)
+
+current_branch, branch_data = get_branch_data()
+
+validate_subcommand()
+
+run_specified_subcommand(current_branch, branch_data)
+
+    
