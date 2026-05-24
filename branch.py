@@ -7,18 +7,22 @@ from sccs_layout_check import check_sccs, directory_path, sanitize_dirname
 check_sccs()
 
 current_branch_path = os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json")
-try:
-    with open(current_branch_path, "r", encoding="utf-8", newline="\n") as current_branch_file:
-        try:
-            branch_data = json.load(current_branch_file)
-            current_branch = branch_data.get("current_branch")
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON from current branch file: {e}")
-            sys.exit(1)
 
-except Exception as e:
-    print(f"Error reading current branch data: {e}")
-    sys.exit(1)
+def get_branch_data():
+    try:
+        with open(current_branch_path, "r", encoding="utf-8", newline="\n") as f:
+            try:
+                return json.load(f).get("current_branch"), json.load(f)
+                
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON from current branch file: {e}")
+                sys.exit(1)
+
+    except Exception as e:
+        print(f"Error reading current branch data: {e}")
+        sys.exit(1)
+
+current_branch, branch_data = get_branch_data()
 
 subcommand = sys.argv[2] if len(sys.argv) > 2 else None
 
