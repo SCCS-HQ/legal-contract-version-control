@@ -95,22 +95,27 @@ def branch_delete_subcommand(current_branch, branch_data):
         sys.exit(1)
 
     try:
+        with open(get_current_branch_path(), "w", encoding="utf-8", newline="\n") as current_branch_file:
+            branch_data["branches"].remove(sanitized_branch_name)
+            json.dump(branch_data, current_branch_file, indent=4)
+
+    except Exception as e:
+        print(f"Error updating branch data: {e}")
+        sys.exit(1)
+
+    try:
         shutil.rmtree(branch_path)
 
     except Exception as e:
         print(f"Error deleting branch '{sanitized_branch_name}': {e}")
+        try:
+            with open(get_current_branch_path(), "w", encoding="utf-8", newline="\n") as current_branch_file:
+                branch_data["branches"].remove(sanitized_branch_name)
+                json.dump(branch_data, current_branch_file, indent=4)
+        except Exception as e:
+            print(f"Error updating branch data after failed deletion: {e}\nThe branch '{sanitized_branch_name}' may be in an inconsistent state.")
         sys.exit(1)
-    
-
-    try:
-        with open(get_current_branch_path(), "w", encoding="utf-8", newline="\n") as current_branch_file:
-            branch_data["branches"].remove(sanitized_branch_name)
-            json.dump(branch_data, current_branch_file, indent=4)
         
-    except Exception as e:
-        print(f"Error updating branch data: {e}")
-        sys.exit(1)
-    
     print(f"Branch '{sanitized_branch_name}' was deleted.")
 
 def branch_list_subcommand(current_branch, branch_data):
