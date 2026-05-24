@@ -134,6 +134,9 @@ def copy_commit_to_main(commit, branch):
         update_current_branch(branch)
         sys.exit(1)
 
+def print_confirmation(branch_to_switch):
+    print(f"Successfully switched to branch '{branch_to_switch}'.")
+
 branch, branches = get_branch_data()
 
 latest_commit = get_latest_commit(branch)
@@ -156,4 +159,4 @@ update_current_branch(branch_to_switch)
 
 copy_commit_to_main(latest_commit_on_branch_to_switch, branch)
 
-print(f"Successfully switched to branch '{branch_to_switch}'.")
+print_confirmation(branch_to_switch)
