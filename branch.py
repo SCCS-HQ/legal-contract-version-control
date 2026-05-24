@@ -27,22 +27,24 @@ def get_branch_data():
         print(f"Error reading current branch data: {e}")
         sys.exit(1)
 
+def validate_subcommand():
+    if not subcommand:
+        print("No subcommand provided. Please use 'create', 'delete', or 'list' along with required arguments.")
+        sys.exit(1)
+
+    if subcommand not in ["create", "delete", "list"]:
+        print(f"Unknown subcommand: {subcommand}")
+        print("Invalid subcommand. Please use 'create', 'delete', or 'list' along with required arguments.")
+        sys.exit(1)
+
+    if subcommand in ["create", "delete"]:
+        if not branch_name:
+            print("No branch name provided. Please specify a branch name.")
+            sys.exit(1)
+
 current_branch, branch_data = get_branch_data()
 
-
-if not subcommand:
-    print("No subcommand provided. Please use 'create', 'delete', or 'list' along with required arguments.")
-    sys.exit(1)
-
-if subcommand not in ["create", "delete", "list"]:
-    print(f"Unknown subcommand: {subcommand}")
-    print("Invalid subcommand. Please use 'create', 'delete', or 'list' along with required arguments.")
-    sys.exit(1)
-
-if subcommand in ["create", "delete"]:
-    if not branch_name:
-        print("No branch name provided. Please specify a branch name.")
-        sys.exit(1)
+validate_subcommand()
 
 if subcommand == 'create':
     sanitized_branch_name = sanitize_dirname(branch_name)
