@@ -6,6 +6,10 @@ from sccs_layout_check import check_sccs, directory_path, sanitize_dirname
 
 check_sccs()
 
+subcommand = sys.argv[2] if len(sys.argv) > 2 else None
+
+branch_name = sys.argv[3] if len(sys.argv) > 3 else None
+
 def get_current_branch_path():
     return os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json")
 
@@ -25,9 +29,6 @@ def get_branch_data():
 
 current_branch, branch_data = get_branch_data()
 
-subcommand = sys.argv[2] if len(sys.argv) > 2 else None
-
-branch_name = sys.argv[3] if len(sys.argv) > 3 else None
 
 if not subcommand:
     print("No subcommand provided. Please use 'create', 'delete', or 'list' along with required arguments.")
