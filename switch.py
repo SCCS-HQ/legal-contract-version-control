@@ -38,22 +38,27 @@ def update_current_branch(branch):
         print(f"Error replacing current branch information: {e}")
         sys.exit(1)
 
-try:
-    with open(os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
-        try:
-            data = json.load(f)
-            branch = data.get("current_branch")
-            branches = data.get("branches")
-        except Exception as e:
-            print(f"Error reading current branch information: {e}")
-            sys.exit(1)
-except Exception as e:
-    print(f"Error accessing current branch information: {e}")
-    sys.exit(1)
+def get_branch_data():
+    try:
+        with open(os.path.join(directory_path, ".sccs", "current_branch", "current_branch.json"), "r", encoding="utf-8", newline="\n") as f:
+            try:
+                data = json.load(f)
+                return data.get("current_branch"), data.get("branches")
+            except Exception as e:
+                print(f"Error reading current branch information: {e}")
+                sys.exit(1)
+    except Exception as e:
+        print(f"Error accessing current branch information: {e}")
+        sys.exit(1)
 
-if branch_to_switch not in branches:
-    print(f"Error: Branch '{branch_to_switch}' does not exist.")
-    sys.exit(1)
+def check_branch_to_switch(branch_to_switch, branches):
+    if branch_to_switch not in branches:
+        print(f"Error: Branch '{branch_to_switch}' does not exist.")
+        sys.exit(1)
+
+branch, branches = get_branch_data()
+
+check_branch_to_switch(branch_to_switch, branches)
 
 try: 
     with open(os.path.join(directory_path, ".sccs", "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
