@@ -134,6 +134,6 @@ current_branch, branch_data = get_branch_data()
 
 validate_subcommand()
 
-run_specified_subcommand(current_branch, branch_data)
+run_specified_subcommand(subcommand, current_branch, branch_data)
 
     
