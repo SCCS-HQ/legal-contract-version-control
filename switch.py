@@ -113,12 +113,11 @@ def check_commit(commit):
         print(f"Error: Commit object '{commit}' not found.")
         sys.exit(1)
 
-def copy_commit_to_main(commit, branch):
+def copy_commit_to_main(commit):
     try:
         shutil.copy2(os.path.join(directory_path, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(directory_path, f"{os.path.basename(directory_path)}.docx"))
     except Exception as e:
         print(f"Error copying commit '{commit}' to main: {e}")
-        update_current_branch(branch)
         sys.exit(1)
 
 def print_confirmation(branch_to_switch):
@@ -142,7 +141,7 @@ latest_commit_on_branch_to_switch = get_latest_commit(branch_to_switch)
 
 check_commit(latest_commit_on_branch_to_switch)
 
-copy_commit_to_main(latest_commit_on_branch_to_switch, branch)
+copy_commit_to_main(latest_commit_on_branch_to_switch)
 
 update_current_branch(branch_to_switch)
 
