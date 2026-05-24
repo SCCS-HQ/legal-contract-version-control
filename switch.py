@@ -104,11 +104,16 @@ def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
 def sanitize_branch(branch_name):
     return sanitize_dirname(branch_name)
 
-def get_commit_history(branch):
+def get_latest_commit(branch):
     try:
         with open(os.path.join(directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
-                return json.load(f)
+                history = json.load(f)
+                try:
+                    return history["history"]["latest_commit"]
+                except KeyError as e:
+                    print(f"Error: Missing key {e} in commit history for branch '{branch}'.")
+                    sys.exit(1)
             except Exception as e:
                 print(f"Error parsing commit history for branch '{branch}': {e}")
                 sys.exit(1)
@@ -130,14 +135,7 @@ branch_to_switch = sanitize_branch(branch_to_switch)
 
 check_branch_to_switch(branch_to_switch, branches)
 
-commit_history = get_commit_history(branch_to_switch)
-
-try:
-    latest_commit_on_branch_to_switch = commit_history["history"]["latest_commit"]
-
-except KeyError as e:
-    print(f"Error: Missing key {e} in commit history for branch '{branch_to_switch}'.")
-    sys.exit(1)
+latest_commit_on_branch_to_switch = get_latest_commit(branch_to_switch)
 
 if not os.path.isfile(os.path.join(directory_path, ".sccs", "objects", "docx", f"{latest_commit_on_branch_to_switch}.docx")):
     print(f"Error: Commit object '{latest_commit_on_branch_to_switch}' not found.")
