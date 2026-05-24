@@ -17,7 +17,8 @@ def get_branch_data():
     try:
         with open(get_current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
             try:
-                return json.load(f).get("current_branch"), json.load(f)
+                data = json.load(f)
+                return data.get("current_branch"), data
                 
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON from current branch file: {e}")
