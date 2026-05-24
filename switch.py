@@ -88,7 +88,7 @@ except Exception as e:
     sys.exit(1)
 
 if not hashed_file == latest_commit_file_hash:
-    print(f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches.." )
+    print(f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches." )
     sys.exit(1)
 
 
