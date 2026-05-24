@@ -81,6 +81,17 @@ def get_latest_commit_binary_hash(branch, latest_commit):
         print(f"Error accessing commit file hash for branch '{branch}': {e}")
         sys.exit(1)
 
+def hash_current_document():
+    try:
+        with open(path, "rb") as f:
+            hasher = hashlib.sha256()
+            for chunk in iter(lambda: f.read(65536), b""):
+                hasher.update(chunk)
+            return hasher.hexdigest()
+    except Exception as e:
+        print(f"Error processing .docx file: {e}")
+        sys.exit(1)
+
 branch, branches = get_branch_data()
 
 check_branch_to_switch(branch_to_switch, branches)
@@ -89,17 +100,9 @@ latest_commit = get_latest_commit(branch)
 
 latest_commit_binary_hash = get_latest_commit_binary_hash(branch, latest_commit)
 
-try:
-    with open(path, "rb") as f:
-        hasher = hashlib.sha256()
-        for chunk in iter(lambda: f.read(65536), b""):
-            hasher.update(chunk)
-        hashed_file = hasher.hexdigest()
-except Exception as e:
-    print(f"Error processing .docx file: {e}")
-    sys.exit(1)
+current_document_hash = hash_current_document()
 
-if not hashed_file == latest_commit_binary_hash:
+if not current_document_hash == latest_commit_binary_hash:
     print(f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches." )
     sys.exit(1)
 
