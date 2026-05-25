@@ -319,8 +319,6 @@ def write_redline_html_file(
     """
     Print the redline HTML to a file named 'redline.html' in the current working 
     directory.
-
-    Return None
     """
 
     with open(filename, "w", encoding="utf-8", newline="\n") as f:
