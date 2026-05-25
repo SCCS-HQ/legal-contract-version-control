@@ -10,7 +10,12 @@ import utils
 
 
 def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
-    """Retrieve the commit log data from the history JSON file."""
+    """
+    Retrieve the commit log data from the history JSON file by opening 
+    'commit_history.json' and reading its JSON
+
+    Return the commit history JSON data.
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -34,7 +39,12 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
 
 
 def print_log() -> None:
-    """Print the commit log to the console."""
+    """
+    Read the commit log data by calling 'get_log_data'.
+    
+    Print the first 10 characters of the commit SHA hash, along with the commit author,
+    timestamp, and commit message.
+    """
 
     log_data = get_log_data()
     for entry in log_data["log"]:
