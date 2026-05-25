@@ -13,9 +13,9 @@ from bs4 import BeautifulSoup
 
 def get_entered_commit_to_diff() -> Path | None:
     """
-    Retrieve the commit SHA Hash entered by the user as a Path object 
+    Retrieve the commit SHA Hash entered by the user as a Path object.
     
-    Return said commit SHA Hash as a Path object if it was entered, otherwise return 
+    Return entered commit SHA Hash as a Path object if it was entered, otherwise return 
     None.
     """
 
@@ -270,7 +270,7 @@ def get_redline_html(commit_soup: BeautifulSoup) -> BeautifulSoup:
     Remove the inline semantics tags and convert the tags into lists using a copy of the
     commit BeautifulSoup object.
     
-    Return said BeautifulSoup object to be used as the base HTML for the redline 
+    Return the BeautifulSoup object to be used as the base HTML for the redline 
     document.
     """
 
