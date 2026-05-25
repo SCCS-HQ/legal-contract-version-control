@@ -182,3 +182,6 @@ pyrightconfig.json
 # Test Files
 test_data/
 sample_document/
+
+# VS Code Local History Extension
+.history/
