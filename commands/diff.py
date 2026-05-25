@@ -152,7 +152,7 @@ def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
     HTML."""
 
     soup = html
-    for tag in soup.find_all(["b", "i", "u", "strong", "em", "style"]):
+    for tag in soup.find_all(["b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul"]):
         if tag.name == "style":
             tag.decompose()
         else:
