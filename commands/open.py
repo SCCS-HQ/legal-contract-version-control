@@ -65,6 +65,7 @@ def print_rewrite_confirmation_message(
         f"'{commit_path.name}'."
     )
 
+
 def main() -> None:
     """Run functions for the <sccs open> command."""
 
