@@ -643,15 +643,12 @@ def validate_commit(
 
     return matching_files[0]
 
-def check_for_uncommitted_changes(cmd, cwd: Path | None = None) -> bool:
+def check_for_uncommitted_changes(cmd, cwd: Path | None = None) -> None:
     """
     Check for uncommitted changes by hashing the current document bytes and comparing 
     that to the latest commit bytes hash from the SCCS metadata.
     
     'cmd' is the command being run. It is used in the exception message. 
-
-    Return True if uncommitted changes exist, return False if there are no uncommitted
-    changes.
     """
 
     if cwd is None:
