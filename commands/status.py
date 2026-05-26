@@ -33,9 +33,11 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
     
     return latest_commit_hash
 
-def get_latest_commit_file_binary_hash(current_branch, cwd=None):
+def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
     if cwd is None:
         cwd = utils.working_directory_path
+    if current_branch is None:
+        current_branch = utils.current_branch
     # get the hash of the latest committed file
     latest_commit_hash = get_latest_commit_hash_file(current_branch, cwd=cwd)
     latest_commit_file_hash_path = os.path.join(cwd, ".sccs", "branches", current_branch, "commit_file_hash", "commit_file_hash.json")
@@ -82,4 +84,4 @@ def print_changes_message_and_exit(old_hash, new_hash):
 
 if __name__ == "__main__":
     utils.check_sccs_layout()
-    print_changes_message_and_exit(get_latest_commit_file_binary_hash(utils.current_branch), utils.hash_current_docx_binary())
+    print_changes_message_and_exit(get_latest_commit_file_binary_hash(), utils.hash_current_docx_binary())
