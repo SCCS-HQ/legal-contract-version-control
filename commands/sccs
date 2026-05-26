@@ -57,7 +57,7 @@ def execute_command(command: str, script_directory: Path, COMMANDS: list) -> Non
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
-            f"'diff', 'status', 'help', 'branch', 'switch', 'clone', 'config', 'reset', or "
+            f"'diff', 'status', 'help', 'branch', 'switch', 'clone', 'config', 'revert', 'reset', or "
             f"'publish', along with required arguments. For help, use the 'sccs help' "
             f"command."
         )
