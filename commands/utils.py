@@ -643,7 +643,10 @@ def validate_commit(
 
     return matching_files[0]
 
-def check_for_uncommitted_changes(cmd: str, exit: bool = True, cwd: Path | None = None) -> None | bool:
+
+def check_for_uncommitted_changes(
+    cmd: str, exit: bool = True, cwd: Path | None = None
+) -> None | bool:
     """
     Check for uncommitted changes by hashing the current document bytes and comparing
     that to the latest commit bytes hash from the SCCS metadata.
@@ -663,32 +666,36 @@ def check_for_uncommitted_changes(cmd: str, exit: bool = True, cwd: Path | None 
         cwd = working_directory_path
 
     with open(
-        cwd /
-        ".sccs" /
-        "branches" /
-        get_current_branch() /
-        "history" /
-        "commit_history.json", encoding="utf-8", newline="\n"
-        ) as f:
+        cwd
+        / ".sccs"
+        / "branches"
+        / get_current_branch()
+        / "history"
+        / "commit_history.json",
+        encoding="utf-8",
+        newline="\n",
+    ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
 
     with open(
-        cwd /
-        ".sccs" /
-        "branches" /
-        get_current_branch() /
-        "commit_file_hash" /
-        "commit_file_hash.json", encoding="utf-8", newline="\n"
-        ) as f:
+        cwd
+        / ".sccs"
+        / "branches"
+        / get_current_branch()
+        / "commit_file_hash"
+        / "commit_file_hash.json",
+        encoding="utf-8",
+        newline="\n",
+    ) as f:
         data = json.load(f)
         latest_bytes_hash = data[latest_commit]
 
     if exit:
         if latest_bytes_hash != hash_current_docx_binary():
-            raise exceptions.UncommittedChangesError(f"Uncommitted changes were found. Please commit before running <sccs {cmd}>")
-        
+            raise exceptions.UncommittedChangesError(
+                f"Uncommitted changes were found. Please commit before running <sccs {cmd}>"
+            )
+
     else:
         return True if latest_bytes_hash != hash_current_docx_binary() else False
-
-
