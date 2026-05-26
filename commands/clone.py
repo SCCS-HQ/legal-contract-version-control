@@ -10,14 +10,17 @@ import requests
 
 
 def get_entered_url() -> str | None:
-    """Retrieve the URL entered by the user."""
+    """Return the URL entered by the user."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
 def resolve_entered_url(url: str | None = None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
-    if missing."""
+    if missing.
+
+    Return 'url' so it begins with 'https://' and ends with '/clone/'.
+    """
 
     if url is None:
         url = get_entered_url()
@@ -39,7 +42,11 @@ def resolve_entered_url(url: str | None = None) -> str:
 
 
 def request_repo(url: str | None = None) -> requests.Response:
-    """Request the repository from the given URL."""
+    """
+    Make a GET request to 'url' and ensure that the request was successful.
+
+    Return the server response after making a get request to 'url'.
+    """
 
     if url is None:
         url = resolve_entered_url()
@@ -57,9 +64,7 @@ def request_repo(url: str | None = None) -> requests.Response:
 
 
 def unzip_repo_file(buffer: io.BytesIO, destination: str) -> None:
-    """
-    Unzip the repo file. using the buffer where the repository is held and the folder
-    where it should be extracted."""
+    """Unzip 'buffer' to 'destination'."""
 
     try:
         zipfile.ZipFile(buffer, "r").extractall(destination)

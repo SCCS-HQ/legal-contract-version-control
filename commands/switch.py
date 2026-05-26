@@ -11,14 +11,16 @@ import utils
 
 
 def get_branch_to_switch() -> str | None:
-    """Retrieve the branch name to switch to from command-line arguments."""
+    """Return the entered branch name to switch to if provided, else None."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
 def update_current_branch(
     branch: str, current_branch_path: Path | None = None, cwd: Path | None = None
 ) -> None:
-    """Update the current branch in the SCCS metadata."""
+    """
+    Update the current branch in the SCCS metadata before switching branches.
+    """
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch_path is None:
@@ -55,7 +57,10 @@ def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None
 def get_latest_commit_binary_hash(
     branch: str, latest_commit: str, cwd: Path | None = None
 ) -> str:
-    """Retrieve the latest commit binary hash for a given branch."""
+    """
+    Return the latest commit binary hash for a given branch by reading the document
+    metadata.
+    """
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -80,7 +85,10 @@ def get_latest_commit_binary_hash(
 def check_for_changes(
     branch: str, latest_commit_binary_hash: str, current_document_hash: str
 ) -> None:
-    """Check if there are uncommitted changes on the current branch."""
+    """
+    Check if there are uncommitted changes on the current branch by comparing the
+    current document hash and the latest commit hash.
+    """
     if not current_document_hash == latest_commit_binary_hash:
         raise exceptions.UncommittedChangesError(
             f"The current file has uncommitted changes on the current branch '{branch}'"
@@ -94,7 +102,9 @@ def sanitize_branch(branch_name: str) -> str:
 
 
 def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
-    """Retrieve the latest commit hash for a given branch."""
+    """
+    Return the latest commit hash for a given branch by reading the document metadata.
+    """
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -111,7 +121,9 @@ def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
 
 
 def check_commit(commit: str, cwd: Path | None = None) -> None:
-    """Check if the commit object exists."""
+    """
+    Check if the commit object exists in the document history.
+    """
     if cwd is None:
         cwd = utils.working_directory_path
     if not (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx").is_file():

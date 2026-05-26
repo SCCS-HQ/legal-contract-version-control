@@ -11,19 +11,31 @@ import utils
 
 
 def get_entered_subcommand() -> str | None:
-    """Retrieve the subcommand entered by the user."""
+    """
+    Retrieve the subcommand entered by the user.
+
+    Return the subcommand if provided, otherwise return None.
+    """
 
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
 def get_entered_branch_name() -> str | None:
-    """Retrieve the branch name entered by the user."""
+    """
+    Retrieve the branch name entered by the user.
+
+    Return the branch name if provided, otherwise return None.
+    """
 
     return sys.argv[3] if len(sys.argv) > 3 else None
 
 
 def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
-    """Validate the subcommand entered by the user."""
+    """
+    Validate the subcommand entered by the user.
+
+    Raise an exception if the subcommand is invalid or if required arguments are missing.
+    """
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
@@ -50,7 +62,10 @@ def branch_create_subcommand(
     cwd: Path | None = None,
     current_branch_path: Path | None = None,
 ) -> None:
-    """Create a new branch from the current branch."""
+    """
+    Create a new branch from the current branch. The new branch will have the same
+    commit history and metadata as the current branch.
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -104,7 +119,10 @@ def branch_create_subcommand(
 
 
 def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None:
-    """Delete a branch after an error has occurred during creation."""
+    """
+    Delete a branch after an error has occurred during branch creation by deleting the
+    branch directory.
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -120,7 +138,13 @@ def branch_delete_subcommand(
     cwd: Path | None = None,
     current_branch_path: Path | None = None,
 ) -> None:
-    """Delete an existing branch."""
+    """
+    Delete an existing branch using the branch name provided by the user. The branch
+    directory will be deleted, and the branch will be removed from the branch metadata.
+    If the deleted branch is the current branch, an exception will be raised and the
+    branch will not be deleted. If an error occurs during deletion, any changes made
+    to the branch metadata will be rolled back.
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -169,7 +193,10 @@ def branch_delete_subcommand(
 def rollback_changes_after_failure(
     current_branch_path: Path | None = None, branch_data: dict | None = None
 ) -> None:
-    """Rollback changes after a failed branch deletion."""
+    """
+    Rollback changes after a failed branch deletion.
+    If an error occurs during branch deletion, the branch metadata will be rolled back
+    to include the deleted branch again."""
 
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
@@ -190,7 +217,10 @@ def rollback_changes_after_failure(
 
 
 def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
-    """List all branches."""
+    """
+    Print a list of all branches, indicating the current branch found in the repository
+    metadata.
+    """
 
     print("Branches:")
     for branch in branch_data.get("branches", []):
@@ -203,7 +233,15 @@ def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
 def run_specified_subcommand(
     subcommand: str, current_branch: str, branch_data: dict
 ) -> None:
-    """Run the specified subcommand."""
+    """
+    Run the specified subcommand by reading the subcommand entered:
+
+    create: branch_create_subcommand
+
+    delete: branch_delete_subcommand
+
+    list: branch_list_subcommand
+    """
 
     if subcommand == "create":
         branch_create_subcommand(current_branch, branch_data)

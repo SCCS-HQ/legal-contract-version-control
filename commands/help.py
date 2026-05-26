@@ -22,7 +22,7 @@ MESSAGES_TO_PRINT = [
 
 
 def print_help(messages: list[str]) -> None:
-    """Print help messages."""
+    """Print help each item in 'messages'."""
 
     for item in messages:
         print(item)

@@ -12,13 +12,23 @@ from bs4 import BeautifulSoup
 
 
 def get_entered_commit_to_diff() -> Path | None:
-    """Retrieve the commit file path entered by the user."""
+    """
+    Retrieve the commit SHA Hash entered by the user as a Path object.
+
+    Return entered commit SHA Hash as a Path object if it was entered, otherwise return
+    None.
+    """
 
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def get_commit_html(commit_path: Path) -> str:
-    """Read and return the HTML content of a commit file."""
+    """
+    Open the commit HTML file at the specified path and return its contents as a string.
+
+    Return the commit HTML as a string if the file is successfully opened, otherwise
+    raise as exception.
+    """
 
     try:
         with open(commit_path, "r", encoding="utf-8", newline="\n") as f:
@@ -29,7 +39,13 @@ def get_commit_html(commit_path: Path) -> str:
 
 
 def number_tags(html: BeautifulSoup) -> BeautifulSoup:
-    """Add sequential data-number attributes to all tags in the HTML."""
+    """
+    Add a data-number attribute to all tags in the HTML, excluding style tags, with a
+    unique index value by enumerating through the tags and giving each a data-number
+    attribute corresponding to its index in the enumeration.
+
+    Return the modified BeautifulSoup object with numbered tags.
+    """
 
     soup = html
     for i, tag in enumerate(soup.find_all()):
@@ -40,7 +56,13 @@ def number_tags(html: BeautifulSoup) -> BeautifulSoup:
 
 
 def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
-    """Remove data-number attributes from all tags in the HTML."""
+    """
+    Use BeautifulSoup.findall() to return a list of all tags in the HTML, and remove the
+    data-number attribute from each tag if it exists.
+
+    Return the modified BeautifulSoup object with data-number attributes removed from
+    all tags.
+    """
 
     soup = html
     for tag in soup.find_all():
@@ -50,14 +72,24 @@ def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
 
 
 def tags_to_list(html: BeautifulSoup) -> list[str]:
-    """Convert all tags in the HTML to a list of strings."""
+    """
+    Use BeautifulSoup.findall() to return a list of all tags in the HTML, and convert
+    each tag to a string.
+
+    Return a list of strings representing each tag in the HTML.
+    """
 
     soup = html
     return [str(tag) for tag in soup.find_all()]
 
 
 def get_data_number(tag_list: list[str]) -> set[str]:
-    """Retrieve the set of data-number values from a list of tag strings."""
+    """
+    Convert a list of tag strings to a set of data-number attribute values by parsing
+    each tag to search for the 'data-number' attribute.
+
+    Return a set of data-number attribute values found in the list of tag strings.
+    """
 
     data_number = set()
     for tag in tag_list:
@@ -71,7 +103,14 @@ def get_data_number(tag_list: list[str]) -> set[str]:
 
 
 def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> BeautifulSoup:
-    """Mark tags matching old_changed_strings as deleted in the HTML."""
+    """
+    Add a "deleted" class to all tags in the list of modified strings that have a
+    data-number attribute.
+
+    Decompose all 'style' tags in the HTML
+
+    Return the modified BeautifulSoup object with "deleted" class added to tags.
+    """
 
     old_data_numbers = get_data_number(old_changed_strings)
     soup = html
@@ -91,8 +130,14 @@ def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> Beautiful
 def replace_tag(
     html: BeautifulSoup, old_changed_strings: list[str], new_changed_strings: list[str]
 ) -> BeautifulSoup:
-    """Replace tags matching old_changed_strings with new_changed_strings in the
-    entered HTML.
+    """
+    Replace tags matching old_changed_strings with new_changed_strings in the entered
+    HTML.
+
+    Decompose all 'style' tags in the HTML
+
+    Return the modified BeautifulSoup object with 'deleted' class added to old tags and
+    'inserted' class added to new tags.
     """
 
     old_data_numbers = get_data_number(old_changed_strings)
@@ -125,7 +170,14 @@ def replace_tag(
 def insert_tag(
     html: BeautifulSoup, new_changed_strings: list[str], i1: int
 ) -> BeautifulSoup:
-    """Insert new_changed_strings before the tag at index i1 in the HTML."""
+    """
+    Insert new tags matching new_changed_strings into the entered HTML at the position
+    corresponding to i1.
+
+    Decompose all 'style' tags in the HTML.
+
+    Return the modified BeautifulSoup object with 'inserted' class added to new tags.
+    """
 
     soup = html
     for tag in soup.find_all():
@@ -148,8 +200,18 @@ def insert_tag(
 
 
 def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
-    """Remove inline semantic tags (b, i, u, strong, em) and style tags from the entered
-    HTML."""
+    """
+    Remove inline semantics tags from the HTML by using BeautifulSoup.findall() to find
+    all tags in the HTML, and unwrapping any tags that match the list of inline
+    semantics tags, while decomposing any 'style' tags.
+
+    Remove tags block level tags that cause nested tags. Not ignoring these types of
+    tags creates duplicated content in the diff.
+
+    Remove the following tags: b, i, u, strong, em, style, table, tr, td, ol, ul.
+
+    Return the modified BeautifulSoup object with inline semantics tags removed.
+    """
 
     soup = html
     for tag in soup.find_all(
@@ -163,13 +225,24 @@ def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
 
 
 def convert_html_to_soup(html: str) -> BeautifulSoup:
-    """Convert an HTML string to a BeautifulSoup object."""
+    """
+    Parse the entered HTML string into a BeautifulSoup object.
+
+    Return the BeautifulSoup object representing the parsed HTML.
+    """
 
     return BeautifulSoup(html, "html.parser")
 
 
 def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
-    """Format a BeautifulSoup object into a numbered list of tag strings."""
+    """
+    Perform a number of functions used to format the HTML before diffing.
+
+    Functions performed (in order): 'remove_inline_semantics', 'number_tags', and
+    'tags_to_list'.
+
+    Return a list of strings which could be concatenated to produce the formatted HTML.
+    """
 
     return tags_to_list(number_tags(remove_inline_semantics(copy.copy(bs4_obj))))
 
@@ -177,7 +250,15 @@ def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
 def get_opcodes(
     commit_soup: BeautifulSoup, current_soup: BeautifulSoup
 ) -> list[tuple[str, int, int, int, int]]:
-    """Get the sequence of opcodes comparing commit HTML to current HTML."""
+    """
+    Remove the inline semantics tags and convert the tags into lists using copies of
+    both the commit and current version BeautifulSoup objects.
+
+    Use difflib.SequenceMatcher to compare the two lists of tags and return a list of
+    opcodes representing the differences between the 2 lists.
+
+    Return a list of opcodes representing the differences between the commit and current version HTML.
+    """
 
     commit_tags = tags_to_list(remove_inline_semantics(copy.copy(commit_soup)))
     current_tags = tags_to_list(remove_inline_semantics(copy.copy(current_soup)))
@@ -185,7 +266,13 @@ def get_opcodes(
 
 
 def get_redline_html(commit_soup: BeautifulSoup) -> BeautifulSoup:
-    """Return a numbered, inline-semantics-stripped copy of the commit HTML."""
+    """
+    Remove the inline semantics tags and convert the tags into lists using a copy of the
+    commit BeautifulSoup object.
+
+    Return the BeautifulSoup object to be used as the base HTML for the redline
+    document.
+    """
 
     return number_tags(remove_inline_semantics(copy.copy(commit_soup)))
 
@@ -196,7 +283,22 @@ def format_redline_html(
     commit_list: list[str],
     docx_current_version_list: list[str],
 ) -> BeautifulSoup:
-    """Apply opcodes to the redline HTML to produce a tracked-changes document."""
+    """
+    Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a list
+    of 5-tuples.
+
+    The first value in the 5-tuple is the type of difference. Depending on
+    the type of difference, perform a different function:
+
+    replace: replace_tag()
+
+    insert: insert_tag()
+
+    delete: delete_tag()
+
+    Return a modified version of 'redline' using the opcodes to determine the type of
+    difference and perform a subsequent function.
+    """
 
     for opcode in reversed(opcodes):
         tag, i1, i2, j1, j2 = opcode
@@ -214,7 +316,10 @@ def format_redline_html(
 def write_redline_html_file(
     redline: BeautifulSoup, filename: Path = Path("redline.html")
 ) -> None:
-    """Write the redline HTML to a file."""
+    """
+    Print the redline HTML to a file named 'redline.html' in the current working
+    directory.
+    """
 
     with open(filename, "w", encoding="utf-8", newline="\n") as f:
         f.write(utils.wrap_html(str(strip_number_attribute(redline))))
