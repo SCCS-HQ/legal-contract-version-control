@@ -15,7 +15,7 @@ def reset(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
-    if not utils.check_for_uncommitted_changes("reset", False):
+    if not utils.check_for_uncommitted_changes("reset", exit=False):
         raise exceptions.NoUncommittedChangesError()
         
     with open(cwd / ".sccs" / "branches" / utils.get_current_branch() / "history" / "commit_history.json") as f:
