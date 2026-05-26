@@ -81,7 +81,13 @@ if "%command%"=="revert" (
     exit /b !errorlevel!
 )
 
+if "%command%"=="reset" (
+    set "script_directory=%~dp0"
+    python "%script_directory%reset.py" %*
+    exit /b !errorlevel!
+)
+
 echo Unknown command: %command%
-echo Invalid command. Please use "init", "commit", "open", "log", "status", "diff", "help", "branch", "switch", "publish", "clone", or "config", along with required arguments
+echo Invalid command. Please use "init", "commit", "open", "log", "status", "diff", "help", "branch", "switch", "publish", "clone", "config", "revert", or "reset", along with required arguments
 echo For help, use the 'sccs help' command
 exit /b 1
