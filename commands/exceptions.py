@@ -181,10 +181,12 @@ class UncommittedChangesError(SCCSException):
 
     default_message = "Uncommitted changes prevent this action."
 
+
 class NoUncommittedChangesError(SCCSException):
     """Raised when there are no uncommitted changes but an action requires them."""
 
-    default_message = "No uncommitted changes found."    
+    default_message = "No uncommitted changes found."
+
 
 # Input Exceptions
 

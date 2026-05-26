@@ -1,28 +1,39 @@
 #!/usr/bin/env python3
 """Delete all uncommitted changes."""
 
+import json
 import shutil
 import sys
 from pathlib import Path
+
 import exceptions
 import utils
-import json
 
 
 def reset(cwd: Path | None = None) -> None:
     """Delete all uncommitted changes."""
-    
+
     if cwd is None:
         cwd = utils.working_directory_path
 
     if not utils.check_for_uncommitted_changes("reset", exit=False):
         raise exceptions.NoUncommittedChangesError()
-        
-    with open(cwd / ".sccs" / "branches" / utils.get_current_branch() / "history" / "commit_history.json") as f:
+
+    with open(
+        cwd
+        / ".sccs"
+        / "branches"
+        / utils.get_current_branch()
+        / "history"
+        / "commit_history.json"
+    ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
-        
-    shutil.copy2(utils.validate_commit(folder="docx", commit=latest_commit), cwd / utils.current_file_docx_path)
+
+    shutil.copy2(
+        utils.validate_commit(folder="docx", commit=latest_commit),
+        cwd / utils.current_file_docx_path,
+    )
 
 
 def print_success_message() -> None:
@@ -38,7 +49,7 @@ def main() -> None:
     utils.check_sccs_layout()
     reset()
     print_success_message()
-    
+
 
 if __name__ == "__main__":
     try:
