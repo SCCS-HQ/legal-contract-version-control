@@ -8,9 +8,13 @@ def get_branch_to_switch():
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def update_current_branch(branch):
+def update_current_branch(branch, current_branch_path=None, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if current_branch_path is None:
+        current_branch_path = utils.current_branch_path
     try:
-        with open(utils.current_branch_path, "r", encoding="utf-8", newline="\n") as f:
+        with open(current_branch_path, "r", encoding="utf-8", newline="\n") as f:
             try:
                 current_branch = json.load(f)
                 current_branch["current_branch"] = branch
@@ -22,7 +26,7 @@ def update_current_branch(branch):
         sys.exit(1)
 
     try: 
-        with open(os.path.join(utils.working_directory_path, ".sccs", "current_branch", "tmp"), "w", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(cwd, ".sccs", "current_branch", "tmp"), "w", encoding="utf-8", newline="\n") as f:
             try:
                 json.dump(current_branch, f, indent=4)
             except Exception as e:
@@ -33,7 +37,7 @@ def update_current_branch(branch):
         sys.exit(1)
     
     try: 
-        os.replace(os.path.join(utils.working_directory_path, ".sccs", "current_branch", "tmp"), os.path.join(utils.working_directory_path, ".sccs", "current_branch", "current_branch.json"))
+        os.replace(os.path.join(cwd, ".sccs", "current_branch", "tmp"), os.path.join(cwd, ".sccs", "current_branch", "current_branch.json"))
     except Exception as e:
         print(f"Error replacing current branch information: {e}")
         sys.exit(1)
@@ -47,9 +51,11 @@ def check_branch_to_switch(branch_to_switch, branches):
         print(f"Error: Branch '{branch_to_switch}' does not exist.")
         sys.exit(1)
 
-def get_latest_commit_binary_hash(branch, latest_commit):
+def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
     try:
-        with open(os.path.join(utils.working_directory_path, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(cwd, ".sccs", "branches", branch, "commit_file_hash", "commit_file_hash.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 return json.load(f).get(latest_commit)
             except Exception as e:
@@ -67,9 +73,11 @@ def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
 def sanitize_branch(branch_name):
     return utils.clean_directory_name(branch_name)
 
-def get_latest_commit(branch):
+def get_latest_commit(branch, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
     try:
-        with open(os.path.join(utils.working_directory_path, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
+        with open(os.path.join(cwd, ".sccs",  "branches", branch, "history", "commit_history.json"), "r", encoding="utf-8", newline="\n") as f:
             try:
                 history = json.load(f)
                 try:
@@ -84,14 +92,18 @@ def get_latest_commit(branch):
         print(f"Error reading commit history for branch '{branch}': {e}")
         sys.exit(1)
 
-def check_commit(commit):
-    if not os.path.isfile(os.path.join(utils.working_directory_path, ".sccs", "objects", "docx", f"{commit}.docx")):
+def check_commit(commit, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if not os.path.isfile(os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx")):
         print(f"Error: Commit object '{commit}' not found.")
         sys.exit(1)
 
-def copy_commit_to_main(commit):
+def copy_commit_to_main(commit, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
     try:
-        shutil.copy2(os.path.join(utils.working_directory_path, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(utils.working_directory_path, f"{os.path.basename(utils.working_directory_path)}.docx"))
+        shutil.copy2(os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx"), os.path.join(cwd, f"{os.path.basename(cwd)}.docx"))
     except Exception as e:
         print(f"Error copying commit '{commit}' to main: {e}")
         sys.exit(1)
