@@ -38,6 +38,8 @@ def main() -> None:
     """Main function to handle the revert command."""
     utils.check_sccs_layout()
 
+    utils.check_for_uncommitted_changes("revert")
+
     cwd = utils.working_directory_path
     commit = get_entered_commit()
     validated_commit = utils.validate_commit("docx", cwd, commit)

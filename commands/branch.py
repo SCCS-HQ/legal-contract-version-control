@@ -257,6 +257,8 @@ def main() -> None:
 
     validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
 
+    utils.check_for_uncommitted_changes("branch")
+
     run_specified_subcommand(
         get_entered_subcommand(),
         utils.get_current_branch(),
