@@ -642,3 +642,46 @@ def validate_commit(
         )
 
     return matching_files[0]
+
+def check_for_uncommitted_changes(cwd: Path | None = None) -> bool:
+    """
+    Check for uncommitted changes by hashing the current document bytes and comparing 
+    that to the latest commit bytes hash from the SCCS metadata.
+
+    Return False if uncommitted changes exist, return True if there are no uncommitted
+    changes.
+    """
+
+    if cwd is None:
+        cwd = working_directory_path()
+    
+    with open(
+        cwd /
+        ".sccs" /
+        "branches" /
+        get_current_branch /
+        "history" /
+        "commit_history.json"
+        ) as f:
+        data = f.read
+        latest_commit = data["history"]["latest_commit"]
+
+    with open(
+        cwd /
+        ".sccs" /
+        "branches" /
+        get_current_branch /
+        "commit_file_hash" /
+        "commit_file_hash.json"
+        ) as f:
+        data = f.read
+        latest_bytes_hash = data[""][latest_commit]
+        
+    if latest_bytes_hash == hash_current_docx_binary():
+        return True
+    else:
+        return False
+        
+        
+
+
