@@ -60,12 +60,13 @@ def create_sccs_directory_layout():
 def move_document_to_repo_directory():
     shutil.move(get_entered_document_path(), get_document_repo_path())
 
-def copy_document_to_objects_as_docx_and_html(sha_hash, html):
+def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
+    if styles is None:
+        styles = utils.default_html_styles
     shutil.copy2(os.path.join(get_document_repo_path(), Path(get_entered_document_path()).name), os.path.join(get_document_repo_path(), ".sccs", "objects", "docx", f"{sha_hash}.docx"))
 
     with open(os.path.join(get_document_repo_path(), ".sccs", "objects", "html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(utils.default_styles + html)
-
+        f.write(styles + html)
     with open(os.path.join(get_document_repo_path(), ".sccs", "objects", "view_html", f"{sha_hash}.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(utils.wrap_html(html))
 
