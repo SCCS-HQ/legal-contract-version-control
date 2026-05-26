@@ -11,7 +11,7 @@ import utils
 
 def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
     """
-    Retrieve the commit log data from the history JSON file by opening 
+    Retrieve the commit log data from the history JSON file by opening
     'commit_history.json' and reading its JSON
 
     Return the commit history JSON data.
@@ -41,7 +41,7 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
 def print_log() -> None:
     """
     Read the commit log data by calling 'get_log_data'.
-    
+
     Print the first 10 characters of the commit SHA hash, along with the commit author,
     timestamp, and commit message.
     """

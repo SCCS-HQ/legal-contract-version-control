@@ -11,7 +11,7 @@ import utils
 
 def get_commit_path_input() -> Path | None:
     """
-    Get the absolute path of the commit file from the command-line arguments if 
+    Get the absolute path of the commit file from the command-line arguments if
     provided, otherwise return None.
     """
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
@@ -42,7 +42,7 @@ def confirm_before_proceeding(
 def check_changes(commit_path: Path, docx_path: Path | None = None) -> None:
     """
     Check if the commit_path and docx_path refer to the same file.
-    
+
     If so, print a message telling the user that no changes will be made and exit with
     exit code 0.
     """

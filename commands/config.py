@@ -9,13 +9,13 @@ import utils
 
 def get_entered_config_key() -> str | None:
     """
-    Retrieve the entered configuration key and ensure it isn't None and that it is any 
+    Retrieve the entered configuration key and ensure it isn't None and that it is any
     of the valid configuration keys:
 
     'remote'
-    
+
     'name'
-    
+
     'email'
 
     Return the validated key entered by the user.

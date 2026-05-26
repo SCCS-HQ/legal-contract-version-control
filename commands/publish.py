@@ -16,7 +16,7 @@ import utils
 
 def reset_current_branch(cwd: Path | None = None) -> None:
     """
-    Modify the document metadata to set the current branch to 'main' in preparation 
+    Modify the document metadata to set the current branch to 'main' in preparation
     for publishing.
     """
 
@@ -34,7 +34,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
 
 def zip_cwd() -> io.BytesIO:
     """
-    Zip the current working directory into the memory buffer to compress before 
+    Zip the current working directory into the memory buffer to compress before
     publication.
     """
     try:
@@ -63,7 +63,7 @@ def zip_cwd() -> io.BytesIO:
 def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
     """
     Make a POST request to 'remote', sending 'buffer' as i file and 'remote' as JSON
-    
+
     Return the server response of the POST request to 'remote'.
     """
 

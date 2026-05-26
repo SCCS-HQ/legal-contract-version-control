@@ -13,7 +13,7 @@ import utils
 def get_entered_subcommand() -> str | None:
     """
     Retrieve the subcommand entered by the user.
-    
+
     Return the subcommand if provided, otherwise return None.
     """
 
@@ -23,7 +23,7 @@ def get_entered_subcommand() -> str | None:
 def get_entered_branch_name() -> str | None:
     """
     Retrieve the branch name entered by the user.
-    
+
     Return the branch name if provided, otherwise return None.
     """
 
@@ -33,7 +33,7 @@ def get_entered_branch_name() -> str | None:
 def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
     """
     Validate the subcommand entered by the user.
-    
+
     Raise an exception if the subcommand is invalid or if required arguments are missing.
     """
 
@@ -63,7 +63,7 @@ def branch_create_subcommand(
     current_branch_path: Path | None = None,
 ) -> None:
     """
-    Create a new branch from the current branch. The new branch will have the same 
+    Create a new branch from the current branch. The new branch will have the same
     commit history and metadata as the current branch.
     """
 
@@ -120,7 +120,7 @@ def branch_create_subcommand(
 
 def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None:
     """
-    Delete a branch after an error has occurred during branch creation by deleting the 
+    Delete a branch after an error has occurred during branch creation by deleting the
     branch directory.
     """
 

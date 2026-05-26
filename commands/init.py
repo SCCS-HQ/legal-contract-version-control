@@ -15,7 +15,7 @@ import utils
 
 def get_entered_document_path() -> Path | None:
     """
-    Return the document path entered by the user  as a Path object if provided, else 
+    Return the document path entered by the user  as a Path object if provided, else
     None.
     """
 
@@ -83,7 +83,7 @@ def check_file_requirements() -> None:
 
 def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> str:
     """
-    Create a SHA-256 hash for the initial commit using the timestamp, user name, and 
+    Create a SHA-256 hash for the initial commit using the timestamp, user name, and
     user email.
 
     Return the created SHA-256 hash as a hexadecimal string.
@@ -130,7 +130,7 @@ def copy_document_to_objects_as_docx_and_html(
     sha_hash: str, html: str, styles: str | None = None
 ) -> None:
     """
-    Copy the document into objects as both .docx and .html. to their corresponding 
+    Copy the document into objects as both .docx and .html. to their corresponding
     folders.
     """
 
@@ -219,7 +219,7 @@ def write_history_data(
 
 def write_commit_message_data(sha_hash: str) -> None:
     """
-    Write the initial commit message JSON file to the main branch commit messages 
+    Write the initial commit message JSON file to the main branch commit messages
     folder.
     """
 
@@ -262,7 +262,7 @@ def write_config_data(config_user_name: str, config_user_email: str) -> None:
 
 def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
     """
-    Write the initial commit file binary hash JSON file to the main branch commit file 
+    Write the initial commit file binary hash JSON file to the main branch commit file
     hash folder.
     """
 

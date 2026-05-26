@@ -18,7 +18,7 @@ def resolve_entered_url(url: str | None = None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
-    
+
     Return 'url' so it begins with 'https://' and ends with '/clone/'.
     """
 
@@ -44,7 +44,7 @@ def resolve_entered_url(url: str | None = None) -> str:
 def request_repo(url: str | None = None) -> requests.Response:
     """
     Make a GET request to 'url' and ensure that the request was successful.
-    
+
     Return the server response after making a get request to 'url'.
     """
 

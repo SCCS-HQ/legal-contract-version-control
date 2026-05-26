@@ -34,7 +34,7 @@ current_branch_path = (
 
 def clean_directory_name(name: str) -> str:
     """
-    Return a filesystem-safe directory version of 'name' by replacing invalid 
+    Return a filesystem-safe directory version of 'name' by replacing invalid
     characters.
     """
     return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
@@ -193,7 +193,7 @@ def wrap_html(html: str, styles: str = default_html_styles) -> str:
 
 def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
     """
-    Create and return a SHA-256 hash of the current DOCX file bytes, reading a 64KB 
+    Create and return a SHA-256 hash of the current DOCX file bytes, reading a 64KB
     chunk at a time.
     """
     try:
@@ -386,7 +386,7 @@ def write_docx_html(
 
 def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None = None) -> None:
     """
-    Write the document HTML used for viewing, which is centered unlike the normal 
+    Write the document HTML used for viewing, which is centered unlike the normal
     document HTML. Name the HTML file 'sha_hash'.
     """
 
@@ -508,7 +508,7 @@ def update_commit_log_history(
 
 def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """
-    Combine multiple update dictionaries into a single dictionary for atomically 
+    Combine multiple update dictionaries into a single dictionary for atomically
     updating document history metadata.
     """
 
@@ -520,9 +520,9 @@ def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
 
 def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     """
-    For each pair in the dictionary, the key is a Path object and the value is a JSON 
-    dictionary. 
-    
+    For each pair in the dictionary, the key is a Path object and the value is a JSON
+    dictionary.
+
     Open the key and write the value for each pair in the dictionary.
     """
 
@@ -544,7 +544,7 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
 
 def commit_changes(commit_msg: str) -> str:
     """
-    Commit uncommitted changes to the current branch using 'commit_msg' as the 
+    Commit uncommitted changes to the current branch using 'commit_msg' as the
     commit_message.
     """
 
@@ -599,7 +599,7 @@ def validate_commit(
     commit: Path | None = None,
 ) -> Path:
     """
-    Convert a commit SHA Hash to a pathname of the specified commit using folder as the 
+    Convert a commit SHA Hash to a pathname of the specified commit using folder as the
     type of commit requested (html, docx).
 
     Return the full pathname of the commit using the SHA Hash.

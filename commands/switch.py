@@ -58,7 +58,7 @@ def get_latest_commit_binary_hash(
     branch: str, latest_commit: str, cwd: Path | None = None
 ) -> str:
     """
-    Return the latest commit binary hash for a given branch by reading the document 
+    Return the latest commit binary hash for a given branch by reading the document
     metadata.
     """
     if cwd is None:
@@ -86,7 +86,7 @@ def check_for_changes(
     branch: str, latest_commit_binary_hash: str, current_document_hash: str
 ) -> None:
     """
-    Check if there are uncommitted changes on the current branch by comparing the 
+    Check if there are uncommitted changes on the current branch by comparing the
     current document hash and the latest commit hash.
     """
     if not current_document_hash == latest_commit_binary_hash:

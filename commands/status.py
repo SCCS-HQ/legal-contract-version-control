@@ -13,7 +13,7 @@ def get_latest_commit_hash_file(
     current_branch: str | None = None, cwd: Path | None = None
 ) -> str:
     """
-    Return the hash of the latest commit from SCCS metadata by opening 
+    Return the hash of the latest commit from SCCS metadata by opening
     'commit_history.json' and reading its JSON data.
 
     Return the latest commit hash.
@@ -58,7 +58,7 @@ def get_latest_commit_file_binary_hash(
     current_branch: str | None = None, cwd: Path | None = None
 ) -> str:
     """
-    Return the hash of the latest committed file from SCCS metadata by opening 
+    Return the hash of the latest committed file from SCCS metadata by opening
     'commit_history.json' and reading its JSON data.
 
     Return the latest commit file hash
@@ -112,7 +112,7 @@ def compare_hashes(old_hash: str, new_hash: str) -> bool:
 
 def compare_changes_and_exit(old_hash: str, new_hash: str) -> None:
     """
-    Compare the old and new hashes and exit with 0 if no changes are detected and raise 
+    Compare the old and new hashes and exit with 0 if no changes are detected and raise
     an exception if changes are detected.
     """
     if compare_hashes(old_hash, new_hash):
