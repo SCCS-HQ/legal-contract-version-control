@@ -23,7 +23,9 @@ def reset(cwd: Path | None = None) -> None:
         cwd
         / ".sccs"
         / "branches"
-        / utils.get_current_branch()
+        / utils.get_current_branch(
+            cwd / ".sccs" / "current_branch" / "current_branch.json"
+        )
         / "history"
         / "commit_history.json"
     ) as f:
@@ -31,7 +33,7 @@ def reset(cwd: Path | None = None) -> None:
         latest_commit = data["history"]["latest_commit"]
 
     shutil.copy2(
-        utils.validate_commit("docx", cwd, latest_commit), utils.current_file_docx_path
+        utils.validate_commit("docx", cwd, latest_commit), cwd / cwd.with_suffix(".docx").name
     )
 
 
