@@ -25,14 +25,20 @@ COMMANDS = [
 
 
 def get_entered_command() -> str | None:
+    """Return the entered command if provided, else None."""
     return sys.argv[1] if len(sys.argv) > 1 else None
 
 
 def get_script_directory() -> Path:
+    """Return the absolute path of the parent directory of this file."""
     return Path(__file__).parent.resolve()
 
 
 def run_command(command: str, script_directory: Path) -> None:
+    """
+    Run the entered command by running a subprocess of the command and exiting with the
+    exit code of the subprocess.
+    """
     sys.exit(
         subprocess.run([
             sys.executable,
@@ -43,6 +49,10 @@ def run_command(command: str, script_directory: Path) -> None:
 
 
 def execute_command(command: str, script_directory: Path, COMMANDS: list) -> None:
+    """
+    Ensure 'command' is valid by checking if it is included in 'COMMANDS'. If command'
+    is valid, run it with 'run_command()'.
+    """
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "

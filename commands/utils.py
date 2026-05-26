@@ -33,7 +33,10 @@ current_branch_path = (
 
 
 def clean_directory_name(name: str) -> str:
-    """Return a filesystem-safe directory name by replacing invalid characters."""
+    """
+    Return a filesystem-safe directory version of 'name' by replacing invalid 
+    characters.
+    """
     return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
 
 
@@ -41,7 +44,10 @@ def check_sccs_layout(
     sccs_dir: Path = sccs_versions_directory_path,
     docx_path: Path = current_file_docx_path,
 ) -> None:
-    """Validate that required SCCS folders, files, and metadata exist."""
+    """
+    Validate that required SCCS folders, files, and metadata exist and that the '.sccs'
+    folder has the correct layout.
+    """
 
     if not sccs_dir.is_dir():
         raise exceptions.SCCSNotInitializedError(
@@ -175,7 +181,10 @@ def check_sccs_layout(
 
 
 def wrap_html(html: str, styles: str = default_html_styles) -> str:
-    """Wrap HTML content in a complete document template with default styles."""
+    """
+    Return a wrapped HTML content in a complete document template using 'styles'. This
+    requires 'html' to already include proper 'class' attributes.
+    """
     return (
         f"<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head>"
         f"<body><div class='center'><div id='target'>{html}</div></div></body></html>"
@@ -183,7 +192,10 @@ def wrap_html(html: str, styles: str = default_html_styles) -> str:
 
 
 def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
-    """Compute and return the SHA-256 hash of the current DOCX file bytes."""
+    """
+    Create and return a SHA-256 hash of the current DOCX file bytes, reading a 64KB 
+    chunk at a time.
+    """
     try:
         with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
@@ -196,7 +208,7 @@ def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
 
 
 def get_current_branch(file_path: Path = current_branch_path) -> str:
-    """Return the active branch name from the current branch metadata file."""
+    """Return the active branch name by reading current branch metadata file."""
     try:
         with open(
             file_path, "r", encoding="utf-8", newline="\n"
@@ -216,7 +228,7 @@ def get_current_branch(file_path: Path = current_branch_path) -> str:
 def get_branch_data(
     file_path: Path = current_branch_path, key: str | None = None
 ) -> dict | str | None:
-    """Return full branch metadata or a specific value by key."""
+    """Return full branch metadata or a specific value by key if provided."""
     try:
         with open(file_path, "r", encoding="utf-8", newline="\n") as f:
             data = json.load(f)
@@ -229,7 +241,7 @@ def get_branch_data(
 
 
 def convert_docx_to_html(docx_path: Path | None = None) -> str:
-    """Convert a DOCX document to HTML and return the generated markup."""
+    """Convert a DOCX document to using HTML and return the generated HTML as a string."""
     if docx_path is None:
         docx_path = current_file_docx_path
     try:
@@ -241,7 +253,7 @@ def convert_docx_to_html(docx_path: Path | None = None) -> str:
 
 
 def get_key_from_config(key: str, cwd: Path | None = None) -> str:
-    """Retrieve a specific key from the SCCS config file."""
+    """Return the value of 'key' from the SCCS config JSON file."""
     if cwd is None:
         cwd = working_directory_path
     with open(
@@ -261,7 +273,7 @@ def get_key_from_config(key: str, cwd: Path | None = None) -> str:
 
 
 def write_key_to_config(key: str, value: str, cwd: Path | None = None) -> None:
-    """Write a specific key to the config file."""
+    """Write 'key': 'value' to the SCCS config JSON file."""
     if cwd is None:
         cwd = working_directory_path
 
@@ -280,7 +292,7 @@ def write_key_to_config(key: str, value: str, cwd: Path | None = None) -> None:
 
 
 def get_timestamp() -> str:
-    """Retrieve the current timestamp."""
+    """Return the current timestamp."""
 
     return datetime.now().isoformat()
 
@@ -340,7 +352,7 @@ def generate_commit_hash(
 def copy_docx_to_objects(
     sha_hash: str, docx_path: Path | None = None, cwd: Path | None = None
 ) -> None:
-    """Copy the current document to the objects directory."""
+    """Copy the current document to the objects directory renamed to 'sha_hash'."""
 
     if docx_path is None:
         docx_path = current_file_docx_path
@@ -352,10 +364,12 @@ def copy_docx_to_objects(
     )
 
 
-def write_diff_html(
+def write_docx_html(
     sha_hash: str, docx_html: str, cwd: Path | None = None, styles: str | None = None
 ) -> None:
-    """Write the diff HTML file."""
+    """
+    Write the document as HTML to the objects directory, naming the file 'sha_hash'.
+    """
 
     if cwd is None:
         cwd = working_directory_path
@@ -371,7 +385,10 @@ def write_diff_html(
 
 
 def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None = None) -> None:
-    """Write the view HTML file."""
+    """
+    Write the document HTML used for viewing, which is centered unlike the normal 
+    document HTML. Name the HTML file 'sha_hash'.
+    """
 
     if cwd is None:
         cwd = working_directory_path
@@ -390,7 +407,7 @@ def update_commit_binary_hash_history(
     cwd: Path | None = None,
     current_branch: str | None = None,
 ) -> dict[str, dict]:
-    """Update commit binary hash history."""
+    """Update the commit bytes hash history."""
 
     # Update commit file hash
     if cwd is None:
@@ -427,7 +444,7 @@ def update_commit_binary_hash_history(
 def update_commit_messages(
     sha_hash: str, commit_message: str, cwd: Path | None = None
 ) -> dict[str, dict]:
-    """Update commit messages."""
+    """Update commit messages history."""
 
     # Check if commit messages file exists
     if cwd is None:
@@ -490,7 +507,10 @@ def update_commit_log_history(
 
 
 def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
-    """Combine multiple update dictionaries into a single dictionary."""
+    """
+    Combine multiple update dictionaries into a single dictionary for atomically 
+    updating document history metadata.
+    """
 
     update_dict = {}
     for d in dicts:
@@ -499,7 +519,12 @@ def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
 
 
 def atomically_update_history(update_dict: dict[Path, dict]) -> None:
-    """Atomically update the history files."""
+    """
+    For each pair in the dictionary, the key is a Path object and the value is a JSON 
+    dictionary. 
+    
+    Open the key and write the value for each pair in the dictionary.
+    """
 
     for key, value in update_dict.items():
         try:
@@ -518,7 +543,10 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
 
 
 def commit_changes(commit_msg: str) -> str:
-    """Commit changes to the current branch with the given commit information."""
+    """
+    Commit uncommitted changes to the current branch using 'commit_msg' as the 
+    commit_message.
+    """
 
     name = get_key_from_config("name")
 
@@ -538,7 +566,7 @@ def commit_changes(commit_msg: str) -> str:
 
     copy_docx_to_objects(sha_hash)
 
-    write_diff_html(sha_hash, docx_html)
+    write_docx_html(sha_hash, docx_html)
 
     write_view_html(sha_hash, docx_html)
 
@@ -570,7 +598,12 @@ def validate_commit(
     cwd: Path | None = None,
     commit: Path | None = None,
 ) -> Path:
-    """Validate the commit file path entered by the user."""
+    """
+    Convert a commit SHA Hash to a pathname of the specified commit using folder as the 
+    type of commit requested (html, docx).
+
+    Return the full pathname of the commit using the SHA Hash.
+    """
 
     commit = Path(str(commit).strip()) if commit else None
 

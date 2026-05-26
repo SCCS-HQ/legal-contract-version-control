@@ -10,7 +10,10 @@ import utils
 
 
 def get_commit_path_input() -> Path | None:
-    """Get the absolute path of the commit file from the command-line arguments."""
+    """
+    Get the absolute path of the commit file from the command-line arguments if 
+    provided, otherwise return None.
+    """
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
@@ -37,7 +40,12 @@ def confirm_before_proceeding(
 
 
 def check_changes(commit_path: Path, docx_path: Path | None = None) -> None:
-    """Check if the commit_path and docx_path refer to the same file."""
+    """
+    Check if the commit_path and docx_path refer to the same file.
+    
+    If so, print a message telling the user that no changes will be made and exit with
+    exit code 0.
+    """
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if docx_path.exists() and commit_path.exists() and docx_path.samefile(commit_path):
@@ -48,7 +56,9 @@ def check_changes(commit_path: Path, docx_path: Path | None = None) -> None:
 
 
 def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
-    """Copy the commit file to the current document."""
+    """
+    Copy the commit file to the current document, effectively opening the older commit.
+    """
     if docx_path is None:
         docx_path = utils.current_file_docx_path
 
@@ -61,7 +71,9 @@ def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
 def print_rewrite_confirmation_message(
     commit_path: Path, docx_path: Path | None = None
 ) -> None:
-    """Print the confirmation message after rewriting the file."""
+    """
+    Print the confirmation message after rewriting the file using the document name.
+    """
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(

@@ -8,7 +8,18 @@ import utils
 
 
 def get_entered_config_key() -> str | None:
-    """Retrieve the key entered by the user."""
+    """
+    Retrieve the entered configuration key and ensure it isn't None and that it is any 
+    of the valid configuration keys:
+
+    'remote'
+    
+    'name'
+    
+    'email'
+
+    Return the validated key entered by the user.
+    """
     key = sys.argv[2] if len(sys.argv) > 2 else None
     if key is None:
         raise exceptions.InvalidArgumentError(
@@ -25,7 +36,9 @@ def get_entered_config_key() -> str | None:
 
 
 def get_entered_config_value() -> str | None:
-    """Retrieve the value entered by the user."""
+    """
+    Return the value entered by the user if it is provided, else raise an exception.
+    """
     value = sys.argv[3] if len(sys.argv) > 3 else None
     if value is None:
         raise exceptions.InvalidArgumentError(
@@ -38,7 +51,10 @@ def resolve_entered_remote(remote: str) -> str:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
     by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
-    ends with '/repos/<repo-name>'."""
+    ends with '/repos/<repo-name>'.
+
+    Return the resolved 'remote'.
+    """
 
     if not remote.startswith("http://") and not remote.startswith("https://"):
         raise exceptions.InvalidArgumentError(

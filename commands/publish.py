@@ -15,7 +15,10 @@ import utils
 
 
 def reset_current_branch(cwd: Path | None = None) -> None:
-    """Reset the current branch to 'main'."""
+    """
+    Modify the document metadata to set the current branch to 'main' in preparation 
+    for publishing.
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -30,7 +33,10 @@ def reset_current_branch(cwd: Path | None = None) -> None:
 
 
 def zip_cwd() -> io.BytesIO:
-    """Zip the current working directory."""
+    """
+    Zip the current working directory into the memory buffer to compress before 
+    publication.
+    """
     try:
         buffer = io.BytesIO()
     except Exception as e:
@@ -55,7 +61,11 @@ def zip_cwd() -> io.BytesIO:
 
 
 def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
-    """Post the repository to the hosted API."""
+    """
+    Make a POST request to 'remote', sending 'buffer' as i file and 'remote' as JSON
+    
+    Return the server response of the POST request to 'remote'.
+    """
 
     if not urlsplit(remote).path.endswith(
         f"/repos/{utils.working_directory_path.name}"

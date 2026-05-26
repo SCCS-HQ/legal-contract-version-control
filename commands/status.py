@@ -12,7 +12,12 @@ import utils
 def get_latest_commit_hash_file(
     current_branch: str | None = None, cwd: Path | None = None
 ) -> str:
-    """Retrieve the hash of the latest commit from SCCS metadata."""
+    """
+    Return the hash of the latest commit from SCCS metadata by opening 
+    'commit_history.json' and reading its JSON data.
+
+    Return the latest commit hash.
+    """
     if cwd is None:
         cwd = utils.working_directory_path
 
@@ -52,7 +57,12 @@ def get_latest_commit_hash_file(
 def get_latest_commit_file_binary_hash(
     current_branch: str | None = None, cwd: Path | None = None
 ) -> str:
-    """Retrieve the hash of the latest committed file from SCCS metadata."""
+    """
+    Return the hash of the latest committed file from SCCS metadata by opening 
+    'commit_history.json' and reading its JSON data.
+
+    Return the latest commit file hash
+    """
 
     if cwd is None:
         cwd = utils.working_directory_path
@@ -94,13 +104,17 @@ def get_latest_commit_file_binary_hash(
 
 
 def compare_hashes(old_hash: str, new_hash: str) -> bool:
-    """Compare two hashes and return True if they are the same, False otherwise."""
+    """
+    Compare an old and a new hash and return True if they are the same, False otherwise.
+    """
     return old_hash == new_hash
 
 
 def compare_changes_and_exit(old_hash: str, new_hash: str) -> None:
-    """Compare the old and new hashes and exit with 0 if no changes are detected and
-    raise exceptions.UncommittedChangesError if changes are detected."""
+    """
+    Compare the old and new hashes and exit with 0 if no changes are detected and raise 
+    an exception if changes are detected.
+    """
     if compare_hashes(old_hash, new_hash):
         print("No changes detected since the latest commit. Nothing to commit.")
         sys.exit(0)

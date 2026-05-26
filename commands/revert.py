@@ -7,13 +7,13 @@ import utils
 
 
 def get_entered_commit() -> Path | None:
-    """Retrieve the commit file path entered by the user."""
+    """Return the commit file path entered by the user if provided, else None."""
 
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def revert(src: Path, dst: Path | None = None) -> None:
-    """Revert the current document to the specified commit."""
+    """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(

@@ -14,13 +14,19 @@ import utils
 
 
 def get_entered_document_path() -> Path | None:
-    """Retrieve the document path entered by the user."""
+    """
+    Return the document path entered by the user  as a Path object if provided, else 
+    None.
+    """
 
     return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def get_document_repo_path() -> Path | None:
-    """Return the repo directory path derived from the entered document path."""
+    """
+    Return the repo directory path derived from the entered document path, which is the
+    document path without a suffix.
+    """
 
     path = get_entered_document_path()
     if not path:
@@ -36,7 +42,7 @@ def check_if_arg_entered(arg: Path) -> None:
 
 
 def ask_config_input(data: str) -> str:
-    """Prompt the user for a config value and return it."""
+    """Prompt the user for a config value and return it if provided, else None."""
 
     data_value = input(f"Enter your {data}: ").strip()
     if data_value == "":
@@ -46,7 +52,10 @@ def ask_config_input(data: str) -> str:
 
 
 def check_for_prev_init() -> None:
-    """Exit if the document has already been initialized with SCCS."""
+    """
+    Exit if the document has already been initialized with SCCS by checking if the a
+    '.sccs' folder exists for the repository.
+    """
 
     if (get_document_repo_path() / ".sccs").is_dir():
         raise exceptions.AlreadyInitializedError(
@@ -55,7 +64,10 @@ def check_for_prev_init() -> None:
 
 
 def check_file_requirements() -> None:
-    """Validate that the entered path points to an existing .docx file."""
+    """
+    Validate that the entered path points to an existing .docx file by checking the file
+    extension and if the file exists.
+    """
 
     entered_path = get_entered_document_path()
     if not entered_path:
@@ -70,7 +82,12 @@ def check_file_requirements() -> None:
 
 
 def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> str:
-    """Create a SHA-256 hash for the initial commit."""
+    """
+    Create a SHA-256 hash for the initial commit using the timestamp, user name, and 
+    user email.
+
+    Return the created SHA-256 hash as a hexadecimal string.
+    """
 
     return hashlib.sha256(
         f"{timestamp}/initial_version/{user_name}/{user_email}".encode()
@@ -112,7 +129,10 @@ def move_document_to_repo_directory() -> None:
 def copy_document_to_objects_as_docx_and_html(
     sha_hash: str, html: str, styles: str | None = None
 ) -> None:
-    """Copy the document into objects as both .docx and .html."""
+    """
+    Copy the document into objects as both .docx and .html. to their corresponding 
+    folders.
+    """
 
     if styles is None:
         styles = utils.default_html_styles
@@ -160,7 +180,7 @@ def get_current_iso_time() -> str:
 def write_history_data(
     sha_hash: str, config_user_name: str, config_user_email: str
 ) -> None:
-    """Write the initial commit history JSON file."""
+    """Write the initial commit history JSON file to the main branch history folder."""
 
     history_data = {
         "history": {
@@ -198,7 +218,10 @@ def write_history_data(
 
 
 def write_commit_message_data(sha_hash: str) -> None:
-    """Write the initial commit message JSON file."""
+    """
+    Write the initial commit message JSON file to the main branch commit messages 
+    folder.
+    """
 
     commit_message_data = {
         f"{sha_hash}": "initial commit (This is a default commit message for initial "
@@ -222,7 +245,7 @@ def write_commit_message_data(sha_hash: str) -> None:
 
 
 def write_config_data(config_user_name: str, config_user_email: str) -> None:
-    """Write the user config JSON file."""
+    """Write the user config JSON file to the config folder."""
 
     config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
     try:
@@ -238,7 +261,10 @@ def write_config_data(config_user_name: str, config_user_email: str) -> None:
 
 
 def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
-    """Write the initial commit file binary hash JSON file."""
+    """
+    Write the initial commit file binary hash JSON file to the main branch commit file 
+    hash folder.
+    """
 
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
