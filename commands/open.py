@@ -39,22 +39,6 @@ def confirm_before_proceeding(
         sys.exit(0)
 
 
-def check_changes(commit_path: Path, docx_path: Path | None = None) -> None:
-    """
-    Check if the commit_path and docx_path refer to the same file.
-
-    If so, print a message telling the user that no changes will be made and exit with
-    exit code 0.
-    """
-    if docx_path is None:
-        docx_path = utils.current_file_docx_path
-    if docx_path.exists() and commit_path.exists() and docx_path.samefile(commit_path):
-        print(
-            "The commit file is the same as the current file. No changes will be made."
-        )
-        sys.exit(0)
-
-
 def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
     """
     Copy the commit file to the current document, effectively opening the older commit.
@@ -91,7 +75,7 @@ def main() -> None:
         "docx", utils.working_directory_path, get_commit_path_input()
     )
 
-    check_changes(commit_path)
+    utils.check_for_uncommitted_changes("open")
 
     confirm_before_proceeding(commit_path)
 

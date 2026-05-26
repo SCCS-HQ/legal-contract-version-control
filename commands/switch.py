@@ -82,20 +82,6 @@ def get_latest_commit_binary_hash(
         raise exceptions.FileOpenError from e
 
 
-def check_for_changes(
-    branch: str, latest_commit_binary_hash: str, current_document_hash: str
-) -> None:
-    """
-    Check if there are uncommitted changes on the current branch by comparing the
-    current document hash and the latest commit hash.
-    """
-    if not current_document_hash == latest_commit_binary_hash:
-        raise exceptions.UncommittedChangesError(
-            f"The current file has uncommitted changes on the current branch '{branch}'"
-            f". Please commit your changes before switching branches."
-        )
-
-
 def sanitize_branch(branch_name: str) -> str:
     """Sanitize the branch name."""
     return utils.clean_directory_name(branch_name)
@@ -166,7 +152,7 @@ def main() -> None:
 
     current_document_hash = utils.hash_current_docx_binary()
 
-    check_for_changes(current_branch, latest_commit_binary_hash, current_document_hash)
+    utils.check_for_uncommitted_changes("switch")
 
     branch_to_switch = get_branch_to_switch()
 

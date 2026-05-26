@@ -34,7 +34,8 @@ def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None
     """
     Validate the subcommand entered by the user.
 
-    Raise an exception if the subcommand is invalid or if required arguments are missing.
+    Raise an exception if the subcommand is invalid or if required arguments are
+    missing.
     """
 
     if not subcommand:
@@ -256,6 +257,8 @@ def main() -> None:
     utils.check_sccs_layout()
 
     validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
+
+    utils.check_for_uncommitted_changes("branch")
 
     run_specified_subcommand(
         get_entered_subcommand(),

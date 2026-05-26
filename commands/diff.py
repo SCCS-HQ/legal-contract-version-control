@@ -257,7 +257,8 @@ def get_opcodes(
     Use difflib.SequenceMatcher to compare the two lists of tags and return a list of
     opcodes representing the differences between the 2 lists.
 
-    Return a list of opcodes representing the differences between the commit and current version HTML.
+    Return a list of opcodes representing the differences between the commit and current
+    version HTML.
     """
 
     commit_tags = tags_to_list(remove_inline_semantics(copy.copy(commit_soup)))
@@ -284,8 +285,8 @@ def format_redline_html(
     docx_current_version_list: list[str],
 ) -> BeautifulSoup:
     """
-    Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a list
-    of 5-tuples.
+    Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a
+    list of 5-tuples.
 
     The first value in the 5-tuple is the type of difference. Depending on
     the type of difference, perform a different function:

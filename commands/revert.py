@@ -30,13 +30,16 @@ def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> Non
     """Print a confirmation message for the revert."""
 
     print(
-        f"Document successfully reverted to commit '{commit.stem}' on commit '{new_commit_hash}'."
+        f"Document successfully reverted to commit '{commit.stem}' on commit "
+        f"'{new_commit_hash}'."
     )
 
 
 def main() -> None:
     """Main function to handle the revert command."""
     utils.check_sccs_layout()
+
+    utils.check_for_uncommitted_changes("revert")
 
     cwd = utils.working_directory_path
     commit = get_entered_commit()
