@@ -663,24 +663,24 @@ def check_for_uncommitted_changes(cmd: str, exit: bool = True, cwd: Path | None 
         cwd = working_directory_path
 
     with open(
-        cwd
-        / ".sccs"
-        / "branches"
-        / get_current_branch()
-        / "history"
-        / "commit_history.json"
-    ) as f:
+        cwd /
+        ".sccs" /
+        "branches" /
+        get_current_branch() /
+        "history" /
+        "commit_history.json", encoding="utf-8", newline="\n"
+        ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
 
     with open(
-        cwd
-        / ".sccs"
-        / "branches"
-        / get_current_branch()
-        / "commit_file_hash"
-        / "commit_file_hash.json"
-    ) as f:
+        cwd /
+        ".sccs" /
+        "branches" /
+        get_current_branch() /
+        "commit_file_hash" /
+        "commit_file_hash.json", encoding="utf-8", newline="\n"
+        ) as f:
         data = json.load(f)
         latest_bytes_hash = data[latest_commit]
 
