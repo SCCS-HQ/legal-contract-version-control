@@ -30,7 +30,8 @@ def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> Non
     """Print a confirmation message for the revert."""
 
     print(
-        f"Document successfully reverted to commit '{commit.stem}' on commit '{new_commit_hash}'."
+        f"Document successfully reverted to commit '{commit.stem}' on commit "
+        f"'{new_commit_hash}'."
     )
 
 

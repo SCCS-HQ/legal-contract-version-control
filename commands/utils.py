@@ -241,7 +241,9 @@ def get_branch_data(
 
 
 def convert_docx_to_html(docx_path: Path | None = None) -> str:
-    """Convert a DOCX document to using HTML and return the generated HTML as a string."""
+    """
+    Convert a DOCX document to HTML and return the generated HTML as a string.
+    """
     if docx_path is None:
         docx_path = current_file_docx_path
     try:
@@ -618,7 +620,8 @@ def validate_commit(
 
     if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
         raise exceptions.InvalidArgumentError(
-            "Invalid commit file name. Please provide a shortened, 10 character commit hash or the full 64 character commit hash as the commit identifier."
+            "Invalid commit file name. Please provide a shortened, 10 character commit "
+            "hash or the full 64 character commit hash as the commit identifier."
         )
 
     objects_dir = cwd / ".sccs" / "objects" / folder
@@ -638,15 +641,15 @@ def validate_commit(
 
     if len(matching_files) > 1:
         raise exceptions.InvalidArgumentError(
-            f"Multiple commit files found matching '{commit}'. Please provide a full, 64 character commit hash."
+            f"Multiple commit files found matching '{commit}'. Please provide a full, "
+            f"64 character commit hash."
         )
 
     return matching_files[0]
 
-
 def check_for_uncommitted_changes(
-    cmd: str, exit: bool = True, cwd: Path | None = None
-) -> None | bool:
+        cmd: str, exit: bool = True, cwd: Path | None = None
+    ) -> None | bool:
     """
     Check for uncommitted changes by hashing the current document bytes and comparing
     that to the latest commit bytes hash from the SCCS metadata.
@@ -694,8 +697,9 @@ def check_for_uncommitted_changes(
     if exit:
         if latest_bytes_hash != hash_current_docx_binary():
             raise exceptions.UncommittedChangesError(
-                f"Uncommitted changes were found. Please commit before running <sccs {cmd}>"
+                f"Uncommitted changes were found. Please commit before running <sccs "
+                f"{cmd}>"
             )
-
+        
     else:
         return True if latest_bytes_hash != hash_current_docx_binary() else False
