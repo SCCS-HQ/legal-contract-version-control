@@ -63,7 +63,7 @@ def zip_cwd() -> io.BytesIO:
 def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
     """
     Make a POST request to 'remote', sending 'buffer' as a file and 'remote' as JSON
-    
+
     Return the server response of the POST request to 'remote'.
     """
 

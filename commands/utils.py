@@ -520,10 +520,10 @@ def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
 
 def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     """
-    For each pair in the dictionary, the key is a Path object and the value is a JSON 
-    dictionary. Write the JSON to temporary files, then rename the temporary files to 
+    For each pair in the dictionary, the key is a Path object and the value is a JSON
+    dictionary. Write the JSON to temporary files, then rename the temporary files to
     atomically write.
-    
+
     Open the key and write the value for each pair in the dictionary.
     """
 

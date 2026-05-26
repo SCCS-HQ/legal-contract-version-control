@@ -58,7 +58,7 @@ def get_latest_commit_file_binary_hash(
     current_branch: str | None = None, cwd: Path | None = None
 ) -> str:
     """
-    Return the hash of the latest committed file from SCCS metadata by opening 
+    Return the hash of the latest committed file from SCCS metadata by opening
     'commit_file_hash.json' and reading its JSON data.
 
     Return the latest commit file hash.

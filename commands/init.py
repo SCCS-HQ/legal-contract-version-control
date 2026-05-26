@@ -43,7 +43,7 @@ def check_if_arg_entered(arg: Path) -> None:
 
 def ask_config_input(data: str) -> str:
     """
-    Prompt the user for a config value and return it if provided, otherwise raise an 
+    Prompt the user for a config value and return it if provided, otherwise raise an
     exception.
     """
 
