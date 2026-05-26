@@ -21,7 +21,8 @@ COMMANDS = [
     "clone",
     "config",
     "revert",
-    "reset"
+    "reset",
+    "push"
 ]
 
 
@@ -58,7 +59,7 @@ def execute_command(command: str, script_directory: Path, COMMANDS: list) -> Non
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
             f"'diff', 'status', 'help', 'branch', 'switch', 'clone', 'config', 'revert', 'reset', or "
-            f"'publish', along with required arguments. For help, use the 'sccs help' "
+            f"'push', along with required arguments. For help, use the 'sccs help' "
             f"command."
         )
     run_command(command, script_directory)
