@@ -508,6 +508,27 @@ def update_commit_log_history(
     return {commit_history_path: history}
 
 
+def update_changed_branches(
+        cwd: Path | None = None, updated_branch: list[str] | None = None
+    ) -> dict[Path, dict]:
+
+    if cwd is None:
+        cwd = working_directory_path
+
+    if updated_branch is None:
+        updated_branch = get_current_branch()
+
+    branch_data = get_branch_data()
+
+    if "updated_branches" in branch_data:
+        branch_data["updated_branches"] = list(set(branch_data["updated_branches"] + updated_branch))
+    else:
+        branch_data["updated_branches"] = updated_branch
+        
+    current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
+
+    return {current_branch_path: branch_data}
+
 def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """
     Combine multiple update dictionaries into a single dictionary for atomically
@@ -585,10 +606,13 @@ def commit_changes(commit_msg: str) -> str:
 
     updated_commit_messages = update_commit_messages(sha_hash, commit_message)
 
+    updated_branches = update_changed_branches(updated_branch=[get_current_branch()])
+
     combined_history_update_dicts = combine_update_dicts(
         updated_commit_log_history,
         updated_commit_binary_hash_history,
         updated_commit_messages,
+        updated_branches,
     )
 
     atomically_update_history(combined_history_update_dicts)
