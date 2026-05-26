@@ -657,29 +657,29 @@ def check_for_uncommitted_changes(cmd, exit: bool = True, cwd: Path | None = Non
     """
 
     if cwd is None:
-        cwd = working_directory_path()
+        cwd = working_directory_path
     
     with open(
         cwd /
         ".sccs" /
         "branches" /
-        get_current_branch /
+        get_current_branch() /
         "history" /
         "commit_history.json"
         ) as f:
-        data = f.read
+        data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
 
     with open(
         cwd /
         ".sccs" /
         "branches" /
-        get_current_branch /
+        get_current_branch() /
         "commit_file_hash" /
         "commit_file_hash.json"
         ) as f:
-        data = f.read
-        latest_bytes_hash = data[""][latest_commit]
+        data = json.load(f)
+        latest_bytes_hash = data[latest_commit]
 
     if exit:
         if not latest_bytes_hash == hash_current_docx_binary():
