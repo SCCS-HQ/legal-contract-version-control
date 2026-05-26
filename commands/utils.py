@@ -685,10 +685,10 @@ def check_for_uncommitted_changes(cmd: str, exit: bool = True, cwd: Path | None 
         latest_bytes_hash = data[latest_commit]
 
     if exit:
-        if not latest_bytes_hash == hash_current_docx_binary():
-            raise exceptions.UncommittedChangesError(
-                f"Uncommitted changes were found. Please commit before running <sccs {cmd}>"
-            )
-
+        if latest_bytes_hash != hash_current_docx_binary():
+            raise exceptions.UncommittedChangesError(f"Uncommitted changes were found. Please commit before running <sccs {cmd}>")
+        
     else:
-        return True if not latest_bytes_hash == hash_current_docx_binary else False
+        return True if latest_bytes_hash != hash_current_docx_binary() else False
+
+
