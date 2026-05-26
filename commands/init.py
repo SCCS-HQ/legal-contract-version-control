@@ -42,7 +42,10 @@ def check_if_arg_entered(arg: Path) -> None:
 
 
 def ask_config_input(data: str) -> str:
-    """Prompt the user for a config value and return it if provided, else None."""
+    """
+    Prompt the user for a config value and return it if provided, otherwise raise an 
+    exception.
+    """
 
     data_value = input(f"Enter your {data}: ").strip()
     if data_value == "":

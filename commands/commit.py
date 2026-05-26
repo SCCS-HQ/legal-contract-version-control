@@ -14,7 +14,8 @@ import utils
 
 def get_commit_message() -> str:
     """
-    Return the entered commit message from the user if a message is provided, else None.
+    Return the entered commit message from the user if a message is provided, otherwise
+    raise an exception.
     """
 
     if len(sys.argv) <= 2 or not sys.argv[2].strip():
