@@ -30,7 +30,9 @@ def reset(cwd: Path | None = None) -> None:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
         
-    shutil.copy2(utils.validate_commit("docx", cwd, latest_commit), utils.current_file_docx_path)
+    shutil.copy2(
+        utils.validate_commit("docx", cwd, latest_commit), utils.current_file_docx_path
+    )
 
 
 def print_success_message() -> None:
