@@ -148,7 +148,7 @@ async def push(repo_name: str) -> dict:
     repo_path = (base_dir / repo_name / ".sccs").resolve()
     objects_dir = repo_path / "objects"
 
-    objects = set(f.stem for f in objects_dir.rglob("*") if f.is_file())
+    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
 
     return {"objects": objects}
 
