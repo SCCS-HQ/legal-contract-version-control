@@ -20,7 +20,7 @@ COMMANDS = [
     "publish",
     "clone",
     "config",
-    "revert"
+    "revert",
     "reset"
 ]
 
