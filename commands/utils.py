@@ -649,6 +649,9 @@ def check_for_uncommitted_changes(cmd, exit: bool = True, cwd: Path | None = Non
     that to the latest commit bytes hash from the SCCS metadata.
     
     'cmd' is the command being run. It is used in the exception message. 
+    
+    If exit is true, raise an UncommittedChangesError if uncommitted changes were found,
+    if not return None.
 
     If 'exit' is false and uncommitted changes were found, return True, if not return 
     False.
