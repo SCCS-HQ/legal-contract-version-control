@@ -29,7 +29,7 @@ def reset(cwd: Path | None = None) -> None:
     ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
-        
+
     shutil.copy2(
         utils.validate_commit("docx", cwd, latest_commit), utils.current_file_docx_path
     )
