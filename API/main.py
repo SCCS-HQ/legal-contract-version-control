@@ -136,5 +136,22 @@ async def clone(repo_name: str) -> StreamingResponse:
     )
 
 
+@app.get("/repos/{repo_name}/push")
+async def push(repo_name: str) -> dict:
+    """
+    Return the folder layout of a requested repository so that the client only needs to 
+    upload changed files and new files.
+    """
+
+    repo_name = resolve_path(Path(repo_name))
+    base_dir = Path("API/repos").resolve()
+    repo_path = (base_dir / repo_name / ".sccs").resolve()
+    objects_dir = repo_path / "objects"
+
+    objects = set(f.stem for f in objects_dir.rglob("*") if f.is_file())
+
+    return {"objects": objects}
+
+
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
 """Mount all repositories as static files on the /repos endpoint."""
