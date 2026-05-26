@@ -643,10 +643,7 @@ def validate_commit(
 
     return matching_files[0]
 
-
-def check_for_uncommitted_changes(
-    cmd, exit: bool = True, cwd: Path | None = None
-) -> None:
+def check_for_uncommitted_changes(cmd: str, exit: bool = True, cwd: Path | None = None) -> None | bool:
     """
     Check for uncommitted changes by hashing the current document bytes and comparing
     that to the latest commit bytes hash from the SCCS metadata.
