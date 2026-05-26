@@ -34,7 +34,7 @@ def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None
     """
     Validate the subcommand entered by the user.
 
-    Raise an exception if the subcommand is invalid or if required arguments are 
+    Raise an exception if the subcommand is invalid or if required arguments are
     missing.
     """
 

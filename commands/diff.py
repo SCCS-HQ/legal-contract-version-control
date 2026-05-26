@@ -285,7 +285,7 @@ def format_redline_html(
     docx_current_version_list: list[str],
 ) -> BeautifulSoup:
     """
-    Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a 
+    Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a
     list of 5-tuples.
 
     The first value in the 5-tuple is the type of difference. Depending on
