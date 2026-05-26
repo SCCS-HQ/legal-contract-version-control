@@ -16,7 +16,7 @@ def reset(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
-    if not utils.check_for_uncommitted_changes("reset", exit=False):
+    if not utils.check_for_uncommitted_changes(cwd, "reset", exit=False):
         raise exceptions.NoUncommittedChangesError()
 
     with open(
@@ -29,11 +29,8 @@ def reset(cwd: Path | None = None) -> None:
     ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]
-
-    shutil.copy2(
-        utils.validate_commit(folder="docx", commit=latest_commit),
-        cwd / utils.current_file_docx_path,
-    )
+        
+    shutil.copy2(utils.validate_commit("docx", cwd, latest_commit), utils.current_file_docx_path)
 
 
 def print_success_message() -> None:
