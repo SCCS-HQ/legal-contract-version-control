@@ -33,7 +33,8 @@ def reset(cwd: Path | None = None) -> None:
         latest_commit = data["history"]["latest_commit"]
 
     shutil.copy2(
-        utils.validate_commit("docx", cwd, latest_commit), cwd / cwd.with_suffix(".docx").name
+        utils.validate_commit("docx", cwd, latest_commit),
+        cwd / cwd.with_suffix(".docx").name,
     )
 
 
