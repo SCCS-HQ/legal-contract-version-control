@@ -30,7 +30,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
         encoding="utf-8",
         newline="\n",
     ) as f:
-        branch_data = utils.get_branch_data(cwd=cwd)
+        branch_data = utils.get_branch_data()
         branch_data["current_branch"] = "main"
         json.dump(branch_data, f, indent=4)
 
