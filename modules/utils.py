@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-import exceptions
+from . import exceptions
 import mammoth
 
 working_directory_path = Path.cwd()
@@ -237,7 +237,7 @@ def get_branch_data(
             return data
 
     except Exception as e:
-        raise exceptions.FileOpenError from e
+        raise exceptions.FileOpenError(f"path: {file_path}") from e
 
 
 def convert_docx_to_html(docx_path: Path | None = None) -> str:
