@@ -6,8 +6,8 @@ import difflib
 import sys
 from pathlib import Path
 
-import modules.exceptions as exceptions
-import modules.utils as utils
+import exceptions
+import utils
 from bs4 import BeautifulSoup
 
 

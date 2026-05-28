@@ -9,9 +9,10 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import modules.exceptions as exceptions
 import requests
-import modules.utils as utils
+
+import exceptions
+import utils
 
 
 def reset_current_branch(cwd: Path | None = None) -> None:

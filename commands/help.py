@@ -3,7 +3,7 @@
 
 import sys
 
-import modules.exceptions as exceptions
+import exceptions
 
 MESSAGES_TO_PRINT = [
     "SCCS Help",

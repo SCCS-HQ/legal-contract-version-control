@@ -6,8 +6,8 @@ import shutil
 import sys
 from pathlib import Path
 
-import modules.exceptions as exceptions
-import modules.utils as utils
+import exceptions
+import utils
 
 
 def reset(cwd: Path | None = None) -> None:
