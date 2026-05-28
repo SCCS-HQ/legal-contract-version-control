@@ -24,14 +24,16 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
+    branch_data = utils.get_branch_data()
+    branch_data["current_branch"] = "main"
+
+
     with open(
         Path(cwd) / ".sccs" / "current_branch" / "current_branch.json",
         "w",
         encoding="utf-8",
         newline="\n",
     ) as f:
-        branch_data = utils.get_branch_data()
-        branch_data["current_branch"] = "main"
         json.dump(branch_data, f, indent=4)
 
 
@@ -109,14 +111,15 @@ def main() -> None:
         )
 
 
-if __name__ == "__main__":
-    try:
-        main()
+# if __name__ == "__main__":
+#     try:
+#         main()
 
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
+#     except exceptions.SCCSException as e:
+#         print(f"An error occurred:\n{e}\n")
+#         sys.exit(1)
 
-    except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+#     except Exception as e:
+#         print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+#         sys.exit(2)
+main()
