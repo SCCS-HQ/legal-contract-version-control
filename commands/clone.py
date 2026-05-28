@@ -5,7 +5,7 @@ import io
 import sys
 import zipfile
 
-import exceptions
+import modules.exceptions as exceptions
 import requests
 
 

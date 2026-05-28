@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import exceptions
-import utils
+import modules.exceptions as exceptions
+import modules.utils as utils
 
 
 def get_entered_document_path() -> Path | None:

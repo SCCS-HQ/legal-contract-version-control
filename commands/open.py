@@ -5,8 +5,8 @@ import shutil
 import sys
 from pathlib import Path
 
-import exceptions
-import utils
+import modules.exceptions as exceptions
+import modules.utils as utils
 
 
 def get_commit_path_input() -> Path | None:

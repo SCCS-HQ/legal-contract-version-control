@@ -8,8 +8,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import exceptions
-import utils
+import modules.exceptions as exceptions
+import modules.utils as utils
 
 
 def get_commit_message() -> str:

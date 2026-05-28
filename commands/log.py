@@ -5,8 +5,8 @@ import json
 import sys
 from pathlib import Path
 
-import exceptions
-import utils
+import modules.exceptions as exceptions
+import modules.utils as utils
 
 
 def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
