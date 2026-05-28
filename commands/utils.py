@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from ..commands import exceptions
+import exceptions
 import mammoth
 
 working_directory_path = Path.cwd()
