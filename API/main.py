@@ -12,8 +12,6 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-import modules.utils as utils
-
 REPO_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
@@ -213,7 +211,14 @@ async def push_upload(repo_name: str, file: UploadFile = File(...),):
                                 break
                             f_out.write(chunk)
 
-    utils.update_changed_branches(repo_path, wipe=True, path=repo_path / ".sccs" / "current_branch" / "current_branch.json")
+    with open(repo_path / ".sccs" / "current_branch" / "current_branch.json", "r+", encoding="utf-8") as f:
+        data = json.load(f)
+        data["updated_branches"] = []
+        f.seek(0)
+        json.dump(data, f, indent=4)
+        f.truncate()
+
+
 
     return {"message": "changes pushed successfully"}                     
 

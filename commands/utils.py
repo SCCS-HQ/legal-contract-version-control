@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from . import exceptions
+from ..commands import exceptions
 import mammoth
 
 working_directory_path = Path.cwd()
@@ -509,18 +509,11 @@ def update_commit_log_history(
 
 
 def update_changed_branches(
-        cwd: Path | None = None, updated_branch: list[str] | None = None, wipe: bool = False,
+        cwd: Path | None = None, updated_branch: list[str] | None = None,
     ) -> dict[Path, dict] | None:
     
     if cwd is None:
         cwd = working_directory_path
-    
-    if wipe:
-        branch_data = get_branch_data()
-        branch_data["updated_branches"] = []
-        with open(cwd / ".sccs" / "current_branch" / "current_branch.json", "w", encoding="utf-8", newline="\n") as f:
-            json.dump(branch_data, f)
-        return
 
     if updated_branch is None:
         updated_branch = get_current_branch()
