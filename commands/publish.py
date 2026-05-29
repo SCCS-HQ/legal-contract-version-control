@@ -9,9 +9,8 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import requests
-
 import exceptions
+import requests
 import utils
 
 
@@ -26,7 +25,6 @@ def reset_current_branch(cwd: Path | None = None) -> None:
 
     branch_data = utils.get_branch_data()
     branch_data["current_branch"] = "main"
-
 
     with open(
         Path(cwd) / ".sccs" / "current_branch" / "current_branch.json",

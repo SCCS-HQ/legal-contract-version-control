@@ -509,8 +509,9 @@ def update_commit_log_history(
 
 
 def update_changed_branches(
-        cwd: Path | None = None, updated_branch: list[str] | None = None,
-    ) -> dict[Path, dict] | None:
+    cwd: Path | None = None,
+    updated_branch: list[str] | None = None,
+) -> dict[Path, dict] | None:
     """Update the list of branches with unpushed changes."""
 
     if cwd is None:
@@ -522,13 +523,16 @@ def update_changed_branches(
     branch_data = get_branch_data()
 
     if "updated_branches" in branch_data:
-        branch_data["updated_branches"] = list(set(branch_data["updated_branches"] + updated_branch))
+        branch_data["updated_branches"] = list(
+            set(branch_data["updated_branches"] + updated_branch)
+        )
     else:
         branch_data["updated_branches"] = updated_branch
-        
+
     current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
 
     return {current_branch_path: branch_data}
+
 
 def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """

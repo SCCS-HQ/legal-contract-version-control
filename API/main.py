@@ -139,7 +139,7 @@ async def clone(repo_name: str) -> StreamingResponse:
 @app.get("/repos/{repo_name}/push")
 async def push(repo_name: str) -> dict:
     """
-    Return the folder layout of a requested repository so that the client only needs to 
+    Return the folder layout of a requested repository so that the client only needs to
     upload changed files and new files.
     """
 
@@ -154,22 +154,20 @@ async def push(repo_name: str) -> dict:
 
 
 @app.post("/repos/{repo_name}/push")
-async def push_upload(
-        repo_name: str, file: UploadFile = File(...)
-    ) -> dict:
+async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     """
     Accept a zip archives of new objects to upload to the selected repository, and a zip
-    archive of the updated metadata files. Extract the files from the archives, defend 
+    archive of the updated metadata files. Extract the files from the archives, defend
     against zip slip attacks, and copy the files to the repository atomically.
     """
-    
+
     repo_name = resolve_path(Path(repo_name))
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
-    
+
     if not repo_path.exists() or not repo_path.is_dir():
         raise HTTPException(status_code=404, detail="Repository not found")
-    
+
     try:
         repo_path.relative_to(base_dir)
     except ValueError:
@@ -199,7 +197,7 @@ async def push_upload(
             path = Path(
                 repo_path / Path(file.filename).relative_to(f"tmp_{repo_name}")
             ).resolve()
-            
+
             try:
                 path.relative_to(Path(repo_path))
             except ValueError:
@@ -217,21 +215,19 @@ async def push_upload(
                             f_out.write(chunk)
 
     with open(
-            repo_path /
-            ".sccs" /
-            "current_branch" /
-            "current_branch.json", "r+", encoding="utf-8"
-        ) as f:
-        
+        repo_path / ".sccs" / "current_branch" / "current_branch.json",
+        "r+",
+        encoding="utf-8",
+    ) as f:
+
         data = json.load(f)
         data["updated_branches"] = []
         f.seek(0)
         json.dump(data, f, indent=4)
         f.truncate()
 
+    return {"message": "changes pushed successfully"}
 
-
-    return {"message": "changes pushed successfully"}                     
 
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
 """Mount all repositories as static files on the /repos endpoint."""
