@@ -98,7 +98,7 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
 
     if cwd is None:
         cwd = utils.working_directory_path
-    updated_branches = utils.get_branch_data(key="updated_branches")
+    updated_branches = utils.get_branch_data(key="updated_branches") or []
     current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
     commit_msgs_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
     objects_paths = [
