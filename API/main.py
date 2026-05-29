@@ -194,11 +194,9 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
             )
 
         for file in f.infolist():
-            path = Path(
-                repo_path / Path(file.filename).relative_to(f"tmp_{repo_name}")
-            ).resolve()
-
             try:
+                relative_path = Path(file.filename).relative_to(f"tmp_{repo_name}")
+                path = Path(repo_path / relative_path).resolve()
                 path.relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
