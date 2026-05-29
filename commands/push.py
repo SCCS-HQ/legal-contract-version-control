@@ -111,8 +111,8 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     byte_hash_paths = []
 
     for b in updated_branches:
-        history_paths.extend(get_matching_file_paths([b], "commit_history", cwd))
-        byte_hash_paths.extend(get_matching_file_paths([b], "commit_file_hash", cwd))
+        history_paths.extend(get_matching_file_paths("commit_history", [b], cwd))
+        byte_hash_paths.extend(get_matching_file_paths("commit_file_hash", [b], cwd))
 
     files_to_upload = (
         objects_paths
