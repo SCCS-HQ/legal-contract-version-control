@@ -173,7 +173,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid repository name")
 
-    if not Path(Path(file.filename).stem) == repo_name:
+    if not file.filename or Path(Path(file.filename).stem) != repo_name:
         raise HTTPException(
             status_code=400, detail="Repository name does not match file name"
         )
