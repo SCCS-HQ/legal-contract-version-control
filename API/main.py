@@ -33,7 +33,9 @@ def ensure_repository_exists(repo_name: Path) -> None:
     repo_path = Path("API/repos").resolve() / repo_name
 
     if not repo_path.exists() or not repo_path.is_dir():
-        raise HTTPException(status_code=404, detail=f"Repository not found, {repo_path}")
+        raise HTTPException(
+            status_code=404, detail=f"Repository not found, {repo_path}"
+        )
 
 
 app = FastAPI()
