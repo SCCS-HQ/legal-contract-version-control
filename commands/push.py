@@ -200,7 +200,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
 def main() -> None:
     """Run functions for the <sccs push> command."""
 
-    remote = utils.get_key_from_config("remote")
+    remote = utils.get_key_from_config("remote").rstrip("/")
 
     print(f" Pushing changes to remote repository at {remote}...\n")
 
