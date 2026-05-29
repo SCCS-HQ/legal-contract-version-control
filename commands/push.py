@@ -98,11 +98,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
 
     if cwd is None:
         cwd = utils.working_directory_path
+    cwd = Path(cwd).resolve()
 
-    repo_name = Path(cwd).name
-
-    if cwd is None:
-        cwd = utils.working_directory_path
+    repo_name = cwd.name
     updated_branches = (
         utils.get_branch_data(
             key="updated_branches",
