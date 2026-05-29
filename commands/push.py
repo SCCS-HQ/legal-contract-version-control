@@ -35,7 +35,7 @@ def get_matching_file_paths(
     return paths
 
 
-def push_GET(remote: str) -> list:
+def push_GET(remote: str) -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
     try:
