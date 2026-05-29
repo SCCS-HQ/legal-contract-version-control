@@ -25,7 +25,12 @@ def validate_subcommand(subcommand, branch_name):
             print("No branch name provided. Please specify a branch name.")
             sys.exit(1)
 
-def branch_create_subcommand(current_branch, branch_data):
+def branch_create_subcommand(current_branch, branch_data, cwd=None, current_branch_path=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if current_branch_path is None:
+        current_branch_path = utils.current_branch_path
+
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     if not sanitized_branch_name:
@@ -36,13 +41,13 @@ def branch_create_subcommand(current_branch, branch_data):
         print(f"Branch '{sanitized_branch_name}' already exists.")
         sys.exit(1)
 
-    if os.path.isdir(os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name)):
+    if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
         print(f"Branch '{sanitized_branch_name}' already exists, or a directory with the same name exists.")
         sys.exit(1)
         
-    shutil.copytree(os.path.join(utils.working_directory_path, ".sccs", "branches", current_branch), os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name))
+    shutil.copytree(os.path.join(cwd, ".sccs", "branches", current_branch), os.path.join(cwd, ".sccs", "branches", sanitized_branch_name))
     try:
-        with open(utils.current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
+        with open(current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
             try:    
                 branch_data["branches"].append(sanitized_branch_name)
                 branch_data["current_branch"] = sanitized_branch_name
@@ -57,12 +62,15 @@ def branch_create_subcommand(current_branch, branch_data):
 
     print(f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', and is now the current branch.")
 
-def branch_delete_subcommand(current_branch, branch_data):
+def branch_delete_subcommand(current_branch, branch_data, cwd=None, current_branch_path=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+    if current_branch_path is None:
+        current_branch_path = utils.current_branch_path
 
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
-    branch_path = os.path.join(utils.working_directory_path, ".sccs", "branches", sanitized_branch_name)
-
+    branch_path = os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)
     if sanitized_branch_name == current_branch:
         print("Cannot delete the current branch.")
         sys.exit(1)
@@ -76,7 +84,7 @@ def branch_delete_subcommand(current_branch, branch_data):
         sys.exit(1)
 
     try:
-        with open(utils.current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
+        with open(current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
             branch_data["branches"].remove(sanitized_branch_name)
             json.dump(branch_data, current_branch_file, indent=4)
 
@@ -90,7 +98,7 @@ def branch_delete_subcommand(current_branch, branch_data):
     except Exception as e:
         print(f"Error deleting branch '{sanitized_branch_name}': {e}")
         try:
-            with open(utils.current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
+            with open(current_branch_path, "w", encoding="utf-8", newline="\n") as current_branch_file:
                 branch_data["branches"].append(sanitized_branch_name)
                 json.dump(branch_data, current_branch_file, indent=4)
         except Exception as e:
