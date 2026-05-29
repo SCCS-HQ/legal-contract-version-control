@@ -182,7 +182,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
     try:
         response = requests.post(
             f"{remote}/push",
-            files=[("file", (Path.cwd().name + ".zip", buffer, "application/zip"))],
+            files=[("file", (utils.working_directory_path.name + ".zip", buffer, "application/zip"))],
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
