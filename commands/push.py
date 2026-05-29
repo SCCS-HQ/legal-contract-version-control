@@ -147,7 +147,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
                 for root, dirs, files in os.walk(temp_dir):
                     for file in files:
                         full_path = Path(root) / file
-                        zip_file.write(full_path, arcname=full_path.relative_to(temp_dir))
+                        zip_file.write(
+                            full_path, arcname=full_path.relative_to(temp_dir)
+                        )
         except Exception as e:
             raise exceptions.ZippingFileError(
                 "Failed to zip current working directory"
@@ -156,9 +158,7 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError(
-                "Failed to reset buffer position"
-            ) from e
+            raise exceptions.BufferError("Failed to reset buffer position") from e
 
     return buffer
 
