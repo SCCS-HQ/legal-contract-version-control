@@ -128,7 +128,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         tmp_folder_path.mkdir(parents=True, exist_ok=True)
 
         for f in files_to_upload:
-            (tmp_folder_path / f.relative_to(cwd).parent).mkdir(parents=True, exist_ok=True)
+            (tmp_folder_path / f.relative_to(cwd).parent).mkdir(
+                parents=True, exist_ok=True
+            )
 
             shutil.copy2(f, tmp_folder_path / (f.relative_to(cwd)).parent)
 
@@ -199,20 +201,20 @@ def main() -> None:
     print(f" Pushing changes to remote repository at {remote}...\n")
 
     GET_response = push_GET(remote)
-    
+
     if not 200 <= GET_response.status_code < 300:
         raise exceptions.HTTPGetRequestError(
             f"Failed to push to repository: {GET_response.text}, status code: {GET_response.status_code}"
         )
-    
+
     remote_objects = GET_response.json().get("objects", [])
 
     local_objects = get_repo_objects()
     obj_to_upload = compare_hash_lists(remote_objects, local_objects)
     buffer = zip_files_to_upload(obj_to_upload)
-    
+
     POST_response = push_POST(remote, buffer)
-    
+
     if 200 <= POST_response.status_code < 300:
         print(f"Changes pushed successfully to {remote}/push\n")
     else:
