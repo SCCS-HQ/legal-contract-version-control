@@ -23,7 +23,9 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
-    branch_data = utils.get_branch_data(Path(cwd) / ".sccs" / "current_branch" / "current_branch.json")
+    branch_data = utils.get_branch_data(
+        Path(cwd) / ".sccs" / "current_branch" / "current_branch.json"
+    )
     branch_data["current_branch"] = "main"
 
     with open(
