@@ -27,13 +27,15 @@ def get_matching_file_paths(
         updated_branches = []
     paths = []
     for b in updated_branches:
-        paths.extend(
-            [
-                f.resolve()
-                for f in (cwd / ".sccs" / "branches" / b).rglob("*")
-                if f.is_file() and f.stem == filename
-            ]
-        )
+        branch_dir = cwd / ".sccs" / "branches" / b
+        if branch_dir.is_dir():
+            paths.extend(
+                [
+                    f.resolve()
+                    for f in branch_dir.rglob("*")
+                    if f.is_file() and f.stem == filename
+                ]
+            )
     return paths
 
 
