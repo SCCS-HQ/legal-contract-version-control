@@ -23,6 +23,8 @@ def get_matching_file_paths(
 
     if cwd is None:
         cwd = utils.working_directory_path
+    if updated_branches is None:
+        updated_branches = []
     paths = []
     for b in updated_branches:
         paths.extend(
