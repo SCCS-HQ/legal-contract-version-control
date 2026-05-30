@@ -149,8 +149,6 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
     if branch_data is None:
         branch_data = utils.get_branch_data()
 
-    branch_data = utils.get_branch_data()
-
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
     try:
         with open(
