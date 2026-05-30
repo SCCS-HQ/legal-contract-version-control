@@ -8,7 +8,7 @@ import json
 from types import MappingProxyType
 import utils
 
-def get_obj_from_config(object, cwd=None):
+def get_key_from_config(key, cwd=None):
     if cwd is None:
         cwd = utils.working_directory_path
     # Get name and email entered on init
@@ -19,9 +19,9 @@ def get_obj_from_config(object, cwd=None):
 
     with open(config_path, "r", encoding="utf-8", newline="\n") as config_file:
         config = json.load(config_file)
-        object = config.get(object)
+        value = config.get(key)
     
-    return object
+    return value
 
 def get_commit_message():
     # Get commit message
@@ -174,9 +174,9 @@ def print_commit_confirmation_message(sha_hash):
 if __name__ == "__main__":
     utils.check_sccs_layout()
 
-    name = get_obj_from_config("name")
+    name = get_key_from_config("name")
 
-    email = get_obj_from_config("email")
+    email = get_key_from_config("email")
 
     docx_html = utils.convert_docx_to_html()
 
