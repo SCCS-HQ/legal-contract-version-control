@@ -196,32 +196,28 @@ def main() -> None:
 
     remote = utils.get_key_from_config("remote")
 
-    print(f"Getting list of objects on remote repository at {remote}...\n")
-    GET_response = push_GET(remote)
-    remote_objects = GET_response.json().get("objects", [])
+    print(f" Pushing changes to remote repository at {remote}...\n")
 
-    print(f"Status code: {GET_response.status_code}\n")
-    if 200 <= GET_response.status_code < 300:
-        print(f"Changes pushed successfully to {remote}/push\n")
-    else:
-        raise exceptions.HTTPPostRequestError(
-            f"Failed to push to repository: {GET_response.text}"
+    GET_response = push_GET(remote)
+    
+    if not 200 <= GET_response.status_code < 300:
+        raise exceptions.HTTPGetRequestError(
+            f"Failed to push to repository: {GET_response.text}, status code: {GET_response.status_code}"
         )
+    
+    remote_objects = GET_response.json().get("objects", [])
 
     local_objects = get_repo_objects()
     obj_to_upload = compare_hash_lists(remote_objects, local_objects)
     buffer = zip_files_to_upload(obj_to_upload)
-
-    print(
-        f"Uploading {len(obj_to_upload)} objects to remote repository at {remote}...\n"
-    )
+    
     POST_response = push_POST(remote, buffer)
-    print(f"Status code: {POST_response.status_code}\n")
+    
     if 200 <= POST_response.status_code < 300:
         print(f"Changes pushed successfully to {remote}/push\n")
     else:
         raise exceptions.HTTPPostRequestError(
-            f"Failed to push to repository: {POST_response.text}"
+            f"Failed to push to repository: {POST_response.text}, status code: {POST_response.status_code}"
         )
 
 
