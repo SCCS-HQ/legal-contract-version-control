@@ -27,11 +27,13 @@ def resolve_path(path: Path) -> Path:
     return path
 
 
-def ensure_repository_exists(repo_path: Path) -> None:
+def ensure_repository_exists(repo_name: Path) -> None:
     """Ensure that the specified repository exists and is a directory."""
 
+    repo_path = Path("API/repos").resolve() / repo_name
+
     if not repo_path.exists() or not repo_path.is_dir():
-        raise HTTPException(status_code=404, detail="Repository not found")
+        raise HTTPException(status_code=404, detail=f"Repository not found, {repo_path}")
 
 
 app = FastAPI()
@@ -117,7 +119,7 @@ async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
     repo_name = resolve_path(Path(repo_name))
-    ensure_repository_exists(Path(repo_name))
+    ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
 
@@ -149,7 +151,7 @@ async def push(repo_name: str) -> dict:
     """
 
     repo_name = resolve_path(Path(repo_name))
-    ensure_repository_exists(Path(repo_name))
+    ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name / ".sccs").resolve()
     objects_dir = repo_path / "objects"
@@ -168,7 +170,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     """
 
     repo_name = resolve_path(Path(repo_name))
-    ensure_repository_exists(Path(repo_name))
+    ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
 
