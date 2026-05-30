@@ -161,7 +161,7 @@ def update_commit_log_history(
 
     latest_commit_number = history["history"]["latest_commit_number"]
 
-    history["history"]["commit_order"][latest_commit_number] = f"{sha_hash}"
+    history["history"]["commit_order"][str(latest_commit_number)] = f"{sha_hash}"
 
     history["log"][f"{sha_hash}"] = {
         "timestamp": timestamp,
