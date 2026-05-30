@@ -103,10 +103,11 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     )
     current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
     commit_msgs_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
+    obj_to_upload_set = set(obj_to_upload)
     objects_paths = [
         f.resolve()
         for f in (cwd / ".sccs" / "objects").rglob("*")
-        if f.is_file() and f.stem in obj_to_upload
+        if f.is_file() and f.stem in obj_to_upload_set
     ]
 
     history_paths = []
