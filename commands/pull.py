@@ -21,6 +21,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
     return objects
 
+
 def pull(remote: str, data: dict) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
