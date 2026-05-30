@@ -89,8 +89,6 @@ def main() -> None:
     print(f"Repository cloned successfully to ./{repo_name}")
 
 
-
-
 if __name__ == "__main__":
     try:
         main()

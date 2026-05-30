@@ -58,7 +58,7 @@ def main():
 
     response.raise_for_status()
     print(f"Repository pulled successfully from {remote}")
-    
+
     update_repo_files(response)
 
 
