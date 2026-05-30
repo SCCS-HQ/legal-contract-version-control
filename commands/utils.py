@@ -518,7 +518,7 @@ def update_changed_branches(
         cwd = working_directory_path
 
     if updated_branch is None:
-        updated_branch = get_current_branch()
+        updated_branch = [get_current_branch()]
 
     branch_data = get_branch_data()
 
