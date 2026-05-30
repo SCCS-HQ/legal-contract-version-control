@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -128,10 +129,8 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         + [current_branch_path, commit_msgs_path]
     )
 
-    tmp_folder_path = Path(f"tmp_{repo_name}")
-    try:
-        tmp_folder_path.mkdir(parents=True, exist_ok=True)
-
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_folder_path = Path(temp_dir) / repo_name
         for f in files_to_upload:
             (tmp_folder_path / f.relative_to(cwd).parent).mkdir(
                 parents=True, exist_ok=True
@@ -159,14 +158,6 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
             buffer.seek(0)
         except Exception as e:
             raise exceptions.BufferError("Failed to reset buffer position") from e
-
-    finally:
-        try:
-            shutil.rmtree(tmp_folder_path)
-        except Exception as e:
-            raise exceptions.FileDeletionError(
-                f"Failed to delete temporary folder at {tmp_folder_path}"
-            ) from e
 
     return buffer
 
