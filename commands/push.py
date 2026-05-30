@@ -31,7 +31,8 @@ def get_matching_file_paths(
         branch_dir = cwd / ".sccs" / "branches" / b
         if branch_dir.is_dir():
             f = branch_dir / filename / f"{filename}.json"
-            paths.extend([f.resolve() if f.is_file() else None])
+            if f.is_file():
+                paths.append(f.resolve())
     return paths
 
 
