@@ -161,7 +161,8 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
     Return the server response of the POST request to 'remote'.
     """
 
-    if not urlsplit(remote).path.endswith(
+    remote_path = urlsplit(remote).path.rstrip("/")
+    if not remote_path.endswith(
         f"/repos/{utils.working_directory_path.name}"
     ):
         raise exceptions.InvalidAPIURLError(
