@@ -263,19 +263,19 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     ):
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
-    local_objects = data["objects"]
+    local_objects = set(data["objects"])
 
-    remote_objects = list(
-        set(f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file())
+    remote_objects = set(
+        f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file()
     )
 
-    obj_to_upload = list(set(remote_objects) - set(local_objects))
+    obj_to_upload = remote_objects - local_objects
 
-    if list(set(local_objects) - set(remote_objects)):
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Local repository has objects that the remote does not have. Run 'sccs push"
+    if local_objects - remote_objects:
+        raise HTTPException(status_code=400, detail=(
+            "Local repository has objects that the remote does not have. Run 'sccs push"
+            "' to upload these objects before pulling."
+        ))
                 "' to upload these objects before pulling."
             ),
         )
