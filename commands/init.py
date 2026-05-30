@@ -115,26 +115,40 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
     repo_path = get_document_repo_path()
     doc_name = Path(get_entered_document_path()).name
 
-    shutil.copy2(
-        os.path.join(repo_path, doc_name),
-        os.path.join(repo_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
-    )
+    try:
+        shutil.copy2(
+            os.path.join(repo_path, doc_name),
+            os.path.join(repo_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
+        )
+    except Exception as e:
+        print(f"Error copying document to objects: {e}")
+        sys.exit(1)
 
-    with open(
-        os.path.join(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
-        "w",
-        encoding="utf-8",
-        newline="\n",
-    ) as f:
-        f.write(styles + html)
+    try:
+        with open(
+            os.path.join(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
+            "w",
+            encoding="utf-8",
+            newline="\n",
+        ) as f:
+            f.write(styles + html)
+    except Exception as e:
+        print(f"Error writing HTML file: {e}")
+        sys.exit(1)
 
-    with open(
+    try:
+        with open(
         os.path.join(repo_path, ".sccs", "objects", "view_html", f"{sha_hash}.html"),
-        "w",
-        encoding="utf-8",
-        newline="\n",
-    ) as f:
-        f.write(utils.wrap_html(html))
+            "w",
+            encoding="utf-8",
+            newline="\n",
+        ) as f:
+            f.write(utils.wrap_html(html))
+    except Exception as e:
+        print(f"Error writing view HTML file: {e}")
+        sys.exit(1)
+
+
 
 
 def get_current_iso_time():
