@@ -75,14 +75,11 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
         print(f"Error reading latest commit file hash: {e}")
         sys.exit(1)
 
-    if not latest_commit_file_hash:
-        print(
-            "Latest commit file hash is missing. Please run 'sccs init <file_path>' to initialize SCCS for this file."
-        )
+    except (json.JSONDecodeError, KeyError, TypeError, OSError) as e:
+        print(f"Error reading latest commit file hash: {e}")
         sys.exit(1)
 
     return latest_commit_file_hash
-
 
 def compare_hashes(old_hash, new_hash):
     return old_hash == new_hash
