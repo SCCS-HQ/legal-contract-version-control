@@ -4,14 +4,19 @@ MESSAGES_TO_PRINT = [
     "  commit  - Commit changes to a repository",
     "  open    - Restore a previous commit and overwrite the current changes",
     "  log     - Show commit history",
-    "  diff    - Compare the current .docx converted to HTML with a specified commit .html file",
+    "  diff    - Compare the current .docx converted to HTML with a specified commit .h"
+    "tml file",
     "  status  - Show the status of a repository",
     "  branch  - List, create, and delete branches",
     "  switch  - Switch to a different branch",
     "  help    - Show this help message"
 ]
 
-def print_help(messages):
+def print_help(
+        messages
+    ):
+    """Print help messages."""
+
     for item in messages:
         print(item)
 
