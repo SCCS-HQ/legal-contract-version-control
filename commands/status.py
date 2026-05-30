@@ -8,6 +8,7 @@ from pathlib import Path
 import exceptions
 import utils
 
+
 def print_status_message() -> None:
     """Print the status message to the user."""
     uncommitted_changes = utils.check_for_uncommitted_changes("status", exit=False)
@@ -15,13 +16,14 @@ def print_status_message() -> None:
         print("Uncommitted changes detected.")
     else:
         print("No uncommitted changes detected.")
-        
+
 
 def main() -> None:
     """Run functions for the <sccs status> command."""
     utils.check_sccs_layout()
 
     print_status_message()
+
 
 if __name__ == "__main__":
     try:
