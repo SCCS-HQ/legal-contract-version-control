@@ -153,17 +153,17 @@ def combine_update_dicts(*dicts):
         update_dict.update(d)
     return update_dict
 
-def atomically_update_history(dict):
-    for key, value in dict.items():
+def atomically_update_history(update_dict):
+    for key, value in update_dict.items():
         try: 
-            with open(rf"{Path(key).with_suffix('.tmp')}", "w", encoding="utf-8", newline="\n") as f:
+            with open(f"{Path(key).with_suffix('.tmp')}", "w", encoding="utf-8", newline="\n") as f:
                 json.dump(value, f)
         except Exception as e:
             print(f"Error opening temporary file: {e}")
             sys.exit(1)
-    for key, value in dict.items():
+    for key, value in update_dict.items():
         try:
-            os.replace(rf"{Path(key).with_suffix('.tmp')}", rf"{Path(key)}")
+            os.replace(f"{Path(key).with_suffix('.tmp')}", f"{Path(key)}")
         except Exception as e:
             print(f"Error replacing temporary file: {e}")
             sys.exit(1)
