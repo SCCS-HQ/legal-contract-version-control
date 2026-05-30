@@ -237,7 +237,7 @@ def get_branch_data(
             return data
 
     except Exception as e:
-        raise exceptions.FileOpenError() from e
+        raise exceptions.FileOpenError from e
 
 
 def convert_docx_to_html(docx_path: Path | None = None) -> str:
