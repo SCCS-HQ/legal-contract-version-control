@@ -522,7 +522,9 @@ def update_changed_branches(
         file_path=cwd / ".sccs" / "current_branch" / "current_branch.json"
     )
 
-    if "updated_branches" in branch_data and isinstance(branch_data["updated_branches"], list):
+    if "updated_branches" in branch_data and isinstance(
+        branch_data["updated_branches"], list
+    ):
         branch_data["updated_branches"] = list(
             set(branch_data["updated_branches"] + updated_branch)
         )
