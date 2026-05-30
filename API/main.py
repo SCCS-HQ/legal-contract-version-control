@@ -34,7 +34,7 @@ def ensure_repository_exists(repo_name: Path) -> None:
 
     if not repo_path.exists() or not repo_path.is_dir():
         raise HTTPException(
-            status_code=404, detail=f"Repository not found, {repo_path}"
+            status_code=404, detail=f"Repository not found: {repo_name}"
         )
 
 
