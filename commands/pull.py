@@ -33,10 +33,9 @@ def pull(remote: str, data: dict) -> requests.Response:
     return response
     return response
 
-
 def update_repo_files(
     response: requests.Response, cwd: None | Path = None
-) -> io.BytesIO:
+) -> None:
     """
     Unzip the file in 'response' to 'destination'.
     """
@@ -44,14 +43,7 @@ def update_repo_files(
     if cwd is None:
         cwd = utils.working_directory_path
 
-    buffer = io.BytesIO()
-
-    for chunk in response.iter_content(chunk_size=8192):
-        buffer.write(chunk)
-
-    buffer.seek(0)
-
-    with zipfile.ZipFile(buffer, "r") as zf:
+    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
         zf.extractall(cwd)
 
 
