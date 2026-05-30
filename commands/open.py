@@ -62,7 +62,7 @@ def print_rewrite_confirmation_message(
         docx_path = utils.current_file_docx_path
     print(
         f"File '{docx_path.name}' has been updated with the contents of "
-        f"'{commit_path.name}'."
+        f"'{commit_path.name[:10]}'."
     )
 
 
