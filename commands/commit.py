@@ -77,6 +77,7 @@ def get_history_path(
         "commit_history.json"
     )
 
+
 def get_commit_history():
     """Retrieve the commit history from the commit history file."""
 
