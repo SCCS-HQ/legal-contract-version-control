@@ -18,10 +18,12 @@ def update_current_branch(branch, current_branch_path=None, cwd=None):
                 current_branch = json.load(f)
                 current_branch["current_branch"] = branch
 
-            with open(os.path.join(cwd, ".sccs", "current_branch", "tmp"), "w", encoding="utf-8", newline="\n") as f:
+            tmp_path = os.path.join(cwd, ".sccs", "current_branch", "tmp")
+    
+            with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
                 json.dump(current_branch, f, indent=4)
 
-            os.replace(os.path.join(cwd, ".sccs", "current_branch", "tmp"), os.path.join(cwd, ".sccs", "current_branch", "current_branch.json"))
+            os.replace(tmp_path, os.path.join(cwd, ".sccs", "current_branch", "current_branch.json"))
 
     except Exception as e:
         print(f"Error updating current branch information: {e}")
