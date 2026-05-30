@@ -138,7 +138,9 @@ def replace_tag(
         old_changed_strings,
         new_changed_strings
     ):
-    """Replace tags matching old_changed_strings with new_changed_strings in the HTML."""
+    """Replace tags matching old_changed_strings with new_changed_strings in the 
+    entered HTML.
+    """
 
     old_data_numbers = get_data_number(old_changed_strings)
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
@@ -197,7 +199,8 @@ def insert_tag(
 def remove_inline_semantics(
         html
     ):
-    """Remove inline semantic tags (b, i, u, strong, em) and style tags from the HTML."""
+    """Remove inline semantic tags (b, i, u, strong, em) and style tags from the entered
+    HTML."""
 
     soup = html
     for tag in soup.find_all(["b", "i", "u", "strong", "em", "style"]):
@@ -300,6 +303,10 @@ if __name__ == "__main__":
 
     base_redline_html = get_redline_html(bs4_commit_soup)
 
-    redline = format_redline_html(base_redline_html, opcodes, commit_list, docx_current_version_list)
+    redline = format_redline_html(
+        base_redline_html, opcodes,
+        commit_list,
+        docx_current_version_list
+    )
 
     write_redline_html_file(redline)
