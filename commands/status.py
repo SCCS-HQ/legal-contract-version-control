@@ -75,10 +75,6 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
         print(f"Error reading latest commit file hash: {e}")
         sys.exit(1)
 
-    except (json.JSONDecodeError, KeyError, TypeError, OSError) as e:
-        print(f"Error reading latest commit file hash: {e}")
-        sys.exit(1)
-
     return latest_commit_file_hash
 
 
