@@ -78,10 +78,7 @@ def compare_hash_lists(remote_objects: list, local_objects: list) -> list:
 
     obj_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
-        print(
-            "Warning: There are objects on the remote that are not present locally. You"
-            " must pull before pushing. - Not implemented yet"
-        )
+        raise exceptions.MissingCommitObjectsError()
 
     return obj_to_upload
 

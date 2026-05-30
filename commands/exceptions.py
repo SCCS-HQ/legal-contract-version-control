@@ -253,3 +253,18 @@ class InvalidAPIURLError(SCCSException):
     """Raised when the API URL is invalid."""
 
     default_message = "The API URL is invalid."
+
+
+# Push Exceptions
+
+class MissingCommitObjectsError(SCCSException):
+    """
+    Raised when the local repository is missing commit objects that are present in the 
+    remote repository.
+    """
+
+    default_message = (
+        "The local repository is missing commit objects that are present in the remote "
+        "repository."
+    )
+    
