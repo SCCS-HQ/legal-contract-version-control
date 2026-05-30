@@ -124,40 +124,42 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     )
 
     tmp_folder_path = Path(f"tmp_{repo_name}")
-    tmp_folder_path.mkdir(parents=True, exist_ok=True)
-
-    for f in files_to_upload:
-        (tmp_folder_path / f.relative_to(cwd).parent).mkdir(parents=True, exist_ok=True)
-
-        shutil.copy2(f, tmp_folder_path / (f.relative_to(cwd)).parent)
-
-    buffer = io.BytesIO()
-
     try:
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
-            for (
-                root,
-                dirs,
-                files,
-            ) in os.walk(f"./tmp_{repo_name}"):
-                for file in files:
-                    f.write(Path(root) / file)
-    except Exception as e:
-        raise exceptions.ZippingFileError(
-            "Failed to zip current working directory"
-        ) from e
+        tmp_folder_path.mkdir(parents=True, exist_ok=True)
 
-    try:
-        buffer.seek(0)
-    except Exception as e:
-        raise exceptions.BufferError("Failed to reset buffer position") from e
+        for f in files_to_upload:
+            (tmp_folder_path / f.relative_to(cwd).parent).mkdir(parents=True, exist_ok=True)
 
-    try:
-        shutil.rmtree(tmp_folder_path)
-    except Exception as e:
-        raise exceptions.FileDeletionError(
-            f"Failed to delete temporary folder at {tmp_folder_path}"
-        ) from e
+            shutil.copy2(f, tmp_folder_path / (f.relative_to(cwd)).parent)
+
+        buffer = io.BytesIO()
+
+        try:
+            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
+                for (
+                    root,
+                    dirs,
+                    files,
+                ) in os.walk(f"./tmp_{repo_name}"):
+                    for file in files:
+                        f.write(Path(root) / file)
+        except Exception as e:
+            raise exceptions.ZippingFileError(
+                "Failed to zip current working directory"
+            ) from e
+
+        try:
+            buffer.seek(0)
+        except Exception as e:
+            raise exceptions.BufferError("Failed to reset buffer position") from e
+
+    finally:
+        try:
+            shutil.rmtree(tmp_folder_path)
+        except Exception as e:
+            raise exceptions.FileDeletionError(
+                f"Failed to delete temporary folder at {tmp_folder_path}"
+            ) from e
 
     return buffer
 
