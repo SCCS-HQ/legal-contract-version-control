@@ -1,10 +1,11 @@
+import io
 import sys
 import zipfile
 from pathlib import Path
+
+import exceptions
 import requests
 import utils
-import exceptions
-import io
 
 
 def get_repo_objects(cwd: None | Path = None) -> list:
@@ -33,15 +34,14 @@ def pull(remote: str, data: dict) -> requests.Response:
 
 
 def update_repo_files(
-        response: requests.Response, cwd: None | Path = None
-    ) -> io.BytesIO:
+    response: requests.Response, cwd: None | Path = None
+) -> io.BytesIO:
     """
     Unzip the file in 'response' to 'destination'.
     """
 
     if cwd is None:
         cwd = utils.working_directory_path
-
 
     buffer = io.BytesIO()
 
@@ -58,8 +58,10 @@ def main():
     """Run functions for the <sccs pull> command."""
 
     response = pull(
-        utils.get_key_from_config("remote"), {"objects": get_repo_objects()})
+        utils.get_key_from_config("remote"), {"objects": get_repo_objects()}
+    )
     print(response.status_code)
+
 
 if __name__ == "__main__":
     try:

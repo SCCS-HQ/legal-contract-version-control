@@ -246,20 +246,20 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
 @app.post("/repos/{repo_name}/pull")
 async def pull(repo_name: str, data: dict) -> StreamingResponse:
     """
-    Send a zip archive of commit objects and metadata files that the local repository 
-    (caller) is missing by accepting a list of commit objects that the local doesn't 
+    Send a zip archive of commit objects and metadata files that the local repository
+    (caller) is missing by accepting a list of commit objects that the local doesn't
     have.
     """
 
     repo_name = resolve_path(Path(repo_name))
     ensure_repository_exists(repo_name)
-    
+
     repo_path = (Path("API/repos").resolve() / repo_name).resolve()
 
     if (
-        not isinstance(data, dict) or
-        "objects" not in data or
-        not isinstance(data["objects"], list)
+        not isinstance(data, dict)
+        or "objects" not in data
+        or not isinstance(data["objects"], list)
     ):
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
@@ -272,10 +272,13 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     obj_to_upload = list(set(remote_objects) - set(local_objects))
 
     if list(set(local_objects) - set(remote_objects)):
-        raise HTTPException(status_code=400, detail=(
-            "Local repository has objects that the remote does not have. Run 'sccs push"
-            "' to upload these objects before pulling."
-        ))
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Local repository has objects that the remote does not have. Run 'sccs push"
+                "' to upload these objects before pulling."
+            ),
+        )
 
     document_path = [repo_path / f"{repo_path.name}.docx"]
     current_branch_path = [
@@ -292,14 +295,14 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     ]
 
     history_paths = [
-        f.resolve() for f in (
-            repo_path / ".sccs" / "branches"
-        ).rglob("*") if f.is_file() and f.stem == "history"
+        f.resolve()
+        for f in (repo_path / ".sccs" / "branches").rglob("*")
+        if f.is_file() and f.stem == "history"
     ]
     byte_hash_paths = [
-        f.resolve() for f in (
-            repo_path / ".sccs" / "branches"
-        ).rglob("*") if f.is_file() and f.stem == "commit_file_hash"
+        f.resolve()
+        for f in (repo_path / ".sccs" / "branches").rglob("*")
+        if f.is_file() and f.stem == "commit_file_hash"
     ]
 
     files_to_upload = (
@@ -310,7 +313,7 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         + current_branch_path
         + commit_msgs_path
     )
-        
+
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for file_path in files_to_upload:
@@ -319,7 +322,7 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     return StreamingResponse(
         buffer,
         media_type="application/zip",
-        headers={"Content-Disposition": f"attachment; filename={repo_name}.zip"}
+        headers={"Content-Disposition": f"attachment; filename={repo_name}.zip"},
     )
 
 
