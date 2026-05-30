@@ -7,7 +7,6 @@ import exceptions
 import utils
 
 
-
 def get_entered_config_key() -> str | None:
     """
     Retrieve the entered configuration key and ensure it isn't None and that it is any

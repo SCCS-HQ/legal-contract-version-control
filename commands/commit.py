@@ -11,6 +11,7 @@ from pathlib import Path
 import exceptions
 import utils
 
+
 def get_commit_message() -> str:
     """
     Return the entered commit message from the user if a message is provided, otherwise

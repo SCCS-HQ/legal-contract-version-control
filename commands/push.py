@@ -9,6 +9,22 @@ import zipfile
 import os
 from urllib.parse import urlsplit
 
+
+def get_matching_file_paths(
+    filename: str, updated_branches: list = None, cwd: None | Path = None,
+    ) -> list:
+    
+    if cwd is None:
+        cwd = utils.working_directory_path
+    paths = []
+    for b in updated_branches:
+        paths.extend([
+            f.resolve()
+            for f in (cwd / ".sccs" / "branches" / b).rglob("*")
+            if f.is_file() and f.stem == filename])
+    return paths
+
+
 def push_GET(remote: str) -> list:
     try:
         response = requests.get(f"{remote}/push")
@@ -49,16 +65,26 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     updated_branches = utils.get_branch_data(key="updated_branches") 
     current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
     commit_msgs_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
-    objects_paths = [f.resolve() for f in (cwd / ".sccs" / "objects").rglob("*") if f.is_file() and f.stem in obj_to_upload]
+    objects_paths = [
+        f.resolve()
+        for f in (cwd / ".sccs" / "objects").rglob("*")
+        if f.is_file() and f.stem in obj_to_upload]
 
     history_paths = []
     byte_hash_paths = []
 
     for b in updated_branches:
-            history_paths.extend([f.resolve() for f in (cwd / ".sccs" / "branches" / b).rglob("*") if f.is_file() and f.stem == "commit_history"])
-            byte_hash_paths.extend([f.resolve() for f in (cwd / ".sccs" / "branches" / b).rglob("*") if f.is_file() and f.stem == "commit_file_hash"])
+            history_paths.extend(get_matching_file_paths([b], "commit_history", cwd))
+            byte_hash_paths.extend(
+                get_matching_file_paths([b],"commit_file_hash", cwd)
+            )
 
-    files_to_upload = objects_paths + history_paths + byte_hash_paths + [current_branch_path, commit_msgs_path]
+    files_to_upload = (
+        objects_paths +
+        history_paths +
+        byte_hash_paths +
+        [current_branch_path, commit_msgs_path]
+    )
     
     tmp_folder_path = Path(f"tmp_{repo_name}")
     tmp_folder_path.mkdir(parents=True, exist_ok=True)
@@ -140,7 +166,9 @@ def main():
     obj_to_upload = compare_hash_lists(remote_objects, local_objects)
     buffer = zip_files_to_upload(obj_to_upload)
 
-    print(f"Uploading {len(obj_to_upload)} objects to remote repository at {remote}...\n")
+    print(
+        f"Uploading {len(obj_to_upload)} objects to remote repository at {remote}...\n"
+    )
     POST_response = push_POST(remote, buffer)
     print(f"Status code: {POST_response.status_code}\n")
     if 200 <=POST_response.status_code< 300:

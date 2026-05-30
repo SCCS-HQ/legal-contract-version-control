@@ -8,6 +8,7 @@ from pathlib import Path
 import exceptions
 import utils
 
+
 def get_commit_path_input() -> Path | None:
     """
     Get the absolute path of the commit file from the command-line arguments if

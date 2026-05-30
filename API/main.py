@@ -194,7 +194,10 @@ async def push_upload(repo_name: str, file: UploadFile = File(...),):
             )
 
         for file in f.infolist():
-            path = Path(repo_path / Path(file.filename).relative_to(f"tmp_{repo_name}")).resolve()
+            path = Path(
+                repo_path / Path(file.filename).relative_to(f"tmp_{repo_name}")
+            ).resolve()
+            
             try:
                 path.relative_to(Path(repo_path))
             except ValueError:
@@ -211,7 +214,13 @@ async def push_upload(repo_name: str, file: UploadFile = File(...),):
                                 break
                             f_out.write(chunk)
 
-    with open(repo_path / ".sccs" / "current_branch" / "current_branch.json", "r+", encoding="utf-8") as f:
+    with open(
+            repo_path /
+            ".sccs" /
+            "current_branch" /
+            "current_branch.json", "r+", encoding="utf-8"
+        ) as f:
+        
         data = json.load(f)
         data["updated_branches"] = []
         f.seek(0)
