@@ -133,25 +133,21 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_folder_path = Path(temp_dir) / repo_name
-        for f in files_to_upload:
-            (tmp_folder_path / f.relative_to(cwd).parent).mkdir(
+        tmp_folder_path = Path(temp_dir) / f"tmp_{repo_name}"
+        for file_path in files_to_upload:
+            (tmp_folder_path / file_path.relative_to(cwd).parent).mkdir(
                 parents=True, exist_ok=True
             )
-
-            shutil.copy2(f, tmp_folder_path / (f.relative_to(cwd)).parent)
+            shutil.copy2(file_path, tmp_folder_path / file_path.relative_to(cwd))
 
         buffer = io.BytesIO()
 
         try:
-            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
-                for (
-                    root,
-                    dirs,
-                    files,
-                ) in os.walk(f"./tmp_{repo_name}"):
+            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for root, dirs, files in os.walk(temp_dir):
                     for file in files:
-                        f.write(Path(root) / file)
+                        full_path = Path(root) / file
+                        zip_file.write(full_path, arcname=full_path.relative_to(temp_dir))
         except Exception as e:
             raise exceptions.ZippingFileError(
                 "Failed to zip current working directory"
@@ -160,7 +156,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError("Failed to reset buffer position") from e
+            raise exceptions.BufferError(
+                "Failed to reset buffer position"
+            ) from e
 
     return buffer
 
@@ -222,6 +220,8 @@ def main() -> None:
     buffer = zip_files_to_upload(obj_to_upload)
 
     POST_response = push_POST(remote, buffer)
+
+    print(f"Status code: {POST_response.status_code}")
 
     if 200 <= POST_response.status_code < 300:
         print(f"Changes pushed successfully to {remote}/push\n")
