@@ -162,9 +162,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
     """
 
     remote_path = urlsplit(remote).path.rstrip("/")
-    if not remote_path.endswith(
-        f"/repos/{utils.working_directory_path.name}"
-    ):
+    if not remote_path.endswith(f"/repos/{utils.working_directory_path.name}"):
         raise exceptions.InvalidAPIURLError(
             "API URL must end with '/repos/<repo_name>'"
         )
