@@ -43,19 +43,24 @@ def create_commit_sha_hash(timestamp, user_name, user_email):
     return hashlib.sha256(f'{timestamp}/initial_version/{user_name}/{user_email}'.encode()).hexdigest()
 
 def create_sccs_directory_layout():
-    os.makedirs(get_document_repo_path(), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "objects"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "objects", "docx"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "objects", "html"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "objects", "view_html"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "branches"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "branches", "main"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "branches", "main", "history"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "branches", "main", "commit_file_hash"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "commit_messages"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "config"), exist_ok=True)
-    os.makedirs(os.path.join(get_document_repo_path(), ".sccs", "current_branch"), exist_ok=True)
+    repo_path = get_document_repo_path()
+    if not repo_path:
+        print("Invalid file path")
+        sys.exit(1)
+    
+    os.makedirs(repo_path, exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "objects"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "docx"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "html"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "view_html"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "branches"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "branches", "main"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "branches", "main", "history"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "branches", "main", "commit_file_hash"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "commit_messages"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "config"), exist_ok=True)
+    os.makedirs(os.path.join(repo_path, ".sccs", "current_branch"), exist_ok=True)
 
 def move_document_to_repo_directory():
     shutil.move(get_entered_document_path(), get_document_repo_path())
