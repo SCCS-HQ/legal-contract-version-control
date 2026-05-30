@@ -104,12 +104,8 @@ def main() -> None:
     response = post_repo(zip_cwd(), remote)
 
     print(f"Status Code: {response.status_code}")
-    if 200 <= response.status_code < 300:
-        print(f"Repository published successfully to {remote}/publish")
-    else:
-        raise exceptions.HTTPPostRequestError(
-            f"Failed to publish repository: {response.text}"
-        )
+    response.raise_for_status()
+    print(f"Repository published successfully to {remote}")
 
 
 if __name__ == "__main__":

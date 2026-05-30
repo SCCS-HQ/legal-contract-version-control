@@ -266,5 +266,5 @@ class MissingCommitObjectsError(SCCSException):
 
     default_message = (
         "The local repository is missing commit objects that are present in the remote "
-        "repository."
+        "repository. Run 'sccs pull' to download these objects"
     )

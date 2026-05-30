@@ -22,7 +22,8 @@ COMMANDS = [
     "config",
     "revert",
     "reset",
-    "push"
+    "push",
+    "pull",
 ]
 
 

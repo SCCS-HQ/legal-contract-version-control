@@ -243,5 +243,90 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     return {"message": "changes pushed successfully"}
 
 
+@app.post("/repos/{repo_name}/pull")
+async def pull(repo_name: str, data: dict) -> StreamingResponse:
+    """
+    Send a zip archive of commit objects and metadata files that the local repository
+    (caller) is missing by accepting a list of commit objects that the local doesn't
+    have.
+    """
+
+    repo_name = resolve_path(Path(repo_name))
+    ensure_repository_exists(repo_name)
+
+    repo_path = (Path("API/repos").resolve() / repo_name).resolve()
+
+    if (
+        not isinstance(data, dict)
+        or "objects" not in data
+        or not isinstance(data["objects"], list)
+    ):
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
+    local_objects = set(data["objects"])
+
+    remote_objects = set(
+        f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file()
+    )
+
+    obj_to_upload = remote_objects - local_objects
+
+    if local_objects - remote_objects:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Local repository has objects that the remote does not have. Run 'sccs push"
+                "' to upload these objects before pulling."
+            ),
+        )
+
+    document_path = [repo_path / f"{repo_path.name}.docx"]
+    current_branch_path = [
+        repo_path / ".sccs" / "current_branch" / "current_branch.json"
+    ]
+    commit_msgs_path = [
+        repo_path / ".sccs" / "commit_messages" / "commit_messages.json"
+    ]
+
+    objects_paths = [
+        f.resolve()
+        for f in (repo_path / ".sccs" / "objects").rglob("*")
+        if f.is_file() and f.stem in obj_to_upload
+    ]
+
+    history_paths = [
+        f.resolve()
+        for f in (repo_path / ".sccs" / "branches").rglob("*")
+        if f.is_file() and f.stem == "history"
+    ]
+    byte_hash_paths = [
+        f.resolve()
+        for f in (repo_path / ".sccs" / "branches").rglob("*")
+        if f.is_file() and f.stem == "commit_file_hash"
+    ]
+
+    files_to_upload = (
+        f
+        for f in objects_paths
+        + history_paths
+        + byte_hash_paths
+        + document_path
+        + current_branch_path
+        + commit_msgs_path
+        if f.isfile()
+    )
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for file_path in files_to_upload:
+            zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
+    buffer.seek(0)
+    return StreamingResponse(
+        buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={repo_name}.zip"},
+    )
+
+
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
 """Mount all repositories as static files on the /repos endpoint."""
