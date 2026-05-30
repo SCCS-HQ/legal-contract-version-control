@@ -194,6 +194,28 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
     return response
 
 
+def clear_updated_branches(cwd: None | Path = None) -> None:
+    """Clear the updated branches list in the current branch file."""
+
+    if cwd is None:
+        cwd = utils.working_directory_path
+    current_branch_file = cwd / ".sccs" / "current_branch" / "current_branch.json"
+
+    data = utils.get_branch_data(file_path=current_branch_file)
+    if data is None:
+        data = {}
+    data["updated_branches"] = []
+
+    try:
+        with open(current_branch_file, "w") as f:
+            json.dump(data, f)
+    except Exception as e:
+        raise exceptions.FileWriteError(
+            "Push successful, but failed to clear updated branches list in current "
+            "branch file."
+        ) from e
+
+
 def main() -> None:
     """Run functions for the <sccs push> command."""
 
@@ -224,7 +246,8 @@ def main() -> None:
         raise exceptions.HTTPPostRequestError(
             f"Failed to push to repository: {POST_response.text}, status code: {POST_response.status_code}"
         )
-
+    
+    clear_updated_branches()
 
 if __name__ == "__main__":
     try:
