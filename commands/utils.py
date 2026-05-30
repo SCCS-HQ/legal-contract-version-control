@@ -520,7 +520,7 @@ def update_changed_branches(
     if updated_branch is None:
         updated_branch = [get_current_branch()]
 
-    branch_data = get_branch_data()
+    branch_data = get_branch_data(file_path=cwd / ".sccs" / "current_branch" / "current_branch.json")
 
     if "updated_branches" in branch_data:
         branch_data["updated_branches"] = list(
