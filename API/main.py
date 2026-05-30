@@ -77,11 +77,11 @@ async def publish(
         raise HTTPException(status_code=400, detail="Repository already exists")
 
     with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(file.file_size for file in f.infolist())
+        total_size = sum(file.file_size for f in f.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
         total_num_files = len(f.infolist())
-        for file in f.infolist():
+        for f in f.infolist():
             if file.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
                     status_code=400, detail=f"File {file.filename} is too large"
@@ -91,7 +91,7 @@ async def publish(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for file in f.infolist():
+        for f in f.infolist():
             path = Path(repo_path / file.filename).resolve()
             try:
                 path.relative_to(Path(repo_path))
@@ -131,7 +131,7 @@ async def clone(repo_name: str) -> StreamingResponse:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
         for root, dirs, files in os.walk(repo_path):
-            for file in files:
+            for f in files:
                 file_path = Path(root) / file
                 f.write(filename=file_path, arcname=file_path.relative_to(repo_path))
 
@@ -185,11 +185,11 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         )
 
     with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(file.file_size for file in f.infolist())
+        total_size = sum(file.file_size for f in f.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
         total_num_files = len(f.infolist())
-        for file in f.infolist():
+        for f in f.infolist():
             if file.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
                     status_code=400, detail=f"File {file.filename} is too large"
@@ -199,7 +199,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for file in f.infolist():
+        for f in f.infolist():
             try:
                 relative_path = Path(file.filename).relative_to(f"tmp_{repo_name}")
                 path = Path(repo_path / relative_path).resolve()
