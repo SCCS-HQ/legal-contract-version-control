@@ -131,11 +131,11 @@ async def clone(repo_name: str) -> StreamingResponse:
         raise HTTPException(status_code=400, detail="Invalid repository name")
 
     buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(repo_path):
             for f in files:
                 file_path = Path(root) / f
-                f.write(filename=file_path, arcname=file_path.relative_to(repo_path))
+                zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
 
     buffer.seek(0)
     return StreamingResponse(
