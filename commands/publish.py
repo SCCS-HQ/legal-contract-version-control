@@ -23,13 +23,18 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
+    branch_data = utils.get_branch_data(
+        Path(cwd) / ".sccs" / "current_branch" / "current_branch.json"
+    )
+    branch_data["current_branch"] = "main"
+
     with open(
         Path(cwd) / ".sccs" / "current_branch" / "current_branch.json",
         "w",
         encoding="utf-8",
         newline="\n",
     ) as f:
-        f.write('{"current_branch": "main"}')
+        json.dump(branch_data, f, indent=4)
 
 
 def zip_cwd() -> io.BytesIO:
@@ -81,6 +86,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
                 ("file", (Path.cwd().name + ".zip", buffer, "application/zip")),
                 ("data", (None, json.dumps({"remote": remote}), "application/json")),
             ],
+            timeout=60,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(

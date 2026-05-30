@@ -27,7 +27,7 @@ def reset(cwd: Path | None = None) -> None:
             cwd / ".sccs" / "current_branch" / "current_branch.json"
         )
         / "history"
-        / "commit_history.json"
+        / "history.json"
     ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]

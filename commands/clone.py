@@ -52,7 +52,7 @@ def request_repo(url: str | None = None) -> requests.Response:
         url = resolve_entered_url()
 
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=60)
     except Exception as e:
         raise exceptions.HTTPGetRequestError(
             f"Failed to request repository from {url}"

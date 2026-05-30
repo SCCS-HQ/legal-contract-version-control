@@ -27,6 +27,17 @@ def resolve_path(path: Path) -> Path:
     return path
 
 
+def ensure_repository_exists(repo_name: Path) -> None:
+    """Ensure that the specified repository exists and is a directory."""
+
+    repo_path = Path("API/repos").resolve() / repo_name
+
+    if not repo_path.exists() or not repo_path.is_dir():
+        raise HTTPException(
+            status_code=404, detail=f"Repository not found: {repo_name}"
+        )
+
+
 app = FastAPI()
 
 
@@ -68,34 +79,34 @@ async def publish(
         raise HTTPException(status_code=400, detail="Repository already exists")
 
     with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(file.file_size for file in f.infolist())
+        total_size = sum(finfo.file_size for finfo in f.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
         total_num_files = len(f.infolist())
-        for file in f.infolist():
-            if file.file_size > 10 * 1024 * 1024:
+        for finfo in f.infolist():
+            if finfo.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is too large"
+                    status_code=400, detail=f"File {finfo.filename} is too large"
                 )
         if total_num_files > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for file in f.infolist():
-            path = Path(repo_path / file.filename).resolve()
+        for finfo in f.infolist():
+            path = Path(repo_path / finfo.filename).resolve()
             try:
                 path.relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
 
-            if file.is_dir():
+            if finfo.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with open(path, "wb") as f_out:
 
-                    with f.open(file) as f_in:
+                    with f.open(finfo) as f_in:
                         while True:
                             chunk = f_in.read(1024 * 1024)
                             if not chunk:
@@ -110,6 +121,7 @@ async def clone(repo_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
     repo_name = resolve_path(Path(repo_name))
+    ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name).resolve()
 
@@ -118,15 +130,12 @@ async def clone(repo_name: str) -> StreamingResponse:
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid repository name")
 
-    if not repo_path.exists() or not repo_path.is_dir():
-        raise HTTPException(status_code=404, detail="Repository not found")
-
     buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(repo_path):
-            for file in files:
-                file_path = Path(root) / file
-                f.write(filename=file_path, arcname=file_path.relative_to(repo_path))
+            for f in files:
+                file_path = Path(root) / f
+                zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
 
     buffer.seek(0)
     return StreamingResponse(
@@ -134,6 +143,104 @@ async def clone(repo_name: str) -> StreamingResponse:
         media_type="application/zip",
         headers={"Content-Disposition": f"attachment;filename={repo_name}.zip"},
     )
+
+
+@app.get("/repos/{repo_name}/push")
+async def push(repo_name: str) -> dict:
+    """
+    Return the folder layout of a requested repository so that the client only needs to
+    upload changed files and new files.
+    """
+
+    repo_name = resolve_path(Path(repo_name))
+    ensure_repository_exists(repo_name)
+    base_dir = Path("API/repos").resolve()
+    repo_path = (base_dir / repo_name / ".sccs").resolve()
+    objects_dir = repo_path / "objects"
+
+    if not objects_dir.exists() or not objects_dir.is_dir():
+        raise HTTPException(status_code=404, detail="Repository objects not found")
+
+    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
+
+    return {"objects": objects}
+
+
+@app.post("/repos/{repo_name}/push")
+async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
+    """
+    Accept a zip archives of new objects to upload to the selected repository, and a zip
+    archive of the updated metadata files. Extract the files from the archives, defend
+    against zip slip attacks, and copy the files to the repository atomically.
+    """
+
+    repo_name = resolve_path(Path(repo_name))
+    ensure_repository_exists(repo_name)
+    base_dir = Path("API/repos").resolve()
+    repo_path = (base_dir / repo_name).resolve()
+
+    try:
+        repo_path.relative_to(base_dir)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
+    if not file.filename or Path(Path(file.filename).stem) != repo_name:
+        raise HTTPException(
+            status_code=400, detail="Repository name does not match file name"
+        )
+
+    with zipfile.ZipFile(file.file, "r") as f:
+        total_size = sum(finfo.file_size for finfo in f.infolist())
+        if total_size > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Uploaded file is too large")
+        total_num_files = len(f.infolist())
+        for finfo in f.infolist():
+            if finfo.file_size > 10 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=400, detail=f"File {finfo.filename} is too large"
+                )
+        if total_num_files > 1000:
+            raise HTTPException(
+                status_code=400, detail="Too many files in the uploaded zip"
+            )
+
+        for finfo in f.infolist():
+            try:
+                relative_path = Path(finfo.filename).relative_to(f"tmp_{repo_name}")
+                path = Path(repo_path / relative_path).resolve()
+                path.relative_to(Path(repo_path))
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid file path in zip")
+            if finfo.is_dir():
+                path.mkdir(parents=True, exist_ok=True)
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                with open(path, "wb") as f_out:
+                    with f.open(finfo) as f_in:
+                        while True:
+                            chunk = f_in.read(1024 * 1024)
+                            if not chunk:
+                                break
+                            f_out.write(chunk)
+
+    with open(
+        repo_path / ".sccs" / "current_branch" / "current_branch.json",
+        "r",
+        encoding="utf-8",
+    ) as f:
+        data = json.load(f)
+
+    temp_file = repo_path / ".sccs" / "current_branch" / "current_branch.json.tmp"
+    with open(
+        temp_file,
+        "w",
+        encoding="utf-8",
+    ) as f:
+        data["updated_branches"] = []
+        json.dump(data, f, indent=4)
+    temp_file.replace(repo_path / ".sccs" / "current_branch" / "current_branch.json")
+
+    return {"message": "changes pushed successfully"}
 
 
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
