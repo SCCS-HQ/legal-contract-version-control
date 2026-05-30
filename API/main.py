@@ -154,7 +154,9 @@ async def push(repo_name: str) -> dict:
 
 
 @app.post("/repos/{repo_name}/push")
-async def push_upload(repo_name: str, file: UploadFile = File(...),):
+async def push_upload(
+        repo_name: str, file: UploadFile = File(...)
+    ) -> dict:
     """
     Accept a zip archives of new objects to upload to the selected repository, and a zip
     archive of the updated metadata files. Extract the files from the archives, defend 

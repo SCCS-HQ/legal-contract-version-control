@@ -511,7 +511,8 @@ def update_commit_log_history(
 def update_changed_branches(
         cwd: Path | None = None, updated_branch: list[str] | None = None,
     ) -> dict[Path, dict] | None:
-    
+    """Update the list of branches with unpushed changes."""
+
     if cwd is None:
         cwd = working_directory_path
 

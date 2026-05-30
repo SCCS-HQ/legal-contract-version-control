@@ -13,7 +13,10 @@ from urllib.parse import urlsplit
 def get_matching_file_paths(
     filename: str, updated_branches: list = None, cwd: None | Path = None,
     ) -> list:
-    
+    """
+    Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
+    """
+
     if cwd is None:
         cwd = utils.working_directory_path
     paths = []
@@ -26,6 +29,8 @@ def get_matching_file_paths(
 
 
 def push_GET(remote: str) -> list:
+    """Make a GET request to 'remote'/push, returning the response."""
+
     try:
         response = requests.get(f"{remote}/push")
     except Exception as e:
@@ -35,6 +40,11 @@ def push_GET(remote: str) -> list:
 
 
 def get_repo_objects(cwd: None | Path = None) -> list:
+    """
+    Return of list of every commit hash by iterating through the objects folder's file 
+    stems, and removing duplicates with a set.
+    """
+
     if cwd is None:
         cwd = utils.working_directory_path
     objects_dir = cwd / ".sccs" / "objects"
@@ -42,7 +52,19 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     return objects
 
 
-def compare_hash_lists(remote_objects, local_objects):
+def compare_hash_lists(remote_objects: list, local_objects: list) -> list:
+    """
+    Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list 
+    of objects that remote is missing.
+
+    To check if local is missing objects from remote, subract 'local_objects' from 
+    'remote_objects' and ensure and ensure the subsequently created list is empty,
+    otherwise raise.
+
+    Return a list of objects that remote is missing.
+    """
+
+
     obj_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
         print(
@@ -54,6 +76,14 @@ def compare_hash_lists(remote_objects, local_objects):
 
 
 def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.BytesIO:
+    """
+    Create a temporary version of the repository with only the files in 'obj_to_upload' 
+    and metadata files, ensuring that the folder layout is left intact. Compress said 
+    folder and return it as a Bytes.io memory buffer and delete the temporary directory.
+
+    Return a zip archive of files in 'obj_to_upload' and metadata files using the same 
+    layout as a repository.
+    """
     
     if cwd is None:
         cwd = utils.working_directory_path
@@ -121,7 +151,13 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     return buffer
 
 
-def push_POST(remote, buffer):
+def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
+    """
+    Make a POST request to 'remote', sending 'buffer' as a file.
+
+    Return the server response of the POST request to 'remote'.
+    """
+
 
     if not urlsplit(remote).path.endswith(
         f"/repos/{utils.working_directory_path.name}"
@@ -145,7 +181,7 @@ def push_POST(remote, buffer):
     return response
 
 
-def main():
+def main() -> None:
     """Run functions for the <sccs push> command."""
 
     remote = utils.get_key_from_config("remote")
