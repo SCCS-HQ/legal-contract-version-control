@@ -21,15 +21,15 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
     return objects
 
-
 def pull(remote: str, data: dict) -> requests.Response:
-    """Make a GET request to 'remote'/pull, returning the response."""
+    """Make a POST request to 'remote'/pull, returning the response."""
 
     try:
         response = requests.post(f"{remote}/pull", json=data, timeout=60)
     except Exception as e:
-        raise exceptions.HTTPGetRequestError() from e
+        raise exceptions.HTTPPostRequestError() from e
 
+    return response
     return response
 
 
