@@ -5,6 +5,7 @@ import sys
 import hashlib
 from datetime import datetime
 import json
+from types import MappingProxyType
 import utils
 
 def get_obj_from_config(object, cwd=None):
@@ -87,8 +88,8 @@ def write_view_html(sha_hash, docx_html, cwd=None):
         f.write(utils.wrap_html(docx_html))
 
 def update_commit_log_history(history, sha_hash, timestamp, name, email, commit_message):
-    commit_history_file = get_history_path()
-    if not os.path.isfile(commit_history_file):
+    commit_history_path = get_history_path()
+    if not os.path.isfile(commit_history_path):
         print("History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
         sys.exit(1)
 
@@ -102,7 +103,7 @@ def update_commit_log_history(history, sha_hash, timestamp, name, email, commit_
         "author": f"{name} <{email}>",
         "message": commit_message
     }
-    return {history: commit_history_file}
+    return {commit_history_path: history}
 
 def update_commit_messages(sha_hash, commit_message, cwd=None):
     # Update commit messages
@@ -122,7 +123,7 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
 
     messages[f"{sha_hash}"] = f"{commit_message}"
 
-    return {messages: commit_messages_path}
+    return {commit_messages_path: messages}
 
 def update_commit_binary_hash_history(sha_hash, hash_docx_binary, cwd=None, current_branch=None):
     # Update commit file hash
@@ -155,14 +156,14 @@ def combine_update_dicts(*dicts):
 def atomically_update_history(dict):
     for key, value in dict.items():
         try: 
-            with open(Path(value).with_suffix("tmp"), "w", encoding="utf-8", newline="\n") as f:
-                json.dump(key, f)
+            with open(rf"{Path(key).with_suffix('.tmp')}", "w", encoding="utf-8", newline="\n") as f:
+                json.dump(value, f)
         except Exception as e:
             print(f"Error opening temporary file: {e}")
             sys.exit(1)
     for key, value in dict.items():
         try:
-            os.replace(Path(value).with_suffix("tmp"), value)
+            os.replace(rf"{Path(key).with_suffix('.tmp')}", rf"{Path(key)}")
         except Exception as e:
             print(f"Error replacing temporary file: {e}")
             sys.exit(1)
