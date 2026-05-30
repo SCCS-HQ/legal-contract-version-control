@@ -52,9 +52,8 @@ def main():
     remote = utils.get_key_from_config("remote")
     print(f"Pulling repository from {remote}...")
 
-    response = pull(
-        remote, {"objects": get_repo_objects()})
-    
+    response = pull(remote, {"objects": get_repo_objects()})
+
     print(f"Status Code: {response.status_code}")
 
     if 200 <= response.status_code < 300:
@@ -64,7 +63,7 @@ def main():
         raise exceptions.HTTPGetRequestError(
             f"Failed to pull repository: {response.text}"
         )
-    
+
     update_repo_files(response)
 
 

@@ -272,12 +272,13 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     obj_to_upload = remote_objects - local_objects
 
     if local_objects - remote_objects:
-        raise HTTPException(status_code=400, detail=(
-            "Local repository has objects that the remote does not have. Run 'sccs push"
-            "' to upload these objects before pulling."
-        ))
-
-        
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Local repository has objects that the remote does not have. Run 'sccs push"
+                "' to upload these objects before pulling."
+            ),
+        )
 
     document_path = [repo_path / f"{repo_path.name}.docx"]
     current_branch_path = [
@@ -305,8 +306,8 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     ]
 
     files_to_upload = (
-        f for f in
-        objects_paths
+        f
+        for f in objects_paths
         + history_paths
         + byte_hash_paths
         + document_path
