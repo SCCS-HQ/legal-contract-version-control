@@ -31,7 +31,6 @@ def pull(remote: str, data: dict) -> requests.Response:
         raise exceptions.HTTPPostRequestError() from e
 
     return response
-    return response
 
 
 def update_repo_files(response: requests.Response, cwd: None | Path = None) -> None:

@@ -313,7 +313,7 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         + document_path
         + current_branch_path
         + commit_msgs_path
-        if f.isfile()
+        if f.is_file()
     )
 
     buffer = io.BytesIO()
