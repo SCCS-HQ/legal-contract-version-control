@@ -227,13 +227,15 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     ) as f:
         data = json.load(f)
 
+    temp_file = repo_path / ".sccs" / "current_branch" / "current_branch.json.tmp"
     with open(
-        repo_path / ".sccs" / "current_branch" / "current_branch.json",
+        temp_file,
         "w",
         encoding="utf-8",
     ) as f:
         data["updated_branches"] = []
         json.dump(data, f, indent=4)
+    temp_file.replace(repo_path / ".sccs" / "current_branch" / "current_branch.json")
 
     return {"message": "changes pushed successfully"}
 
