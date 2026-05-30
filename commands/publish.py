@@ -111,15 +111,14 @@ def main() -> None:
         )
 
 
-# if __name__ == "__main__":
-#     try:
-#         main()
+if __name__ == "__main__":
+    try:
+        main()
 
-#     except exceptions.SCCSException as e:
-#         print(f"An error occurred:\n{e}\n")
-#         sys.exit(1)
+    except exceptions.SCCSException as e:
+        print(f"An error occurred:\n{e}\n")
+        sys.exit(1)
 
-#     except Exception as e:
-#         print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
-#         sys.exit(2)
-main()
+    except Exception as e:
+        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        sys.exit(2)
