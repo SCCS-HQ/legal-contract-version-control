@@ -79,34 +79,34 @@ async def publish(
         raise HTTPException(status_code=400, detail="Repository already exists")
 
     with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(file.file_size for f in f.infolist())
+        total_size = sum(finfo.file_size for finfo in f.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
         total_num_files = len(f.infolist())
-        for f in f.infolist():
-            if file.file_size > 10 * 1024 * 1024:
+        for finfo in f.infolist():
+            if finfo.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is too large"
+                    status_code=400, detail=f"File {finfo.filename} is too large"
                 )
         if total_num_files > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for f in f.infolist():
-            path = Path(repo_path / file.filename).resolve()
+        for finfo in f.infolist():
+            path = Path(repo_path / finfo.filename).resolve()
             try:
                 path.relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
 
-            if file.is_dir():
+            if finfo.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with open(path, "wb") as f_out:
 
-                    with f.open(file) as f_in:
+                    with f.open(finfo) as f_in:
                         while True:
                             chunk = f_in.read(1024 * 1024)
                             if not chunk:
@@ -134,7 +134,7 @@ async def clone(repo_name: str) -> StreamingResponse:
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as f:
         for root, dirs, files in os.walk(repo_path):
             for f in files:
-                file_path = Path(root) / file
+                file_path = Path(root) / f
                 f.write(filename=file_path, arcname=file_path.relative_to(repo_path))
 
     buffer.seek(0)
@@ -187,33 +187,33 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         )
 
     with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(file.file_size for f in f.infolist())
+        total_size = sum(finfo.file_size for finfo in f.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
         total_num_files = len(f.infolist())
-        for f in f.infolist():
-            if file.file_size > 10 * 1024 * 1024:
+        for finfo in f.infolist():
+            if finfo.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
-                    status_code=400, detail=f"File {file.filename} is too large"
+                    status_code=400, detail=f"File {finfo.filename} is too large"
                 )
         if total_num_files > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for f in f.infolist():
+        for finfo in f.infolist():
             try:
-                relative_path = Path(file.filename).relative_to(f"tmp_{repo_name}")
+                relative_path = Path(finfo.filename).relative_to(f"tmp_{repo_name}")
                 path = Path(repo_path / relative_path).resolve()
                 path.relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
-            if file.is_dir():
+            if finfo.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
                 with open(path, "wb") as f_out:
-                    with f.open(file) as f_in:
+                    with f.open(finfo) as f_in:
                         while True:
                             chunk = f_in.read(1024 * 1024)
                             if not chunk:
