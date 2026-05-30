@@ -95,7 +95,7 @@ def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
         cwd = utils.working_directory_path
     try:
         with open(
-            (cwd / ".sccs" / "branches" / branch / "history" / "commit_history.json"),
+            (cwd / ".sccs" / "branches" / branch / "history" / "history.json"),
             "r",
             encoding="utf-8",
             newline="\n",

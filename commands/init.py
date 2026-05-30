@@ -209,7 +209,7 @@ def write_history_data(
                 / "branches"
                 / "main"
                 / "history"
-                / "commit_history.json"
+                / "history.json"
             ),
             "w",
             encoding="utf-8",

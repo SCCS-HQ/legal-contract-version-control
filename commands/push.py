@@ -30,11 +30,10 @@ def get_matching_file_paths(
     for b in updated_branches:
         branch_dir = cwd / ".sccs" / "branches" / b
         if branch_dir.is_dir():
+            f = branch_dir / filename / f"{filename}.json"
             paths.extend(
                 [
-                    f.resolve()
-                    for f in branch_dir.rglob("*")
-                    if f.is_file() and f.stem == filename
+                    f.resolve() if f.is_file() else None
                 ]
             )
     return paths
@@ -87,7 +86,7 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     """
     Create a temporary version of the repository with only the files in 'obj_to_upload'
     and metadata files, ensuring that the folder layout is left intact. Compress said
-    folder and return it as a Bytes.io memory buffer and delete the temporary directory.
+    folder and return it as a Bytes.io memory buffer and xdelete the temporary directory.
 
     Return a zip archive of files in 'obj_to_upload' and metadata files using the same
     layout as a repository.

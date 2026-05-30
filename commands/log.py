@@ -12,7 +12,7 @@ import utils
 def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
     """
     Retrieve the commit log data from the history JSON file by opening
-    'commit_history.json' and reading its JSON
+    'history.json' and reading its JSON
 
     Return the commit history JSON data.
     """
@@ -24,7 +24,7 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
 
     # Get JSON log data
     log_path = (
-        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
+        cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
     )
 
     if not Path(log_path).is_file():

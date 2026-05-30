@@ -14,7 +14,7 @@ def get_latest_commit_hash_file(
 ) -> str:
     """
     Return the hash of the latest commit from SCCS metadata by opening
-    'commit_history.json' and reading its JSON data.
+    'history.json' and reading its JSON data.
 
     Return the latest commit hash.
     """
@@ -25,7 +25,7 @@ def get_latest_commit_hash_file(
         current_branch = utils.get_current_branch()
     # get the latest commit filename hash from commit history
     history_path = (
-        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
+        cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
     )
     if not Path(history_path).is_file():
         print(

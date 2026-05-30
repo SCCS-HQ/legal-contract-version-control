@@ -166,7 +166,7 @@ def check_sccs_layout(
         )
 
     if not (
-        sccs_dir / "branches" / current_branch / "history" / "commit_history.json"
+        sccs_dir / "branches" / current_branch / "history" / "history.json"
     ).is_file():
         raise FileNotFoundError(
             "Commit history JSON not found. Please run 'sccs init <file_path>' to "
@@ -309,7 +309,7 @@ def get_history_path(
     if current_branch is None:
         current_branch = get_current_branch()
     return (
-        cwd / ".sccs" / "branches" / current_branch / "history" / "commit_history.json"
+        cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
     )
 
 
@@ -706,7 +706,7 @@ def check_for_uncommitted_changes(
         / "branches"
         / get_current_branch()
         / "history"
-        / "commit_history.json",
+        / "history.json",
         encoding="utf-8",
         newline="\n",
     ) as f:
