@@ -226,7 +226,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         encoding="utf-8",
     ) as f:
         data = json.load(f)
-        
+
     with open(
         repo_path / ".sccs" / "current_branch" / "current_branch.json",
         "w",

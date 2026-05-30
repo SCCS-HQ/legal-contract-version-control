@@ -257,9 +257,10 @@ class InvalidAPIURLError(SCCSException):
 
 # Push Exceptions
 
+
 class MissingCommitObjectsError(SCCSException):
     """
-    Raised when the local repository is missing commit objects that are present in the 
+    Raised when the local repository is missing commit objects that are present in the
     remote repository.
     """
 
@@ -267,4 +268,3 @@ class MissingCommitObjectsError(SCCSException):
         "The local repository is missing commit objects that are present in the remote "
         "repository."
     )
-    

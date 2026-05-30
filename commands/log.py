@@ -23,9 +23,7 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
         current_branch = utils.get_current_branch()
 
     # Get JSON log data
-    log_path = (
-        cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
-    )
+    log_path = cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
 
     if not Path(log_path).is_file():
         raise FileNotFoundError(

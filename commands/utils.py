@@ -308,9 +308,7 @@ def get_history_path(
         cwd = working_directory_path
     if current_branch is None:
         current_branch = get_current_branch()
-    return (
-        cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
-    )
+    return cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
 
 
 def get_commit_history() -> dict:
@@ -701,12 +699,7 @@ def check_for_uncommitted_changes(
         cwd = working_directory_path
 
     with open(
-        cwd
-        / ".sccs"
-        / "branches"
-        / get_current_branch()
-        / "history"
-        / "history.json",
+        cwd / ".sccs" / "branches" / get_current_branch() / "history" / "history.json",
         encoding="utf-8",
         newline="\n",
     ) as f:

@@ -31,11 +31,7 @@ def get_matching_file_paths(
         branch_dir = cwd / ".sccs" / "branches" / b
         if branch_dir.is_dir():
             f = branch_dir / filename / f"{filename}.json"
-            paths.extend(
-                [
-                    f.resolve() if f.is_file() else None
-                ]
-            )
+            paths.extend([f.resolve() if f.is_file() else None])
     return paths
 
 
@@ -245,8 +241,9 @@ def main() -> None:
         raise exceptions.HTTPPostRequestError(
             f"Failed to push to repository: {POST_response.text}, status code: {POST_response.status_code}"
         )
-    
+
     clear_updated_branches()
+
 
 if __name__ == "__main__":
     try:
