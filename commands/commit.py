@@ -21,7 +21,8 @@ def get_commit_message() -> str:
     if len(sys.argv) <= 2 or not sys.argv[2].strip():
         raise exceptions.EmptyCommitMessageError(
             "Commit message cannot be empty. Please provide a commit message with <sccs"
-            "commit \"commit message\">.")
+            'commit "commit message">.'
+        )
 
     return " ".join(sys.argv[2:]).strip()
 
