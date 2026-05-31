@@ -35,7 +35,7 @@ def confirm_before_proceeding(
         .lower()
     )
     if confirm != "y":
-        print("Update canceled.")
+        print("Update canceled.\n")
         sys.exit(0)
 
 
@@ -62,7 +62,7 @@ def print_rewrite_confirmation_message(
         docx_path = utils.current_file_docx_path
     print(
         f"File '{docx_path.name}' has been updated with the contents of "
-        f"'{commit_path.name[:10]}'."
+        f"'{commit_path.name[:10]}'.\n"
     )
 
 
@@ -93,5 +93,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

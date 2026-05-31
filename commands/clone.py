@@ -26,7 +26,7 @@ def resolve_entered_url(url: str | None = None) -> str:
         url = get_entered_url()
 
     if url == "":
-        print("No URL entered.")
+        print("No URL entered.\n")
         raise exceptions.InvalidArgumentError("No URL entered.")
 
     if not url.startswith("http://") and not url.startswith("https://"):
@@ -78,15 +78,15 @@ def main() -> None:
 
     repo_name = resolve_entered_url().split("/")[-2]
 
-    print(f"Cloning repository from {resolve_entered_url()}...")
+    print(f"Cloning repository from {resolve_entered_url()}...\n")
 
     buffer = io.BytesIO(response.content)
 
     unzip_repo_file(buffer, repo_name)
 
-    print(f"Status Code: {response.status_code}")
+    print(f"Status Code: {response.status_code}\n")
     response.raise_for_status()
-    print(f"Repository cloned successfully to ./{repo_name}")
+    print(f"Repository cloned successfully to ./{repo_name}\n")
 
 
 if __name__ == "__main__":
@@ -98,5 +98,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

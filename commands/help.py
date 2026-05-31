@@ -23,7 +23,7 @@ MESSAGES_TO_PRINT = [
     "  sccs push - Push changes from the local repository to a remote repository.",
     "  sccs revert - Revert the current document to the specified commit.",
     "  sccs reset - Delete all uncommitted changes.",
-    "  sccs switch - Switch between document branches.",   
+    "  sccs switch - Switch between document branches.",
     "  sccs status - Check the status of the current document for uncommitted changes.",
 ]
 
@@ -50,5 +50,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

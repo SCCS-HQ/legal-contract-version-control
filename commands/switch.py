@@ -132,7 +132,7 @@ def copy_commit_to_main(commit: str, cwd: Path | None = None) -> None:
 def print_confirmation(branch_to_switch: str) -> None:
     """Print a confirmation message for successful branch switch."""
 
-    print(f"Successfully switched to branch '{branch_to_switch}'.")
+    print(f"Successfully switched to branch '{branch_to_switch}'.\n")
 
 
 def main() -> None:
@@ -170,5 +170,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

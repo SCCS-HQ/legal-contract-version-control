@@ -13,9 +13,9 @@ def print_status_message() -> None:
     """Print the status message to the user."""
     uncommitted_changes = utils.check_for_uncommitted_changes("status", exit=False)
     if uncommitted_changes:
-        print("Uncommitted changes detected.")
+        print("Uncommitted changes detected.\n")
     else:
-        print("No uncommitted changes detected.")
+        print("No uncommitted changes detected.\n")
 
 
 def main() -> None:
@@ -34,5 +34,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

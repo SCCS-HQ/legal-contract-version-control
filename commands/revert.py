@@ -31,7 +31,7 @@ def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> Non
 
     print(
         f"Document successfully reverted to commit '{commit.stem[:10]}' on commit "
-        f"'{new_commit_hash[:10]}'."
+        f"'{new_commit_hash[:10]}'.\n"
     )
 
 
@@ -62,5 +62,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

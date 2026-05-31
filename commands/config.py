@@ -90,7 +90,7 @@ def main() -> None:
 
     utils.write_key_to_config(key, value)
 
-    print(f"Configuration '{key}' set to '{value}' successfully.")
+    print(f"Configuration '{key}' set to '{value}' successfully.\n")
 
 
 if __name__ == "__main__":
@@ -102,5 +102,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

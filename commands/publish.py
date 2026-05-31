@@ -100,12 +100,12 @@ def main() -> None:
     reset_current_branch()
 
     remote = utils.get_key_from_config("remote")
-    print(f"Publishing repository to {remote}...")
+    print(f"Publishing repository to {remote}...\n")
     response = post_repo(zip_cwd(), remote)
 
-    print(f"Status Code: {response.status_code}")
+    print(f"Status Code: {response.status_code}\n")
     response.raise_for_status()
-    print(f"Repository published successfully to {remote}")
+    print(f"Repository published successfully to {remote}\n")
 
 
 if __name__ == "__main__":
@@ -117,5 +117,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)
