@@ -8,7 +8,7 @@ class InvalidBranchNameError(SCCSException):
     """Raised when a branch name is invalid."""
     pass
 
-class BranchMissingFromMetadata(SCCSException):
+class BranchMissingFromMetadataError(SCCSException):
     """Raised when a branch is missing from the metadata."""
     pass
 
