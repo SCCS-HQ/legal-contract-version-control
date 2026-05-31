@@ -99,6 +99,12 @@ if "%command%"=="pull" (
     exit /b !errorlevel!
 )
 
+if "%command%"=="merge" (
+    set "script_directory=%~dp0"
+    python "%script_directory%merge.py" %*
+    exit /b !errorlevel!
+)
+
 echo Unknown command: %command%
 echo Invalid command. Please use "init", "commit", "open", "log", "status", "diff", "help", "branch", "switch", "publish", "clone", "config", "revert", "reset", or "push", along with required arguments
 echo For help, use the 'sccs help' command

@@ -730,3 +730,22 @@ def check_for_uncommitted_changes(
 
     else:
         return True if latest_bytes_hash != hash_current_docx_binary() else False
+
+
+def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
+    """
+    Return the latest commit hash for a given branch by reading the document metadata.
+    """
+    if cwd is None:
+        cwd = working_directory_path
+    try:
+        with open(
+            (cwd / ".sccs" / "branches" / branch / "history" / "history.json"),
+            "r",
+            encoding="utf-8",
+            newline="\n",
+        ) as f:
+            history = json.load(f)
+            return history["history"]["latest_commit"]
+    except Exception as e:
+        raise exceptions.FileOpenError from e

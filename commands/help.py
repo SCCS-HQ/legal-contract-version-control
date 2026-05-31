@@ -26,6 +26,7 @@ MESSAGES_TO_PRINT = [
     "  sccs reset - Delete all uncommitted changes.",
     "  sccs switch - Switch between document branches.",
     "  sccs status - Check the status of the current document for uncommitted changes.",
+    "  sccs merge - Merge the entered branch into the current branch.",
 ]
 
 
