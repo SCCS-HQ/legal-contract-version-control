@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """Commit latest changes to the current branch."""
 
-import hashlib
-import json
-import shutil
 import sys
-from datetime import datetime
-from pathlib import Path
 
 import exceptions
 import utils

@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Check the status of the current document for uncommitted changes."""
 
-import json
 import sys
-from pathlib import Path
 
 import exceptions
 import utils
