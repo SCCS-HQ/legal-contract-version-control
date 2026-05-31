@@ -11,12 +11,14 @@ def get_entered_branch() -> str | None:
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def validate_branch(branch: str | None, current_branch: str) -> str:
-    """Validate that the entered branch is not None and that it is not the current branch, and return it."""
+def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:
+    """Validate that the entered branch is valid, exists, and is not the current branch."""
     if branch is None:
-        raise ValueError("No branch provided. Please provide a branch to merge.")
+        raise exceptions.InvalidArgumentError("No branch provided. Please provide a branch to merge.")
     if branch == current_branch:
-        raise ValueError("Cannot merge the current branch into itself.")
+        raise exceptions.InvalidArgumentError("Cannot merge the current branch into itself.")
+    if branch not in branches:
+        raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
     return branch
 
 
