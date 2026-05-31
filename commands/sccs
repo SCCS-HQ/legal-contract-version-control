@@ -38,9 +38,9 @@ def run_command(command, script_directory):
     sys.exit(
         subprocess.run([
             sys.executable,
-            os.path.join(script_directory,
-            f"{command}.py")] + sys.argv[1:
-        ]).returncode
+            os.path.join(script_directory, f"{command}.py")]
+             + sys.argv[1:]
+        ).returncode
     )
 
 def execute_command(command, script_directory, COMMANDS):
