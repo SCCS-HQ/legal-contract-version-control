@@ -32,7 +32,7 @@ def print_help(messages: list[str]) -> None:
     """Print help each item in 'messages'."""
 
     for item in messages:
-        print(f"{item}\n")
+        print(item)
 
 
 def main() -> None:
