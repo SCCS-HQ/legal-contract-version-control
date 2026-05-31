@@ -14,9 +14,13 @@ def get_entered_branch() -> str | None:
 def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:
     """Validate that the entered branch is valid, exists, and is not the current branch."""
     if branch is None:
-        raise exceptions.InvalidArgumentError("No branch provided. Please provide a branch to merge.")
+        raise exceptions.InvalidArgumentError(
+            "No branch provided. Please provide a branch to merge."
+        )
     if branch == current_branch:
-        raise exceptions.InvalidArgumentError("Cannot merge the current branch into itself.")
+        raise exceptions.InvalidArgumentError(
+            "Cannot merge the current branch into itself."
+        )
     if branch not in branches:
         raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
     return branch
