@@ -38,7 +38,7 @@ def main() -> None:
     utils.check_sccs_layout()
 
     sha_hash = utils.commit_changes(get_commit_message())
-
+    print_commit_confirmation_message(sha_hash)
     print_commit_confirmation_message(f"{sha_hash}\n")
 
 
