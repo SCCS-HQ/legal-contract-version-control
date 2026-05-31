@@ -19,8 +19,8 @@ def get_key_from_config(key, cwd=None):
 
     if not Path(config_path).is_file():
         print(
-            "Configuration file not found. Please run 'sccs init <file_path>' to init"
-            "ialize SCCS for this file."
+            "Configuration file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
         sys.exit(1)
 
@@ -36,7 +36,7 @@ def get_commit_message():
     commit_message = input("Enter commit message: ").strip()
 
     if commit_message == "":
-        print("Commit message cannot be empty.")
+        ("Commit message cannot be empty.")
         sys.exit(1)
     return commit_message
 
@@ -65,8 +65,8 @@ def get_commit_history():
     history_path = get_history_path()
     if not Path(history_path).is_file():
         print(
-            "History file not found. Please run 'sccs init <file_path>' to initialize"
-            " SCCS for this file."
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
         sys.exit(1)
 
@@ -148,8 +148,8 @@ def update_commit_log_history(
     commit_history_path = get_history_path()
     if not os.path.isfile(commit_history_path):
         print(
-            "History file not found. Please run 'sccs init <file_path>' to initialize"
-            " SCCS for this file."
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
         sys.exit(1)
 
@@ -183,8 +183,8 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
 
     if not Path(commit_messages_path).is_file():
         print(
-            "Commit messages file not found. Please run 'sccs init <file_path>' to in"
-            "itialize SCCS for this file."
+            "Commit messages file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
         sys.exit(1)
 
@@ -223,8 +223,8 @@ def update_commit_binary_hash_history(
     )
     if not Path(commit_file_hash_path).is_file():
         print(
-            "Commit file hash not found. Please run 'sccs init <file_path>' to initia"
-            "lize SCCS for this file."
+            "Commit file hash not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
         sys.exit(1)
 

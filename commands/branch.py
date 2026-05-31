@@ -23,16 +23,16 @@ def validate_subcommand(subcommand, branch_name):
 
     if not subcommand:
         print(
-            "No subcommand provided. Please use 'create', 'delete', or 'list' along wit"
-            "h required arguments."
+            "No subcommand provided. Please use 'create', 'delete', or 'list' along "
+            "with required arguments."
         )
         sys.exit(1)
 
     if subcommand not in ["create", "delete", "list"]:
         print(f"Unknown subcommand: {subcommand}")
         print(
-            "Invalid subcommand. Please use 'create', 'delete', or 'list' along with re"
-            "quired arguments."
+            "Invalid subcommand. Please use 'create', 'delete', or 'list' along with "
+            "required arguments."
         )
         sys.exit(1)
 

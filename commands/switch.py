@@ -72,7 +72,8 @@ def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
 def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
     if not current_document_hash == latest_commit_binary_hash:
         print(
-            f"Error: The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches."
+            f"Error: The current file has uncommitted changes on the current branch "
+            f"'{branch}'. Please commit your changes before switching branches."
         )
         sys.exit(1)
 

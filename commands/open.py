@@ -28,7 +28,9 @@ def confirm_before_proceeding(commit_path, docx_path=None, cwd=None):
         cwd = utils.working_directory_path
     confirm = (
         input(
-            f"Are you sure you want to overwrite '{cwd}/{os.path.basename(docx_path)}' with the contents of '{cwd}/{os.path.basename(commit_path)}'?\nThis action will replace the current content of the .docx file. (Y/N): "
+            f"Are you sure you want to overwrite '{cwd}/{os.path.basename(docx_path)}' "
+            f"with the contents of '{cwd}/{os.path.basename(commit_path)}'?\nThis "
+            f"action will replace the current content of the .docx file. (Y/N): "
         )
         .strip()
         .lower()
@@ -67,7 +69,8 @@ def print_rewrite_confirmation_message(commit_path, docx_path=None):
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(
-        f"File '{os.path.basename(docx_path)}' has been updated with the contents of '{os.path.basename(commit_path)}'."
+        f"File '{os.path.basename(docx_path)}' has been updated with the contents of "
+        f"'{os.path.basename(commit_path)}'."
     )
 
 

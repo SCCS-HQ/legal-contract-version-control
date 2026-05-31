@@ -21,8 +21,8 @@ def get_log_data(cwd=None, current_branch=None):
 
     if not Path(log_path).is_file():
         print(
-            "Log file not found. Please make sure the file has been initialized "
-            "with SCCS."
+            "Log file not found. Please make sure the file has been initialized with "
+            "'sccs init <file_path>'"
         )
         sys.exit(1)
 
