@@ -82,6 +82,7 @@ def resolve_entered_remote(remote: str) -> str:
 
 def main() -> None:
     """Run functions for the <sccs config> command."""
+    utils.check_sccs_layout()
     key = get_entered_config_key()
     value = get_entered_config_value()
 
