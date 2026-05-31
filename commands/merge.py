@@ -71,7 +71,8 @@ def main() -> None:
 
     current_branch = utils.get_current_branch()
     entered_branch = get_entered_branch()
-    branch_to_merge = validate_branch(entered_branch, current_branch)
+    branches = utils.get_branch_data(key="branches")
+    branch_to_merge = validate_branch(entered_branch, current_branch, branches)
     copy_repo_document(branch_to_merge)
     copy_branch_data(current_branch, branch_to_merge)
 
