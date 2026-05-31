@@ -15,30 +15,12 @@ current_file_docx_path = os.path.join(
 
 sccs_versions_directory_path = os.path.join(working_directory_path, ".sccs")
 
-default_html_styles = """
-    <style>
-    * {
-        font-family: Arial, Helvetica, sans-serif;
-    }
-
-    .inserted {
-        background-color: #d4fcbc;
-        display: block;
-        width: fit-content;
-    }
-
-    .deleted {
-        background-color: #fbb6c2;
-        display: block;
-        width: fit-content;
-    }
-
-    .center {
-        display: flex;
-        justify-content: center;
-    }
-    </style>
-"""
+default_html_styles = (
+    """<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n.inserted 
+    {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n\n.deleted 
+    {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n\n.center 
+    {\ndisplay: flex;\njustify-content: center;\n}\n</style>"""
+)
 
 current_branch_path = os.path.join(
     working_directory_path, ".sccs", "current_branch", "current_branch.json"
