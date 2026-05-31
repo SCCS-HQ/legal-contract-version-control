@@ -79,6 +79,7 @@ def main() -> None:
 
     print_merge_success_message(branch_to_merge, current_branch)
 
+
 if __name__ == "__main__":
     try:
         main()
