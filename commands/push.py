@@ -215,6 +215,7 @@ def clear_updated_branches(cwd: None | Path = None) -> None:
 
 def main() -> None:
     """Run functions for the <sccs push> command."""
+    utils.check_sccs_layout()
 
     remote = utils.get_key_from_config("remote").rstrip("/")
 

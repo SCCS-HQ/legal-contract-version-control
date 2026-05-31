@@ -7,6 +7,7 @@ import zipfile
 
 import exceptions
 import requests
+import utils
 
 
 def get_entered_url() -> str | None:
@@ -74,6 +75,8 @@ def unzip_repo_file(buffer: io.BytesIO, destination: str) -> None:
 
 def main() -> None:
     """Run functions for the <sccs clone> command."""
+    utils.check_sccs_layout()
+
     response = request_repo()
 
     repo_name = resolve_entered_url().split("/")[-2]

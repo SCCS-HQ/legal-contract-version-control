@@ -47,6 +47,7 @@ def update_repo_files(response: requests.Response, cwd: None | Path = None) -> N
 
 def main():
     """Run functions for the <sccs pull> command."""
+    utils.check_sccs_layout()
 
     remote = utils.get_key_from_config("remote")
     print(f"Pulling repository from {remote}...\n")

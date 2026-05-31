@@ -137,7 +137,6 @@ def print_confirmation(branch_to_switch: str) -> None:
 
 def main() -> None:
     """Run functions for the <sccs switch> command."""
-
     utils.check_sccs_layout()
 
     branches = utils.get_branch_data(key="branches")
