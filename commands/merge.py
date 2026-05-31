@@ -1,8 +1,9 @@
+import shutil
 import sys
 from pathlib import Path
-import utils
-import shutil
+
 import exceptions
+import utils
 
 
 def get_entered_branch() -> str | None:
@@ -18,7 +19,10 @@ def validate_branch(branch: str | None, current_branch: str) -> str:
         raise ValueError("Cannot merge the current branch into itself.")
     return branch
 
-def copy_branch_data(current_branch: str, target_branch: str, cwd: Path | None = None) -> None:
+
+def copy_branch_data(
+    current_branch: str, target_branch: str, cwd: Path | None = None
+) -> None:
     """Copy the data from the source branch to the target branch."""
     if cwd is None:
         cwd = utils.working_directory_path
@@ -35,12 +39,12 @@ def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
         cwd = utils.working_directory_path
 
     target_repo_doc_path = (
-        cwd /
-        ".sccs" /
-        "objects" /
-        "docx" /
-        f"{utils.get_latest_commit(target_branch)}.docx"
-        )
+        cwd
+        / ".sccs"
+        / "objects"
+        / "docx"
+        / f"{utils.get_latest_commit(target_branch)}.docx"
+    )
     current_repo_doc_path = utils.current_file_docx_path
 
     shutil.copy2(target_repo_doc_path, current_repo_doc_path)
