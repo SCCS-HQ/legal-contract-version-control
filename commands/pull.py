@@ -49,10 +49,23 @@ def update_repo_files(response: requests.Response, cwd: None | Path = None) -> N
 def main():
     """Run functions for the <sccs pull> command."""
 
+    remote = utils.get_key_from_config("remote")
+    print(f"Pulling repository from {remote}...")
+
     response = pull(
-        utils.get_key_from_config("remote"), {"objects": get_repo_objects()}
-    )
-    print(response.status_code)
+        remote, {"objects": get_repo_objects()})
+    
+    print(f"Status Code: {response.status_code}")
+
+    if 200 <= response.status_code < 300:
+        update_repo_files(response)
+        print(f"Repository pulled successfully from {remote}")
+    else:
+        raise exceptions.HTTPGetRequestError(
+            f"Failed to pull repository: {response.text}"
+        )
+    
+    update_repo_files(response)
 
 
 if __name__ == "__main__":
