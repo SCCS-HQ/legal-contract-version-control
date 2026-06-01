@@ -169,7 +169,8 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
             f"{sha_hash}": {
                 "timestamp": get_current_iso_time(),
                 "author": f"{config_user_name} <{config_user_email}>",
-                "message": "initial commit (This is a default commit message for initial version)",
+                "message": "initial commit (This is a default commit message for "
+                "initial version)",
             }
         },
     }
@@ -194,7 +195,8 @@ def write_history_data(sha_hash, config_user_name, config_user_email):
 
 def write_commit_message_data(sha_hash):
     commit_message_data = {
-        f"{sha_hash}": "initial commit (This is a default commit message for initial version)"
+        f"{sha_hash}": "initial commit (This is a default commit message for initial "
+        "version)"
     }
     try:
         with open(

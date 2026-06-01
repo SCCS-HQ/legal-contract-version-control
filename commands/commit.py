@@ -20,7 +20,8 @@ def get_key_from_config(key, cwd=None):
 
     if not Path(config_path).is_file():
         raise FileNotFoundError(
-            "Configuration file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Configuration file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     with open(config_path, "r", encoding="utf-8", newline="\n") as config_file:
@@ -64,7 +65,8 @@ def get_commit_history():
     history_path = get_history_path()
     if not Path(history_path).is_file():
         raise FileNotFoundError(
-            "History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
 
     try:
@@ -144,7 +146,8 @@ def update_commit_log_history(
     commit_history_path = get_history_path()
     if not os.path.isfile(commit_history_path):
         raise FileNotFoundError(
-            "History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
 
     # Update history
@@ -177,7 +180,8 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
 
     if not Path(commit_messages_path).is_file():
         raise FileNotFoundError(
-            "Commit messages file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit messages file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     with open(
@@ -216,7 +220,8 @@ def update_commit_binary_hash_history(
     )
     if not Path(commit_file_hash_path).is_file():
         raise FileNotFoundError(
-            "Commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit file hash not found. Please run 'sccs init <file_path>' to "
+            f"initialize SCCS for this file."
         )
 
     try:

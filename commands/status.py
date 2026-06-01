@@ -21,7 +21,8 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
             "SCCS for this file."
         )
         raise FileNotFoundError(
-            "History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "History file not found. Please run 'sccs init <file_path>' to initialize "
+            "SCCS for this file."
         )
 
     try:
@@ -34,7 +35,8 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
 
     if not latest_commit_hash:
         raise exceptions.InvalidMetadataError(
-            "History file is missing the latest commit information. Please reinitialize SCCS for this file."
+            "History file is missing the latest commit information. Please reinitialize"
+            " SCCS for this file."
         )
 
     return latest_commit_hash
@@ -57,7 +59,8 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
     )
     if not Path(latest_commit_file_hash_path).is_file():
         raise FileNotFoundError(
-            "Latest commit file hash not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Latest commit file hash not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     try:
@@ -69,7 +72,8 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
 
         if not latest_commit_file_hash:
             raise exceptions.InvalidMetadataError(
-                "Latest commit file hash is missing from JSON. Please reinitialize SCCS for this file."
+                "Latest commit file hash is missing from JSON. Please reinitialize SCCS"
+                " for this file."
             )
 
     except Exception as e:
@@ -88,7 +92,8 @@ def print_changes_message_and_exit(old_hash, new_hash):
         sys.exit(0)
     else:
         raise exceptions.UncommittedChangesError(
-            "Changes detected since the latest commit. You can proceed with committing these changes."
+            "Changes detected since the latest commit. You can proceed with committing "
+            "these changes."
         )
 
 

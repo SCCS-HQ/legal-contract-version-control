@@ -40,19 +40,22 @@ def check_sccs_layout(
 
     if not Path(sccs_dir).is_dir():
         raise exceptions.SCCSNotInitializedError(
-            "This file has not been initialized with SCCS.\nPlease run 'sccs init <file_path>' to initialize SCCS for this file."
+            "This file has not been initialized with SCCS.\nPlease run 'sccs init "
+            "<file_path>' to initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "current_branch")).is_dir():
         raise exceptions.BranchNotFoundError(
-            "Current branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Current branch directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(
         os.path.join(sccs_dir, "current_branch", "current_branch.json")
     ).is_file():
         raise exceptions.BranchNotFoundError(
-            "Current branch file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Current branch file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     try:
@@ -65,24 +68,28 @@ def check_sccs_layout(
             current_branch = json.load(current_branch_file).get("current_branch")
             if not current_branch:
                 raise exceptions.BranchNotFoundError(
-                    "Current branch not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+                    "Current branch not found. Please run 'sccs init <file_path>' to "
+                    "initialize SCCS for this file."
                 )
 
     except (json.JSONDecodeError, KeyError, TypeError, OSError) as e:
         raise exceptions.BranchNotFoundError(
-            "Current branch file is missing or corrupted. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Current branch file is missing or corrupted. Please run 'sccs init "
+            "<file_path>' to initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "branches", current_branch)).is_dir():
         raise exceptions.BranchNotFoundError(
-            "Branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Branch directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(
         os.path.join(sccs_dir, "branches", current_branch, "commit_file_hash")
     ).is_dir():
         raise FileNotFoundError(
-            "Commit file hash directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit file hash directory not found. Please run 'sccs init <file_path>' "
+            "to initialize SCCS for this file."
         )
     if not Path(
         os.path.join(
@@ -94,55 +101,65 @@ def check_sccs_layout(
         )
     ).is_file():
         raise FileNotFoundError(
-            "Commit file hash JSON not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit file hash JSON not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "commit_messages")).is_dir():
         raise FileNotFoundError(
-            "Commit messages directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit messages directory not found. Please run 'sccs init <file_path>' to"
+            " initialize SCCS for this file."
         )
 
     if not Path(
         os.path.join(sccs_dir, "commit_messages", "commit_messages.json")
     ).is_file():
         raise FileNotFoundError(
-            "Commit messages JSON not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit messages JSON not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "objects")).is_dir():
 
         raise FileNotFoundError(
-            "Objects directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Objects directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "objects", "docx")).is_dir():
         raise FileNotFoundError(
-            "Docx objects directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Docx objects directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "objects", "html")).is_dir():
         raise FileNotFoundError(
-            "HTML objects directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "HTML objects directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "objects", "view_html")).is_dir():
         raise FileNotFoundError(
-            "View HTML objects directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "View HTML objects directory not found. Please run 'sccs init <file_path>' "
+            "to initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "config")).is_dir():
         raise FileNotFoundError(
-            "Config directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Config directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "config", "config.json")).is_file():
         raise FileNotFoundError(
-            "Config file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Config file not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(os.path.join(sccs_dir, "branches", current_branch, "history")).is_dir():
         raise FileNotFoundError(
-            "History directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "History directory not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(
@@ -151,12 +168,14 @@ def check_sccs_layout(
         )
     ).is_file():
         raise FileNotFoundError(
-            "Commit history JSON not found. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+            "Commit history JSON not found. Please run 'sccs init <file_path>' to "
+            "initialize SCCS for this file."
         )
 
     if not Path(docx_path).is_file():
         raise FileNotFoundError(
-            "Docx file not found. Re-initialize SCCS for this file with 'sccs init <file_path>'"
+            "Docx file not found. Re-initialize SCCS for this file with 'sccs init "
+            "<file_path>'"
         )
 
 
@@ -188,7 +207,8 @@ def get_current_branch(file_path=current_branch_path):
             current_branch = json.load(current_branch_file).get("current_branch")
             if not current_branch:
                 raise exceptions.InvalidMetadataError(
-                    "Current branch is missing from JSON. Please run 'sccs init <file_path>' to initialize SCCS for this file."
+                    "Current branch is missing from JSON. Please run 'sccs init "
+                    "<file_path>' to initialize SCCS for this file."
                 )
     except Exception as e:
         raise exceptions.FileOpenError(f"Error reading current branch: {e}")

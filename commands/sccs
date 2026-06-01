@@ -38,7 +38,11 @@ def run_command(command, script_directory):
 
 def execute_command(command, script_directory, COMMANDS):
     if command not in COMMANDS:
-        raise exceptions.UnknownCommandError(f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', 'diff', 'status', 'help', 'branch', or 'switch', along with required arguments. For help, use the 'sccs help' command.")
+        raise exceptions.UnknownCommandError(
+            f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
+            f"'diff', 'status', 'help', 'branch', or 'switch', along with required "
+            f"arguments. For help, use the 'sccs help' command."
+        )
     run_command(command, script_directory)
 
 

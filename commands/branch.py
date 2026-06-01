@@ -24,12 +24,14 @@ def validate_subcommand(subcommand, branch_name):
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
-            "No subcommand provided. Please use 'create','delete', or 'list' along with required arguments."
+            "No subcommand provided. Please use 'create','delete', or 'list' along with"
+            " required arguments."
         )
 
     if subcommand not in ["create", "delete", "list"]:
         raise exceptions.InvalidSubcommandError(
-            f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list' along with required arguments."
+            f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list'"
+            f" along with required arguments."
         )
 
     if subcommand in ["create", "delete"]:
@@ -174,7 +176,8 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
 
     except Exception as e:
         raise exceptions.UpdatingMetadataError(
-            f"Error updating branch data after failed deletion: {e}. The branch '{sanitized_branch_name}' may be in an inconsistent state."
+            f"Error updating branch data after failed deletion: {e}. The branch "
+            f"'{sanitized_branch_name}' may be in an inconsistent state."
         )
 
 
