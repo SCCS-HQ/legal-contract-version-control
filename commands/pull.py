@@ -4,6 +4,7 @@ from pathlib import Path
 import requests
 import utils
 import exceptions
+import io
 
 
 def get_repo_objects(cwd: None | Path = None) -> list:
@@ -14,6 +15,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
 
     if cwd is None:
         cwd = utils.working_directory_path
+
     objects_dir = cwd / ".sccs" / "objects"
     objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
     return objects
@@ -28,6 +30,26 @@ def pull(remote: str, data: dict) -> requests.Response:
         raise exceptions.HTTPGetRequestError() from e
 
     return response
+
+
+def update_repo_files(response: requests.Response, cwd: None | Path = None) -> io.BytesIO:
+    """
+    Unzip the file in 'response' to 'destination'.
+    """
+
+    if cwd is None:
+        cwd = utils.working_directory_path
+
+
+    buffer = io.BytesIO()
+
+    for chunk in response.iter_content(chunk_size=8192):
+        buffer.write(chunk)
+
+    buffer.seek(0)
+
+    with zipfile.ZipFile(buffer, "r") as zf:
+        zf.extractall(cwd)
 
 
 def main():
