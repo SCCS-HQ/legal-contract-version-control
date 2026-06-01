@@ -56,14 +56,9 @@ def main():
 
     print(f"Status Code: {response.status_code}")
 
-    if 200 <= response.status_code < 300:
-        update_repo_files(response)
-        print(f"Repository pulled successfully from {remote}")
-    else:
-        raise exceptions.HTTPGetRequestError(
-            f"Failed to pull repository: {response.text}"
-        )
-
+    response.raise_for_status()
+    print(f"Repository pulled successfully from {remote}")
+    
     update_repo_files(response)
 
 

@@ -222,10 +222,7 @@ def main() -> None:
 
     GET_response = push_GET(remote)
 
-    if not 200 <= GET_response.status_code < 300:
-        raise exceptions.HTTPGetRequestError(
-            f"Failed to push to repository: {GET_response.text}, status code: {GET_response.status_code}"
-        )
+    GET_response.raise_for_status()
 
     remote_objects = GET_response.json().get("objects", [])
 
@@ -237,12 +234,8 @@ def main() -> None:
 
     print(f"Status code: {POST_response.status_code}")
 
-    if 200 <= POST_response.status_code < 300:
-        print(f"Changes pushed successfully to {remote}/push\n")
-    else:
-        raise exceptions.HTTPPostRequestError(
-            f"Failed to push to repository: {POST_response.text}, status code: {POST_response.status_code}"
-        )
+    POST_response.raise_for_status()
+    print(f"Changes pushed successfully to {remote}/push\n")
 
     clear_updated_branches()
 
