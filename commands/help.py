@@ -8,16 +8,23 @@ import exceptions
 MESSAGES_TO_PRINT = [
     "SCCS Help",
     "Available commands:",
-    "  init    - Initialize a new SCCS repository",
-    "  commit  - Commit changes to a repository",
-    "  open    - Restore a previous commit and overwrite the current changes",
-    "  log     - Show commit history",
-    "  diff    - Compare the current .docx converted to HTML with a specified commit "
-    "HTML file",
-    "  status  - Show the status of a repository",
-    "  branch  - List, create, and delete branches",
-    "  switch  - Switch to a different branch",
-    "  help    - Show this help message",
+    "  sccs branch - Create a new branch, delete, or list branches.",
+    "  sccs clone - Clone a hosted SCCS repository with a URL.",
+    "  sccs commit - Commit changes to the repository.",
+    "  sccs config - Configure a repository's data value (remote, name, email)",
+    "  sccs diff - Show differences between the current document and a past commit.",
+    "  sccs help - Print this help message.",
+    "  sccs init - Initialize a new SCCS repository.",
+    "  sccs log - Print a list of past commits for the current branch.",
+    "  sccs open - Open a commit file and update the current document.",
+    "  sccs publish - Publish a local repository to a hosting service.",
+    "  sccs pull - Pull changes from a remote repository and merge them into the local "
+    "repository.",
+    "  sccs push - Push changes from the local repository to a remote repository.",
+    "  sccs revert - Revert the current document to the specified commit.",
+    "  sccs reset - Delete all uncommitted changes.",
+    "  sccs switch - Switch between document branches.",   
+    "  sccs status - Check the status of the current document for uncommitted changes.",
 ]
 
 
