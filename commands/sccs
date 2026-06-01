@@ -34,7 +34,7 @@ def print_unknown_command_error(command):
         "', 'help', 'branch', or 'switch', along with required arguments."
     )
     print("For help, use the 'sccs help' command.")
-    raise exceptions.UnknownCommandError(f"Unknown command: {command}""Invalid command. Please use 'init', 'commit', 'open', 'log', 'diff', 'status', 'help', 'branch', or 'switch', along with required arguments.")
+    raise exceptions.UnknownCommandError(f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', 'diff', 'status', 'help', 'branch', or 'switch', along with required arguments.")
 
 def run_command(command, script_directory):
     sys.exit(

@@ -86,10 +86,6 @@ class InvalidFileTypeError(SCCSException):
 
 # Not Found Exceptions
 
-class CommitNotFoundError(SCCSException):
-    """Raised when a commit is not found."""
-    pass
-
 class DocumentNotFoundError(SCCSException):
     """Raised when a document is not found."""
     pass
