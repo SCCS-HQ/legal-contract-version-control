@@ -131,7 +131,7 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
         ) as f:
             f.write(styles + html)
     except Exception as e:
-        raise exceptions.FileOpenError(f"Error writing HTML file: {e}")
+        raise exceptions.FileWriteError(f"Error writing HTML file: {e}")
 
 
     try:
@@ -145,7 +145,7 @@ def copy_document_to_objects_as_docx_and_html(sha_hash, html, styles=None):
         ) as f:
             f.write(utils.wrap_html(html))
     except Exception as e:
-        raise exceptions.FileOpenError(f"Error writing view HTML file: {e}")
+        raise exceptions.FileWriteError(f"Error writing view HTML file: {e}")
 
 
 
