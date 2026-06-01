@@ -276,9 +276,8 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
             "Local repository has objects that the remote does not have. Run 'sccs push"
             "' to upload these objects before pulling."
         ))
-                "' to upload these objects before pulling."
-            ),
-        )
+
+        
 
     document_path = [repo_path / f"{repo_path.name}.docx"]
     current_branch_path = [
