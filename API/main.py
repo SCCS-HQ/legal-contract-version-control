@@ -158,6 +158,9 @@ async def push(repo_name: str) -> dict:
     repo_path = (base_dir / repo_name / ".sccs").resolve()
     objects_dir = repo_path / "objects"
 
+    if not objects_dir.exists() or not objects_dir.is_dir():
+        raise HTTPException(status_code=404, detail="Repository objects not found")
+
     objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
 
     return {"objects": objects}
