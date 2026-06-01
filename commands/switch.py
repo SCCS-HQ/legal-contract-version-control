@@ -142,16 +142,6 @@ def main() -> None:
 
     branches = utils.get_branch_data(key="branches")
 
-    current_branch = utils.get_current_branch()
-
-    latest_commit = get_latest_commit(current_branch)
-
-    latest_commit_binary_hash = get_latest_commit_binary_hash(
-        current_branch, latest_commit
-    )
-
-    current_document_hash = utils.hash_current_docx_binary()
-
     utils.check_for_uncommitted_changes("switch")
 
     branch_to_switch = get_branch_to_switch()
