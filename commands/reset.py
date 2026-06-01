@@ -49,6 +49,7 @@ def print_success_message() -> None:
 def main() -> None:
     """Main function to handle the <reset> command."""
     utils.check_sccs_layout()
+    
     reset()
     print_success_message()
 

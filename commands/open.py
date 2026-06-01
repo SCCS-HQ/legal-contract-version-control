@@ -68,7 +68,6 @@ def print_rewrite_confirmation_message(
 
 def main() -> None:
     """Run functions for the <sccs open> command."""
-
     utils.check_sccs_layout()
 
     commit_path = utils.validate_commit(

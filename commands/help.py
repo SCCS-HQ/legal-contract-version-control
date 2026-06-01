@@ -4,6 +4,7 @@
 import sys
 
 import exceptions
+import utils
 
 MESSAGES_TO_PRINT = [
     "SCCS Help",
@@ -37,6 +38,7 @@ def print_help(messages: list[str]) -> None:
 
 def main() -> None:
     """Run functions for the <sccs help> command."""
+    utils.check_sccs_layout()
 
     print_help(MESSAGES_TO_PRINT)
 
