@@ -16,7 +16,7 @@ def get_commit_message() -> str:
     if len(sys.argv) <= 2 or not sys.argv[2].strip():
         raise exceptions.EmptyCommitMessageError(
             "Commit message cannot be empty. Please provide a commit message with <sccs"
-            'commit "commit message">.'
+            ' commit "commit message">.'
         )
 
     return " ".join(sys.argv[2:]).strip()
@@ -33,7 +33,6 @@ def main() -> None:
     utils.check_sccs_layout()
 
     sha_hash = utils.commit_changes(get_commit_message())
-    print_commit_confirmation_message(sha_hash)
     print_commit_confirmation_message(f"{sha_hash}\n")
 
 
