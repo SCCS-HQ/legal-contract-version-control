@@ -21,11 +21,8 @@ def get_log_data(cwd=None, current_branch=None):
     )
 
     if not Path(log_path).is_file():
-        print(
-            "Log file not found. Please make sure the file has been initialized with "
-            "'sccs init <file_path>'"
-        )
-        sys.exit(1)
+        raise FileNotFoundError("History file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+
 
     with open(log_path, "r", encoding="utf-8", newline="\n") as log_file:
         log_data = json.load(log_file)

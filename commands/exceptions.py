@@ -134,5 +134,15 @@ class EmptyCommitMessageError(SCCSException):
     """Raised when an empty commit message is provided."""
     pass
 
+# Exit Code Zero (0) Exceptions
+
+class UpdateCancelledExitZero(SCCSException):
+    """Raised when an update is cancelled by the user, resulting in a clean exit."""
+    pass
+
+class NoChangesToCommitExitZero(SCCSException):
+    """Raised when there are no changes to commit, resulting in a clean exit."""
+    pass
+
 
 

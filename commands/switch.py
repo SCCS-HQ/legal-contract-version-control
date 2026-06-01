@@ -33,18 +33,20 @@ def update_current_branch(branch, current_branch_path=None, cwd=None):
         )
 
     except Exception as e:
-        print(f"Error updating current branch information: {e}")
-        sys.exit(1)
+        raise exceptions.UpdatingMetadataError(f"Error updating current branch information: {e}")
+
+
 
 
 def check_branch_to_switch(branch_to_switch, branches):
-    if not branch_to_switch or len(branch_to_switch) == 0:
-        print("No branch specified. Please provide a branch name to switch to.")
-        sys.exit(1)
+    if not branch_to_switch:
+        raise exceptions.InvalidArgumentError("No branch specified. Please provide a branch name to switch to.")
+
 
     if branch_to_switch not in branches:
-        print(f"Error: Branch '{branch_to_switch}' does not exist.")
-        sys.exit(1)
+        raise exceptions.BranchDoesNotExistError(f"Branch '{branch_to_switch}' does not exist.")
+
+
 
 
 def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
@@ -66,18 +68,14 @@ def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
         ) as f:
             return json.load(f).get(latest_commit)
     except Exception as e:
-        print(f"Error accessing commit file hash for branch '{branch}': {e}")
-        sys.exit(1)
+        raise exceptions.FileOpenError(f"Error reading commit file hash: {e}")
+
+
 
 
 def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
     if not current_document_hash == latest_commit_binary_hash:
-        print(
-            f"Error: The current file has uncommitted changes on the current branch "
-            f"'{branch}'. Please commit your changes before switching branches."
-        )
-        sys.exit(1)
-
+        raise exceptions.UncommittedChangesError(f"The current file has uncommitted changes on the current branch '{branch}'. Please commit your changes before switching branches.")
 
 def sanitize_branch(branch_name):
     return utils.clean_directory_name(branch_name)
@@ -98,9 +96,7 @@ def get_latest_commit(branch, cwd=None):
             history = json.load(f)
             return history["history"]["latest_commit"]
     except Exception as e:
-        print(f"Error reading commit history for branch '{branch}': {e}")
-        sys.exit(1)
-
+        raise exceptions.FileOpenError(f"Error reading commit history for branch '{branch}': {e}")
 
 def check_commit(commit, cwd=None):
     if cwd is None:
@@ -108,8 +104,8 @@ def check_commit(commit, cwd=None):
     if not os.path.isfile(
         os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx")
     ):
-        print(f"Error: Commit object '{commit}' not found.")
-        sys.exit(1)
+        raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
+
 
 
 def copy_commit_to_main(commit, cwd=None):
@@ -121,8 +117,9 @@ def copy_commit_to_main(commit, cwd=None):
             os.path.join(cwd, f"{os.path.basename(cwd)}.docx"),
         )
     except Exception as e:
-        print(f"Error copying commit '{commit}' to main: {e}")
-        sys.exit(1)
+        raise exceptions.FileCopyError(f"Error copying commit '{commit}' to main: {e}")
+
+
 
 
 def print_confirmation(branch_to_switch):

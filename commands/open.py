@@ -14,12 +14,13 @@ def get_commit_path_input():
 
 def check_commit_path_input(commit_path):
     if commit_path == "":
-        print("Commit file path cannot be empty.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
-    if not Path(commit_path).is_file() or Path(commit_path).suffix.lower() != ".docx":
-        print("Invalid commit file path, make sure the file exists and is a .docx file")
-        sys.exit(1)
+    if not Path(commit_path).is_file():
+        raise exceptions.InvalidArgumentError("Commit file does not exist.")
+
+    if Path(commit_path).suffix.lower() != ".docx":
+        raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
 
 
 def confirm_before_proceeding(commit_path, docx_path=None, cwd=None):
@@ -62,9 +63,7 @@ def copy_file_commit(commit_path, docx_path=None):
     try:
         shutil.copy2(commit_path, docx_path)
     except Exception as e:
-        print(f"Error occurred while updating the file: {e}")
-        sys.exit(1)
-
+        raise exceptions.FileCopyError(f"Error copying file: {e}")
 
 def print_rewrite_confirmation_message(commit_path, docx_path=None):
     if docx_path is None:

@@ -24,25 +24,14 @@ def validate_subcommand(subcommand, branch_name):
     """Validate the subcommand entered by the user."""
 
     if not subcommand:
-        print(
-            "No subcommand provided. Please use 'create', 'delete', or 'list' along "
-            "with required arguments."
-        )
-        sys.exit(1)
+        raise exceptions.InvalidSubcommandError("No subcommand provided. Please use 'create','delete', or 'list' along with required arguments.")
 
     if subcommand not in ["create", "delete", "list"]:
-        print(f"Unknown subcommand: {subcommand}")
-        print(
-            "Invalid subcommand. Please use 'create', 'delete', or 'list' along with "
-            "required arguments."
-        )
-        sys.exit(1)
+        raise exceptions.InvalidSubcommandError(f"Invalid subcommand: {subcommand}. Please use 'create','delete', or 'list' along with required arguments.")
 
     if subcommand in ["create", "delete"]:
         if not branch_name:
-            print("No branch name provided. Please specify a branch name.")
-            sys.exit(1)
-
+            raise exceptions.InvalidArgumentError("No branch name provided. Please specify a branch name.")
 
 def branch_create_subcommand(
     current_branch, branch_data, cwd=None, current_branch_path=None
@@ -58,19 +47,14 @@ def branch_create_subcommand(
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
     if not sanitized_branch_name:
-        print("Invalid branch name. Please provide a valid branch name.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("Invalid branch name. Please provide a valid branch name.")
+
 
     if sanitized_branch_name in branch_data["branches"]:
-        print(f"Branch '{sanitized_branch_name}' already exists.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError(f"Branch '{sanitized_branch_name}' already exists.")
 
     if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
-        print(
-            f"Branch '{sanitized_branch_name}' already exists, or a directory with the "
-            f"same name exists."
-        )
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError(f"Branch '{sanitized_branch_name}' already exists.")
 
     shutil.copytree(
         os.path.join(cwd, ".sccs", "branches", current_branch),
@@ -86,8 +70,7 @@ def branch_create_subcommand(
             json.dump(branch_data, current_branch_file, indent=4)
 
     except Exception as e:
-        print(f"Error creating branch '{sanitized_branch_name}': {e}")
-        sys.exit(1)
+        raise exceptions.BranchCreationError(f"Error creating branch '{sanitized_branch_name}': {e}")
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
@@ -110,16 +93,17 @@ def branch_delete_subcommand(
     branch_path = os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)
 
     if sanitized_branch_name == current_branch:
-        print("Cannot delete the current branch.")
-        sys.exit(1)
+        raise exceptions.BranchDeletionError(
+            "Cannot delete the current branch. Please switch to another branch first."
+        )
 
     if not os.path.exists(branch_path):
-        print(f"Branch '{sanitized_branch_name}' does not exist.")
-        sys.exit(1)
+        raise exceptions.BranchDeletionError(
+            f"Branch '{sanitized_branch_name}' does not exist."
+        )
 
     if not sanitized_branch_name in branch_data["branches"]:
-        print(f"Branch '{sanitized_branch_name}' does not exist in branch data.")
-        sys.exit(1)
+        raise exceptions.BranchMissingFromMetadataError(f"Branch '{sanitized_branch_name}' does not exist in branch data.")
 
     try:
         with open(
@@ -129,8 +113,7 @@ def branch_delete_subcommand(
             json.dump(branch_data, current_branch_file, indent=4)
 
     except Exception as e:
-        print(f"Error updating branch data: {e}")
-        sys.exit(1)
+        raise exceptions.UpdatingMetadataError(f"Error updating branch data: {e}")
 
     try:
         shutil.rmtree(branch_path)
@@ -160,12 +143,9 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
             json.dump(branch_data, current_branch_file, indent=4)
 
     except Exception as e:
-        print(
-            f"Error updating branch data after failed deletion: {e}\nThe branch '"
-            f"{sanitized_branch_name}' may be in an inconsistent state."
+        raise exceptions.UpdatingMetadataError(
+            f"Error updating branch data after failed deletion: {e}. The branch '{sanitized_branch_name}' may be in an inconsistent state."
         )
-        sys.exit(1)
-
 
 def branch_list_subcommand(current_branch, branch_data):
     """List all branches."""

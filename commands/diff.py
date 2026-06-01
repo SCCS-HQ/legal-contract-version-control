@@ -18,25 +18,17 @@ def validate_commit(commit_to_diff, docx_current_version):
     """Validate the commit file and current docx file paths."""
 
     if not commit_to_diff:
-        print("No commit file specified.")
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("No commit file path provided.")
 
     if not Path(commit_to_diff).is_file():
-        print("Commit file not found. Please provide a valid commit file path.")
-        sys.exit(1)
-
+            raise FileNotFoundError("Commit file not found. Please provide a valid commit file path.")
+    
     if Path(commit_to_diff).suffix.lower() != ".html":
-        print(
-            "Commit file is not a .html file. Please provide a valid .html commit file"
-        )
-        sys.exit(1)
+        raise exceptions.InvalidArgumentError("Commit file is not a .html file. Please provide a valid .html commit file")
 
     if not Path(docx_current_version).is_file():
-        print(
-            "Docx file not found. Re-initialize SCCS for this file with 'sccs init"
-            "<file_path>'"
-        )
-        sys.exit(1)
+        raise FileNotFoundError("Docx file not found. Please provide a valid docx file path.")
+
 
 
 def get_commit_html(commit_path):
@@ -46,8 +38,7 @@ def get_commit_html(commit_path):
         with open(commit_path, "r", encoding="utf-8", newline="\n") as f:
             commit_html = f.read()
     except Exception as e:
-        print(f"Error reading commit file: {e}")
-        sys.exit(1)
+        raise exceptions.FileOpenError
     return commit_html
 
 
