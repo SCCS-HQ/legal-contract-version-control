@@ -32,7 +32,7 @@ def print_help(messages: list[str]) -> None:
     """Print help each item in 'messages'."""
 
     for item in messages:
-        print(item)
+        print(f"{item}\n")
 
 
 def main() -> None:
@@ -50,5 +50,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

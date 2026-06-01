@@ -49,14 +49,14 @@ def main():
     """Run functions for the <sccs pull> command."""
 
     remote = utils.get_key_from_config("remote")
-    print(f"Pulling repository from {remote}...")
+    print(f"Pulling repository from {remote}...\n")
 
     response = pull(remote, {"objects": get_repo_objects()})
 
-    print(f"Status Code: {response.status_code}")
+    print(f"Status Code: {response.status_code}\n")
 
     response.raise_for_status()
-    print(f"Repository pulled successfully from {remote}")
+    print(f"Repository pulled successfully from {remote}\n")
 
     update_repo_files(response)
 
@@ -70,5 +70,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)

@@ -115,7 +115,7 @@ def branch_create_subcommand(
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
-        f"and is now the current branch."
+        f"and is now the current branch.\n"
     )
 
 
@@ -188,7 +188,7 @@ def branch_delete_subcommand(
         rollback_changes_after_failure(current_branch_path, branch_data=branch_data)
         raise exceptions.BranchDeletionError from e
 
-    print(f"Branch '{sanitized_branch_name}' was deleted.")
+    print(f"Branch '{sanitized_branch_name}' was deleted.\n")
 
 
 def rollback_changes_after_failure(
@@ -223,12 +223,12 @@ def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
     metadata.
     """
 
-    print("Branches:")
+    print("Branches:\n")
     for branch in branch_data.get("branches", []):
         if branch == current_branch:
-            print(f"* {branch} (current)")
+            print(f"* {branch} (current)\n")
         else:
-            print(f"  {branch}")
+            print(f"  {branch}\n")
 
 
 def run_specified_subcommand(
@@ -276,5 +276,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
         sys.exit(2)
