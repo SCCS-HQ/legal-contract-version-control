@@ -32,7 +32,9 @@ def pull(remote: str, data: dict) -> requests.Response:
     return response
 
 
-def update_repo_files(response: requests.Response, cwd: None | Path = None) -> io.BytesIO:
+def update_repo_files(
+        response: requests.Response, cwd: None | Path = None
+    ) -> io.BytesIO:
     """
     Unzip the file in 'response' to 'destination'.
     """

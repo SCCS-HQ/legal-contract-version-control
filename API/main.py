@@ -265,18 +265,25 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     local_objects = data["objects"]
 
-    remote_objects = list(set(f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file()))
+    remote_objects = list(
+        set(f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file())
+    )
 
     obj_to_upload = list(set(remote_objects) - set(local_objects))
 
     if list(set(local_objects) - set(remote_objects)):
-        raise HTTPException(status_code=400, detail="Local repository has objects that the remote does not have. Run 'sccs push' to upload these objects before pulling.")
-
-
+        raise HTTPException(status_code=400, detail=(
+            "Local repository has objects that the remote does not have. Run 'sccs push"
+            "' to upload these objects before pulling."
+        ))
 
     document_path = [repo_path / f"{repo_path.name}.docx"]
-    current_branch_path = [repo_path / ".sccs" / "current_branch" / "current_branch.json"]
-    commit_msgs_path = [repo_path / ".sccs" / "commit_messages" / "commit_messages.json"]
+    current_branch_path = [
+        repo_path / ".sccs" / "current_branch" / "current_branch.json"
+    ]
+    commit_msgs_path = [
+        repo_path / ".sccs" / "commit_messages" / "commit_messages.json"
+    ]
 
     objects_paths = [
         f.resolve()
@@ -284,8 +291,16 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         if f.is_file() and f.stem in obj_to_upload
     ]
 
-    history_paths = [f.resolve() for f in (repo_path / ".sccs" / "branches").rglob("*") if f.is_file() and f.stem == "history"]
-    byte_hash_paths = [f.resolve() for f in (repo_path / ".sccs" / "branches").rglob("*") if f.is_file() and f.stem == "commit_file_hash"]
+    history_paths = [
+        f.resolve() for f in (
+            repo_path / ".sccs" / "branches"
+        ).rglob("*") if f.is_file() and f.stem == "history"
+    ]
+    byte_hash_paths = [
+        f.resolve() for f in (
+            repo_path / ".sccs" / "branches"
+        ).rglob("*") if f.is_file() and f.stem == "commit_file_hash"
+    ]
 
     files_to_upload = (
         objects_paths
@@ -301,7 +316,11 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         for file_path in files_to_upload:
             zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
     buffer.seek(0)
-    return StreamingResponse(buffer, media_type="application/zip", headers={"Content-Disposition": f"attachment; filename={repo_name}.zip"})
+    return StreamingResponse(
+        buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={repo_name}.zip"}
+    )
 
 
 app.mount("/repos", StaticFiles(directory="API/repos"), name="repos")
