@@ -18,14 +18,14 @@ MESSAGES_TO_PRINT = [
 ]
 
 
-def print_help(messages):
+def print_help(messages: list[str]) -> None:
     """Print help messages."""
 
     for item in messages:
         print(item)
 
 
-def main():
+def main() -> None:
     print_help(MESSAGES_TO_PRINT)
 
 

@@ -10,7 +10,7 @@ import exceptions
 import utils
 
 
-def get_key_from_config(key, cwd=None):
+def get_key_from_config(key: str, cwd: str = None) -> str:
     """Retrieve the value for a given key from the SCCS configuration file."""
 
     if cwd is None:
@@ -30,7 +30,7 @@ def get_key_from_config(key, cwd=None):
     return value
 
 
-def get_commit_message():
+def get_commit_message() -> str:
     """Retrieve the commit message from the user."""
 
     commit_message = input("Enter commit message: ").strip()
@@ -41,13 +41,13 @@ def get_commit_message():
     return commit_message
 
 
-def get_timestamp():
+def get_timestamp() -> str:
     """Retrieve the current timestamp."""
 
     return datetime.now().isoformat()
 
 
-def get_history_path(cwd=None, current_branch=None):
+def get_history_path(cwd: str = None, current_branch: str = None) -> str:
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
@@ -59,7 +59,7 @@ def get_history_path(cwd=None, current_branch=None):
     )
 
 
-def get_commit_history():
+def get_commit_history() -> dict:
     """Retrieve the commit history from the commit history file."""
 
     history_path = get_history_path()
@@ -79,14 +79,14 @@ def get_commit_history():
     return history
 
 
-def get_parent_hash(history):
+def get_parent_hash(history: dict) -> str:
     """Retrieve the parent hash from the commit history."""
 
     parent_hash = history["history"].get("latest_commit")
     return parent_hash
 
 
-def generate_commit_hash(timestamp, commit_message, name, email, parent_hash):
+def generate_commit_hash(timestamp: str, commit_message: str, name: str, email: str, parent_hash: str) -> str:
     """Generate a SHA-256 hash for the commit."""
 
     return hashlib.sha256(
@@ -94,7 +94,7 @@ def generate_commit_hash(timestamp, commit_message, name, email, parent_hash):
     ).hexdigest()
 
 
-def copy_docx_to_objects(sha_hash, docx_path=None, cwd=None):
+def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) -> None:
     """Copy the current document to the objects directory."""
 
     if docx_path is None:
@@ -107,7 +107,7 @@ def copy_docx_to_objects(sha_hash, docx_path=None, cwd=None):
     )
 
 
-def write_diff_html(sha_hash, docx_html, cwd=None, styles=None):
+def write_diff_html(sha_hash: str, docx_html: str, cwd: str = None, styles: str = None) -> None:
     """Write the diff HTML file."""
 
     if cwd is None:
@@ -123,7 +123,7 @@ def write_diff_html(sha_hash, docx_html, cwd=None, styles=None):
         f.write(styles + docx_html)
 
 
-def write_view_html(sha_hash, docx_html, cwd=None):
+def write_view_html(sha_hash: str, docx_html: str, cwd: str = None) -> None:
     """Write the view HTML file."""
 
     if cwd is None:
@@ -138,8 +138,8 @@ def write_view_html(sha_hash, docx_html, cwd=None):
 
 
 def update_commit_log_history(
-    history, sha_hash, timestamp, name, email, commit_message
-):
+    history: dict, sha_hash: str, timestamp: str, name: str, email: str, commit_message: str
+) -> dict[str, dict]:
     """Update the commit log history."""
 
     # Check if history file exists
@@ -168,7 +168,7 @@ def update_commit_log_history(
     return {commit_history_path: history}
 
 
-def update_commit_messages(sha_hash, commit_message, cwd=None):
+def update_commit_messages(sha_hash: str, commit_message: str, cwd: str = None) -> dict[str, dict]:
     """Update commit messages."""
 
     # Check if commit messages file exists
@@ -198,8 +198,8 @@ def update_commit_messages(sha_hash, commit_message, cwd=None):
 
 
 def update_commit_binary_hash_history(
-    sha_hash, hash_docx_binary, cwd=None, current_branch=None
-):
+    sha_hash: str, hash_docx_binary: str, cwd: str = None, current_branch: str = None
+) -> dict[str, dict]:
     """Update commit binary hash history."""
 
     # Update commit file hash
@@ -234,7 +234,7 @@ def update_commit_binary_hash_history(
     return {commit_file_hash_path: commit_file_hash}
 
 
-def combine_update_dicts(*dicts):
+def combine_update_dicts(*dicts: dict[str, dict]) -> dict[str, dict]:
     """Combine multiple update dictionaries into a single dictionary."""
 
     update_dict = {}
@@ -243,7 +243,7 @@ def combine_update_dicts(*dicts):
     return update_dict
 
 
-def atomically_update_history(update_dict):
+def atomically_update_history(update_dict: dict[str, dict]) -> None:
     """Atomically update the history files."""
 
     for key, value in update_dict.items():
@@ -262,13 +262,13 @@ def atomically_update_history(update_dict):
             raise exceptions.TemporaryFileError from e
 
 
-def print_commit_confirmation_message(sha_hash):
+def print_commit_confirmation_message(sha_hash: str) -> None:
     """Print a confirmation message for the commit."""
 
     print(f"Commit {sha_hash} created successfully.")
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     name = get_key_from_config("name")

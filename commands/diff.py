@@ -8,13 +8,13 @@ import utils
 from bs4 import BeautifulSoup
 
 
-def get_entered_commit_to_diff():
+def get_entered_commit_to_diff() -> str:
     """Retrieve the commit file path entered by the user."""
 
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def validate_commit(commit_to_diff, docx_current_version):
+def validate_commit(commit_to_diff: str, docx_current_version: str) -> None:
     """Validate the commit file and current docx file paths."""
 
     if not commit_to_diff:
@@ -224,7 +224,7 @@ def write_redline_html_file(redline, filename="redline.html"):
         f.write(utils.wrap_html(str(strip_number_attribute(redline))))
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     validate_commit(get_entered_commit_to_diff(), utils.current_file_docx_path)

@@ -7,7 +7,7 @@ import exceptions
 import utils
 
 
-def get_log_data(cwd=None, current_branch=None):
+def get_log_data(cwd: str = None, current_branch: str = None) -> dict:
     """Retrieve the commit log data from the history JSON file."""
 
     if cwd is None:
@@ -31,7 +31,7 @@ def get_log_data(cwd=None, current_branch=None):
     return log_data
 
 
-def print_log():
+def print_log() -> None:
     """Print the commit log to the console."""
 
     log_data = get_log_data()
@@ -46,7 +46,7 @@ def print_log():
         )
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     print_log()

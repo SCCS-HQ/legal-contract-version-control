@@ -19,7 +19,7 @@ def get_entered_branch_name():
     return sys.argv[3] if len(sys.argv) > 3 else None
 
 
-def validate_subcommand(subcommand, branch_name):
+def validate_subcommand(subcommand: str, branch_name: str) -> None:
     """Validate the subcommand entered by the user."""
 
     if not subcommand:
@@ -42,8 +42,8 @@ def validate_subcommand(subcommand, branch_name):
 
 
 def branch_create_subcommand(
-    current_branch, branch_data, cwd=None, current_branch_path=None
-):
+    current_branch: str, branch_data: dict, cwd: str = None, current_branch_path: str = None
+) -> None:
     """Create a new branch from the current branch."""
 
     if cwd is None:
@@ -97,7 +97,7 @@ def branch_create_subcommand(
     )
 
 
-def delete_branch_after_error(branch_name, cwd=None):
+def delete_branch_after_error(branch_name: str, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
@@ -107,8 +107,8 @@ def delete_branch_after_error(branch_name, cwd=None):
 
 
 def branch_delete_subcommand(
-    current_branch, branch_data, cwd=None, current_branch_path=None
-):
+    current_branch: str, branch_data: dict, cwd: str = None, current_branch_path: str = None
+) -> None:
     """Delete an existing branch."""
 
     if cwd is None:
@@ -155,7 +155,7 @@ def branch_delete_subcommand(
     print(f"Branch '{sanitized_branch_name}' was deleted.")
 
 
-def rollback_changes_after_failure(current_branch_path, branch_data=None):
+def rollback_changes_after_failure(current_branch_path: str, branch_data: dict = None) -> None:
     """Rollback changes after a failed branch deletion."""
 
     if current_branch_path is None:
@@ -176,7 +176,7 @@ def rollback_changes_after_failure(current_branch_path, branch_data=None):
         raise exceptions.UpdatingMetadataError from e
 
 
-def branch_list_subcommand(current_branch, branch_data):
+def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
     """List all branches."""
 
     print("Branches:")
@@ -187,7 +187,7 @@ def branch_list_subcommand(current_branch, branch_data):
             print(f"  {branch}")
 
 
-def run_specified_subcommand(subcommand, current_branch, branch_data):
+def run_specified_subcommand(subcommand: str, current_branch: str, branch_data: dict) -> None:
     """Run the specified subcommand."""
 
     if subcommand == "create":
@@ -198,7 +198,7 @@ def run_specified_subcommand(subcommand, current_branch, branch_data):
         branch_list_subcommand(current_branch, branch_data)
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     validate_subcommand(get_entered_subcommand(), get_entered_branch_name())

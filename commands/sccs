@@ -18,15 +18,15 @@ COMMANDS = [
 ]
 
 
-def get_entered_command():
+def get_entered_command() -> str | None:
     return sys.argv[1] if len(sys.argv) > 1 else None
 
 
-def get_script_directory():
+def get_script_directory() -> str:
     return os.path.dirname(os.path.realpath(__file__))
 
 
-def run_command(command, script_directory):
+def run_command(command: str, script_directory: str) -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
@@ -36,7 +36,7 @@ def run_command(command, script_directory):
     )
 
 
-def execute_command(command, script_directory, COMMANDS):
+def execute_command(command: str, script_directory: str, COMMANDS: list) -> None:
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
@@ -46,7 +46,7 @@ def execute_command(command, script_directory, COMMANDS):
     run_command(command, script_directory)
 
 
-def main():
+def main() -> None:
     command = get_entered_command()
 
     script_directory = get_script_directory()

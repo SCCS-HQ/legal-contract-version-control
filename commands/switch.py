@@ -8,11 +8,11 @@ import exceptions
 import utils
 
 
-def get_branch_to_switch():
+def get_branch_to_switch() -> str | None:
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
-def update_current_branch(branch, current_branch_path=None, cwd=None):
+def update_current_branch(branch: str, current_branch_path: str = None, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch_path is None:
@@ -36,7 +36,7 @@ def update_current_branch(branch, current_branch_path=None, cwd=None):
         raise exceptions.UpdatingMetadataError from e
 
 
-def check_branch_to_switch(branch_to_switch, branches):
+def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None:
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
             "No branch specified. Please provide a branch name to switch to."
@@ -48,7 +48,7 @@ def check_branch_to_switch(branch_to_switch, branches):
         )
 
 
-def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
+def get_latest_commit_binary_hash(branch: str, latest_commit: str, cwd: str = None) -> str:
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -70,7 +70,7 @@ def get_latest_commit_binary_hash(branch, latest_commit, cwd=None):
         raise exceptions.FileOpenError from e
 
 
-def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
+def check_for_changes(branch: str, latest_commit_binary_hash: str, current_document_hash: str) -> None:
     if not current_document_hash == latest_commit_binary_hash:
         raise exceptions.UncommittedChangesError(
             f"The current file has uncommitted changes on the current branch '{branch}'"
@@ -78,11 +78,11 @@ def check_for_changes(branch, latest_commit_binary_hash, current_document_hash):
         )
 
 
-def sanitize_branch(branch_name):
+def sanitize_branch(branch_name: str) -> str:
     return utils.clean_directory_name(branch_name)
 
 
-def get_latest_commit(branch, cwd=None):
+def get_latest_commit(branch: str, cwd: str = None) -> str:
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -100,7 +100,7 @@ def get_latest_commit(branch, cwd=None):
         raise exceptions.FileOpenError from e
 
 
-def check_commit(commit, cwd=None):
+def check_commit(commit: str, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
     if not os.path.isfile(
@@ -109,7 +109,7 @@ def check_commit(commit, cwd=None):
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
 
-def copy_commit_to_main(commit, cwd=None):
+def copy_commit_to_main(commit: str, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -121,11 +121,11 @@ def copy_commit_to_main(commit, cwd=None):
         raise exceptions.FileCopyError from e
 
 
-def print_confirmation(branch_to_switch):
+def print_confirmation(branch_to_switch: str) -> None:
     print(f"Successfully switched to branch '{branch_to_switch}'.")
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
 
     branches = utils.get_branch_data(key="branches")

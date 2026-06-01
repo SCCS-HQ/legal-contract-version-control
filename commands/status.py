@@ -8,7 +8,7 @@ import exceptions
 import utils
 
 
-def get_latest_commit_hash_file(current_branch, cwd=None):
+def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> str:
     if cwd is None:
         cwd = utils.working_directory_path
     # get the latest commit filename hash from commit history
@@ -42,7 +42,7 @@ def get_latest_commit_hash_file(current_branch, cwd=None):
     return latest_commit_hash
 
 
-def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
+def get_latest_commit_file_binary_hash(current_branch: str = None, cwd: str = None) -> str:
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch is None:
@@ -82,11 +82,11 @@ def get_latest_commit_file_binary_hash(current_branch=None, cwd=None):
     return latest_commit_file_hash
 
 
-def compare_hashes(old_hash, new_hash):
+def compare_hashes(old_hash: str, new_hash: str) -> bool:
     return old_hash == new_hash
 
 
-def compare_changes_and_exit(old_hash, new_hash):
+def compare_changes_and_exit(old_hash: str, new_hash: str) -> None:
     if compare_hashes(old_hash, new_hash):
         print("No changes detected since the latest commit. Nothing to commit.")
         sys.exit(0)
@@ -97,7 +97,7 @@ def compare_changes_and_exit(old_hash, new_hash):
         )
 
 
-def main():
+def main() -> None:
     utils.check_sccs_layout()
     compare_changes_and_exit(
         get_latest_commit_file_binary_hash(), utils.hash_current_docx_binary()
