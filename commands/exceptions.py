@@ -194,6 +194,7 @@ class EmptyCommitMessageError(SCCSException):
 
 
 class FileImportedAsModuleError(SCCSException):
-    """Raised when a script is imported as a module but is intended to be run only as a standalone script."""
+    """Raised when a script is imported as a module but is intended to be run only as a 
+    standalone script."""
 
     pass
