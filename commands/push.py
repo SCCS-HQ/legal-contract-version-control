@@ -93,6 +93,8 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         cwd = utils.working_directory_path
     cwd = Path(cwd).resolve()
 
+    document_path = [cwd / f"{cwd.name}.docx"]
+
     repo_name = cwd.name
     updated_branches = (
         utils.get_branch_data(
@@ -101,8 +103,8 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         )
         or []
     )
-    current_branch_path = cwd / ".sccs" / "current_branch" / "current_branch.json"
-    commit_msgs_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
+    current_branch_path = [cwd / ".sccs" / "current_branch" / "current_branch.json"]
+    commit_msgs_path = [cwd / ".sccs" / "commit_messages" / "commit_messages.json"]
     obj_to_upload_set = set(obj_to_upload)
     objects_paths = [
         f.resolve()
@@ -117,7 +119,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
         objects_paths
         + history_paths
         + byte_hash_paths
-        + [current_branch_path, commit_msgs_path]
+        + document_path
+        + current_branch_path
+        + commit_msgs_path
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
