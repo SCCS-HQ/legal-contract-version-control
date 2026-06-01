@@ -36,8 +36,8 @@ def clean_directory_name(name: str) -> str:
 
 def check_sccs_layout(
     sccs_dir: str = sccs_versions_directory_path,
-    docx_path: str = current_file_docx_path,
-):
+    docx_path: str = current_file_docx_path
+) -> None:
 
     if not Path(sccs_dir).is_dir():
         raise exceptions.SCCSNotInitializedError(
