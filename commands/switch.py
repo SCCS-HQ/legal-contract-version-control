@@ -44,7 +44,7 @@ def check_branch_to_switch(branch_to_switch, branches):
 
 
     if branch_to_switch not in branches:
-        raise exceptions.BranchDoesNotExistError(f"Branch '{branch_to_switch}' does not exist.")
+        raise exceptions.BranchNotFoundError(f"Branch '{branch_to_switch}' does not exist.")
 
 
 

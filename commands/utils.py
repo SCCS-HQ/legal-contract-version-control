@@ -41,12 +41,12 @@ def check_sccs_layout(
 
 
     if not Path(os.path.join(sccs_dir, "current_branch")).is_dir():
-        raise exceptions.BranchDoesNotExistError("Current branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise exceptions.BranchNotFoundError("Current branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
 
     if not Path(
         os.path.join(sccs_dir, "current_branch", "current_branch.json")
     ).is_file():
-        raise exceptions.BranchDoesNotExistError("Current branch file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise exceptions.BranchNotFoundError("Current branch file not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
 
     try:
         with open(
@@ -57,13 +57,13 @@ def check_sccs_layout(
         ) as current_branch_file:
             current_branch = json.load(current_branch_file).get("current_branch")
             if not current_branch:
-                raise exceptions.BranchDoesNotExistError("Current branch not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+                raise exceptions.BranchNotFoundError("Current branch not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
 
     except (json.JSONDecodeError, KeyError, TypeError, OSError) as e:
-        raise exceptions.BranchDoesNotExistError("Current branch file is missing or corrupted. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise exceptions.BranchNotFoundError("Current branch file is missing or corrupted. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
 
     if not Path(os.path.join(sccs_dir, "branches", current_branch)).is_dir():
-        raise exceptions.BranchDoesNotExistError("Branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
+        raise exceptions.BranchNotFoundError("Branch directory not found. Please run 'sccs init <file_path>' to initialize SCCS for this file.")
 
     if not Path(
         os.path.join(sccs_dir, "branches", current_branch, "commit_file_hash")

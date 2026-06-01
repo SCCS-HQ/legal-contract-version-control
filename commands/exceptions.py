@@ -32,10 +32,6 @@ class BranchAlreadyExistsError(SCCSException):
     """Raised when a branch already exists."""
     pass
 
-class BranchDoesNotExistError(SCCSException):
-    """Raised when a branch does not exist."""
-    pass
-
 # File Operation Exceptions
 
 class FileCopyError(SCCSException):
