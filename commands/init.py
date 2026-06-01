@@ -281,45 +281,56 @@ def confirmation_message():
     print("SCCS initialization complete.")
 
 
-if __name__ == "__main__":
-    check_if_arg_entered(get_entered_document_path())
+def main():
+    if __name__ == "__main__":
+        check_if_arg_entered(get_entered_document_path())
 
-    check_for_prev_init()
+        check_for_prev_init()
 
-    check_file_requirements()
+        check_file_requirements()
 
-    config_user_name = ask_config_input("name")
+        config_user_name = ask_config_input("name")
 
-    config_user_email = ask_config_input("email")
+        config_user_email = ask_config_input("email")
 
-    current_iso_time = get_current_iso_time()
+        current_iso_time = get_current_iso_time()
 
-    sha_hash = create_commit_sha_hash(
-        current_iso_time, config_user_name, config_user_email
-    )
-
-    create_sccs_directory_layout()
-
-    document_as_html = utils.convert_docx_to_html(get_entered_document_path())
-
-    move_document_to_repo_directory()
-
-    copy_document_to_objects_as_docx_and_html(sha_hash, document_as_html)
-
-    write_history_data(sha_hash, config_user_name, config_user_email)
-
-    write_commit_message_data(sha_hash)
-
-    write_config_data(config_user_name, config_user_email)
-
-    current_branch_binary_hash = utils.hash_current_docx_binary(
-        docx_path=os.path.join(
-            get_document_repo_path(), Path(get_entered_document_path()).name
+        sha_hash = create_commit_sha_hash(
+            current_iso_time, config_user_name, config_user_email
         )
-    )
 
-    write_hashed_file_commit_data(sha_hash, current_branch_binary_hash)
+        create_sccs_directory_layout()
 
-    write_branch_data()
+        document_as_html = utils.convert_docx_to_html(get_entered_document_path())
 
-    confirmation_message()
+        move_document_to_repo_directory()
+
+        copy_document_to_objects_as_docx_and_html(sha_hash, document_as_html)
+
+        write_history_data(sha_hash, config_user_name, config_user_email)
+
+        write_commit_message_data(sha_hash)
+
+        write_config_data(config_user_name, config_user_email)
+
+        current_branch_binary_hash = utils.hash_current_docx_binary(
+            docx_path=os.path.join(
+                get_document_repo_path(), Path(get_entered_document_path()).name
+            )
+        )
+
+        write_hashed_file_commit_data(sha_hash, current_branch_binary_hash)
+
+        write_branch_data()
+
+        confirmation_message()
+    else: 
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
+
+try:
+    main()
+except Exception as e: 
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException

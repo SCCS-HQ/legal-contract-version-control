@@ -125,35 +125,49 @@ def print_confirmation(branch_to_switch):
     print(f"Successfully switched to branch '{branch_to_switch}'.")
 
 
-if __name__ == "__main__":
-    utils.check_sccs_layout()
+def main():
+    if __name__ == "__main__":
+        utils.check_sccs_layout()
 
-    branches = utils.get_branch_data(key="branches")
+        branches = utils.get_branch_data(key="branches")
 
-    current_branch = utils.get_current_branch()
+        current_branch = utils.get_current_branch()
 
-    latest_commit = get_latest_commit(current_branch)
+        latest_commit = get_latest_commit(current_branch)
 
-    latest_commit_binary_hash = get_latest_commit_binary_hash(
-        current_branch, latest_commit
-    )
+        latest_commit_binary_hash = get_latest_commit_binary_hash(
+            current_branch, latest_commit
+        )
 
-    current_document_hash = utils.hash_current_docx_binary()
+        current_document_hash = utils.hash_current_docx_binary()
 
-    check_for_changes(current_branch, latest_commit_binary_hash, current_document_hash)
+        check_for_changes(
+            current_branch, latest_commit_binary_hash, current_document_hash
+        )
 
-    branch_to_switch = get_branch_to_switch()
+        branch_to_switch = get_branch_to_switch()
 
-    check_branch_to_switch(branch_to_switch, branches)
+        check_branch_to_switch(branch_to_switch, branches)
 
-    branch_to_switch = sanitize_branch(branch_to_switch)
+        branch_to_switch = sanitize_branch(branch_to_switch)
 
-    latest_commit_on_branch_to_switch = get_latest_commit(branch_to_switch)
+        latest_commit_on_branch_to_switch = get_latest_commit(branch_to_switch)
 
-    check_commit(latest_commit_on_branch_to_switch)
+        check_commit(latest_commit_on_branch_to_switch)
 
-    copy_commit_to_main(latest_commit_on_branch_to_switch)
+        copy_commit_to_main(latest_commit_on_branch_to_switch)
 
-    update_current_branch(branch_to_switch)
+        update_current_branch(branch_to_switch)
 
-    print_confirmation(branch_to_switch)
+        print_confirmation(branch_to_switch)
+    else:
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
+
+
+try:
+    main()
+except Exception as e:
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException

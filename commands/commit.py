@@ -267,50 +267,63 @@ def print_commit_confirmation_message(sha_hash):
 
     print(f"Commit {sha_hash} created successfully.")
 
+def main():
+    if __name__ == "__main__":
+        utils.check_sccs_layout()
 
-if __name__ == "__main__":
-    utils.check_sccs_layout()
+        name = get_key_from_config("name")
 
-    name = get_key_from_config("name")
+        email = get_key_from_config("email")
 
-    email = get_key_from_config("email")
+        docx_html = utils.convert_docx_to_html()
 
-    docx_html = utils.convert_docx_to_html()
+        commit_message = get_commit_message()
 
-    commit_message = get_commit_message()
+        timestamp = get_timestamp()
 
-    timestamp = get_timestamp()
+        history = get_commit_history()
 
-    history = get_commit_history()
+        parent_hash = get_parent_hash(history)
 
-    parent_hash = get_parent_hash(history)
+        sha_hash = generate_commit_hash(
+            timestamp, commit_message, name, email, parent_hash
+        )
 
-    sha_hash = generate_commit_hash(timestamp, commit_message, name, email, parent_hash)
+        copy_docx_to_objects(sha_hash)
 
-    copy_docx_to_objects(sha_hash)
+        write_diff_html(sha_hash, docx_html)
 
-    write_diff_html(sha_hash, docx_html)
+        write_view_html(sha_hash, docx_html)
 
-    write_view_html(sha_hash, docx_html)
+        updated_commit_log_history = update_commit_log_history(
+            history, sha_hash, timestamp, name, email, commit_message
+        )
 
-    updated_commit_log_history = update_commit_log_history(
-        history, sha_hash, timestamp, name, email, commit_message
-    )
+        current_branch_binary_hash = utils.hash_current_docx_binary()
 
-    current_branch_binary_hash = utils.hash_current_docx_binary()
+        updated_commit_binary_hash_history = update_commit_binary_hash_history(
+            sha_hash, current_branch_binary_hash
+        )
 
-    updated_commit_binary_hash_history = update_commit_binary_hash_history(
-        sha_hash, current_branch_binary_hash
-    )
+        updated_commit_messages = update_commit_messages(sha_hash, commit_message)
 
-    updated_commit_messages = update_commit_messages(sha_hash, commit_message)
+        combined_history_update_dicts = combine_update_dicts(
+            updated_commit_log_history,
+            updated_commit_binary_hash_history,
+            updated_commit_messages,
+        )
 
-    combined_history_update_dicts = combine_update_dicts(
-        updated_commit_log_history,
-        updated_commit_binary_hash_history,
-        updated_commit_messages,
-    )
+        atomically_update_history(combined_history_update_dicts)
 
-    atomically_update_history(combined_history_update_dicts)
+        print_commit_confirmation_message(sha_hash)
+    
+    else:
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
 
-    print_commit_confirmation_message(sha_hash)
+try:
+    main()
+except Exception as e:
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException

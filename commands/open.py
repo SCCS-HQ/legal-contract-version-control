@@ -75,17 +75,29 @@ def print_rewrite_confirmation_message(commit_path, docx_path=None):
     )
 
 
-if __name__ == "__main__":
-    utils.check_sccs_layout()
+def main():
+    if __name__ == "__main__":
+        utils.check_sccs_layout()
 
-    commit_path = get_commit_path_input()
+        commit_path = get_commit_path_input()
 
-    check_commit_path_input(commit_path)
+        check_commit_path_input(commit_path)
 
-    check_changes(commit_path)
+        check_changes(commit_path)
 
-    confirm_before_proceeding(commit_path)
+        confirm_before_proceeding(commit_path)
 
-    copy_file_commit(commit_path)
+        copy_file_commit(commit_path)
 
-    print_rewrite_confirmation_message(commit_path)
+        print_rewrite_confirmation_message(commit_path)
+    else:
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
+
+
+try:
+    main()
+except Exception as e:
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException

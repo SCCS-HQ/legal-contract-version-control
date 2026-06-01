@@ -46,13 +46,25 @@ def execute_command(command, script_directory, COMMANDS):
     run_command(command, script_directory)
 
 
-if __name__ == "__main__":
+def main():
+    if __name__ == "__main__":
 
-    command = get_entered_command()
+        command = get_entered_command()
 
-    script_directory = get_script_directory()
-    
-    execute_command(command, script_directory, COMMANDS)
+        script_directory = get_script_directory()
+
+        execute_command(command, script_directory, COMMANDS)
+    else:
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
+
+
+try:
+    main()
+except Exception as e:
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException
 
 # If on MacOS / Linux, move this file, commit.py, init.py, open.py, log.py, diff.py,
 # status.py, help.py, branch.py , and switch.py to /usr/local/bin and make it executable

@@ -97,8 +97,20 @@ def compare_changes_and_exit(old_hash, new_hash):
         )
 
 
-if __name__ == "__main__":
-    utils.check_sccs_layout()
-    compare_changes_and_exit(
-        get_latest_commit_file_binary_hash(), utils.hash_current_docx_binary()
-    )
+def main():
+    if __name__ == "__main__":
+        utils.check_sccs_layout()
+        compare_changes_and_exit(
+            get_latest_commit_file_binary_hash(), utils.hash_current_docx_binary()
+        )
+    else:
+        raise exceptions.FileImportedAsModuleError(
+            "This file cannot be run as a module. Please run it as a script."
+        )
+
+
+try:
+    main()
+except Exception as e:
+    print(f"An unexpected error occurred:\n\n{type(e).__name__}: {e}\n")
+    raise exceptions.SCCSException
