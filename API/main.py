@@ -306,12 +306,14 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     ]
 
     files_to_upload = (
+        f for f in
         objects_paths
         + history_paths
         + byte_hash_paths
         + document_path
         + current_branch_path
         + commit_msgs_path
+        if f.isfile()
     )
 
     buffer = io.BytesIO()
