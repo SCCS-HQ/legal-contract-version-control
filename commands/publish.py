@@ -86,6 +86,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
                 ("file", (Path.cwd().name + ".zip", buffer, "application/zip")),
                 ("data", (None, json.dumps({"remote": remote}), "application/json")),
             ],
+            timeout=60,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(

@@ -40,7 +40,7 @@ def push_GET(remote: str) -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
     try:
-        response = requests.get(f"{remote}/push")
+        response = requests.get(f"{remote}/push", timeout=60)
     except Exception as e:
         raise exceptions.HTTPGetRequestError() from e
 
@@ -180,6 +180,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
                     ),
                 )
             ],
+            timeout=60,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
