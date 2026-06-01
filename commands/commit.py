@@ -27,7 +27,7 @@ def get_commit_message() -> str:
 def print_commit_confirmation_message(sha_hash: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
-    print(f"Commit {sha_hash} created successfully.")
+    print(f"Commit {sha_hash[:10]} created successfully.")
 
 
 def main() -> None:
