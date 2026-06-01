@@ -56,10 +56,14 @@ def branch_create_subcommand(
     if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
         raise exceptions.InvalidArgumentError(f"Branch '{sanitized_branch_name}' already exists.")
 
-    shutil.copytree(
-        os.path.join(cwd, ".sccs", "branches", current_branch),
-        os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
-    )
+    try:
+        shutil.copytree(
+            os.path.join(cwd, ".sccs", "branches", current_branch),
+            os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
+        )
+    except Exception as e:
+        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
+        raise exceptions.FileCopyError(f"Error copying branch '{current_branch}': {e}")
 
     try:
         with open(
@@ -69,13 +73,24 @@ def branch_create_subcommand(
             branch_data["current_branch"] = sanitized_branch_name
             json.dump(branch_data, current_branch_file, indent=4)
 
+    # Clean up the created directory before raising
     except Exception as e:
+        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
         raise exceptions.BranchCreationError(f"Error creating branch '{sanitized_branch_name}': {e}")
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
         f"and is now the current branch."
     )
+
+
+def delete_branch_after_error(branch_name, cwd=None):
+    if cwd is None:
+        cwd = utils.working_directory_path
+
+    branch_path = os.path.join(cwd, ".sccs", "branches", branch_name)
+    if os.path.isdir(branch_path):
+        shutil.rmtree(branch_path)   
 
 
 def branch_delete_subcommand(
