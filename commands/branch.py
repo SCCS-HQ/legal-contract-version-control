@@ -226,9 +226,9 @@ def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
     print("Branches:\n")
     for branch in branch_data.get("branches", []):
         if branch == current_branch:
-            print(f"* {branch} (current)\n")
+            print(f"* {branch} (current)")
         else:
-            print(f"  {branch}\n")
+            print(f"  {branch}")
 
 
 def run_specified_subcommand(
