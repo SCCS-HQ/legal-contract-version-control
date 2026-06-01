@@ -269,6 +269,9 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     obj_to_upload = list(set(remote_objects) - set(local_objects))
 
+    if list(set(local_objects) - set(remote_objects)):
+        raise HTTPException(status_code=400, detail="Local repository has objects that the remote does not have. Run 'sccs push' to upload these objects before pulling.")
+
 
 
     document_path = [repo_path / f"{repo_path.name}.docx"]
