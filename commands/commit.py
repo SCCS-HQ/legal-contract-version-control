@@ -261,7 +261,7 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     for key, value in update_dict.items():
         try:
             with open(
-                f"{Path(key).with_suffix('.tmp')}", "w", encoding="utf-8", newline="\n"
+                key.with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
             ) as f:
                 json.dump(value, f)
         except Exception as e:
@@ -269,7 +269,7 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
 
     for key, value in update_dict.items():
         try:
-            Path(f"{Path(key).with_suffix('.tmp')}").replace(Path(key))
+            key.with_suffix(".tmp").replace(key)
         except Exception as e:
             raise exceptions.TemporaryFileError from e
 
