@@ -29,52 +29,72 @@ class RepositoryLayout:
 
     def document_path(self) -> Path:
         """Return the path to the current document."""
-        return self.root / f"{self.root.name}.docx"
+        path = self.root / f"{self.root.name}.docx"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def sccs_path(self) -> Path:
         """Return the path to the '.sccs' folder."""
-        return self.root / ".sccs"
+        path = self.root / ".sccs"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def branches_path(self) -> Path:
         """Return the path to the 'branches' folder."""
-        return self.sccs_path() / "branches"
+        path = self.sccs_path() / "branches"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def commit_messages_path(self) -> Path:
         """Return the path to the 'commit_messages.json' file."""
-        return self.sccs_path() / "commit_messages" / "commit_messages.json"
+        path = self.sccs_path() / "commit_messages" / "commit_messages.json"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def config_path(self) -> Path:
         """Return the path to the 'config.json' file."""
-        return self.sccs_path() / "config" / "config.json"
+        path = self.sccs_path() / "config" / "config.json"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def current_branch_path(self) -> Path:
         """Return the path to the 'current_branch.json' file."""
-        return self.sccs_path() / "current_branch" / "current_branch.json"
+        path = self.sccs_path() / "current_branch" / "current_branch.json"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def objects_path(self) -> Path:
         """Return the path to the 'objects' folder."""
-        return self.sccs_path() / "objects"
+        path = self.sccs_path() / "objects"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def docx_objects_path(self) -> Path:
         """Return the path to the 'docx' objects folder."""
-        return self.objects_path() / "docx"
+        path = self.objects_path() / "docx"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def view_html_objects_path(self) -> Path:
         """Return the path to the 'view_html' objects folder."""
-        return self.objects_path() / "view_html"
+        path = self.objects_path() / "view_html"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def html_objects_path(self) -> Path:
         """Return the path to the 'html' objects folder."""
-        return self.objects_path() / "html"
+        path = self.objects_path() / "html"
+        setattr(self, "target_branch", None)
+        return path
     
 
     def history_path(self) -> Path:
@@ -156,6 +176,7 @@ class RepositoryLayout:
                 f"64 character commit hash."
             )
 
+        setattr(self, "target_branch", None)
         return matching_files[0]
 
 
@@ -171,7 +192,9 @@ class RepositoryLayout:
         with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
             branch_data = json.load(f)
         if key is None:
+            setattr(self, "target_branch", None)
             return branch_data
+        setattr(self, "target_branch", None)
         return branch_data.get(key)
 
 
@@ -189,6 +212,7 @@ class RepositoryLayout:
         with open(self.config_path(), "r", encoding="utf-8", newline="\n") as f:
             config_data = json.load(f)
 
+        setattr(self, "target_branch", None)
         return config_data.get(key)
     
 
@@ -213,6 +237,7 @@ class RepositoryLayout:
         ) as f:
             history_data = json.load(f)
 
+        setattr(self, "target_branch", None)
         return history_data
     
 
@@ -236,18 +261,22 @@ class RepositoryLayout:
         ) as f:
             byte_hashes_data = json.load(f)
 
+        setattr(self, "target_branch", None)
         return byte_hashes_data
 
 # Return Miscellaneous Data
 
 
     def list_branches(self) -> list[str]:
-        return [i.stem for i in self.branches().iterdir() if i.is_dir()]
+        branches = [i.stem for i in self.branches().iterdir() if i.is_dir()]
+        setattr(self, "target_branch", None)
+        return branches
 
 
     def current_branch_name(self) -> str:
         with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
             current_branch_data = json.load(f)
+        setattr(self, "target_branch", None)
         return current_branch_data["current_branch"]
     
     
@@ -271,6 +300,7 @@ class RepositoryLayout:
                 " has not been manually modified"
             )
         
+        setattr(self, "target_branch", None)
         return hash
     
 
@@ -292,6 +322,8 @@ class RepositoryLayout:
             f.seek(0)
             json.dump(config, f, indent=4)
             f.truncate()
+
+        setattr(self, "target_branch", None)
 
 
 
@@ -343,6 +375,8 @@ class RepositoryLayout:
                     f"Required file '{i}' not found. Please run 'sccs init "
                     f"<file_path>' to initialize SCCS for this file."
                 )
+
+        setattr(self, "target_branch", None)
             
 
     def check_for_uncommitted_changes(self, cmd: str, exit: bool = True) -> None | bool:
@@ -366,13 +400,18 @@ class RepositoryLayout:
         
         latest_bytes_hash = self.current_branch().byte_hashes_data()[latest_commit]
 
+        has_uncommitted_changes = latest_bytes_hash != self.convert_docx_to_binary_hash()
+
         if exit:
-            if latest_bytes_hash != self.convert_docx_to_binary_hash():
+            if has_uncommitted_changes:
                 raise exceptions.UncommittedChangesError(
                     f"Uncommitted changes were found. Please commit before continuing")
 
-        else:
-            return(latest_bytes_hash != self.convert_docx_to_binary_hash())
+            setattr(self, "target_branch", None)
+            return None
+
+        setattr(self, "target_branch", None)
+        return has_uncommitted_changes
         
 
 # Convert Docuement
@@ -383,12 +422,17 @@ class RepositoryLayout:
         Convert a DOCX document to HTML and return the generated HTML as a string.
         """
 
+        html_data = None
+
         try:
             with open(self.document_path(), "rb") as f:
                 result = mammoth.convert_to_html(f)
-                return result.value
+                html_data = result.value
         except Exception as e:
             raise exceptions.ConvertingDocumentToHTMLError from e
+
+        setattr(self, "target_branch", None)
+        return html_data
         
 
     def convert_docx_to_binary_hash(self) -> bytes:
@@ -404,4 +448,6 @@ class RepositoryLayout:
                 hashed_file = hasher.hexdigest()
         except Exception as e:
             raise exceptions.DocumentHashingError from e
+
+        setattr(self, "target_branch", None)
         return hashed_file
