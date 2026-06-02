@@ -113,7 +113,7 @@ def check_sccs_layout(
             " initialize SCCS for this file."
         )
 
-    if not Path(Path(sccs_dir, "commit_messages", "commit_messages.json")).is_file():
+    if not Path(sccs_dir, "commit_messages", "commit_messages.json").is_file():
         raise FileNotFoundError(
             "Commit messages JSON not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
