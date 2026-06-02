@@ -10,26 +10,6 @@ import exceptions
 import utils
 
 
-def get_entered_subcommand() -> str | None:
-    """
-    Retrieve the subcommand entered by the user.
-
-    Return the subcommand if provided, otherwise return None.
-    """
-
-    return sys.argv[2] if len(sys.argv) > 2 else None
-
-
-def get_entered_branch_name() -> str | None:
-    """
-    Retrieve the branch name entered by the user.
-
-    Return the branch name if provided, otherwise return None.
-    """
-
-    return sys.argv[3] if len(sys.argv) > 3 else None
-
-
 def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
     """
     Validate the subcommand entered by the user.
@@ -74,7 +54,7 @@ def branch_create_subcommand(
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
 
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
+    sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
 
     if not sanitized_branch_name:
         raise exceptions.InvalidArgumentError(
@@ -152,7 +132,7 @@ def branch_delete_subcommand(
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
 
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
+    sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
 
     branch_path = cwd / ".sccs" / "branches" / sanitized_branch_name
 
@@ -205,7 +185,7 @@ def rollback_changes_after_failure(
     if branch_data is None:
         branch_data = utils.get_branch_data()
 
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
+    sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
     try:
         with open(
             current_branch_path, "w", encoding="utf-8", newline="\n"
@@ -256,12 +236,12 @@ def main() -> None:
     """Run functions for the <sccs branch> command."""
     utils.check_sccs_layout()
 
-    validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
+    validate_subcommand(utils.entered_arguement(2), utils.entered_arguement(3))
 
     utils.check_for_uncommitted_changes("branch")
 
     run_specified_subcommand(
-        get_entered_subcommand(),
+        utils.entered_arguement(2),
         utils.get_current_branch(),
         utils.get_branch_data(),
     )

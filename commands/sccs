@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import exceptions
+import utils
 
 COMMANDS = [
     "init",
@@ -26,11 +27,6 @@ COMMANDS = [
     "pull",
     "merge",
 ]
-
-
-def get_entered_command() -> str | None:
-    """Return the entered command if provided, else None."""
-    return sys.argv[1] if len(sys.argv) > 1 else None
 
 
 def get_script_directory() -> Path:
@@ -68,7 +64,7 @@ def execute_command(command: str, script_directory: Path, COMMANDS: list) -> Non
 
 
 def main() -> None:
-    command = get_entered_command()
+    command = utils.entered_arguement(1)
 
     script_directory = get_script_directory()
 

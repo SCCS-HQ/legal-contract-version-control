@@ -6,11 +6,6 @@ import exceptions
 import utils
 
 
-def get_entered_branch() -> str | None:
-    """Return the entered branch if provided, else None."""
-    return sys.argv[2] if len(sys.argv) > 2 else None
-
-
 def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:
     """Validate that the entered branch is valid, exists, and is not the current branch."""
     if branch is None:
@@ -70,7 +65,7 @@ def main() -> None:
     utils.check_for_uncommitted_changes("merge")
 
     current_branch = utils.get_current_branch()
-    entered_branch = get_entered_branch()
+    entered_branch = utils.entered_arguement(2)
     branches = utils.get_branch_data(key="branches")
     branch_to_merge = validate_branch(entered_branch, current_branch, branches)
     copy_repo_document(branch_to_merge)

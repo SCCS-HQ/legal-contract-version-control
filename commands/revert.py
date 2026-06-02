@@ -4,13 +4,7 @@ from pathlib import Path
 
 import exceptions
 import utils
-
-
-def get_entered_commit() -> Path | None:
-    """Return the commit file path entered by the user if provided, else None."""
-
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
-
+\
 
 def revert(src: Path, dst: Path | None = None) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
@@ -42,7 +36,7 @@ def main() -> None:
     utils.check_for_uncommitted_changes("revert")
 
     cwd = utils.working_directory_path
-    commit = get_entered_commit()
+    commit = utils.entered_arguement(2)
     validated_commit = utils.validate_commit("docx", cwd, commit)
     revert(validated_commit)
 

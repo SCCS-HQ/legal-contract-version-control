@@ -9,14 +9,6 @@ import exceptions
 import utils
 
 
-def get_commit_path_input() -> Path | None:
-    """
-    Get the absolute path of the commit file from the command-line arguments if
-    provided, otherwise return None.
-    """
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
-
-
 def confirm_before_proceeding(
     commit_path: Path, docx_path: Path | None = None, cwd: Path | None = None
 ) -> None:
@@ -71,7 +63,7 @@ def main() -> None:
     utils.check_sccs_layout()
 
     commit_path = utils.validate_commit(
-        "docx", utils.working_directory_path, get_commit_path_input()
+        "docx", utils.working_directory_path, utils.entered_arguement(2)
     )
 
     utils.check_for_uncommitted_changes("open")

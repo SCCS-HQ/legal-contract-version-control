@@ -12,22 +12,13 @@ import exceptions
 import utils
 
 
-def get_entered_document_path() -> Path | None:
-    """
-    Return the document path entered by the user  as a Path object if provided, else
-    None.
-    """
-
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
-
-
 def get_document_repo_path() -> Path | None:
     """
     Return the repo directory path derived from the entered document path, which is the
     document path without a suffix.
     """
 
-    path = get_entered_document_path()
+    path = utils.entered_arguement(2)
     if not path:
         return None
     return Path(path).with_suffix("")
@@ -71,7 +62,7 @@ def check_file_requirements() -> None:
     extension and if the file exists.
     """
 
-    entered_path = get_entered_document_path()
+    entered_path = utils.entered_arguement(2)
     if not entered_path:
         raise exceptions.InvalidArgumentError("No file path provided.")
 
@@ -125,7 +116,7 @@ def create_sccs_directory_layout() -> None:
 def move_document_to_repo_directory() -> None:
     """Move the source document into the repo directory."""
 
-    shutil.move(get_entered_document_path(), get_document_repo_path())
+    shutil.move(utils.entered_arguement(2), get_document_repo_path())
 
 
 def copy_document_to_objects_as_docx_and_html(
@@ -140,7 +131,7 @@ def copy_document_to_objects_as_docx_and_html(
         styles = utils.default_html_styles
 
     repo_path = get_document_repo_path()
-    doc_name = Path(get_entered_document_path()).name
+    doc_name = Path(utils.entered_arguement(2)).name
 
     try:
         shutil.copy2(
@@ -318,7 +309,7 @@ def confirmation_message() -> None:
 def main() -> None:
     """Run functions for the <sccs init> command."""
 
-    check_if_arg_entered(get_entered_document_path())
+    check_if_arg_entered(utils.entered_arguement(2))
 
     check_for_prev_init()
 
@@ -336,7 +327,7 @@ def main() -> None:
 
     create_sccs_directory_layout()
 
-    document_as_html = utils.convert_docx_to_html(get_entered_document_path())
+    document_as_html = utils.convert_docx_to_html(utils.entered_arguement(2))
 
     move_document_to_repo_directory()
 
@@ -349,7 +340,7 @@ def main() -> None:
     write_config_data(config_user_name, config_user_email)
 
     current_branch_binary_hash = utils.hash_current_docx_binary(
-        docx_path=get_document_repo_path() / Path(get_entered_document_path()).name
+        docx_path=get_document_repo_path() / Path(utils.entered_arguement(2)).name
     )
 
     write_hashed_file_commit_data(sha_hash, current_branch_binary_hash)

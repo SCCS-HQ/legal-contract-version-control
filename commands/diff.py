@@ -11,17 +11,6 @@ import utils
 from bs4 import BeautifulSoup
 
 
-def get_entered_commit_to_diff() -> Path | None:
-    """
-    Retrieve the commit SHA Hash entered by the user as a Path object.
-
-    Return entered commit SHA Hash as a Path object if it was entered, otherwise return
-    None.
-    """
-
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
-
-
 def get_commit_html(commit_path: Path) -> str:
     """
     Open the commit HTML file at the specified path and return its contents as a string.
@@ -334,7 +323,7 @@ def main() -> None:
 
     commit_html = get_commit_html(
         utils.validate_commit(
-            "html", utils.working_directory_path, get_entered_commit_to_diff()
+            "html", utils.working_directory_path, utils.entered_arguement(2)
         )
     )
 

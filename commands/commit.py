@@ -7,21 +7,6 @@ import exceptions
 import utils
 
 
-def get_commit_message() -> str:
-    """
-    Return the entered commit message from the user if a message is provided, otherwise
-    raise an exception.
-    """
-
-    if len(sys.argv) <= 2 or not sys.argv[2].strip():
-        raise exceptions.EmptyCommitMessageError(
-            "Commit message cannot be empty. Please provide a commit message with <sccs"
-            ' commit "commit message">.'
-        )
-
-    return " ".join(sys.argv[2:]).strip()
-
-
 def print_commit_confirmation_message(sha_hash: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
@@ -32,7 +17,7 @@ def main() -> None:
     """Run functions for the <sccs commit> command."""
     utils.check_sccs_layout()
 
-    sha_hash = utils.commit_changes(get_commit_message())
+    sha_hash = utils.commit_changes(utils.entered_arguement(2))
     print_commit_confirmation_message(sha_hash)
 
 

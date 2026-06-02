@@ -7,46 +7,6 @@ import exceptions
 import utils
 
 
-def get_entered_config_key() -> str | None:
-    """
-    Retrieve the entered configuration key and ensure it isn't None and that it is any
-    of the valid configuration keys:
-
-    'remote'
-
-    'name'
-
-    'email'
-
-    Return the validated key entered by the user.
-    """
-    key = sys.argv[2] if len(sys.argv) > 2 else None
-    if key is None:
-        raise exceptions.InvalidArgumentError(
-            "No key provided. Please provide a key to configure: 'remote', 'name', or "
-            "'email'."
-        )
-
-    if key not in ["remote", "name", "email"]:
-        raise exceptions.InvalidArgumentError(
-            "Invalid key provided. Please provide a valid key to configure: 'remote', "
-            "'name', or 'email'."
-        )
-    return key
-
-
-def get_entered_config_value() -> str | None:
-    """
-    Return the value entered by the user if it is provided, else raise an exception.
-    """
-    value = sys.argv[3] if len(sys.argv) > 3 else None
-    if value is None:
-        raise exceptions.InvalidArgumentError(
-            "No value provided. Please provide a value to configure."
-        )
-    return value
-
-
 def resolve_entered_remote(remote: str) -> str:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
@@ -84,8 +44,8 @@ def main() -> None:
     """Run functions for the <sccs config> command."""
     utils.check_sccs_layout()
 
-    key = get_entered_config_key()
-    value = get_entered_config_value()
+    key = utils.entered_arguement(2)
+    value = utils.entered_arguement(3)
 
     if key == "remote":
         value = resolve_entered_remote(value)

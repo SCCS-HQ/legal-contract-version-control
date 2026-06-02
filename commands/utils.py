@@ -7,6 +7,7 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
+import sys
 
 import exceptions
 import mammoth
@@ -749,3 +750,10 @@ def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
             return history["history"]["latest_commit"]
     except Exception as e:
         raise exceptions.FileOpenError from e
+
+
+def entered_arguement(argument: int) -> str | None:
+    """Return the entered command-line argument at the specified index if provided, else None."""
+    
+    arg_value = sys.argv[argument] if len(sys.argv) > argument else None
+    return arg_value.strip() if isinstance(arg_value, str) else None

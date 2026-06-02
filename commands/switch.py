@@ -10,11 +10,6 @@ import exceptions
 import utils
 
 
-def get_branch_to_switch() -> str | None:
-    """Return the entered branch name to switch to if provided, else None."""
-    return sys.argv[2] if len(sys.argv) > 2 else None
-
-
 def update_current_branch(
     branch: str, current_branch_path: Path | None = None, cwd: Path | None = None
 ) -> None:
@@ -124,7 +119,7 @@ def main() -> None:
 
     utils.check_for_uncommitted_changes("switch")
 
-    branch_to_switch = get_branch_to_switch()
+    branch_to_switch = utils.entered_arguement(2)
 
     check_branch_to_switch(branch_to_switch, branches)
 
