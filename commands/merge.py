@@ -36,7 +36,7 @@ def copy_branch_data(
     current_branch_path = cwd / ".sccs" / "branches" / current_branch
     target_branch_path = cwd / ".sccs" / "branches" / target_branch
 
-    shutil.copytree(current_branch_path, target_branch_path, dirs_exist_ok=True)
+    shutil.copytree(target_branch_path, current_branch_path, dirs_exist_ok=True)
 
 
 def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
@@ -65,14 +65,17 @@ def print_merge_success_message(source_branch: str, target_branch: str) -> None:
 
 def main() -> None:
     """Merge the entered branch into the current branch."""
+    utils.check_sccs_layout()
+
     current_branch = utils.get_current_branch()
     entered_branch = get_entered_branch()
     branch_to_merge = validate_branch(entered_branch, current_branch)
     copy_repo_document(branch_to_merge)
-    copy_branch_data(branch_to_merge, current_branch)
-    utils.commit_changes(f"Merged branch '{branch_to_merge}' into '{current_branch}'")
-    print_merge_success_message(branch_to_merge, current_branch)
+    copy_branch_data(current_branch, branch_to_merge)
 
+    utils.commit_changes(f'Merged branch "{branch_to_merge}" into "{current_branch}".')
+
+    print_merge_success_message(branch_to_merge, current_branch)
 
 if __name__ == "__main__":
     try:
