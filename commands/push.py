@@ -27,8 +27,8 @@ def get_matching_file_paths(
     if updated_branches is None:
         updated_branches = []
     paths = []
-    for b in updated_branches:
-        branch_dir = cwd / ".sccs" / "branches" / b
+    for i in updated_branches:
+        branch_dir = cwd / ".sccs" / "branches" / i
         if branch_dir.is_dir():
             f = branch_dir / filename / f"{filename}.json"
             if f.is_file():
@@ -56,7 +56,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     if cwd is None:
         cwd = utils.working_directory_path
     objects_dir = cwd / ".sccs" / "objects"
-    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
+    objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
     return objects
 
 
@@ -107,9 +107,9 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     commit_msgs_path = [cwd / ".sccs" / "commit_messages" / "commit_messages.json"]
     obj_to_upload_set = set(obj_to_upload)
     objects_paths = [
-        f.resolve()
-        for f in (cwd / ".sccs" / "objects").rglob("*")
-        if f.is_file() and f.stem in obj_to_upload_set
+        i.resolve()
+        for i in (cwd / ".sccs" / "objects").rglob("*")
+        if i.is_file() and i.stem in obj_to_upload_set
     ]
 
     history_paths = get_matching_file_paths("history", updated_branches, cwd)
@@ -126,20 +126,20 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
 
     with tempfile.TemporaryDirectory() as temp_dir:
         tmp_folder_path = Path(temp_dir) / f"tmp_{repo_name}"
-        for file_path in files_to_upload:
-            (tmp_folder_path / file_path.relative_to(cwd).parent).mkdir(
+        for i in files_to_upload:
+            (tmp_folder_path / i.relative_to(cwd).parent).mkdir(
                 parents=True, exist_ok=True
             )
-            shutil.copy2(file_path, tmp_folder_path / file_path.relative_to(cwd))
+            shutil.copy2(i, tmp_folder_path / i.relative_to(cwd))
 
         buffer = io.BytesIO()
 
         try:
-            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
                 for root, dirs, files in os.walk(temp_dir):
-                    for file in files:
-                        full_path = Path(root) / file
-                        zip_file.write(
+                    for i in files:
+                        full_path = Path(root) / i
+                        zf.write(
                             full_path, arcname=full_path.relative_to(temp_dir)
                         )
         except Exception as e:

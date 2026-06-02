@@ -48,10 +48,10 @@ def zip_cwd() -> io.BytesIO:
         raise exceptions.BufferError("Failed to create memory buffer") from e
 
     try:
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
             for root, dirs, files in os.walk("."):
-                for file in files:
-                    zip_file.write(Path(root) / file)
+                for i in files:
+                    zf.write(Path(root) / i)
     except Exception as e:
         raise exceptions.ZippingFileError(
             "Failed to zip current working directory"

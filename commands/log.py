@@ -31,8 +31,8 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
             "SCCS for this file."
         )
 
-    with open(log_path, "r", encoding="utf-8", newline="\n") as log_file:
-        log_data = json.load(log_file)
+    with open(log_path, "r", encoding="utf-8", newline="\n") as f:
+        log_data = json.load(f)
     return log_data
 
 
@@ -45,13 +45,13 @@ def print_log() -> None:
     """
 
     log_data = get_log_data()
-    for entry in log_data["log"]:
+    for i in log_data["log"]:
         print(
             "------------------------------\n"
-            f"Commit File: {entry[:10]}\n"
-            f"Author: {log_data['log'][entry]['author']}\n"
-            f"Date: {log_data['log'][entry]['timestamp']}\n"
-            f"Message: {log_data['log'][entry]['message']}\n"
+            f"Commit File: {i[:10]}\n"
+            f"Author: {log_data['log'][i]['author']}\n"
+            f"Date: {log_data['log'][i]['timestamp']}\n"
+            f"Message: {log_data['log'][i]['message']}\n"
             "------------------------------"
         )
 

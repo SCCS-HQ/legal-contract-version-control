@@ -83,10 +83,10 @@ def branch_create_subcommand(
     try:
         with open(
             current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
+        ) as f:
             branch_data["branches"].append(sanitized_branch_name)
             branch_data["current_branch"] = sanitized_branch_name
-            json.dump(branch_data, current_branch_file, indent=4)
+            json.dump(branch_data, f, indent=4)
 
     # Clean up the created directory before raising
     except Exception as e:
@@ -154,9 +154,9 @@ def branch_delete_subcommand(
     try:
         with open(
             current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
+        ) as f:
             branch_data["branches"].remove(sanitized_branch_name)
-            json.dump(branch_data, current_branch_file, indent=4)
+            json.dump(branch_data, f, indent=4)
 
     except Exception as e:
         raise exceptions.UpdatingMetadataError from e
@@ -189,9 +189,9 @@ def rollback_changes_after_failure(
     try:
         with open(
             current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
+        ) as f:
             branch_data["branches"].append(sanitized_branch_name)
-            json.dump(branch_data, current_branch_file, indent=4)
+            json.dump(branch_data, f, indent=4)
 
     except Exception as e:
         raise exceptions.UpdatingMetadataError from e
@@ -204,11 +204,11 @@ def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
     """
 
     print("Branches:\n")
-    for branch in branch_data.get("branches", []):
-        if branch == current_branch:
-            print(f"* {branch} (current)")
+    for i in branch_data.get("branches", []):
+        if i == current_branch:
+            print(f"* {i} (current)")
         else:
-            print(f"  {branch}")
+            print(f"  {i}")
 
 
 def run_specified_subcommand(

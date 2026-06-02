@@ -37,10 +37,10 @@ def number_tags(html: BeautifulSoup) -> BeautifulSoup:
     """
 
     soup = html
-    for i, tag in enumerate(soup.find_all()):
-        if tag.name == "style":
+    for i in enumerate(soup.find_all()):
+        if i[1].name == "style":
             continue
-        tag["data-number"] = str(i)
+        i[1]["data-number"] = str(i[0])
     return soup
 
 
@@ -54,9 +54,9 @@ def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
     """
 
     soup = html
-    for tag in soup.find_all():
-        if "data-number" in tag.attrs:
-            del tag["data-number"]
+    for i in soup.find_all():
+        if "data-number" in i.attrs:
+            del i["data-number"]
     return soup
 
 
@@ -69,7 +69,7 @@ def tags_to_list(html: BeautifulSoup) -> list[str]:
     """
 
     soup = html
-    return [str(tag) for tag in soup.find_all()]
+    return [str(i) for i in soup.find_all()]
 
 
 def get_data_number(tag_list: list[str]) -> set[str]:
@@ -81,9 +81,9 @@ def get_data_number(tag_list: list[str]) -> set[str]:
     """
 
     data_number = set()
-    for tag in tag_list:
+    for i in tag_list:
         parsed_tag = (
-            tag if hasattr(tag, "attrs") else BeautifulSoup(tag, "html.parser").find()
+            i if hasattr(i, "attrs") else BeautifulSoup(i, "html.parser").find()
         )
         if parsed_tag is not None:
             if parsed_tag.get("data-number") is not None:
@@ -103,16 +103,16 @@ def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> Beautiful
 
     old_data_numbers = get_data_number(old_changed_strings)
     soup = html
-    for tag in soup.find_all():
-        if tag.name == "style":
-            tag.decompose()
+    for i in soup.find_all():
+        if i.name == "style":
+            i.decompose()
             continue
 
-        if tag.get("data-number") in old_data_numbers:
-            if "class" in tag.attrs:
-                tag["class"].append("deleted")
+        if i.get("data-number") in old_data_numbers:
+            if "class" in i.attrs:
+                i["class"].append("deleted")
             else:
-                tag["class"] = ["deleted"]
+                i["class"] = ["deleted"]
     return soup
 
 
@@ -133,12 +133,12 @@ def replace_tag(
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
     soup = html
     match = []
-    for tag in soup.find_all():
-        if tag.name == "style":
-            tag.decompose()
+    for i in soup.find_all():
+        if i.name == "style":
+            i.decompose()
             continue
-        if tag.get("data-number") in old_data_numbers:
-            match.append(tag)
+        if i.get("data-number") in old_data_numbers:
+            match.append(i)
 
     for i in frag.find_all():
         if i.name:
@@ -148,11 +148,11 @@ def replace_tag(
                 i["class"] = ["inserted"]
     if match:
         match[-1].insert_after(frag)
-        for tag in match:
-            if "class" in tag.attrs:
-                tag["class"].append("deleted")
+        for i in match:
+            if "class" in i.attrs:
+                i["class"].append("deleted")
             else:
-                tag["class"] = ["deleted"]
+                i["class"] = ["deleted"]
     return soup
 
 
@@ -169,9 +169,9 @@ def insert_tag(
     """
 
     soup = html
-    for tag in soup.find_all():
-        if tag.name == "style":
-            tag.decompose()
+    for i in soup.find_all():
+        if i.name == "style":
+            i.decompose()
             continue
     tags = soup.find_all()
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
@@ -203,13 +203,13 @@ def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
     """
 
     soup = html
-    for tag in soup.find_all(
+    for i in soup.find_all(
         ["b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul"]
     ):
-        if tag.name == "style":
-            tag.decompose()
+        if i.name == "style":
+            i.decompose()
         else:
-            tag.unwrap()
+            i.unwrap()
     return soup
 
 
@@ -290,8 +290,8 @@ def format_redline_html(
     difference and perform a subsequent function.
     """
 
-    for opcode in reversed(opcodes):
-        tag, i1, i2, j1, j2 = opcode
+    for i in reversed(opcodes):
+        tag, i1, i2, j1, j2 = i
         old_changed_strings = commit_list[i1:i2]
         new_changed_strings = docx_current_version_list[j1:j2]
         if tag == "replace":

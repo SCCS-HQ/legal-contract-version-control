@@ -74,8 +74,8 @@ def check_sccs_layout(
             "r",
             encoding="utf-8",
             newline="\n",
-        ) as current_branch_file:
-            current_branch = json.load(current_branch_file).get("current_branch")
+        ) as f:
+            current_branch = json.load(f).get("current_branch")
             if not current_branch:
                 raise exceptions.InvalidMetadataError(
                     "Current branch not found. Please run 'sccs init <file_path>' to "
@@ -200,8 +200,8 @@ def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
     try:
         with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
-            for chunk in iter(lambda: f.read(65536), b""):
-                hasher.update(chunk)
+            for i in iter(lambda: f.read(65536), b""):
+                hasher.update(i)
             hashed_file = hasher.hexdigest()
     except Exception as e:
         raise exceptions.DocumentHashingError from e
@@ -213,8 +213,8 @@ def get_current_branch(file_path: Path = current_branch_path) -> str:
     try:
         with open(
             file_path, "r", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
-            current_branch = json.load(current_branch_file).get("current_branch")
+        ) as f:
+            current_branch = json.load(f).get("current_branch")
             if not current_branch:
                 raise exceptions.InvalidMetadataError(
                     "Current branch is missing from JSON. Please run 'sccs init "
@@ -323,8 +323,8 @@ def get_commit_history() -> dict:
         )
 
     try:
-        with open(history_path, "r", encoding="utf-8", newline="\n") as history_file:
-            history = json.load(history_file)
+        with open(history_path, "r", encoding="utf-8", newline="\n") as f:
+            history = json.load(f)
 
     except Exception as e:
         raise exceptions.FileOpenError from e
@@ -460,9 +460,9 @@ def update_commit_messages(
 
     with open(
         commit_messages_path, "r", encoding="utf-8", newline="\n"
-    ) as commit_messages_file:
+    ) as f:
         try:
-            messages = json.load(commit_messages_file)
+            messages = json.load(f)
         except Exception as e:
             raise exceptions.FileOpenError from e
 
@@ -544,8 +544,8 @@ def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """
 
     update_dict = {}
-    for d in dicts:
-        update_dict.update(d)
+    for i in dicts:
+        update_dict.update(i)
     return update_dict
 
 
@@ -558,7 +558,8 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     Open the key and write the value for each pair in the dictionary.
     """
 
-    for key, value in update_dict.items():
+    for i in update_dict.items():
+        key, value = i
         try:
             with open(
                 key.with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
@@ -567,7 +568,8 @@ def atomically_update_history(update_dict: dict[Path, dict]) -> None:
         except Exception as e:
             raise exceptions.TemporaryFileError from e
 
-    for key, value in update_dict.items():
+    for i in update_dict.items():
+        key, value = i
         try:
             key.with_suffix(".tmp").replace(key)
         except Exception as e:
@@ -660,10 +662,10 @@ def validate_commit(
 
     matching_files = []
 
-    for file in objects_dir.iterdir():
+    for i in objects_dir.iterdir():
 
-        if str(file.stem).startswith(str(commit.stem.strip())):
-            matching_files.append(file)
+        if str(i.stem).startswith(str(commit.stem.strip())):
+            matching_files.append(i)
 
     if not matching_files:
         raise exceptions.InvalidArgumentError(

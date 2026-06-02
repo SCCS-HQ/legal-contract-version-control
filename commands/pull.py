@@ -18,7 +18,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
         cwd = utils.working_directory_path
 
     objects_dir = cwd / ".sccs" / "objects"
-    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
+    objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
     return objects
 
 
