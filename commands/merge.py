@@ -4,6 +4,9 @@ from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:

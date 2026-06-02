@@ -2,10 +2,13 @@
 """Command to configure a SCCS repository's settings"""
 
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
 
+Repository = RepositoryLayout(Path.cwd())
 
 def resolve_entered_remote(remote: str) -> str:
     """

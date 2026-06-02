@@ -12,6 +12,9 @@ from urllib.parse import urlsplit
 import exceptions
 import requests
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def reset_current_branch(cwd: Path | None = None) -> None:

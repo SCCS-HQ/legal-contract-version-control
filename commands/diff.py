@@ -9,6 +9,9 @@ from pathlib import Path
 import exceptions
 import utils
 from bs4 import BeautifulSoup
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def get_commit_html(commit_path: Path) -> str:

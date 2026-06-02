@@ -8,7 +8,10 @@ import zipfile
 import exceptions
 import requests
 import utils
+from pathlib import Path
+from repository_layout import RepositoryLayout
 
+Repository = RepositoryLayout(Path.cwd())
 
 def resolve_entered_url(url: str | None = None) -> str:
     """

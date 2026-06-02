@@ -4,7 +4,10 @@ from pathlib import Path
 
 import exceptions
 import utils
-\
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
+
 
 def revert(src: Path, dst: Path | None = None) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""

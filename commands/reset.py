@@ -8,6 +8,9 @@ from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def reset(cwd: Path | None = None) -> None:

@@ -6,6 +6,9 @@ from pathlib import Path
 import exceptions
 import requests
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def get_repo_objects(cwd: None | Path = None) -> list:

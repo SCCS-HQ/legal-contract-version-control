@@ -2,9 +2,13 @@
 """Check the status of the current document for uncommitted changes."""
 
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def print_status_message() -> None:

@@ -2,9 +2,14 @@
 """Print a list of all available commands."""
 
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
+
 
 MESSAGES_TO_PRINT = [
     "SCCS Help",

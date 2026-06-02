@@ -7,6 +7,9 @@ from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
+
+Repository = RepositoryLayout(Path.cwd())
 
 
 def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:

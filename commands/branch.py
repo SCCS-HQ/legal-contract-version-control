@@ -8,7 +8,9 @@ from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
 
+Repository = RepositoryLayout(Path.cwd())
 
 def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
     """
