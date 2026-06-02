@@ -8,7 +8,7 @@ import exceptions
 import utils
 
 
-def get_log_data(cwd: str = None, current_branch: str = None) -> dict:
+def get_log_data(cwd: Path= None, current_branch: str = None) -> dict:
     """Retrieve the commit log data from the history JSON file."""
 
     if cwd is None:

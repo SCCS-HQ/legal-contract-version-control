@@ -11,23 +11,24 @@ import utils
 def get_commit_path_input() -> str:
     """Prompt the user for the commit file path and return it."""
     commit_path = input("Enter the path to the commit file (.docx): ").strip()
-    return commit_path
+
+    return Path(commit_path).resolve()
 
 
-def check_commit_path_input(commit_path: str) -> None:
+def check_commit_path_input(commit_path: Path) -> None:
     """Check the validity of the commit file path."""
-    if commit_path == "":
+    if not commit_path:
         raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
-    if not Path(commit_path).is_file():
+    if not commit_path.is_file():
         raise FileNotFoundError("Commit file does not exist.")
 
-    if Path(commit_path).suffix.lower() != ".docx":
+    if commit_path.suffix.lower() != ".docx":
         raise exceptions.InvalidFileTypeError("Commit file is not a .docx file.")
 
 
 def confirm_before_proceeding(
-    commit_path: str, docx_path: str = None, cwd: str = None
+    commit_path: Path, docx_path: Path = None, cwd: Path = None
 ) -> None:
     """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
@@ -48,7 +49,7 @@ def confirm_before_proceeding(
         sys.exit(0)
 
 
-def check_changes(commit_path: str, docx_path: str = None) -> None:
+def check_changes(commit_path: Path, docx_path: Path = None) -> None:
     """Check if the commit_path and docx_path refer to the same file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
@@ -63,7 +64,7 @@ def check_changes(commit_path: str, docx_path: str = None) -> None:
         sys.exit(0)
 
 
-def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
+def copy_file_commit(commit_path: Path, docx_path: Path = None) -> None:
     """Copy the commit file to the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
@@ -74,7 +75,7 @@ def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) -> None:
+def print_rewrite_confirmation_message(commit_path: Path, docx_path: Path = None) -> None:
     """Print the confirmation message after rewriting the file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path

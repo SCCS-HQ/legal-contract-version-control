@@ -11,7 +11,7 @@ import exceptions
 import utils
 
 
-def get_key_from_config(key: str, cwd: str = None) -> str:
+def get_key_from_config(key: str, cwd: Path = None) -> str:
     """Retrieve the value for a given key from the SCCS configuration file."""
 
     if cwd is None:
@@ -48,7 +48,7 @@ def get_timestamp() -> str:
     return datetime.now().isoformat()
 
 
-def get_history_path(cwd: str = None, current_branch: str = None) -> str:
+def get_history_path(cwd: Path = None, current_branch: str = None) -> Path:
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
@@ -97,7 +97,7 @@ def generate_commit_hash(
     ).hexdigest()
 
 
-def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) -> None:
+def copy_docx_to_objects(sha_hash: str, docx_path: Path = None, cwd: Path = None) -> None:
     """Copy the current document to the objects directory."""
 
     if docx_path is None:
@@ -111,7 +111,7 @@ def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) 
 
 
 def write_diff_html(
-    sha_hash: str, docx_html: str, cwd: str = None, styles: str = None
+    sha_hash: str, docx_html: str, cwd: Path = None, styles: str = None
 ) -> None:
     """Write the diff HTML file."""
 
@@ -128,7 +128,7 @@ def write_diff_html(
         f.write(styles + docx_html)
 
 
-def write_view_html(sha_hash: str, docx_html: str, cwd: str = None) -> None:
+def write_view_html(sha_hash: str, docx_html: str, cwd: Path = None) -> None:
     """Write the view HTML file."""
 
     if cwd is None:
@@ -179,7 +179,7 @@ def update_commit_log_history(
 
 
 def update_commit_messages(
-    sha_hash: str, commit_message: str, cwd: str = None
+    sha_hash: str, commit_message: str, cwd: Path = None
 ) -> dict[str, dict]:
     """Update commit messages."""
 
@@ -210,7 +210,7 @@ def update_commit_messages(
 
 
 def update_commit_binary_hash_history(
-    sha_hash: str, hash_docx_binary: str, cwd: str = None, current_branch: str = None
+    sha_hash: str, hash_docx_binary: str, cwd: Path = None, current_branch: str = None
 ) -> dict[str, dict]:
     """Update commit binary hash history."""
 
@@ -246,7 +246,7 @@ def update_commit_binary_hash_history(
     return {commit_file_hash_path: commit_file_hash}
 
 
-def combine_update_dicts(*dicts: dict[str, dict]) -> dict[str, dict]:
+def combine_update_dicts(*dicts: dict[Path, dict]) -> dict[Path, dict]:
     """Combine multiple update dictionaries into a single dictionary."""
 
     update_dict = {}
@@ -255,7 +255,7 @@ def combine_update_dicts(*dicts: dict[str, dict]) -> dict[str, dict]:
     return update_dict
 
 
-def atomically_update_history(update_dict: dict[str, dict]) -> None:
+def atomically_update_history(update_dict: dict[Path, dict]) -> None:
     """Atomically update the history files."""
 
     for key, value in update_dict.items():

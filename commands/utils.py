@@ -37,8 +37,8 @@ def clean_directory_name(name: str) -> str:
 
 
 def check_sccs_layout(
-    sccs_dir: str = sccs_versions_directory_path,
-    docx_path: str = current_file_docx_path,
+    sccs_dir: Path = sccs_versions_directory_path,
+    docx_path: Path = current_file_docx_path,
 ) -> None:
     """Validate that required SCCS folders, files, and metadata exist."""
 
@@ -191,7 +191,7 @@ def wrap_html(html: str, styles: str = default_html_styles) -> str:
     )
 
 
-def hash_current_docx_binary(docx_path: str = current_file_docx_path) -> str:
+def hash_current_docx_binary(docx_path: Path = current_file_docx_path) -> str:
     """Compute and return the SHA-256 hash of the current DOCX file bytes."""
     try:
         with open(docx_path, "rb") as f:
@@ -204,7 +204,7 @@ def hash_current_docx_binary(docx_path: str = current_file_docx_path) -> str:
     return hashed_file
 
 
-def get_current_branch(file_path: str = current_branch_path) -> str:
+def get_current_branch(file_path: Path = current_branch_path) -> str:
     """Return the active branch name from the current branch metadata file."""
     try:
         with open(
@@ -223,8 +223,8 @@ def get_current_branch(file_path: str = current_branch_path) -> str:
 
 
 def get_branch_data(
-    file_path: str = current_branch_path, key: str = None
-) -> dict | str | None:
+    file_path: Path = current_branch_path, key: str = None
+) -> dict | str:
     """Return full branch metadata or a specific value by key."""
     try:
         with open(file_path, "r", encoding="utf-8", newline="\n") as f:
@@ -237,7 +237,7 @@ def get_branch_data(
         raise exceptions.FileOpenError from e
 
 
-def convert_docx_to_html(docx_path: str = None) -> str:
+def convert_docx_to_html(docx_path: Path = None) -> str:
     """Convert a DOCX document to HTML and return the generated markup."""
     if docx_path is None:
         docx_path = current_file_docx_path

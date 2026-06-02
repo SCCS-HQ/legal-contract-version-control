@@ -6,15 +6,16 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import exceptions
 import utils
 
 
-def get_entered_document_path() -> str | None:
+def get_entered_document_path() -> Path | None:
     """Retrieve the document path entered by the user."""
 
-    return sys.argv[2] if len(sys.argv) > 2 else None
+    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
 
 
 def get_document_repo_path() -> Path | None:
@@ -26,7 +27,7 @@ def get_document_repo_path() -> Path | None:
     return Path(path).with_suffix("")
 
 
-def check_if_arg_entered(arg: str) -> None:
+def check_if_arg_entered(arg: Path ) -> None:
     """Check that a file path argument was provided."""
 
     if not arg:
@@ -115,7 +116,7 @@ def move_document_to_repo_directory() -> None:
 
 
 def copy_document_to_objects_as_docx_and_html(
-    sha_hash: str, html: str, styles: str | None = None
+    sha_hash: str, html: str, styles: str = None
 ) -> None:
     """Copy the document into objects as both .docx and .html."""
 
