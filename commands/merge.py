@@ -67,6 +67,8 @@ def main() -> None:
     """Merge the entered branch into the current branch."""
     utils.check_sccs_layout()
 
+    utils.check_for_uncommitted_changes("merge")
+
     current_branch = utils.get_current_branch()
     entered_branch = get_entered_branch()
     branch_to_merge = validate_branch(entered_branch, current_branch)
