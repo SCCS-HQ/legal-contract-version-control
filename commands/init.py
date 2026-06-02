@@ -90,7 +90,13 @@ def create_sccs_directory_layout() -> None:
     Path(repo_path, ".sccs", "objects", "view_html").mkdir(parents=True, exist_ok=True)
     Path(repo_path, ".sccs", "branches").mkdir(parents=True, exist_ok=True)
     Path(repo_path, ".sccs", "branches", "main").mkdir(parents=True, exist_ok=True)
-    Path(repo_path, ".sccs", "branches", "main", "history").mkdir(parents=True, exist_ok=True)
+    Path(
+        repo_path,
+        ".sccs",
+        "branches",
+        "main",
+        "history"
+    ).mkdir(parents=True, exist_ok=True)
     Path(repo_path, ".sccs", "commit_messages").mkdir(parents=True, exist_ok=True)
     Path(repo_path, ".sccs", "config").mkdir(parents=True, exist_ok=True)
     Path(repo_path, ".sccs", "current_branch").mkdir(parents=True, exist_ok=True)
