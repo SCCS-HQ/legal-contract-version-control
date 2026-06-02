@@ -10,12 +10,7 @@ import utils
 
 def get_commit_path_input() -> Path:
     """Prompt the user for the commit file path and return it."""
-    commit_path = input("Enter the path to the commit file (.docx): ").strip()
-
-    if not commit_path:
-        raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
-
-    return Path(commit_path).resolve()
+    return (Path(sys.argv[2]) if len(sys.argv) > 2 else None).resolve()
 
 
 def check_commit_path_input(commit_path: Path) -> None:
