@@ -28,46 +28,61 @@ class RepositoryLayout:
 
 
     def document_path(self) -> Path:
+        """Return the path to the current document."""
         return self.root / f"{self.root.name}.docx"
     
 
     def sccs_path(self) -> Path:
+        """Return the path to the '.sccs' folder."""
         return self.root / ".sccs"
     
 
     def branches_path(self) -> Path:
+        """Return the path to the 'branches' folder."""
         return self.sccs_path() / "branches"
     
 
     def commit_messages_path(self) -> Path:
+        """Return the path to the 'commit_messages.json' file."""
         return self.sccs_path() / "commit_messages" / "commit_messages.json"
     
 
     def config_path(self) -> Path:
+        """Return the path to the 'config.json' file."""
         return self.sccs_path() / "config" / "config.json"
     
 
     def current_branch_path(self) -> Path:
+        """Return the path to the 'current_branch.json' file."""
         return self.sccs_path() / "current_branch" / "current_branch.json"
     
 
     def objects_path(self) -> Path:
+        """Return the path to the 'objects' folder."""
         return self.sccs_path() / "objects"
     
 
     def docx_objects_path(self) -> Path:
+        """Return the path to the 'docx' objects folder."""
         return self.objects_path() / "docx"
     
 
     def view_html_objects_path(self) -> Path:
+        """Return the path to the 'view_html' objects folder."""
         return self.objects_path() / "view_html"
     
 
     def html_objects_path(self) -> Path:
+        """Return the path to the 'html' objects folder."""
         return self.objects_path() / "html"
     
 
     def history_path(self) -> Path:
+        """
+        Return the path to the 'history.json' file for the current branch. Chaining this
+        method with a branch method is required.
+        """
+        
         if self.target_branch is None:
             raise ValueError(
                 "Target branch not set. Please chain this method call with a branch "
@@ -81,6 +96,10 @@ class RepositoryLayout:
 
 
     def byte_hashes_path(self) -> Path:
+        """
+        Return the path to the 'commit_files_hash.json' file for the current branch. 
+        Chaining this method with a branch method is required.
+        """
         if self.target_branch is None:
             raise ValueError(
                 "Target branch not set. Please chain this method call with a branch "
@@ -88,7 +107,7 @@ class RepositoryLayout:
                 "'repo_layout.main_branch().byte_hashes_path()'."
             )
 
-        path = self.branches_path() / self.target_branch / "byte_hashes" / "byte_hashes.json"
+        path = self.branches_path() / self.target_branch / "commit_files_hash" / "commit_files_hash.json"
         setattr(self, "target_branch", None)
         return path
 
@@ -144,6 +163,11 @@ class RepositoryLayout:
 
 
     def current_branch_data(self, key: str | None = None) -> dict | str | None:
+        """
+        Return the current branch data from the 'current_branch.json' file. If 'key' is
+        provided, return the value of that key from the current branch data.
+        """
+
         with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
             branch_data = json.load(f)
         if key is None:
@@ -152,6 +176,10 @@ class RepositoryLayout:
 
 
     def config_data(self, key: str ) -> str | None:
+        """
+        Return the value of the specified key from the SCCS config JSON file.
+        Valid keys are 'remote', 'name', and 'email'.
+        """
         if key not in ["remote", "name", "email"]:
             raise exceptions.InvalidArgumentError(
                 f"Invalid config key '{key}'. Valid keys are 'remote', 'name', and "
@@ -165,6 +193,11 @@ class RepositoryLayout:
     
 
     def history_data(self) -> dict:
+        """
+        Return the history data from the 'history.json' file for the current branch.
+        Chaining this method with a branch method is required.
+        """
+
         if self.target_branch is None:
             raise ValueError(
                 "Target branch not set. Please chain this method call with a branch "
@@ -184,6 +217,10 @@ class RepositoryLayout:
     
 
     def byte_hashes_data(self) -> dict:
+        """
+        Return the byte hashes data from the 'commit_files_hash.json' file for the 
+        current branch. Chaining this method with a branch method is required.
+        """
         if self.target_branch is None:
             raise ValueError(
                 "Target branch not set. Please chain this method call with a branch "
@@ -194,8 +231,8 @@ class RepositoryLayout:
         with open(
             self.branches_path() /
             self.target_branch /
-            "byte_hashes" /
-            "byte_hashes.json", "r", encoding="utf-8", newline="\n"
+            "commit_files_hash" /
+            "commit_files_hash.json", "r", encoding="utf-8", newline="\n"
         ) as f:
             byte_hashes_data = json.load(f)
 
@@ -215,7 +252,10 @@ class RepositoryLayout:
     
     
     def latest_commit(self) -> str | None:
-        """Retrieve the latest commit hash from the commit history."""
+        """
+        Retrieve the latest commit hash from the commit history of the current branch.
+        Chaining this method with a branch method is required.
+        """
         if self.target_branch is None:
             raise ValueError(
                 "Target branch not set. Please chain this method call with a branch "
@@ -232,7 +272,7 @@ class RepositoryLayout:
             )
         
         return hash
-
+    
 
 # Write Data to Files
 
@@ -259,6 +299,7 @@ class RepositoryLayout:
 
 
     def current_branch(self) -> None:
+        """Branch method to set the target branch to the current branch."""
         setattr(self, "target_branch", self.current_branch_name())
         return self
 
