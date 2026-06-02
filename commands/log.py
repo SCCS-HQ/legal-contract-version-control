@@ -1,7 +1,6 @@
 """Print a list of past commits for the current branch."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -18,7 +17,7 @@ def get_log_data(cwd: str = None, current_branch: str = None) -> dict:
         current_branch = utils.get_current_branch()
 
     # Get JSON log data
-    log_path = os.path.join(
+    log_path = Path(
         cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
     )
 

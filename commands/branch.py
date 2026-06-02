@@ -1,9 +1,9 @@
 """Create, Delete, and List Branches"""
 
 import json
-import os
 import shutil
 import sys
+from pathlib import Path
 
 import exceptions
 import utils
@@ -69,15 +69,15 @@ def branch_create_subcommand(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
-    if os.path.isdir(os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)):
+    if Path(cwd, ".sccs", "branches", sanitized_branch_name).is_dir():
         raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
     try:
         shutil.copytree(
-            os.path.join(cwd, ".sccs", "branches", current_branch),
-            os.path.join(cwd, ".sccs", "branches", sanitized_branch_name),
+            Path(cwd, ".sccs", "branches", current_branch),
+            Path(cwd, ".sccs", "branches", sanitized_branch_name),
         )
     except Exception as e:
         delete_branch_after_error(sanitized_branch_name, cwd=cwd)
@@ -108,8 +108,8 @@ def delete_branch_after_error(branch_name: str, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
 
-    branch_path = os.path.join(cwd, ".sccs", "branches", branch_name)
-    if os.path.isdir(branch_path):
+    branch_path = Path(cwd, ".sccs", "branches", branch_name)
+    if branch_path.is_dir():
         shutil.rmtree(branch_path)
 
 
@@ -128,14 +128,14 @@ def branch_delete_subcommand(
 
     sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
 
-    branch_path = os.path.join(cwd, ".sccs", "branches", sanitized_branch_name)
+    branch_path = Path(cwd, ".sccs", "branches", sanitized_branch_name)
 
     if sanitized_branch_name == current_branch:
         raise exceptions.BranchDeletionError(
             "Cannot delete the current branch. Please switch to another branch first."
         )
 
-    if not os.path.exists(branch_path):
+    if not branch_path.exists():
         raise exceptions.BranchNotFoundError(
             f"Branch '{sanitized_branch_name}' does not exist."
         )

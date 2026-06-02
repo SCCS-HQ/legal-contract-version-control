@@ -1,6 +1,5 @@
 """Open a commit file and update the current document."""
 
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -37,8 +36,8 @@ def confirm_before_proceeding(
         cwd = utils.working_directory_path
     confirm = (
         input(
-            f"Are you sure you want to overwrite '{cwd}/{os.path.basename(docx_path)}' "
-            f"with the contents of '{cwd}/{os.path.basename(commit_path)}'?\nThis "
+            f"Are you sure you want to overwrite '{cwd}/{Path(docx_path).name}' "
+            f"with the contents of '{cwd}/{Path(commit_path).name}'?\nThis "
             f"action will replace the current content of the .docx file. (Y/N): "
         )
         .strip()
@@ -56,7 +55,7 @@ def check_changes(commit_path: str, docx_path: str = None) -> None:
     if (
         Path(docx_path).exists()
         and Path(commit_path).exists()
-        and os.path.samefile(docx_path, commit_path)
+        and Path(docx_path, commit_path).samefile()
     ):
         print(
             "The commit file is the same as the current file. No changes will be made."
@@ -80,8 +79,8 @@ def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) 
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(
-        f"File '{os.path.basename(docx_path)}' has been updated with the contents of "
-        f"'{os.path.basename(commit_path)}'."
+        f"File '{Path(docx_path).name}' has been updated with the contents of "
+        f"'{Path(commit_path).name}'."
     )
 
 

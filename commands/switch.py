@@ -1,8 +1,8 @@
 """Switch between document branches."""
 
 import json
-import os
 import shutil
+from pathlib import Path
 import sys
 
 import exceptions
@@ -27,14 +27,13 @@ def update_current_branch(
             current_branch = json.load(f)
             current_branch["current_branch"] = branch
 
-        tmp_path = os.path.join(cwd, ".sccs", "current_branch", "tmp")
+        tmp_path = Path(cwd, ".sccs", "current_branch", "tmp")
 
         with open(tmp_path, "w", encoding="utf-8", newline="\n") as f:
             json.dump(current_branch, f, indent=4)
 
-        os.replace(
-            tmp_path,
-            os.path.join(cwd, ".sccs", "current_branch", "current_branch.json"),
+        Path(tmp_path).replace(
+            Path(cwd, ".sccs", "current_branch", "current_branch.json")
         )
 
     except Exception as e:
@@ -62,7 +61,7 @@ def get_latest_commit_binary_hash(
         cwd = utils.working_directory_path
     try:
         with open(
-            os.path.join(
+            Path(
                 cwd,
                 ".sccs",
                 "branches",
@@ -101,7 +100,7 @@ def get_latest_commit(branch: str, cwd: str = None) -> str:
         cwd = utils.working_directory_path
     try:
         with open(
-            os.path.join(
+            Path(
                 cwd, ".sccs", "branches", branch, "history", "commit_history.json"
             ),
             "r",
@@ -118,9 +117,7 @@ def check_commit(commit: str, cwd: str = None) -> None:
     """Check if the commit object exists."""
     if cwd is None:
         cwd = utils.working_directory_path
-    if not os.path.isfile(
-        os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx")
-    ):
+    if not Path(cwd, ".sccs", "objects", "docx", f"{commit}.docx").is_file():
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
 
@@ -130,8 +127,8 @@ def copy_commit_to_main(commit: str, cwd: str = None) -> None:
         cwd = utils.working_directory_path
     try:
         shutil.copy2(
-            os.path.join(cwd, ".sccs", "objects", "docx", f"{commit}.docx"),
-            os.path.join(cwd, f"{os.path.basename(cwd)}.docx"),
+            Path(cwd, ".sccs", "objects", "docx", f"{commit}.docx"),
+            Path(cwd, f"{Path(cwd).name}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e

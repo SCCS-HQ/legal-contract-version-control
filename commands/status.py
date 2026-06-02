@@ -1,7 +1,6 @@
 """Check the status of the current document for uncommitted changes."""
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -14,7 +13,7 @@ def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> 
     if cwd is None:
         cwd = utils.working_directory_path
     # get the latest commit filename hash from commit history
-    history_path = os.path.join(
+    history_path = Path(
         cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
     )
     if not Path(history_path).is_file():
@@ -55,7 +54,7 @@ def get_latest_commit_file_binary_hash(
         current_branch = utils.get_current_branch()
     # get the hash of the latest committed file
     latest_commit_hash = get_latest_commit_hash_file(current_branch, cwd=cwd)
-    latest_commit_file_hash_path = os.path.join(
+    latest_commit_file_hash_path = Path(
         cwd,
         ".sccs",
         "branches",

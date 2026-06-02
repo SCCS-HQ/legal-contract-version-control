@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import shutil
 import sys
 from datetime import datetime
@@ -18,7 +17,7 @@ def get_key_from_config(key: str, cwd: str = None) -> str:
     if cwd is None:
         cwd = utils.working_directory_path
     # Get name and email entered on init
-    config_path = os.path.join(cwd, ".sccs", "config", "config.json")
+    config_path = Path(cwd, ".sccs", "config", "config.json")
 
     if not Path(config_path).is_file():
         raise FileNotFoundError(
@@ -56,7 +55,7 @@ def get_history_path(cwd: str = None, current_branch: str = None) -> str:
         cwd = utils.working_directory_path
     if current_branch is None:
         current_branch = utils.get_current_branch()
-    return os.path.join(
+    return Path(
         cwd, ".sccs", "branches", current_branch, "history", "commit_history.json"
     )
 
@@ -106,8 +105,8 @@ def copy_docx_to_objects(sha_hash: str, docx_path: str = None, cwd: str = None) 
     if cwd is None:
         cwd = utils.working_directory_path
     shutil.copy2(
-        os.path.join(cwd, Path(docx_path).name),
-        os.path.join(cwd, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
+        Path(cwd, Path(docx_path).name),
+        Path(cwd, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
     )
 
 
@@ -121,7 +120,7 @@ def write_diff_html(
     if styles is None:
         styles = utils.default_html_styles
     with open(
-        os.path.join(cwd, ".sccs", "objects", "html", f"{sha_hash}.html"),
+        Path(cwd, ".sccs", "objects", "html", f"{sha_hash}.html"),
         "w",
         encoding="utf-8",
         newline="\n",
@@ -135,7 +134,7 @@ def write_view_html(sha_hash: str, docx_html: str, cwd: str = None) -> None:
     if cwd is None:
         cwd = utils.working_directory_path
     with open(
-        os.path.join(cwd, ".sccs", "objects", "view_html", f"{sha_hash}.html"),
+        Path(cwd, ".sccs", "objects", "view_html", f"{sha_hash}.html"),
         "w",
         encoding="utf-8",
         newline="\n",
@@ -155,7 +154,7 @@ def update_commit_log_history(
 
     # Check if history file exists
     commit_history_path = get_history_path()
-    if not os.path.isfile(commit_history_path):
+    if not Path(commit_history_path).is_file():
         raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
@@ -187,7 +186,7 @@ def update_commit_messages(
     # Check if commit messages file exists
     if cwd is None:
         cwd = utils.working_directory_path
-    commit_messages_path = os.path.join(
+    commit_messages_path = Path(
         cwd, ".sccs", "commit_messages", "commit_messages.json"
     )
 
@@ -221,7 +220,7 @@ def update_commit_binary_hash_history(
     if current_branch is None:
         current_branch = utils.get_current_branch()
 
-    commit_file_hash_path = os.path.join(
+    commit_file_hash_path = Path(
         cwd,
         ".sccs",
         "branches",
@@ -270,7 +269,7 @@ def atomically_update_history(update_dict: dict[str, dict]) -> None:
 
     for key, value in update_dict.items():
         try:
-            os.replace(f"{Path(key).with_suffix('.tmp')}", f"{Path(key)}")
+            Path(f"{Path(key).with_suffix('.tmp')}").replace(Path(key))
         except Exception as e:
             raise exceptions.TemporaryFileError from e
 

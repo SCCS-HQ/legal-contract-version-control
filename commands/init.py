@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import shutil
 import sys
 from datetime import datetime
@@ -47,7 +46,7 @@ def ask_config_input(data: str) -> str:
 def check_for_prev_init() -> None:
     """Exit if the document has already been initialized with SCCS."""
 
-    if Path(os.path.join(get_document_repo_path(), ".sccs")).is_dir():
+    if Path(Path(get_document_repo_path(), ".sccs")).is_dir():
         raise exceptions.AlreadyInitializedError(
             "This file has already been initialized with SCCS."
         )
@@ -83,25 +82,25 @@ def create_sccs_directory_layout() -> None:
     if not repo_path:
         raise exceptions.InvalidArgumentError("No file path provided.")
 
-    os.makedirs(repo_path, exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "docx"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "html"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "objects", "view_html"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "branches"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "branches", "main"), exist_ok=True)
-    os.makedirs(
-        os.path.join(repo_path, ".sccs", "branches", "main", "history"), exist_ok=True
-    )
-    os.makedirs(
-        os.path.join(repo_path, ".sccs", "branches", "main", "commit_file_hash"),
-        exist_ok=True,
-    )
-    os.makedirs(os.path.join(repo_path, ".sccs", "commit_messages"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "config"), exist_ok=True)
-    os.makedirs(os.path.join(repo_path, ".sccs", "current_branch"), exist_ok=True)
-
+    Path(repo_path, exist_ok=True).mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "objects").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "objects", "docx").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "objects", "html").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "objects", "view_html").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "branches").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "branches", "main").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "branches", "main", "history").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "commit_messages").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "config").mkdir(parents=True, exist_ok=True)
+    Path(repo_path, ".sccs", "current_branch").mkdir(parents=True, exist_ok=True)
+    Path(
+        repo_path,
+        ".sccs",
+        "branches",
+        "main",
+        "commit_file_hash"
+    ).mkdir(parents=True, exist_ok=True)
 
 def move_document_to_repo_directory() -> None:
     """Move the source document into the repo directory."""
@@ -122,15 +121,15 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         shutil.copy2(
-            os.path.join(repo_path, doc_name),
-            os.path.join(repo_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
+            Path(repo_path, doc_name),
+            Path(repo_path, ".sccs", "objects", "docx", f"{sha_hash}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
     try:
         with open(
-            os.path.join(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
+            Path(repo_path, ".sccs", "objects", "html", f"{sha_hash}.html"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -141,7 +140,7 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         with open(
-            os.path.join(
+            Path(
                 repo_path, ".sccs", "objects", "view_html", f"{sha_hash}.html"
             ),
             "w",
@@ -182,7 +181,7 @@ def write_history_data(
     }
     try:
         with open(
-            os.path.join(
+            Path(
                 get_document_repo_path(),
                 ".sccs",
                 "branches",
@@ -208,7 +207,7 @@ def write_commit_message_data(sha_hash: str) -> None:
     }
     try:
         with open(
-            os.path.join(
+            Path(
                 get_document_repo_path(),
                 ".sccs",
                 "commit_messages",
@@ -229,7 +228,7 @@ def write_config_data(config_user_name: str, config_user_email: str) -> None:
     config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
     try:
         with open(
-            os.path.join(get_document_repo_path(), ".sccs", "config", "config.json"),
+            Path(get_document_repo_path(), ".sccs", "config", "config.json"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -245,7 +244,7 @@ def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
         with open(
-            os.path.join(
+            Path(
                 get_document_repo_path(),
                 ".sccs",
                 "branches",
@@ -268,7 +267,7 @@ def write_branch_data() -> None:
     branches_data = {"current_branch": "main", "branches": ["main"]}
     try:
         with open(
-            os.path.join(
+            Path(
                 get_document_repo_path(),
                 ".sccs",
                 "current_branch",
@@ -323,7 +322,7 @@ def main() -> None:
     write_config_data(config_user_name, config_user_email)
 
     current_branch_binary_hash = utils.hash_current_docx_binary(
-        docx_path=os.path.join(
+        docx_path=Path(
             get_document_repo_path(), Path(get_entered_document_path()).name
         )
     )
