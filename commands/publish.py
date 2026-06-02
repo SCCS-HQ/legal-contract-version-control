@@ -21,7 +21,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     branch_data = utils.get_branch_data(
         Path(cwd) / ".sccs" / "current_branch" / "current_branch.json"
@@ -73,7 +73,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
     """
 
     if not urlsplit(remote).path.endswith(
-        f"/repos/{utils.working_directory_path.name}"
+        f"/repos/{Path.cwd().name}"
     ):
         raise exceptions.InvalidAPIURLError(
             "API URL must end with '/repos/<repo_name>'"

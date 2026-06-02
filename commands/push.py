@@ -23,7 +23,7 @@ def get_matching_file_paths(
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     if updated_branches is None:
         updated_branches = []
     paths = []
@@ -54,7 +54,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     objects_dir = cwd / ".sccs" / "objects"
     objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
     return objects
@@ -90,7 +90,7 @@ def zip_files_to_upload(obj_to_upload: list, cwd: None | Path = None) -> io.Byte
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     cwd = Path(cwd).resolve()
 
     document_path = [cwd / f"{cwd.name}.docx"]
@@ -163,7 +163,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
     """
 
     remote_path = urlsplit(remote).path.rstrip("/")
-    if not remote_path.endswith(f"/repos/{utils.working_directory_path.name}"):
+    if not remote_path.endswith(f"/repos/{Path.cwd().name}"):
         raise exceptions.InvalidAPIURLError(
             "API URL must end with '/repos/<repo_name>'"
         )
@@ -175,7 +175,7 @@ def push_POST(remote: str, buffer: io.BytesIO) -> requests.Response:
                 (
                     "file",
                     (
-                        utils.working_directory_path.name + ".zip",
+                        Path.cwd().name + ".zip",
                         buffer,
                         "application/zip",
                     ),
@@ -195,7 +195,7 @@ def clear_updated_branches(cwd: None | Path = None) -> None:
     """Clear the updated branches list in the current branch file."""
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     current_branch_file = cwd / ".sccs" / "current_branch" / "current_branch.json"
 
     data = utils.get_branch_data(file_path=current_branch_file)

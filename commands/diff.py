@@ -323,7 +323,7 @@ def main() -> None:
 
     commit_html = get_commit_html(
         utils.validate_commit(
-            "html", utils.working_directory_path, utils.entered_arguement(2)
+            "html", Path.cwd(), utils.entered_arguement(2)
         )
     )
 

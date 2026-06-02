@@ -14,7 +14,7 @@ def reset(cwd: Path | None = None) -> None:
     """Delete all uncommitted changes."""
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     if not utils.check_for_uncommitted_changes("reset", exit=False, cwd=cwd):
         raise exceptions.NoUncommittedChangesError()

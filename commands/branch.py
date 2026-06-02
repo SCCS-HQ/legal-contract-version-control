@@ -49,7 +49,7 @@ def branch_create_subcommand(
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
@@ -106,7 +106,7 @@ def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     branch_path = cwd / ".sccs" / "branches" / branch_name
     if branch_path.is_dir():
@@ -128,7 +128,7 @@ def branch_delete_subcommand(
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
 

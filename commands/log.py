@@ -18,7 +18,7 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     if current_branch is None:
         current_branch = utils.get_current_branch()
 

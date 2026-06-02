@@ -16,7 +16,7 @@ def confirm_before_proceeding(
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     confirm = (
         input(
             f"Are you sure you want to overwrite '{cwd}/{docx_path.name}' "
@@ -63,7 +63,7 @@ def main() -> None:
     utils.check_sccs_layout()
 
     commit_path = utils.validate_commit(
-        "docx", utils.working_directory_path, utils.entered_arguement(2)
+        "docx", Path.cwd(), utils.entered_arguement(2)
     )
 
     utils.check_for_uncommitted_changes("open")

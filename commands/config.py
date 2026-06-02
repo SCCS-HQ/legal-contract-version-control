@@ -35,7 +35,7 @@ def resolve_entered_remote(remote: str) -> str:
     if not remote.endswith("/repos"):
         remote += "/repos"
 
-    remote += "/" + utils.working_directory_path.name
+    remote += "/" + Path.cwd().name
 
     return remote
 

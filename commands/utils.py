@@ -12,12 +12,9 @@ import sys
 import exceptions
 import mammoth
 
-working_directory_path = Path.cwd()
+current_file_docx_path = Path.cwd() / f"{Path.cwd().name}.docx"
 
-
-current_file_docx_path = working_directory_path / f"{working_directory_path.name}.docx"
-
-sccs_versions_directory_path = working_directory_path / ".sccs"
+sccs_versions_directory_path = Path.cwd() / ".sccs"
 
 default_html_styles = (
     "<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"
@@ -29,7 +26,7 @@ default_html_styles = (
 )
 
 current_branch_path = (
-    working_directory_path / ".sccs" / "current_branch" / "current_branch.json"
+    Path.cwd() / ".sccs" / "current_branch" / "current_branch.json"
 )
 
 
@@ -258,7 +255,7 @@ def convert_docx_to_html(docx_path: Path | None = None) -> str:
 def get_key_from_config(key: str, cwd: Path | None = None) -> str:
     """Return the value of 'key' from the SCCS config JSON file."""
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     with open(
         Path(cwd) / ".sccs" / "config" / "config.json",
         "r",
@@ -278,7 +275,7 @@ def get_key_from_config(key: str, cwd: Path | None = None) -> str:
 def write_key_to_config(key: str, value: str, cwd: Path | None = None) -> None:
     """Write 'key': 'value' to the SCCS config JSON file."""
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
 
     with open(
         Path(cwd) / ".sccs" / "config" / "config.json",
@@ -306,7 +303,7 @@ def get_history_path(
     """Retrieve the path to the commit history file."""
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     if current_branch is None:
         current_branch = get_current_branch()
     return cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
@@ -358,7 +355,7 @@ def copy_docx_to_objects(
     if docx_path is None:
         docx_path = current_file_docx_path
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     shutil.copy2(
         cwd / docx_path.name,
         cwd / ".sccs" / "objects" / "docx" / f"{sha_hash}.docx",
@@ -373,7 +370,7 @@ def write_docx_html(
     """
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     if styles is None:
         styles = default_html_styles
     with open(
@@ -392,7 +389,7 @@ def write_view_html(sha_hash: str, docx_html: str, cwd: Path | None = None) -> N
     """
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     with open(
         cwd / ".sccs" / "objects" / "view_html" / f"{sha_hash}.html",
         "w",
@@ -412,7 +409,7 @@ def update_commit_binary_hash_history(
 
     # Update commit file hash
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     if current_branch is None:
         current_branch = get_current_branch()
 
@@ -449,7 +446,7 @@ def update_commit_messages(
 
     # Check if commit messages file exists
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     commit_messages_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
 
     if not commit_messages_path.is_file():
@@ -514,7 +511,7 @@ def update_changed_branches(
     """Update the list of branches with unpushed changes."""
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
 
     if updated_branch is None:
         updated_branch = [get_current_branch()]
@@ -645,7 +642,7 @@ def validate_commit(
     commit = Path(str(commit).strip()) if commit else None
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
 
     if commit is None:
         raise exceptions.InvalidArgumentError(
@@ -701,7 +698,7 @@ def check_for_uncommitted_changes(
     """
 
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
 
     with open(
         cwd / ".sccs" / "branches" / get_current_branch() / "history" / "history.json",
@@ -740,7 +737,7 @@ def get_latest_commit(branch: str, cwd: Path | None = None) -> str:
     Return the latest commit hash for a given branch by reading the document metadata.
     """
     if cwd is None:
-        cwd = working_directory_path
+        cwd = Path.cwd()
     try:
         with open(
             (cwd / ".sccs" / "branches" / branch / "history" / "history.json"),

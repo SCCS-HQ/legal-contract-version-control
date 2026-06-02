@@ -15,7 +15,7 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     objects_dir = cwd / ".sccs" / "objects"
     objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
@@ -39,7 +39,7 @@ def update_repo_files(response: requests.Response, cwd: None | Path = None) -> N
     """
 
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
         zf.extractall(cwd)

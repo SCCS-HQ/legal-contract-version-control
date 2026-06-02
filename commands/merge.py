@@ -26,7 +26,7 @@ def copy_branch_data(
 ) -> None:
     """Copy the data from the source branch to the target branch."""
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     current_branch_path = cwd / ".sccs" / "branches" / current_branch
     target_branch_path = cwd / ".sccs" / "branches" / target_branch
@@ -37,7 +37,7 @@ def copy_branch_data(
 def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
     """Copy the repo document from the source branch to the target branch."""
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
 
     target_repo_doc_path = (
         cwd

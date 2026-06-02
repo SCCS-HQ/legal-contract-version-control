@@ -35,7 +35,7 @@ def main() -> None:
 
     utils.check_for_uncommitted_changes("revert")
 
-    cwd = utils.working_directory_path
+    cwd = Path.cwd()
     commit = utils.entered_arguement(2)
     validated_commit = utils.validate_commit("docx", cwd, commit)
     revert(validated_commit)

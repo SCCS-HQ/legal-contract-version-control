@@ -17,7 +17,7 @@ def update_current_branch(
     Update the current branch in the SCCS metadata before switching branches.
     """
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
     try:
@@ -57,7 +57,7 @@ def get_latest_commit_binary_hash(
     metadata.
     """
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     try:
         with open(
             (
@@ -87,7 +87,7 @@ def check_commit(commit: str, cwd: Path | None = None) -> None:
     Check if the commit object exists in the document history.
     """
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     if not (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx").is_file():
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
@@ -95,7 +95,7 @@ def check_commit(commit: str, cwd: Path | None = None) -> None:
 def copy_commit_to_main(commit: str, cwd: Path | None = None) -> None:
     """Copy the commit file to the main document."""
     if cwd is None:
-        cwd = utils.working_directory_path
+        cwd = Path.cwd()
     try:
         shutil.copy2(
             (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx"),
