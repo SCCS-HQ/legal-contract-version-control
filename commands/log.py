@@ -49,6 +49,8 @@ def print_log() -> None:
 
 
 def main() -> None:
+    """Run functions for the <sccs log> command."""
+
     utils.check_sccs_layout()
 
     print_log()

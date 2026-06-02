@@ -10,12 +10,14 @@ import utils
 
 
 def get_branch_to_switch() -> str | None:
+    """Retrieve the branch name to switch to from command-line arguments."""
     return sys.argv[2] if len(sys.argv) > 2 else None
 
 
 def update_current_branch(
     branch: str, current_branch_path: str = None, cwd: str = None
 ) -> None:
+    """Update the current branch in the SCCS metadata."""
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch_path is None:
@@ -40,6 +42,7 @@ def update_current_branch(
 
 
 def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None:
+    """Check if the branch to switch to is valid."""
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
             "No branch specified. Please provide a branch name to switch to."
@@ -54,6 +57,7 @@ def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None
 def get_latest_commit_binary_hash(
     branch: str, latest_commit: str, cwd: str = None
 ) -> str:
+    """Retrieve the latest commit binary hash for a given branch."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -78,6 +82,7 @@ def get_latest_commit_binary_hash(
 def check_for_changes(
     branch: str, latest_commit_binary_hash: str, current_document_hash: str
 ) -> None:
+    """Check if there are uncommitted changes on the current branch."""
     if not current_document_hash == latest_commit_binary_hash:
         raise exceptions.UncommittedChangesError(
             f"The current file has uncommitted changes on the current branch '{branch}'"
@@ -86,10 +91,12 @@ def check_for_changes(
 
 
 def sanitize_branch(branch_name: str) -> str:
+    """Sanitize the branch name."""
     return utils.clean_directory_name(branch_name)
 
 
 def get_latest_commit(branch: str, cwd: str = None) -> str:
+    """Retrieve the latest commit hash for a given branch."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -108,6 +115,7 @@ def get_latest_commit(branch: str, cwd: str = None) -> str:
 
 
 def check_commit(commit: str, cwd: str = None) -> None:
+    """Check if the commit object exists."""
     if cwd is None:
         cwd = utils.working_directory_path
     if not os.path.isfile(
@@ -117,6 +125,7 @@ def check_commit(commit: str, cwd: str = None) -> None:
 
 
 def copy_commit_to_main(commit: str, cwd: str = None) -> None:
+    """Copy the commit file to the main document."""
     if cwd is None:
         cwd = utils.working_directory_path
     try:
@@ -129,10 +138,14 @@ def copy_commit_to_main(commit: str, cwd: str = None) -> None:
 
 
 def print_confirmation(branch_to_switch: str) -> None:
+    """Print a confirmation message for successful branch switch."""
+
     print(f"Successfully switched to branch '{branch_to_switch}'.")
 
 
 def main() -> None:
+    """Run functions for the <sccs switch> command."""
+
     utils.check_sccs_layout()
 
     branches = utils.get_branch_data(key="branches")

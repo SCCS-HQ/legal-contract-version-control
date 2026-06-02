@@ -10,6 +10,7 @@ import utils
 
 
 def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> str:
+    """Retrieve the hash of the latest commit from SCCS metadata."""
     if cwd is None:
         cwd = utils.working_directory_path
     # get the latest commit filename hash from commit history
@@ -46,6 +47,8 @@ def get_latest_commit_hash_file(current_branch: str = None, cwd: str = None) -> 
 def get_latest_commit_file_binary_hash(
     current_branch: str = None, cwd: str = None
 ) -> str:
+    """Retrieve the hash of the latest committed file from SCCS metadata."""
+
     if cwd is None:
         cwd = utils.working_directory_path
     if current_branch is None:
@@ -86,10 +89,13 @@ def get_latest_commit_file_binary_hash(
 
 
 def compare_hashes(old_hash: str, new_hash: str) -> bool:
+    """Compare two hashes and return True if they are the same, False otherwise."""
     return old_hash == new_hash
 
 
 def compare_changes_and_exit(old_hash: str, new_hash: str) -> None:
+    """Compare the old and new hashes and exit with 0 if no changes are detected and 1 
+    if changes are detected."""
     if compare_hashes(old_hash, new_hash):
         print("No changes detected since the latest commit. Nothing to commit.")
         sys.exit(0)
@@ -101,6 +107,8 @@ def compare_changes_and_exit(old_hash: str, new_hash: str) -> None:
 
 
 def main() -> None:
+    """Run functions for the <sccs status> command."""
+
     utils.check_sccs_layout()
     compare_changes_and_exit(
         get_latest_commit_file_binary_hash(), utils.hash_current_docx_binary()

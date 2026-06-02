@@ -103,6 +103,8 @@ def branch_create_subcommand(
 
 
 def delete_branch_after_error(branch_name: str, cwd: str = None) -> None:
+    """Delete a branch after an error has occurred during creation."""
+
     if cwd is None:
         cwd = utils.working_directory_path
 
@@ -211,6 +213,7 @@ def run_specified_subcommand(
 
 
 def main() -> None:
+    """Run functions for the <sccs branch> command."""
     utils.check_sccs_layout()
 
     validate_subcommand(get_entered_subcommand(), get_entered_branch_name())

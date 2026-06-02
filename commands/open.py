@@ -10,11 +10,13 @@ import utils
 
 
 def get_commit_path_input() -> str:
+    """Prompt the user for the commit file path and return it."""
     commit_path = input("Enter the path to the commit file (.docx): ").strip()
     return commit_path
 
 
 def check_commit_path_input(commit_path: str) -> None:
+    """Check the validity of the commit file path."""
     if commit_path == "":
         raise exceptions.InvalidArgumentError("Commit file path cannot be empty.")
 
@@ -28,6 +30,7 @@ def check_commit_path_input(commit_path: str) -> None:
 def confirm_before_proceeding(
     commit_path: str, docx_path: str = None, cwd: str = None
 ) -> None:
+    """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if cwd is None:
@@ -47,6 +50,8 @@ def confirm_before_proceeding(
 
 
 def check_changes(commit_path: str, docx_path: str = None) -> None:
+    """Check if there are any changes between the commit file and the current 
+    document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if (
@@ -61,6 +66,7 @@ def check_changes(commit_path: str, docx_path: str = None) -> None:
 
 
 def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
+    """Copy the commit file to the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
 
@@ -71,6 +77,7 @@ def copy_file_commit(commit_path: str, docx_path: str = None) -> None:
 
 
 def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) -> None:
+    """Print the confirmation message after rewriting the file."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     print(
@@ -80,6 +87,8 @@ def print_rewrite_confirmation_message(commit_path: str, docx_path: str = None) 
 
 
 def main() -> None:
+    """Run functions for the <sccs open> command."""
+
     utils.check_sccs_layout()
 
     commit_path = get_commit_path_input()

@@ -28,6 +28,8 @@ def print_help(messages: list[str]) -> None:
 
 
 def main() -> None:
+    """Run functions for the <sccs help> command."""
+
     print_help(MESSAGES_TO_PRINT)
 
 
