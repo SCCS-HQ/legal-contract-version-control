@@ -32,7 +32,7 @@ A lightweight CLI distributed version control system designed to help legal prof
 
 CLI Commands:
 
-```Python
+```text
 sccs branch - Create a new branch, delete, or list branches.
 sccs clone - Clone a hosted SCCS repository with a URL.
 sccs commit - Commit changes to the repository.
