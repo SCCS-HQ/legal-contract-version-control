@@ -15,6 +15,7 @@ A lightweight CLI distributed version control system designed to help legal prof
 - [About](#-about)
 - [Features](#-features)
 - [Installation](#-installation)
+- [Setup](#-setup)
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Contact](mailto:danielaphillion@gmail.com)
