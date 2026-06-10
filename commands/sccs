@@ -34,7 +34,7 @@ def get_script_directory() -> Path:
     return Path(__file__).parent.resolve()
 
 
-def run_command(command: str, script_directory: Path) -> None:
+def run_command() -> None:
     """
     Run the entered command by running a subprocess of the command and exiting with the
     exit code of the subprocess.
@@ -42,17 +42,20 @@ def run_command(command: str, script_directory: Path) -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            script_directory / f"{command}.py"]
+            get_script_directory() / f"{utils.entered_arguement(1)}.py"]
              + sys.argv[1:]
         ).returncode
     )
 
 
-def execute_command(command: str, script_directory: Path, COMMANDS: list) -> None:
+def execute_command() -> None:
     """
     Ensure 'command' is valid by checking if it is included in 'COMMANDS'. If command'
     is valid, run it with 'run_command()'.
     """
+
+    command = utils.entered_arguement(1)
+
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(
             f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
@@ -60,15 +63,11 @@ def execute_command(command: str, script_directory: Path, COMMANDS: list) -> Non
             f",'reset', 'push', 'pull', or 'merge', along with required arguments. For help, use the 'sccs help' "
             f"command."
         )
-    run_command(command, script_directory)
+    run_command()
 
 
 def main() -> None:
-    command = utils.entered_arguement(1)
-
-    script_directory = get_script_directory()
-
-    execute_command(command, script_directory, COMMANDS)
+    execute_command()
 
 
 if __name__ == "__main__":
