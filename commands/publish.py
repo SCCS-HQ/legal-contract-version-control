@@ -68,12 +68,15 @@ def zip_cwd() -> io.BytesIO:
     return buffer
 
 
-def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
+def post_repo() -> requests.Response:
     """
-    Make a POST request to 'remote', sending 'buffer' as a file and 'remote' as JSON
+    Make a POST request to 'remote', sending the zipped current working directory as a file
+    and 'remote' as JSON.
 
     Return the server response of the POST request to 'remote'.
     """
+
+    remote = utils.get_key_from_config("remote")
 
     if not urlsplit(remote).path.endswith(
         f"/repos/{Path.cwd().name}"
@@ -86,7 +89,7 @@ def post_repo(buffer: io.BytesIO, remote: str) -> requests.Response:
         response = requests.post(
             f"{remote}/publish",
             files=[
-                ("file", (Path.cwd().name + ".zip", buffer, "application/zip")),
+                ("file", (Path.cwd().name + ".zip", zip_cwd(), "application/zip")),
                 ("data", (None, json.dumps({"remote": remote}), "application/json")),
             ],
             timeout=60,
@@ -106,7 +109,7 @@ def main() -> None:
 
     remote = utils.get_key_from_config("remote")
     print(f"Publishing repository to {remote}...\n")
-    response = post_repo(zip_cwd(), remote)
+    response = post_repo()
 
     print(f"Status Code: {response.status_code}\n")
     response.raise_for_status()
