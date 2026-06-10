@@ -10,7 +10,7 @@ from repository_layout import RepositoryLayout
 
 Repository = RepositoryLayout(Path.cwd())
 
-def resolve_entered_remote(remote: str) -> str:
+def resolve_entered_remote() -> str:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
     by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
@@ -18,6 +18,8 @@ def resolve_entered_remote(remote: str) -> str:
 
     Return the resolved 'remote'.
     """
+
+    remote = utils.entered_arguement(3)
 
     if not remote.startswith("http://") and not remote.startswith("https://"):
         raise exceptions.InvalidArgumentError(
@@ -51,7 +53,7 @@ def main() -> None:
     value = utils.entered_arguement(3)
 
     if key == "remote":
-        value = resolve_entered_remote(value)
+        value = resolve_entered_remote()
 
     utils.write_key_to_config(key, value)
 
