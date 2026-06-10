@@ -24,10 +24,10 @@ def get_document_repo_path() -> Path | None:
     return Path(path).with_suffix("")
 
 
-def check_if_arg_entered(arg: Path) -> None:
+def check_if_arg_entered() -> None:
     """Check that a file path argument was provided."""
 
-    if not arg:
+    if not utils.entered_arguement(2):
         raise exceptions.InvalidArgumentError("No file path provided.")
 
 
@@ -74,7 +74,7 @@ def check_file_requirements() -> None:
         raise FileNotFoundError("File does not exist.")
 
 
-def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> str:
+def create_commit_sha_hash(user_name: str, user_email: str) -> str:
     """
     Create a SHA-256 hash for the initial commit using the timestamp, user name, and
     user email.
@@ -83,7 +83,7 @@ def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> s
     """
 
     return hashlib.sha256(
-        f"{timestamp}/initial_version/{user_name}/{user_email}".encode()
+        f"{get_current_iso_time()}/initial_version/{user_name}/{user_email}".encode()
     ).hexdigest()
 
 
@@ -170,10 +170,10 @@ def get_current_iso_time() -> str:
     return datetime.now().isoformat()
 
 
-def write_history_data(
-    sha_hash: str, config_user_name: str, config_user_email: str
-) -> None:
+def write_history_data(config_user_name: str, config_user_email: str) -> None:
     """Write the initial commit history JSON file to the main branch history folder."""
+
+    sha_hash = create_commit_sha_hash(config_user_name, config_user_email)
 
     history_data = {
         "history": {
@@ -309,7 +309,7 @@ def confirmation_message() -> None:
 def main() -> None:
     """Run functions for the <sccs init> command."""
 
-    check_if_arg_entered(utils.entered_arguement(2))
+    check_if_arg_entered()
 
     check_for_prev_init()
 
@@ -319,10 +319,8 @@ def main() -> None:
 
     config_user_email = ask_config_input("email")
 
-    current_iso_time = get_current_iso_time()
-
     sha_hash = create_commit_sha_hash(
-        current_iso_time, config_user_name, config_user_email
+        config_user_name, config_user_email
     )
 
     create_sccs_directory_layout()
@@ -333,7 +331,7 @@ def main() -> None:
 
     copy_document_to_objects_as_docx_and_html(sha_hash, document_as_html)
 
-    write_history_data(sha_hash, config_user_name, config_user_email)
+    write_history_data(config_user_name, config_user_email)
 
     write_commit_message_data(sha_hash)
 
