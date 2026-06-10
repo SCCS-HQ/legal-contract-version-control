@@ -9,8 +9,12 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:
+def validate_branch() -> str:
     """Validate that the entered branch is valid, exists, and is not the current branch."""
+
+    branch = utils.entered_arguement(2)
+    current_branch = utils.get_current_branch()
+
     if branch is None:
         raise exceptions.InvalidArgumentError(
             "No branch provided. Please provide a branch to merge."
@@ -19,25 +23,24 @@ def validate_branch(branch: str | None, current_branch: str, branches: list) -> 
         raise exceptions.InvalidArgumentError(
             "Cannot merge the current branch into itself."
         )
-    if branch not in branches:
+    if branch not in utils.get_branch_data(key="branches"):
         raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
     return branch
 
 
-def copy_branch_data(
-    current_branch: str, target_branch: str, cwd: Path | None = None
-) -> None:
+def copy_branch_data() -> None:
     """Copy the data from the source branch to the target branch."""
     if cwd is None:
         cwd = Path.cwd()
+    
 
-    current_branch_path = cwd / ".sccs" / "branches" / current_branch
-    target_branch_path = cwd / ".sccs" / "branches" / target_branch
+    current_branch_path = cwd / ".sccs" / "branches" / utils.get_current_branch()
+    target_branch_path = cwd / ".sccs" / "branches" / validate_branch()
 
     shutil.copytree(target_branch_path, current_branch_path, dirs_exist_ok=True)
 
 
-def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
+def copy_repo_document() -> None:
     """Copy the repo document from the source branch to the target branch."""
     if cwd is None:
         cwd = Path.cwd()
@@ -47,17 +50,17 @@ def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
         / ".sccs"
         / "objects"
         / "docx"
-        / f"{utils.get_latest_commit(target_branch)}.docx"
+        / f"{utils.get_latest_commit(validate_branch())}.docx"
     )
     current_repo_doc_path = utils.current_file_docx_path
 
     shutil.copy2(target_repo_doc_path, current_repo_doc_path)
 
 
-def print_merge_success_message(source_branch: str, target_branch: str) -> None:
+def print_merge_success_message() -> None:
     """Print a success message after merging the branches."""
     print(
-        f"Successfully merged branch '{source_branch}' into branch '{target_branch}'."
+        f"Successfully merged branch '{validate_branch()}' into branch '{utils.get_current_branch()}'."
     )
 
 
@@ -67,16 +70,14 @@ def main() -> None:
 
     utils.check_for_uncommitted_changes("merge")
 
-    current_branch = utils.get_current_branch()
-    entered_branch = utils.entered_arguement(2)
-    branches = utils.get_branch_data(key="branches")
-    branch_to_merge = validate_branch(entered_branch, current_branch, branches)
-    copy_repo_document(branch_to_merge)
-    copy_branch_data(current_branch, branch_to_merge)
+    copy_repo_document()
+    copy_branch_data()
 
-    utils.commit_changes(f'Merged branch "{branch_to_merge}" into "{current_branch}".')
+    utils.commit_changes(
+        f'Merged branch "{validate_branch()}" into "{utils.get_current_branch()}".'
+    )
 
-    print_merge_success_message(branch_to_merge, current_branch)
+    print_merge_success_message()
 
 
 if __name__ == "__main__":
