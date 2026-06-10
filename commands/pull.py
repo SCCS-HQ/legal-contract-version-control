@@ -25,11 +25,13 @@ def get_repo_objects(cwd: None | Path = None) -> list:
     return objects
 
 
-def pull(remote: str, data: dict) -> requests.Response:
+def pull() -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
+    data = {"objects": get_repo_objects()}
+
     try:
-        response = requests.post(f"{remote}/pull", json=data, timeout=60)
+        response = requests.post(f"{utils.get_key_from_config("remote")}/pull", json=data, timeout=60)
     except Exception as e:
         raise exceptions.HTTPPostRequestError() from e
 
@@ -53,9 +55,10 @@ def main():
     utils.check_sccs_layout()
 
     remote = utils.get_key_from_config("remote")
+    
     print(f"Pulling repository from {remote}...\n")
 
-    response = pull(remote, {"objects": get_repo_objects()})
+    response = pull()
 
     print(f"Status Code: {response.status_code}\n")
 
