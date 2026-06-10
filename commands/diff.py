@@ -14,7 +14,7 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def get_commit_html(commit_path: Path) -> str:
+def get_commit_html() -> str:
     """
     Open the commit HTML file at the specified path and return its contents as a string.
 
@@ -23,8 +23,11 @@ def get_commit_html(commit_path: Path) -> str:
     """
 
     try:
-        with open(commit_path, "r", encoding="utf-8", newline="\n") as f:
+        with open(
+            utils.validate_commit("html", Path.cwd(), utils.entered_arguement(2)
+        ), "r", encoding="utf-8", newline="\n") as f:
             commit_html = f.read()
+
     except Exception as e:
         raise exceptions.FileOpenError from e
     return commit_html
@@ -39,7 +42,8 @@ def number_tags(html: BeautifulSoup) -> BeautifulSoup:
     Return the modified BeautifulSoup object with numbered tags.
     """
 
-    soup = html
+    soup = remove_inline_semantics(html)
+    
     for i in enumerate(soup.find_all()):
         if i[1].name == "style":
             continue
@@ -71,7 +75,7 @@ def tags_to_list(html: BeautifulSoup) -> list[str]:
     Return a list of strings representing each tag in the HTML.
     """
 
-    soup = html
+    soup = remove_inline_semantics(html)
     return [str(i) for i in soup.find_all()]
 
 
@@ -94,7 +98,7 @@ def get_data_number(tag_list: list[str]) -> set[str]:
     return data_number
 
 
-def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> BeautifulSoup:
+def delete_tag(old_changed_strings: list[str]) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -104,14 +108,13 @@ def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> Beautiful
     Return the modified BeautifulSoup object with "deleted" class added to tags.
     """
 
-    old_data_numbers = get_data_number(old_changed_strings)
-    soup = html
+    soup = get_redline_html()
     for i in soup.find_all():
         if i.name == "style":
             i.decompose()
             continue
 
-        if i.get("data-number") in old_data_numbers:
+        if i.get("data-number") in get_data_number(old_changed_strings):
             if "class" in i.attrs:
                 i["class"].append("deleted")
             else:
@@ -120,7 +123,7 @@ def delete_tag(html: BeautifulSoup, old_changed_strings: list[str]) -> Beautiful
 
 
 def replace_tag(
-    html: BeautifulSoup, old_changed_strings: list[str], new_changed_strings: list[str]
+    old_changed_strings: list[str], new_changed_strings: list[str]
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -132,15 +135,14 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
-    old_data_numbers = get_data_number(old_changed_strings)
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
-    soup = html
+    soup = get_redline_html()
     match = []
     for i in soup.find_all():
         if i.name == "style":
             i.decompose()
             continue
-        if i.get("data-number") in old_data_numbers:
+        if i.get("data-number") in get_data_number(old_changed_strings):
             match.append(i)
 
     for i in frag.find_all():
@@ -159,9 +161,7 @@ def replace_tag(
     return soup
 
 
-def insert_tag(
-    html: BeautifulSoup, new_changed_strings: list[str], i1: int
-) -> BeautifulSoup:
+def insert_tag(new_changed_strings: list[str], i1: int) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -171,7 +171,7 @@ def insert_tag(
     Return the modified BeautifulSoup object with 'inserted' class added to new tags.
     """
 
-    soup = html
+    soup = get_redline_html()
     for i in soup.find_all():
         if i.name == "style":
             i.decompose()
@@ -205,7 +205,7 @@ def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
     Return the modified BeautifulSoup object with inline semantics tags removed.
     """
 
-    soup = html
+    soup = copy.copy(html)
     for i in soup.find_all(
         ["b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul"]
     ):
@@ -236,12 +236,10 @@ def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
     Return a list of strings which could be concatenated to produce the formatted HTML.
     """
 
-    return tags_to_list(number_tags(remove_inline_semantics(copy.copy(bs4_obj))))
+    return tags_to_list(number_tags(convert_html_to_soup(bs4_obj)))
 
 
-def get_opcodes(
-    commit_soup: BeautifulSoup, current_soup: BeautifulSoup
-) -> list[tuple[str, int, int, int, int]]:
+def get_opcodes() -> list[tuple[str, int, int, int, int]]:
     """
     Remove the inline semantics tags and convert the tags into lists using copies of
     both the commit and current version BeautifulSoup objects.
@@ -253,12 +251,14 @@ def get_opcodes(
     version HTML.
     """
 
-    commit_tags = tags_to_list(remove_inline_semantics(copy.copy(commit_soup)))
-    current_tags = tags_to_list(remove_inline_semantics(copy.copy(current_soup)))
-    return difflib.SequenceMatcher(None, commit_tags, current_tags).get_opcodes()
+    return difflib.SequenceMatcher(
+        None,
+        tags_to_list(convert_html_to_soup(get_commit_html())),
+        tags_to_list(convert_html_to_soup(utils.convert_docx_to_html()))
+    ).get_opcodes()
 
 
-def get_redline_html(commit_soup: BeautifulSoup) -> BeautifulSoup:
+def get_redline_html() -> BeautifulSoup:
     """
     Remove the inline semantics tags and convert the tags into lists using a copy of the
     commit BeautifulSoup object.
@@ -267,15 +267,10 @@ def get_redline_html(commit_soup: BeautifulSoup) -> BeautifulSoup:
     document.
     """
 
-    return number_tags(remove_inline_semantics(copy.copy(commit_soup)))
+    return number_tags(convert_html_to_soup(get_commit_html()))
 
 
-def format_redline_html(
-    redline: BeautifulSoup,
-    opcodes: list[tuple[str, int, int, int, int]],
-    commit_list: list[str],
-    docx_current_version_list: list[str],
-) -> BeautifulSoup:
+def format_redline_html() -> BeautifulSoup:
     """
     Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a
     list of 5-tuples.
@@ -293,59 +288,41 @@ def format_redline_html(
     difference and perform a subsequent function.
     """
 
+    opcodes = get_opcodes()
+    commit_list = format_bs4_html_list(get_commit_html())
+    docx_current_version_list = format_bs4_html_list(utils.convert_docx_to_html())
+
     for i in reversed(opcodes):
         tag, i1, i2, j1, j2 = i
         old_changed_strings = commit_list[i1:i2]
         new_changed_strings = docx_current_version_list[j1:j2]
         if tag == "replace":
-            redline = replace_tag(redline, old_changed_strings, new_changed_strings)
+
+            redline = replace_tag(old_changed_strings, new_changed_strings)
         if tag == "insert":
-            redline = insert_tag(redline, new_changed_strings, i1)
+
+            redline = insert_tag(new_changed_strings, i1)
         if tag == "delete":
-            redline = delete_tag(redline, old_changed_strings)
+
+            redline = delete_tag(old_changed_strings)
     return redline
 
 
-def write_redline_html_file(
-    redline: BeautifulSoup, filename: Path = Path("redline.html")
-) -> None:
+def write_redline_html_file() -> None:
     """
     Print the redline HTML to a file named 'redline.html' in the current working
     directory.
     """
 
-    with open(filename, "w", encoding="utf-8", newline="\n") as f:
-        f.write(utils.wrap_html(str(strip_number_attribute(redline))))
+    with open("redline.html", "w", encoding="utf-8", newline="\n") as f:
+        f.write(utils.wrap_html(str(strip_number_attribute(format_redline_html()))))
 
 
 def main() -> None:
     """Run functions for the <sccs diff> command."""
     utils.check_sccs_layout()
 
-    docx_current_version_html = utils.convert_docx_to_html()
-
-    commit_html = get_commit_html(
-        utils.validate_commit(
-            "html", Path.cwd(), utils.entered_arguement(2)
-        )
-    )
-
-    bs4_docx_current_version_soup = convert_html_to_soup(docx_current_version_html)
-
-    docx_current_version_list = format_bs4_html_list(bs4_docx_current_version_soup)
-
-    bs4_commit_soup = convert_html_to_soup(commit_html)
-    commit_list = format_bs4_html_list(bs4_commit_soup)
-
-    opcodes = get_opcodes(bs4_commit_soup, bs4_docx_current_version_soup)
-
-    base_redline_html = get_redline_html(bs4_commit_soup)
-
-    redline = format_redline_html(
-        base_redline_html, opcodes, commit_list, docx_current_version_list
-    )
-
-    write_redline_html_file(redline)
+    write_redline_html_file()
 
 
 if __name__ == "__main__":
