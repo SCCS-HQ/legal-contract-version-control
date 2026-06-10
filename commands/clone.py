@@ -13,7 +13,7 @@ from repository_layout import RepositoryLayout
 
 Repository = RepositoryLayout(Path.cwd())
 
-def resolve_entered_url(url: str | None = None) -> str:
+def resolve_entered_url() -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
@@ -21,8 +21,7 @@ def resolve_entered_url(url: str | None = None) -> str:
     Return 'url' so it begins with 'https://' and ends with '/clone/'.
     """
 
-    if url is None:
-        url = utils.entered_arguement(2)
+    url = utils.entered_arguement(2)
 
     if url == "":
         print("No URL entered.\n")
@@ -40,15 +39,14 @@ def resolve_entered_url(url: str | None = None) -> str:
     return url
 
 
-def request_repo(url: str | None = None) -> requests.Response:
+def request_repo() -> requests.Response:
     """
     Make a GET request to 'url' and ensure that the request was successful.
 
     Return the server response after making a get request to 'url'.
     """
 
-    if url is None:
-        url = resolve_entered_url()
+    url = resolve_entered_url()
 
     try:
         response = requests.get(url, timeout=60)
@@ -62,11 +60,11 @@ def request_repo(url: str | None = None) -> requests.Response:
         raise exceptions.HTTPGetRequestError(f"Failed to request repository from {url}")
 
 
-def unzip_repo_file(buffer: io.BytesIO, destination: str) -> None:
+def unzip_repo_file(buffer: io.BytesIO) -> None:
     """Unzip 'buffer' to 'destination'."""
 
     try:
-        zipfile.ZipFile(buffer, "r").extractall(destination)
+        zipfile.ZipFile(buffer, "r").extractall(resolve_entered_url().split("/")[-2])
     except Exception as e:
         raise exceptions.ZippingFileError(f"Failed to unzip repository file") from e
 
