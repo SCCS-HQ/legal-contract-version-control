@@ -12,13 +12,16 @@ from repository_layout import RepositoryLayout
 
 Repository = RepositoryLayout(Path.cwd())
 
-def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
+def validate_subcommand() -> None:
     """
     Validate the subcommand entered by the user.
 
     Raise an exception if the subcommand is invalid or if required arguments are
     missing.
     """
+
+    subcommand = utils.entered_arguement(2)
+    branch_name = utils.entered_arguement(3)
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
@@ -40,8 +43,6 @@ def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None
 
 
 def branch_create_subcommand(
-    current_branch: str,
-    branch_data: dict,
     cwd: Path | None = None,
     current_branch_path: Path | None = None,
 ) -> None:
@@ -49,6 +50,10 @@ def branch_create_subcommand(
     Create a new branch from the current branch. The new branch will have the same
     commit history and metadata as the current branch.
     """
+
+    current_branch = utils.get_current_branch()
+    branch_data = utils.get_branch_data()
+
 
     if cwd is None:
         cwd = Path.cwd()
@@ -79,7 +84,7 @@ def branch_create_subcommand(
             cwd / ".sccs" / "branches" / sanitized_branch_name,
         )
     except Exception as e:
-        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
+        delete_branch_after_error()
         raise exceptions.FileCopyError from e
 
     try:
@@ -92,7 +97,7 @@ def branch_create_subcommand(
 
     # Clean up the created directory before raising
     except Exception as e:
-        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
+        delete_branch_after_error()
         raise exceptions.BranchCreationError from e
 
     print(
@@ -101,7 +106,7 @@ def branch_create_subcommand(
     )
 
 
-def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None:
+def delete_branch_after_error(cwd: Path | None = None) -> None:
     """
     Delete a branch after an error has occurred during branch creation by deleting the
     branch directory.
@@ -110,14 +115,12 @@ def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None
     if cwd is None:
         cwd = Path.cwd()
 
-    branch_path = cwd / ".sccs" / "branches" / branch_name
+    branch_path = cwd / ".sccs" / "branches" / utils.clean_directory_name(utils.entered_arguement(3))
     if branch_path.is_dir():
         shutil.rmtree(branch_path)
 
 
 def branch_delete_subcommand(
-    current_branch: str,
-    branch_data: dict,
     cwd: Path | None = None,
     current_branch_path: Path | None = None,
 ) -> None:
@@ -128,6 +131,10 @@ def branch_delete_subcommand(
     branch will not be deleted. If an error occurs during deletion, any changes made
     to the branch metadata will be rolled back.
     """
+
+    current_branch = utils.get_current_branch()
+    branch_data = utils.get_branch_data()
+
 
     if cwd is None:
         cwd = Path.cwd()
@@ -199,11 +206,13 @@ def rollback_changes_after_failure(
         raise exceptions.UpdatingMetadataError from e
 
 
-def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
+def branch_list_subcommand() -> None:
     """
     Print a list of all branches, indicating the current branch found in the repository
     metadata.
     """
+    current_branch = utils.get_current_branch()
+    branch_data = utils.get_branch_data()
 
     print("Branches:\n")
     for i in branch_data.get("branches", []):
@@ -213,9 +222,7 @@ def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
             print(f"  {i}")
 
 
-def run_specified_subcommand(
-    subcommand: str, current_branch: str, branch_data: dict
-) -> None:
+def run_specified_subcommand() -> None:
     """
     Run the specified subcommand by reading the subcommand entered:
 
@@ -226,27 +233,25 @@ def run_specified_subcommand(
     list: branch_list_subcommand
     """
 
+    subcommand = utils.entered_arguement(2)
+
     if subcommand == "create":
-        branch_create_subcommand(current_branch, branch_data)
+        branch_create_subcommand()
     elif subcommand == "delete":
-        branch_delete_subcommand(current_branch, branch_data)
+        branch_delete_subcommand()
     elif subcommand == "list":
-        branch_list_subcommand(current_branch, branch_data)
+        branch_list_subcommand()
 
 
 def main() -> None:
     """Run functions for the <sccs branch> command."""
     utils.check_sccs_layout()
 
-    validate_subcommand(utils.entered_arguement(2), utils.entered_arguement(3))
+    validate_subcommand()
 
     utils.check_for_uncommitted_changes("branch")
 
-    run_specified_subcommand(
-        utils.entered_arguement(2),
-        utils.get_current_branch(),
-        utils.get_branch_data(),
-    )
+    run_specified_subcommand()
 
 
 if __name__ == "__main__":
