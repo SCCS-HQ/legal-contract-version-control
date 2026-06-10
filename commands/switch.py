@@ -14,7 +14,7 @@ Repository = RepositoryLayout(Path.cwd())
 
 
 def update_current_branch(
-    branch: str, current_branch_path: Path | None = None, cwd: Path | None = None
+    current_branch_path: Path | None = None, cwd: Path | None = None
 ) -> None:
     """
     Update the current branch in the SCCS metadata before switching branches.
@@ -23,6 +23,9 @@ def update_current_branch(
         cwd = Path.cwd()
     if current_branch_path is None:
         current_branch_path = utils.current_branch_path
+
+    branch = utils.entered_arguement(2)
+
     try:
         with open(current_branch_path, "r", encoding="utf-8", newline="\n") as f:
             current_branch = json.load(f)
@@ -39,8 +42,12 @@ def update_current_branch(
         raise exceptions.UpdatingMetadataError from e
 
 
-def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None:
+def check_branch_to_switch() -> None:
     """Check if the branch to switch to is valid."""
+
+    branch_to_switch = utils.entered_arguement(2)
+    branches = utils.get_branch_data(key="branches")
+
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
             "No branch specified. Please provide a branch name to switch to."
@@ -52,91 +59,59 @@ def check_branch_to_switch(branch_to_switch: str | None, branches: list) -> None
         )
 
 
-def get_latest_commit_binary_hash(
-    branch: str, latest_commit: str, cwd: Path | None = None
-) -> str:
-    """
-    Return the latest commit binary hash for a given branch by reading the document
-    metadata.
-    """
-    if cwd is None:
-        cwd = Path.cwd()
-    try:
-        with open(
-            (
-                cwd
-                / ".sccs"
-                / "branches"
-                / branch
-                / "commit_file_hash"
-                / "commit_file_hash.json"
-            ),
-            "r",
-            encoding="utf-8",
-            newline="\n",
-        ) as f:
-            return json.load(f).get(latest_commit)
-    except Exception as e:
-        raise exceptions.FileOpenError from e
-
-
-def sanitize_branch(branch_name: str) -> str:
+def sanitize_branch() -> str:
     """Sanitize the branch name."""
-    return utils.clean_directory_name(branch_name)
+
+    return utils.clean_directory_name(utils.entered_arguement(2))
 
 
-def check_commit(commit: str, cwd: Path | None = None) -> None:
+def check_commit(cwd: Path | None = None) -> None:
     """
     Check if the commit object exists in the document history.
     """
+
+    commit = utils.get_latest_commit(sanitize_branch(utils.entered_arguement(2)))
+
     if cwd is None:
         cwd = Path.cwd()
     if not (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx").is_file():
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
 
 
-def copy_commit_to_main(commit: str, cwd: Path | None = None) -> None:
+def copy_commit_to_main(cwd: Path | None = None) -> None:
     """Copy the commit file to the main document."""
     if cwd is None:
         cwd = Path.cwd()
     try:
         shutil.copy2(
-            (cwd / ".sccs" / "objects" / "docx" / f"{commit}.docx"),
+            (cwd / ".sccs" / "objects" / "docx" / f"{utils.get_latest_commit(sanitize_branch(utils.entered_arguement(2)))}.docx"),
             (cwd / f"{cwd.name}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
 
-def print_confirmation(branch_to_switch: str) -> None:
+def print_confirmation() -> None:
     """Print a confirmation message for successful branch switch."""
 
-    print(f"Successfully switched to branch '{branch_to_switch}'.\n")
+    print(f"Successfully switched to branch '{sanitize_branch(utils.entered_arguement(2))}'.\n")
 
 
 def main() -> None:
     """Run functions for the <sccs switch> command."""
     utils.check_sccs_layout()
 
-    branches = utils.get_branch_data(key="branches")
-
     utils.check_for_uncommitted_changes("switch")
 
-    branch_to_switch = utils.entered_arguement(2)
+    check_branch_to_switch()
 
-    check_branch_to_switch(branch_to_switch, branches)
+    check_commit()
 
-    branch_to_switch = sanitize_branch(branch_to_switch)
+    copy_commit_to_main()
 
-    latest_commit_on_branch_to_switch = utils.get_latest_commit(branch_to_switch)
+    update_current_branch()
 
-    check_commit(latest_commit_on_branch_to_switch)
-
-    copy_commit_to_main(latest_commit_on_branch_to_switch)
-
-    update_current_branch(branch_to_switch)
-
-    print_confirmation(branch_to_switch)
+    print_confirmation()
 
 
 if __name__ == "__main__":
