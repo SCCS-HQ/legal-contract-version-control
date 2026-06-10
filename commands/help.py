@@ -35,10 +35,10 @@ MESSAGES_TO_PRINT = [
 ]
 
 
-def print_help(messages: list[str]) -> None:
+def print_help() -> None:
     """Print help each item in 'messages'."""
 
-    for i in messages:
+    for i in MESSAGES_TO_PRINT:
         print(i)
 
 
@@ -46,7 +46,7 @@ def main() -> None:
     """Run functions for the <sccs help> command."""
     utils.check_sccs_layout()
 
-    print_help(MESSAGES_TO_PRINT)
+    print_help()
 
 
 if __name__ == "__main__":
