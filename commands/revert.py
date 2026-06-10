@@ -9,26 +9,29 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def revert(src: Path, dst: Path | None = None) -> None:
+def revert() -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
+
+    src = utils.validate_commit("docx", commit=utils.entered_arguement(2))
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
             f"Source file '{src.stem}' does not exist."
         )
 
-    if dst is None:
-        dst = utils.current_file_docx_path
 
-    shutil.copy2(src, dst)
+    shutil.copy2(src, utils.current_file_docx_path)
 
 
-def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> None:
+def print_revert_confirmation_message() -> None:
     """Print a confirmation message for the revert."""
 
+    validated_commit = utils.validate_commit("docx", commit=utils.entered_arguement(2))
+
     print(
-        f"Document successfully reverted to commit '{commit.stem[:10]}' on commit "
-        f"'{new_commit_hash[:10]}'.\n"
+        f"Document successfully reverted to commit '{validated_commit.stem[:10]}' on commit "
+        f"'{utils.commit_changes(
+        f"Revert to commit '{validated_commit.stem}'")[:10]}'.\n"
     )
 
 
@@ -38,16 +41,9 @@ def main() -> None:
 
     utils.check_for_uncommitted_changes("revert")
 
-    cwd = Path.cwd()
-    commit = utils.entered_arguement(2)
-    validated_commit = utils.validate_commit("docx", cwd, commit)
-    revert(validated_commit)
+    revert()
 
-    new_commit_hash = utils.commit_changes(
-        f"Revert to commit '{validated_commit.stem}'"
-    )
-
-    print_revert_confirmation_message(validated_commit, new_commit_hash)
+    print_revert_confirmation_message()
 
 
 if __name__ == "__main__":
