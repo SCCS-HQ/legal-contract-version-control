@@ -13,17 +13,22 @@ Repository = RepositoryLayout(Path.cwd())
 
 
 def confirm_before_proceeding(
-    commit_path: Path, docx_path: Path | None = None, cwd: Path | None = None
+    docx_path: Path | None = None, cwd: Path | None = None
 ) -> None:
     """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
         docx_path = utils.current_file_docx_path
     if cwd is None:
         cwd = Path.cwd()
+
+    commit_name = utils.validate_commit(
+        "docx", Path.cwd(), utils.entered_arguement(2)
+    ).name[:10]
+
     confirm = (
         input(
             f"Are you sure you want to overwrite '{cwd}/{docx_path.name}' "
-            f"with the contents of '{cwd}/{commit_path.name}'?\nThis "
+            f"with the contents of '{cwd}/{commit_name}'?\nThis "
             f"action will replace the current content of the .docx file. (Y/N): "
         )
         .strip()
@@ -34,7 +39,7 @@ def confirm_before_proceeding(
         sys.exit(0)
 
 
-def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
+def copy_file_commit(docx_path: Path | None = None) -> None:
     """
     Copy the commit file to the current document, effectively opening the older commit.
     """
@@ -42,22 +47,29 @@ def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
         docx_path = utils.current_file_docx_path
 
     try:
-        shutil.copy2(commit_path, docx_path)
+        shutil.copy2(
+            utils.validate_commit(
+                "docx", Path.cwd(), utils.entered_arguement(2)
+            ), docx_path
+        )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(
-    commit_path: Path, docx_path: Path | None = None
-) -> None:
+def print_rewrite_confirmation_message(docx_path: Path | None = None) -> None:
     """
     Print the confirmation message after rewriting the file using the document name.
     """
     if docx_path is None:
         docx_path = utils.current_file_docx_path
+
+    commit_name = utils.validate_commit(
+        "docx", Path.cwd(), utils.entered_arguement(2)
+    ).name[:10]
+
     print(
         f"File '{docx_path.name}' has been updated with the contents of "
-        f"'{commit_path.name[:10]}'.\n"
+        f"'{commit_name}'.\n"
     )
 
 
@@ -65,17 +77,13 @@ def main() -> None:
     """Run functions for the <sccs open> command."""
     utils.check_sccs_layout()
 
-    commit_path = utils.validate_commit(
-        "docx", Path.cwd(), utils.entered_arguement(2)
-    )
-
     utils.check_for_uncommitted_changes("open")
 
-    confirm_before_proceeding(commit_path)
+    confirm_before_proceeding()
 
-    copy_file_commit(commit_path)
+    copy_file_commit()
 
-    print_rewrite_confirmation_message(commit_path)
+    print_rewrite_confirmation_message()
 
 
 if __name__ == "__main__":
