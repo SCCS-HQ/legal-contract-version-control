@@ -11,9 +11,13 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def print_commit_confirmation_message(sha_hash: str) -> None:
+def print_commit_confirmation_message() -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
+    try:
+        sha_hash = utils.commit_changes(utils.entered_arguement(2))
+    except Exception as e:
+        raise exceptions.CommitChangesError("Failed to commit changes") from e
     print(f"Commit {sha_hash[:10]} created successfully.\n")
 
 
@@ -21,8 +25,7 @@ def main() -> None:
     """Run functions for the <sccs commit> command."""
     utils.check_sccs_layout()
 
-    sha_hash = utils.commit_changes(utils.entered_arguement(2))
-    print_commit_confirmation_message(sha_hash)
+    print_commit_confirmation_message()
 
 
 if __name__ == "__main__":
