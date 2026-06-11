@@ -134,16 +134,15 @@ def update_commit_messages(
     # Check if commit messages file exists
     if cwd is None:
         cwd = Path.cwd()
-    commit_messages_path = cwd / ".sccs" / "commit_messages" / "commit_messages.json"
 
-    if not commit_messages_path.is_file():
+    if not Repository.commit_messages_path().is_file():
         raise FileNotFoundError(
             "Commit messages file not found. Please run 'sccs init <file_path>' to "
             "initialize SCCS for this file."
         )
 
     with open(
-        commit_messages_path, "r", encoding="utf-8", newline="\n"
+        Repository.commit_messages_path(), "r", encoding="utf-8", newline="\n"
     ) as f:
         try:
             messages = json.load(f)
@@ -152,7 +151,7 @@ def update_commit_messages(
 
     messages[f"{sha_hash}"] = f"{commit_message}"
 
-    return {commit_messages_path: messages}
+    return {Repository.commit_messages_path(): messages}
 
 
 def update_commit_log_history(

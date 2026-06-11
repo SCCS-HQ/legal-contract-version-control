@@ -23,14 +23,10 @@ def reset(cwd: Path | None = None) -> None:
         raise exceptions.NoUncommittedChangesError()
 
     with open(
-        cwd
-        / ".sccs"
-        / "branches"
-        / Repository.current_branch_name(
-            cwd / ".sccs" / "current_branch" / "current_branch.json"
-        )
-        / "history"
-        / "history.json"
+        Repository.current_branch().history_path(),
+        "r",
+        encoding="utf-8",
+        newline="\n",
     ) as f:
         data = json.load(f)
         latest_commit = data["history"]["latest_commit"]

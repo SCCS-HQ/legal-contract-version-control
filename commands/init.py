@@ -120,7 +120,7 @@ def create_sccs_directory_layout() -> None:
 def move_document_to_repo_directory() -> None:
     """Move the source document into the repo directory."""
 
-    shutil.move(utils.entered_arguement(2), get_document_repo_path())
+    shutil.move(utils.entered_arguement(2), Repository.document_path())
 
 
 def copy_document_to_objects_as_docx_and_html(
@@ -147,7 +147,7 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         with open(
-            (repo_path / ".sccs" / "objects" / "html" / f"{sha_hash}.html"),
+            (Repository.html_objects_path() / f"{sha_hash}.html"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -158,7 +158,7 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         with open(
-            (repo_path / ".sccs" / "objects" / "view_html" / f"{sha_hash}.html"),
+            (Repository.view_html_objects_path() / f"{sha_hash}.html"),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -197,14 +197,7 @@ def write_history_data(config_user_name: str, config_user_email: str) -> None:
     }
     try:
         with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "branches"
-                / "main"
-                / "history"
-                / "history.json"
-            ),
+            Repository.branch("main").history_path(),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -226,12 +219,7 @@ def write_commit_message_data(sha_hash: str) -> None:
     }
     try:
         with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "commit_messages"
-                / "commit_messages.json"
-            ),
+            Repository.commit_messages_path(),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -247,7 +235,7 @@ def write_config_data(config_user_name: str, config_user_email: str) -> None:
     config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
     try:
         with open(
-            (get_document_repo_path() / ".sccs" / "config" / "config.json"),
+            Repository.config_path(),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -266,14 +254,7 @@ def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
         with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "branches"
-                / "main"
-                / "commit_file_hash"
-                / "commit_file_hash.json"
-            ),
+            Repository.branch("main").commit_file_hash_path(),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -289,12 +270,7 @@ def write_branch_data() -> None:
     branches_data = {"current_branch": "main", "branches": ["main"]}
     try:
         with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "current_branch"
-                / "current_branch.json"
-            ),
+            Repository.current_branch_path(),
             "w",
             encoding="utf-8",
             newline="\n",

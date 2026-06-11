@@ -198,16 +198,15 @@ def clear_updated_branches(cwd: None | Path = None) -> None:
 
     if cwd is None:
         cwd = Path.cwd()
-    current_branch_file = cwd / ".sccs" / "current_branch" / "current_branch.json"
 
-    data = Repository.current_branch_data(file_path=current_branch_file)
+    data = Repository.current_branch_data(file_path=Repository.current_branch_path())
     if data is None:
         data = {}
     data["updated_branches"] = []
 
     try:
-        with open(current_branch_file, "w") as f:
-            json.dump(data, f)
+        with open(Repository.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
+            json.dump(data, f, indent=4)
     except Exception as e:
         raise exceptions.FileWriteError(
             "Push successful, but failed to clear updated branches list in current "

@@ -32,7 +32,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     branch_data["current_branch"] = "main"
 
     with open(
-        Path(cwd) / ".sccs" / "current_branch" / "current_branch.json",
+        Repository.current_branch_path(),
         "w",
         encoding="utf-8",
         newline="\n",

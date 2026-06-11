@@ -26,15 +26,14 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
         current_branch = Repository.current_branch_name()
 
     # Get JSON log data
-    log_path = cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
 
-    if not Path(log_path).is_file():
+    if not Repository.branch(current_branch).history_path().is_file():
         raise FileNotFoundError(
             "History file not found. Please run 'sccs init <file_path>' to initialize "
             "SCCS for this file."
         )
 
-    with open(log_path, "r", encoding="utf-8", newline="\n") as f:
+    with open(Repository.branch(current_branch).history_path(), "r", encoding="utf-8", newline="\n") as f:
         log_data = json.load(f)
     return log_data
 
