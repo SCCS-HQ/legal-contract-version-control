@@ -20,7 +20,7 @@ def revert() -> None:
         )
 
 
-    shutil.copy2(src, utils.current_file_docx_path)
+    shutil.copy2(src, Repository.document_path)
 
 
 def print_revert_confirmation_message() -> None:

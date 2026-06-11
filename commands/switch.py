@@ -22,7 +22,7 @@ def update_current_branch(
     if cwd is None:
         cwd = Path.cwd()
     if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
+        current_branch_path = Repository.current_branch_path()
 
     branch = utils.entered_arguement(2)
 

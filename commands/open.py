@@ -17,7 +17,7 @@ def confirm_before_proceeding(
 ) -> None:
     """Confirm with the user before proceeding with overwriting the current document."""
     if docx_path is None:
-        docx_path = utils.current_file_docx_path
+        docx_path = Repository.document_path
     if cwd is None:
         cwd = Path.cwd()
 
@@ -44,7 +44,7 @@ def copy_file_commit(docx_path: Path | None = None) -> None:
     Copy the commit file to the current document, effectively opening the older commit.
     """
     if docx_path is None:
-        docx_path = utils.current_file_docx_path
+        docx_path = Repository.document_path
 
     try:
         shutil.copy2(
@@ -61,7 +61,7 @@ def print_rewrite_confirmation_message(docx_path: Path | None = None) -> None:
     Print the confirmation message after rewriting the file using the document name.
     """
     if docx_path is None:
-        docx_path = utils.current_file_docx_path
+        docx_path = Repository.document_path
 
     commit_name = Repository.commit_path(
         "docx", Path.cwd(), utils.entered_arguement(2)

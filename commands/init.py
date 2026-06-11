@@ -10,6 +10,7 @@ from pathlib import Path
 
 import exceptions
 import utils
+from repository_layout import RepositoryLayout
 
 
 def get_document_repo_path() -> Path | None:
@@ -22,6 +23,9 @@ def get_document_repo_path() -> Path | None:
     if not path:
         return None
     return Path(path).with_suffix("")
+
+
+Repository = RepositoryLayout(get_document_repo_path())
 
 
 def check_if_arg_entered() -> None:

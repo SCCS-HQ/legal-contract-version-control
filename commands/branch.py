@@ -57,9 +57,8 @@ def branch_create_subcommand(
 
     if cwd is None:
         cwd = Path.cwd()
-
     if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
+        current_branch_path = Repository.current_branch_path()
 
     sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
 
@@ -139,7 +138,7 @@ def branch_delete_subcommand(
     if cwd is None:
         cwd = Path.cwd()
     if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
+        current_branch_path = Repository.current_branch_path()
 
     sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
 
@@ -189,7 +188,7 @@ def rollback_changes_after_failure(
     to include the deleted branch again."""
 
     if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
+        current_branch_path = Repository.current_branch_path()
 
     if branch_data is None:
         branch_data = Repository.current_branch_data()

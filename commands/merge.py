@@ -52,7 +52,7 @@ def copy_repo_document() -> None:
         / "docx"
         / f"{Repository.branch(validate_branch()).latest_commit()}.docx"
     )
-    current_repo_doc_path = utils.current_file_docx_path
+    current_repo_doc_path = Repository.document_path
 
     shutil.copy2(target_repo_doc_path, current_repo_doc_path)
 
