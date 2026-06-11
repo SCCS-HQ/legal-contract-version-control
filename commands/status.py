@@ -13,7 +13,7 @@ Repository = RepositoryLayout(Path.cwd())
 
 def print_status_message() -> None:
     """Print the status message to the user."""
-    uncommitted_changes = utils.check_for_uncommitted_changes("status", exit=False)
+    uncommitted_changes = Repository.check_for_uncommitted_changes("status", exit=False)
     if uncommitted_changes:
         print("Uncommitted changes detected.\n")
     else:
@@ -22,7 +22,7 @@ def print_status_message() -> None:
 
 def main() -> None:
     """Run functions for the <sccs status> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     print_status_message()
 

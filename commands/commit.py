@@ -23,7 +23,7 @@ def print_commit_confirmation_message() -> None:
 
 def main() -> None:
     """Run functions for the <sccs commit> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     print_commit_confirmation_message()
 

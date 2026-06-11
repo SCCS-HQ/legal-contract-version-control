@@ -31,7 +31,7 @@ def pull() -> requests.Response:
     data = {"objects": get_repo_objects()}
 
     try:
-        response = requests.post(f"{utils.get_key_from_config("remote")}/pull", json=data, timeout=60)
+        response = requests.post(f"{Repository.config_data("remote")}/pull", json=data, timeout=60)
     except Exception as e:
         raise exceptions.HTTPPostRequestError() from e
 
@@ -52,9 +52,9 @@ def update_repo_files(response: requests.Response, cwd: None | Path = None) -> N
 
 def main():
     """Run functions for the <sccs pull> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
-    remote = utils.get_key_from_config("remote")
+    remote = Repository.config_data("remote")
     
     print(f"Pulling repository from {remote}...\n")
 

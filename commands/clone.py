@@ -71,7 +71,7 @@ def unzip_repo_file(buffer: io.BytesIO) -> None:
 
 def main() -> None:
     """Run functions for the <sccs clone> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     response = request_repo()
 

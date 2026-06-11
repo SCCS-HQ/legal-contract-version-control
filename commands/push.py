@@ -24,7 +24,7 @@ def get_matching_file_paths(
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
 
-    updated_branches = utils.get_branch_data(
+    updated_branches = Repository.current_branch_data(
             key="updated_branches",
             file_path=cwd / ".sccs" / "current_branch" / "current_branch.json",
         ) or []
@@ -45,7 +45,7 @@ def push_GET() -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
     try:
-        response = requests.get(f"{utils.get_key_from_config("remote").rstrip("/")}/push", timeout=60)
+        response = requests.get(f"{Repository.config_data("remote").rstrip("/")}/push", timeout=60)
     except Exception as e:
         raise exceptions.HTTPGetRequestError() from e
 
@@ -162,7 +162,7 @@ def push_POST(buffer: io.BytesIO) -> requests.Response:
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = utils.get_key_from_config("remote").rstrip("/")
+    remote = Repository.config_data("remote").rstrip("/")
 
     remote_path = urlsplit(remote).path.rstrip("/")
     if not remote_path.endswith(f"/repos/{Path.cwd().name}"):
@@ -200,7 +200,7 @@ def clear_updated_branches(cwd: None | Path = None) -> None:
         cwd = Path.cwd()
     current_branch_file = cwd / ".sccs" / "current_branch" / "current_branch.json"
 
-    data = utils.get_branch_data(file_path=current_branch_file)
+    data = Repository.current_branch_data(file_path=current_branch_file)
     if data is None:
         data = {}
     data["updated_branches"] = []
@@ -217,9 +217,9 @@ def clear_updated_branches(cwd: None | Path = None) -> None:
 
 def main() -> None:
     """Run functions for the <sccs push> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
-    remote = utils.get_key_from_config("remote").rstrip("/")
+    remote = Repository.config_data("remote").rstrip("/")
 
     print(f" Pushing changes to remote repository at {remote}...\n")
 

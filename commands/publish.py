@@ -26,7 +26,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = Path.cwd()
 
-    branch_data = utils.get_branch_data(
+    branch_data = Repository.current_branch_data(
         Path(cwd) / ".sccs" / "current_branch" / "current_branch.json"
     )
     branch_data["current_branch"] = "main"
@@ -76,7 +76,7 @@ def post_repo() -> requests.Response:
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = utils.get_key_from_config("remote")
+    remote = Repository.config_data("remote")
 
     if not urlsplit(remote).path.endswith(
         f"/repos/{Path.cwd().name}"
@@ -103,11 +103,11 @@ def post_repo() -> requests.Response:
 
 def main() -> None:
     """Run functions for the <sccs publish> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     reset_current_branch()
 
-    remote = utils.get_key_from_config("remote")
+    remote = Repository.config_data("remote")
     print(f"Publishing repository to {remote}...\n")
     response = post_repo()
 

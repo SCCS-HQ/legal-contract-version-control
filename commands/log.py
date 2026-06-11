@@ -23,7 +23,7 @@ def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> 
     if cwd is None:
         cwd = Path.cwd()
     if current_branch is None:
-        current_branch = utils.get_current_branch()
+        current_branch = Repository.current_branch_name()
 
     # Get JSON log data
     log_path = cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
@@ -61,7 +61,7 @@ def print_log() -> None:
 
 def main() -> None:
     """Run functions for the <sccs log> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     print_log()
 

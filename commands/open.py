@@ -21,7 +21,7 @@ def confirm_before_proceeding(
     if cwd is None:
         cwd = Path.cwd()
 
-    commit_name = utils.validate_commit(
+    commit_name = Repository.commit_path(
         "docx", Path.cwd(), utils.entered_arguement(2)
     ).name[:10]
 
@@ -48,7 +48,7 @@ def copy_file_commit(docx_path: Path | None = None) -> None:
 
     try:
         shutil.copy2(
-            utils.validate_commit(
+            Repository.commit_path(
                 "docx", Path.cwd(), utils.entered_arguement(2)
             ), docx_path
         )
@@ -63,7 +63,7 @@ def print_rewrite_confirmation_message(docx_path: Path | None = None) -> None:
     if docx_path is None:
         docx_path = utils.current_file_docx_path
 
-    commit_name = utils.validate_commit(
+    commit_name = Repository.commit_path(
         "docx", Path.cwd(), utils.entered_arguement(2)
     ).name[:10]
 
@@ -75,9 +75,9 @@ def print_rewrite_confirmation_message(docx_path: Path | None = None) -> None:
 
 def main() -> None:
     """Run functions for the <sccs open> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
-    utils.check_for_uncommitted_changes("open")
+    Repository.check_for_uncommitted_changes("open")
 
     confirm_before_proceeding()
 

@@ -325,7 +325,7 @@ def main() -> None:
 
     create_sccs_directory_layout()
 
-    document_as_html = utils.convert_docx_to_html(utils.entered_arguement(2))
+    document_as_html = Repository.convert_docx_to_html(utils.entered_arguement(2))
 
     move_document_to_repo_directory()
 
@@ -337,7 +337,7 @@ def main() -> None:
 
     write_config_data(config_user_name, config_user_email)
 
-    current_branch_binary_hash = utils.hash_current_docx_binary(
+    current_branch_binary_hash = Repository.convert_docx_to_binary_hash(
         docx_path=get_document_repo_path() / Path(utils.entered_arguement(2)).name
     )
 

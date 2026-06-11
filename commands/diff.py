@@ -24,7 +24,7 @@ def get_commit_html() -> str:
 
     try:
         with open(
-            utils.validate_commit("html", Path.cwd(), utils.entered_arguement(2)
+            Repository.commit_path("html", Path.cwd(), utils.entered_arguement(2)
         ), "r", encoding="utf-8", newline="\n") as f:
             commit_html = f.read()
 
@@ -254,7 +254,7 @@ def get_opcodes() -> list[tuple[str, int, int, int, int]]:
     return difflib.SequenceMatcher(
         None,
         tags_to_list(convert_html_to_soup(get_commit_html())),
-        tags_to_list(convert_html_to_soup(utils.convert_docx_to_html()))
+        tags_to_list(convert_html_to_soup(Repository.convert_docx_to_html()))
     ).get_opcodes()
 
 
@@ -290,7 +290,7 @@ def format_redline_html() -> BeautifulSoup:
 
     opcodes = get_opcodes()
     commit_list = format_bs4_html_list(get_commit_html())
-    docx_current_version_list = format_bs4_html_list(utils.convert_docx_to_html())
+    docx_current_version_list = format_bs4_html_list(Repository.convert_docx_to_html())
 
     for i in reversed(opcodes):
         tag, i1, i2, j1, j2 = i
@@ -320,7 +320,7 @@ def write_redline_html_file() -> None:
 
 def main() -> None:
     """Run functions for the <sccs diff> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     write_redline_html_file()
 

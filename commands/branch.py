@@ -51,8 +51,8 @@ def branch_create_subcommand(
     commit history and metadata as the current branch.
     """
 
-    current_branch = utils.get_current_branch()
-    branch_data = utils.get_branch_data()
+    current_branch = Repository.current_branch_name()
+    branch_data = Repository.current_branch_data()
 
 
     if cwd is None:
@@ -132,8 +132,8 @@ def branch_delete_subcommand(
     to the branch metadata will be rolled back.
     """
 
-    current_branch = utils.get_current_branch()
-    branch_data = utils.get_branch_data()
+    current_branch = Repository.current_branch_name()
+    branch_data = Repository.current_branch_data()
 
 
     if cwd is None:
@@ -192,7 +192,7 @@ def rollback_changes_after_failure(
         current_branch_path = utils.current_branch_path
 
     if branch_data is None:
-        branch_data = utils.get_branch_data()
+        branch_data = Repository.current_branch_data()
 
     sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
     try:
@@ -211,8 +211,8 @@ def branch_list_subcommand() -> None:
     Print a list of all branches, indicating the current branch found in the repository
     metadata.
     """
-    current_branch = utils.get_current_branch()
-    branch_data = utils.get_branch_data()
+    current_branch = Repository.current_branch_name()
+    branch_data = Repository.current_branch_data()
 
     print("Branches:\n")
     for i in branch_data.get("branches", []):
@@ -245,11 +245,11 @@ def run_specified_subcommand() -> None:
 
 def main() -> None:
     """Run functions for the <sccs branch> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     validate_subcommand()
 
-    utils.check_for_uncommitted_changes("branch")
+    Repository.check_for_uncommitted_changes("branch")
 
     run_specified_subcommand()
 

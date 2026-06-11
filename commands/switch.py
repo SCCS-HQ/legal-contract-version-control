@@ -46,7 +46,7 @@ def check_branch_to_switch() -> None:
     """Check if the branch to switch to is valid."""
 
     branch_to_switch = utils.entered_arguement(2)
-    branches = utils.get_branch_data(key="branches")
+    branches = Repository.current_branch_data(key="branches")
 
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
@@ -70,7 +70,7 @@ def check_commit(cwd: Path | None = None) -> None:
     Check if the commit object exists in the document history.
     """
 
-    commit = utils.get_latest_commit(sanitize_branch(utils.entered_arguement(2)))
+    commit = Repository.branch(sanitize_branch(utils.entered_arguement(2))).latest_commit()
 
     if cwd is None:
         cwd = Path.cwd()
@@ -84,7 +84,7 @@ def copy_commit_to_main(cwd: Path | None = None) -> None:
         cwd = Path.cwd()
     try:
         shutil.copy2(
-            (cwd / ".sccs" / "objects" / "docx" / f"{utils.get_latest_commit(sanitize_branch(utils.entered_arguement(2)))}.docx"),
+            (cwd / ".sccs" / "objects" / "docx" / f"{Repository.branch(sanitize_branch(utils.entered_arguement(2))).latest_commit()}.docx"),
             (cwd / f"{cwd.name}.docx"),
         )
     except Exception as e:
@@ -99,9 +99,9 @@ def print_confirmation() -> None:
 
 def main() -> None:
     """Run functions for the <sccs switch> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
-    utils.check_for_uncommitted_changes("switch")
+    Repository.check_for_uncommitted_changes("switch")
 
     check_branch_to_switch()
 

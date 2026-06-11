@@ -47,7 +47,7 @@ def resolve_entered_remote() -> str:
 
 def main() -> None:
     """Run functions for the <sccs config> command."""
-    utils.check_sccs_layout()
+    Repository.check_repository_layout()
 
     key = utils.entered_arguement(2)
     value = utils.entered_arguement(3)
@@ -55,7 +55,7 @@ def main() -> None:
     if key == "remote":
         value = resolve_entered_remote()
 
-    utils.write_key_to_config(key, value)
+    Repository.write_key_to_config(key, value)
 
     print(f"Configuration '{key}' set to '{value}' successfully.\n")
 
