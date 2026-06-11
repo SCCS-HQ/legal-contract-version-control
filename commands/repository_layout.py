@@ -10,7 +10,7 @@ class RepositoryLayout:
     def __init__(self, root: Path):
         self.root = root
 
-        branches = root / ".sccs" / "branches"
+        branches = [i for i in (root / ".sccs" / "branches").iterdir() if i.is_dir()]
 
         for file in branches.iterdir():
             def make_method(f):
@@ -268,9 +268,8 @@ class RepositoryLayout:
 
 
     def list_branches(self) -> list[str]:
-        branches = [i.stem for i in self.branches().iterdir() if i.is_dir()]
         setattr(self, "target_branch", None)
-        return branches
+        return [self.branches]
 
 
     def current_branch_name(self) -> str:
@@ -327,7 +326,19 @@ class RepositoryLayout:
 
 
 
-# Set target to current branch
+# Set edit branch status
+
+
+    def branch(self, branch_name: str) -> None:
+        """Branch method to set the target branch to the specified branch name."""
+        if branch_name not in self.list_branches():
+            setattr(self, "target_branch", None)
+            raise exceptions.BranchNotFoundError(
+                f"Branch '{branch_name}' does not exist. Please provide a valid branch "
+                f"name."
+            )
+        setattr(self, "target_branch", branch_name)
+        return self
 
 
     def current_branch(self) -> None:
