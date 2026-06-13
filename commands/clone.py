@@ -61,7 +61,7 @@ def request_repo() -> requests.Response:
 
 
 def unzip_repo_file(buffer: io.BytesIO) -> None:
-    """Unzip 'buffer' to 'destination'."""
+    """Unzip 'buffer'."""
 
     try:
         zipfile.ZipFile(buffer, "r").extractall(resolve_entered_url().split("/")[-2])

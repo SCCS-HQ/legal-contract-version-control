@@ -54,7 +54,7 @@ def check_for_prev_init() -> None:
     '.sccs' folder exists for the repository.
     """
 
-    if (get_document_repo_path() / ".sccs").is_dir():
+    if (Repository.sccs_path()).is_dir():
         raise exceptions.AlreadyInitializedError(
             "This file has already been initialized with SCCS."
         )
@@ -139,8 +139,8 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         shutil.copy2(
-            (repo_path / doc_name),
-            (repo_path / ".sccs" / "objects" / "docx" / f"{sha_hash}.docx"),
+            (Repository.root / doc_name),
+            (Repository.docx_objects_path() / f"{sha_hash}.docx"),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e

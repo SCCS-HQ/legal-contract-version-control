@@ -67,37 +67,28 @@ def branch_create_subcommand(
             "Invalid branch name. Please provide a valid branch name."
         )
 
-    if sanitized_branch_name in branch_data["branches"]:
+    if sanitized_branch_name in Repository.list_branches():
         raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
-    if (cwd / ".sccs" / "branches" / sanitized_branch_name).is_dir():
+    if (Repository.branches_path() / sanitized_branch_name).is_dir():
         raise exceptions.BranchAlreadyExistsError(
             f"Branch '{sanitized_branch_name}' already exists."
         )
 
     try:
         shutil.copytree(
-            cwd / ".sccs" / "branches" / current_branch,
-            cwd / ".sccs" / "branches" / sanitized_branch_name,
+            Repository.branches_path() / current_branch,
+            Repository.branches_path() / sanitized_branch_name,
         )
     except Exception as e:
         delete_branch_after_error()
         raise exceptions.FileCopyError from e
 
-    try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as f:
-            branch_data["branches"].append(sanitized_branch_name)
-            branch_data["current_branch"] = sanitized_branch_name
-            json.dump(branch_data, f, indent=4)
+    Repository.add_to_branches_list(sanitized_branch_name)
 
-    # Clean up the created directory before raising
-    except Exception as e:
-        delete_branch_after_error()
-        raise exceptions.BranchCreationError from e
+    Repository.set_current_branch(sanitized_branch_name)
 
     print(
         f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
@@ -114,7 +105,7 @@ def delete_branch_after_error(cwd: Path | None = None) -> None:
     if cwd is None:
         cwd = Path.cwd()
 
-    branch_path = cwd / ".sccs" / "branches" / utils.clean_directory_name(utils.entered_arguement(3))
+    branch_path = Repository.branches_path() / utils.clean_directory_name(utils.entered_arguement(3))
     if branch_path.is_dir():
         shutil.rmtree(branch_path)
 
@@ -142,7 +133,7 @@ def branch_delete_subcommand(
 
     sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
 
-    branch_path = cwd / ".sccs" / "branches" / sanitized_branch_name
+    branch_path = Repository.branches_path() / sanitized_branch_name
 
     if sanitized_branch_name == current_branch:
         raise exceptions.BranchDeletionError(
@@ -154,20 +145,12 @@ def branch_delete_subcommand(
             f"Branch '{sanitized_branch_name}' does not exist."
         )
 
-    if not sanitized_branch_name in branch_data["branches"]:
+    if not sanitized_branch_name in Repository.list_branches():
         raise exceptions.BranchMissingFromMetadataError(
             f"Branch '{sanitized_branch_name}' does not exist in branch data."
         )
 
-    try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as f:
-            branch_data["branches"].remove(sanitized_branch_name)
-            json.dump(branch_data, f, indent=4)
-
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+    Repository.remove_from_branches_list(sanitized_branch_name)
 
     try:
         shutil.rmtree(branch_path)
@@ -194,16 +177,14 @@ def rollback_changes_after_failure(
         branch_data = Repository.current_branch_data()
 
     sanitized_branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+
     try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as f:
-            branch_data["branches"].append(sanitized_branch_name)
-            json.dump(branch_data, f, indent=4)
-
+        Repository.add_to_branches_list(sanitized_branch_name)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
-
+        raise exceptions.UpdatingMetadataError(
+            f"Failed to rollback branch metadata after deletion failure"
+        ) from e
+    
 
 def branch_list_subcommand() -> None:
     """
@@ -211,10 +192,9 @@ def branch_list_subcommand() -> None:
     metadata.
     """
     current_branch = Repository.current_branch_name()
-    branch_data = Repository.current_branch_data()
 
     print("Branches:\n")
-    for i in branch_data.get("branches", []):
+    for i in Repository.list_branches():
         if i == current_branch:
             print(f"* {i} (current)")
         else:

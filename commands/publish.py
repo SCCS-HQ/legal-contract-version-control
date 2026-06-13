@@ -23,21 +23,7 @@ def reset_current_branch(cwd: Path | None = None) -> None:
     for publishing.
     """
 
-    if cwd is None:
-        cwd = Path.cwd()
-
-    branch_data = Repository.current_branch_data(
-        Path(cwd) / ".sccs" / "current_branch" / "current_branch.json"
-    )
-    branch_data["current_branch"] = "main"
-
-    with open(
-        Repository.current_branch_path(),
-        "w",
-        encoding="utf-8",
-        newline="\n",
-    ) as f:
-        json.dump(branch_data, f, indent=4)
+    Repository.set_current_branch("main", cwd)
 
 
 def zip_cwd() -> io.BytesIO:
@@ -76,9 +62,9 @@ def post_repo() -> requests.Response:
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = Repository.config_data("remote")
+    url = f"{Repository.config_data('remote').rstrip('/')}/publish"
 
-    if not urlsplit(remote).path.endswith(
+    if not urlsplit(url).path.endswith(
         f"/repos/{Path.cwd().name}"
     ):
         raise exceptions.InvalidAPIURLError(
@@ -87,16 +73,16 @@ def post_repo() -> requests.Response:
 
     try:
         response = requests.post(
-            f"{remote}/publish",
+            url,
             files=[
                 ("file", (Path.cwd().name + ".zip", zip_cwd(), "application/zip")),
-                ("data", (None, json.dumps({"remote": remote}), "application/json")),
+                ("data", (None, json.dumps({"remote": url}), "application/json")),
             ],
             timeout=60,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
-            f"Failed to post repository to {remote}/publish"
+            f"Failed to post repository to {url}"
         ) from e
     return response
 
@@ -107,13 +93,13 @@ def main() -> None:
 
     reset_current_branch()
 
-    remote = Repository.config_data("remote")
-    print(f"Publishing repository to {remote}...\n")
+    url = f"{Repository.config_data('remote').rstrip('/')}/publish"
+    print(f"Publishing repository to {url}...\n")
     response = post_repo()
 
     print(f"Status Code: {response.status_code}\n")
     response.raise_for_status()
-    print(f"Repository published successfully to {remote}\n")
+    print(f"Repository published successfully to {url}\n")
 
 
 if __name__ == "__main__":

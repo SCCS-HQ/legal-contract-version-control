@@ -15,7 +15,7 @@ def print_commit_confirmation_message() -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
-        sha_hash = utils.commit_changes(utils.entered_arguement(2))
+        sha_hash = Repository.commit_changes(utils.entered_arguement(2))
     except Exception as e:
         raise exceptions.CommitChangesError("Failed to commit changes") from e
     print(f"Commit {sha_hash[:10]} created successfully.\n")

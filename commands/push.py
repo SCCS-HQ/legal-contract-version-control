@@ -16,24 +16,14 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def get_matching_file_paths(
-    filename: str,
-    cwd: None | Path = None,
-) -> list:
+def get_matching_file_paths(filename: str,) -> list:
     """
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
 
-    updated_branches = Repository.current_branch_data(
-            key="updated_branches",
-            file_path=cwd / ".sccs" / "current_branch" / "current_branch.json",
-        ) or []
-
-    if cwd is None:
-        cwd = Path.cwd()
     paths = []
-    for i in updated_branches:
-        branch_dir = cwd / ".sccs" / "branches" / i
+    for i in Repository.current_branch_data(key="updated_branches",) or []:
+        branch_dir = Repository.branches_path() / i
         if branch_dir.is_dir():
             f = branch_dir / filename / f"{filename}.json"
             if f.is_file():
@@ -44,8 +34,10 @@ def get_matching_file_paths(
 def push_GET() -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
+    url = f"{Repository.config_data('remote').rstrip("/")}/push"
+
     try:
-        response = requests.get(f"{Repository.config_data("remote").rstrip("/")}/push", timeout=60)
+        response = requests.get(url, timeout=60)
     except Exception as e:
         raise exceptions.HTTPGetRequestError() from e
 

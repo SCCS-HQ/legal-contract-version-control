@@ -23,38 +23,24 @@ def validate_branch() -> str:
         raise exceptions.InvalidArgumentError(
             "Cannot merge the current branch into itself."
         )
-    if branch not in Repository.current_branch_data(key="branches"):
+    if branch not in Repository.list_branches():
         raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
     return branch
 
 
 def copy_branch_data() -> None:
     """Copy the data from the source branch to the target branch."""
-    if cwd is None:
-        cwd = Path.cwd()
-    
 
-    current_branch_path = cwd / ".sccs" / "branches" / Repository.current_branch_name()
-    target_branch_path = cwd / ".sccs" / "branches" / validate_branch()
-
-    shutil.copytree(target_branch_path, current_branch_path, dirs_exist_ok=True)
+    shutil.copytree(Repository.branch(validate_branch()).branch_path, Repository.current_branch.branch_path, dirs_exist_ok=True)
 
 
 def copy_repo_document() -> None:
     """Copy the repo document from the source branch to the target branch."""
-    if cwd is None:
-        cwd = Path.cwd()
 
-    target_repo_doc_path = (
-        cwd
-        / ".sccs"
-        / "objects"
-        / "docx"
-        / f"{Repository.branch(validate_branch()).latest_commit()}.docx"
+    shutil.copy2(
+        Repository.branch(validate_branch()).document_path(),
+        Repository.document_path()
     )
-    current_repo_doc_path = Repository.document_path
-
-    shutil.copy2(target_repo_doc_path, current_repo_doc_path)
 
 
 def print_merge_success_message() -> None:

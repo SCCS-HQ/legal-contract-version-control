@@ -13,27 +13,12 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def reset(cwd: Path | None = None) -> None:
+def reset() -> None:
     """Delete all uncommitted changes."""
 
-    if cwd is None:
-        cwd = Path.cwd()
-
-    if not Repository.check_for_uncommitted_changes("reset", exit=False, cwd=cwd):
-        raise exceptions.NoUncommittedChangesError()
-
-    with open(
-        Repository.current_branch().history_path(),
-        "r",
-        encoding="utf-8",
-        newline="\n",
-    ) as f:
-        data = json.load(f)
-        latest_commit = data["history"]["latest_commit"]
-
     shutil.copy2(
-        Repository.commit_path("docx", cwd, latest_commit),
-        cwd / cwd.with_suffix(".docx").name,
+        Repository.current_branch().latest_commit_path("docx"),
+        Repository.document_path(),
     )
 
 

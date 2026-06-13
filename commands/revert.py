@@ -19,19 +19,16 @@ def revert() -> None:
             f"Source file '{src.stem}' does not exist."
         )
 
-
     shutil.copy2(src, Repository.document_path)
 
 
 def print_revert_confirmation_message() -> None:
     """Print a confirmation message for the revert."""
 
-    validated_commit = Repository.commit_path("docx", commit=utils.entered_arguement(2))
-
     print(
-        f"Document successfully reverted to commit '{validated_commit.stem[:10]}' on commit "
-        f"'{utils.commit_changes(
-        f"Revert to commit '{validated_commit.stem}'")[:10]}'.\n"
+        f"Document successfully reverted to commit '{utils.entered_arguement(2).stem[:10]}' on commit "
+        f"'{Repository.commit_changes(
+        f"Revert to commit '{utils.entered_arguement(2).stem}'")[:10]}'.\n"
     )
 
 

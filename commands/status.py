@@ -13,8 +13,7 @@ Repository = RepositoryLayout(Path.cwd())
 
 def print_status_message() -> None:
     """Print the status message to the user."""
-    uncommitted_changes = Repository.check_for_uncommitted_changes("status", exit=False)
-    if uncommitted_changes:
+    if Repository.check_for_uncommitted_changes("status", exit=False):
         print("Uncommitted changes detected.\n")
     else:
         print("No uncommitted changes detected.\n")

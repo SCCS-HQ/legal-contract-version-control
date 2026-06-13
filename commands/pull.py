@@ -11,43 +11,36 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def get_repo_objects(cwd: None | Path = None) -> list:
+def get_repo_objects() -> list:
     """
     Return of list of every commit hash by iterating through the objects folder's file
     stems, and removing duplicates with a set.
     """
-
-    if cwd is None:
-        cwd = Path.cwd()
-
-    objects_dir = cwd / ".sccs" / "objects"
-    objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
-    return objects
+    
+    return list(set(i.stem for i in Repository.objects_path().rglob("*") if i.is_file()))
 
 
 def pull() -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
     data = {"objects": get_repo_objects()}
+    url = f"{Repository.config_data('remote').rstrip('/')}/pull"
 
     try:
-        response = requests.post(f"{Repository.config_data("remote")}/pull", json=data, timeout=60)
+        response = requests.post(url, json=data, timeout=60)
     except Exception as e:
         raise exceptions.HTTPPostRequestError() from e
 
     return response
 
 
-def update_repo_files(response: requests.Response, cwd: None | Path = None) -> None:
+def update_repo_files(response: requests.Response) -> None:
     """
     Unzip the file in 'response' to 'destination'.
     """
 
-    if cwd is None:
-        cwd = Path.cwd()
-
     with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-        zf.extractall(cwd)
+        zf.extractall(Path.cwd())
 
 
 def main():

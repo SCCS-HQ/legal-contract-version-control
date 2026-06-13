@@ -14,25 +14,6 @@ from repository_layout import RepositoryLayout
 Repository = RepositoryLayout(Path.cwd())
 
 
-def get_commit_html() -> str:
-    """
-    Open the commit HTML file at the specified path and return its contents as a string.
-
-    Return the commit HTML as a string if the file is successfully opened, otherwise
-    raise as exception.
-    """
-
-    try:
-        with open(
-            Repository.commit_path("html", Path.cwd(), utils.entered_arguement(2)
-        ), "r", encoding="utf-8", newline="\n") as f:
-            commit_html = f.read()
-
-    except Exception as e:
-        raise exceptions.FileOpenError from e
-    return commit_html
-
-
 def number_tags(html: BeautifulSoup) -> BeautifulSoup:
     """
     Add a data-number attribute to all tags in the HTML, excluding style tags, with a
@@ -253,7 +234,7 @@ def get_opcodes() -> list[tuple[str, int, int, int, int]]:
 
     return difflib.SequenceMatcher(
         None,
-        tags_to_list(convert_html_to_soup(get_commit_html())),
+        tags_to_list(convert_html_to_soup(Repository.commit_file("html", utils.entered_arguement(2)()))),
         tags_to_list(convert_html_to_soup(Repository.convert_docx_to_html()))
     ).get_opcodes()
 
@@ -267,7 +248,7 @@ def get_redline_html() -> BeautifulSoup:
     document.
     """
 
-    return number_tags(convert_html_to_soup(get_commit_html()))
+    return number_tags(convert_html_to_soup(Repository.commit_file("html", utils.entered_arguement(2)())))
 
 
 def format_redline_html() -> BeautifulSoup:
@@ -289,7 +270,7 @@ def format_redline_html() -> BeautifulSoup:
     """
 
     opcodes = get_opcodes()
-    commit_list = format_bs4_html_list(get_commit_html())
+    commit_list = format_bs4_html_list(Repository.commit_file("html", utils.entered_arguement(2)()))
     docx_current_version_list = format_bs4_html_list(Repository.convert_docx_to_html())
 
     for i in reversed(opcodes):
