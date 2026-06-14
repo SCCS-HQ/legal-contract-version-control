@@ -77,6 +77,21 @@ class FileOpenError(SCCSException):
     default_message = "Could not open file."
 
 
+class FileDeleteError(SCCSException):
+    """Raised when there is an error deleting a file."""
+
+    default_message = "Could not delete file."
+
+
+class FileCreateError(SCCSException):
+    """Raised when there is an error creating a file."""
+
+    default_message = "Could not create file."
+
+    
+# Metadata Exceptions
+
+
 class UpdatingMetadataError(SCCSException):
     """Raised when there is an error updating metadata files."""
 
