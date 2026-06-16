@@ -18,7 +18,7 @@ pathspec==1.1.1
 platformdirs==4.9.6
 pydantic==2.13.4
 pydantic_core==2.46.4
-python-multipart==0.0.28
+python-multipart==0.0.31
 pytokens==0.4.1
 requests==2.34.2
 soupsieve==2.8.3
