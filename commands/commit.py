@@ -7,33 +7,35 @@ import sys
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
+from constants_classes import SCCSConstants, ErrorWrappers
 
-
-def print_commit_confirmation_message(Repo: RepositoryLayout, confirmation_msg: str) -> None:
+def print_commit_confirmation_message(constants: SCCSConstants, Repo: RepositoryLayout, confirmation_msg: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
-    print(f"Commit {Repo.commit_changes(confirmation_msg)[:10]} created successfully.\n")
+    print(constants.COMMIT_SCCS_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=Repo.commit_changes(confirmation_msg)[:10]))
 
 
-def main(Repo: RepositoryLayout, commit_message: str | None = None) -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str | None = None) -> None:
     """Run functions for the <sccs commit> command."""
     Repo.check_repository_layout()
 
     if commit_message is None:
         commit_message = utils.entered_arguement(2)
 
-    print_commit_confirmation_message(Repo, commit_message)
+    print_commit_confirmation_message(constants, Repo, commit_message)
 
 
 if __name__ == "__main__":
     try:
         Repository = RepositoryLayout(Path.cwd())
-        main(Repository)
+        constants = SCCSConstants()
+        error_wrappers = ErrorWrappers()
+        main(constants, Repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)

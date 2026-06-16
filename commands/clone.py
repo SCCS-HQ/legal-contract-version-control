@@ -8,12 +8,10 @@ import zipfile
 import exceptions
 import requests
 import utils
-from pathlib import Path
 from urllib.parse import urlsplit
+from constants_classes import SCCSConstants, ErrorWrappers
 
-CLONE_ENDPOINT = "clone"
-
-def resolve_entered_url(url: str | None = None) -> str:
+def resolve_entered_url(constants: SCCSConstants, url: str | None = None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
@@ -25,24 +23,18 @@ def resolve_entered_url(url: str | None = None) -> str:
         url = utils.entered_arguement(2)
 
     if not url :
-        raise exceptions.InvalidArgumentError("No URL entered.")
+        raise exceptions.InvalidArgumentError(constants.EMPTY_URL_ERROR_MESSAGE)
 
-    if not url.startswith("http://") and not url.startswith("https://"):
-        raise exceptions.InvalidArgumentError(
-            "Invalid remote URL provided. Please provide a valid URL starting with "
-            "'http://' or 'https://'."
-        )
+    if not any(url.startswith(i) for i in constants.ACCEPTED_SCHEMES):
+        raise exceptions.InvalidArgumentError(constants.INVALID_SCHEME_ERROR_MESSAGE)
 
-    if not url.endswith(CLONE_ENDPOINT):
-       raise exceptions.InvalidArgumentError(
-            "Invalid remote URL provided. Please provide a valid URL ending with "
-            f"'{CLONE_ENDPOINT}'."
-        )
+    if not url.endswith(constants.CLONE_ENDPOINT):
+       raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
 
     return url
 
 
-def request_repo(url: str | None = None) -> requests.Response:
+def request_repo(constants: SCCSConstants, url: str | None = None) -> requests.Response:
     """
     Make a GET request to 'url' and ensure that the request was successful.
 
@@ -50,73 +42,72 @@ def request_repo(url: str | None = None) -> requests.Response:
     """
 
     if url is None:
-        url = resolve_entered_url()
+        url = resolve_entered_url(constants)
 
     try:
-        response = requests.get(url, timeout=60)
+        response = requests.get(url, timeout=constants.HTTP_TIMEOUT_SECONDS)
         response.raise_for_status()
     except requests.RequestException as e:
         raise exceptions.HTTPGetRequestError(
-            f"Failed to request repository from {url}"
-    ) from e
+            constants.HTTP_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)
+        ) from e
     
     return response
 
 
-def unzip_repo_file(buffer: io.BytesIO, url: str | None = None) -> None:
+def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str | None = None) -> None:
     """Unzip 'buffer'."""
 
     if url is None:
-        url = resolve_entered_url()
+        url = resolve_entered_url(constants)
 
     path_parts = [p for p in urlsplit(url).path.split("/") if p]
 
-    if not path_parts or path_parts[-1] != ("/" + CLONE_ENDPOINT):
-        raise exceptions.InvalidArgumentError(
-            f"Invalid remote URL provided. Please provide a valid URL ending with "
-            f"'{CLONE_ENDPOINT}'."
-        )
+    if not path_parts or path_parts[-1] != constants.CLONE_ENDPOINT:
+        raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
     
     if len(path_parts) < 2:
-        raise exceptions.InvalidArgumentError("URL must include a repository name before '/clone'.")
+        raise exceptions.InvalidArgumentError(constants.NO_REPO_NAME_ERROR_MESSAGE)
     
     repo_name = path_parts[-2]
 
     try:
         zipfile.ZipFile(buffer, "r").extractall(repo_name)
     except Exception as e:
-        raise exceptions.ZippingFileError("Failed to unzip repository file") from e
+        raise exceptions.ZippingFileError(constants.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 
-def print_clone_success_message(response: requests.Response) -> None:
+def print_clone_success_message(constants: SCCSConstants, response: requests.Response) -> None:
     """Print a success message after cloning the repository."""
 
-    print(f"Status Code: {response.status_code}\n")
+    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     response.raise_for_status()
-    print("Repository cloned successfully.\n")
+    print(constants.SUCCESS_MESSAGE)
 
 
-def main() -> None:
+def main(constants: SCCSConstants) -> None:
     """Run functions for the <sccs clone> command."""
-    url = resolve_entered_url()
+    url = resolve_entered_url(constants)
 
-    response = request_repo(url)
+    response = request_repo(constants, url)
 
     buffer = io.BytesIO(response.content)
 
-    unzip_repo_file(buffer, url)
+    unzip_repo_file(constants, buffer, url)
 
-    print_clone_success_message(response)
+    print_clone_success_message(constants, response)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        error_wrappers = ErrorWrappers()
+        main(constants)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
