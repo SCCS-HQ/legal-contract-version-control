@@ -8,29 +8,26 @@ import exceptions
 import utils
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def print_commit_confirmation_message() -> None:
+def print_commit_confirmation_message(Repo: RepositoryLayout, confirmation_msg: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
-    try:
-        sha_hash = Repository.commit_changes(utils.entered_arguement(2))
-    except Exception as e:
-        raise exceptions.CommitChangesError("Failed to commit changes") from e
-    print(f"Commit {sha_hash[:10]} created successfully.\n")
+    print(f"Commit {Repo.commit_changes(confirmation_msg)[:10]} created successfully.\n")
 
 
-def main() -> None:
+def main(Repo: RepositoryLayout) -> None:
     """Run functions for the <sccs commit> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    print_commit_confirmation_message()
+    commit_message = utils.entered_arguement(2)
+
+    print_commit_confirmation_message(Repo, commit_message)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        Repository = RepositoryLayout(Path.cwd())
+        main(Repository)
 
     except exceptions.SCCSException as e:
         print(f"An error occurred:\n{e}\n")
