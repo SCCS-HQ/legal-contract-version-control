@@ -15,11 +15,12 @@ def print_commit_confirmation_message(Repo: RepositoryLayout, confirmation_msg: 
     print(f"Commit {Repo.commit_changes(confirmation_msg)[:10]} created successfully.\n")
 
 
-def main(Repo: RepositoryLayout) -> None:
+def main(Repo: RepositoryLayout, commit_message: str | None = None) -> None:
     """Run functions for the <sccs commit> command."""
     Repo.check_repository_layout()
 
-    commit_message = utils.entered_arguement(2)
+    if commit_message is None:
+        commit_message = utils.entered_arguement(2)
 
     print_commit_confirmation_message(Repo, commit_message)
 
