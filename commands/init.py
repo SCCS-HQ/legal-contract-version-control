@@ -21,7 +21,7 @@ def get_document_repo_path(constants: SCCSConstants, docx_path: Path | None = No
     """
 
     if docx_path is None:
-        docx_path = utils.entered_arguement(2)
+        docx_path = utils.entered_argument(2)
    
     if not docx_path:
         raise exceptions.InvalidArgumentError(constants.NO_FILE_PROVIDED_ERROR_MESSAGE)
@@ -79,7 +79,7 @@ def check_file_requirements(constants: SCCSConstants, file: Path | None = None) 
     """
 
     if file is None:
-        file = utils.entered_arguement(2)
+        file = utils.entered_argument(2)
 
     if Path(file).suffix.lower() != constants.DOCX_EXTENSION:
         raise exceptions.InvalidFileTypeError(constants.INVALID_FILE_TYPE_ERROR_MESSAGE)
@@ -118,18 +118,19 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path | Non
     if repo_path is None:
         repo_path = get_document_repo_path(constants)
 
-    paths = [Path(constants.SCCS),
-        Path(constants.SCCS / constants.OBJECTS),
-        Path(constants.SCCS / constants.OBJECTS / constants.DOCX),
-        Path(constants.SCCS / constants.OBJECTS / constants.HTML),
-        Path(constants.SCCS / constants.OBJECTS / constants.VIEW_HTML),
-        Path(constants.SCCS / constants.BRANCHES),
-        Path(constants.SCCS / constants.BRANCHES / constants.MAIN_BRANCH),
-        Path(constants.SCCS / constants.BRANCHES / constants.MAIN_BRANCH / constants.HISTORY),
-        Path(constants.SCCS / constants.BRANCHES / constants.MAIN_BRANCH / constants.COMMIT_FILE_HASH),
-        Path(constants.SCCS / constants.COMMIT_MESSAGES),
-        Path(constants.SCCS / constants.CONFIG),
-        Path(constants.SCCS / constants.CURRENT_BRANCH)
+    paths = [
+        Path(constants.SCCS),
+        (Path(constants.SCCS) / constants.OBJECTS),
+        (Path(constants.SCCS) / constants.OBJECTS / constants.DOCX),
+        (Path(constants.SCCS) / constants.OBJECTS / constants.HTML),
+        (Path(constants.SCCS) / constants.OBJECTS / constants.VIEW_HTML),
+        (Path(constants.SCCS) / constants.BRANCHES),
+        (Path(constants.SCCS) / constants.BRANCHES / constants.MAIN_BRANCH),
+        (Path(constants.SCCS) / constants.BRANCHES / constants.MAIN_BRANCH / constants.HISTORY),
+        (Path(constants.SCCS) / constants.BRANCHES / constants.MAIN_BRANCH / constants.COMMIT_FILE_HASH),
+        (Path(constants.SCCS) / constants.COMMIT_MESSAGES),
+        (Path(constants.SCCS) / constants.CONFIG),
+        (Path(constants.SCCS) / constants.CURRENT_BRANCH)
     ]
     
     try:
@@ -138,7 +139,7 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path | Non
         for path in paths:
             (repo_path / path).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        raise exceptions.FileCreateError from e
+        raise exceptions.FileCreateError()from e
 
 
 def move_document_to_repo_directory(constants: SCCSConstants, repo_path: Path | None = None, docx_path: Path | None = None) -> None:
@@ -148,7 +149,7 @@ def move_document_to_repo_directory(constants: SCCSConstants, repo_path: Path | 
         repo_path = get_document_repo_path(constants)
 
     if docx_path is None:
-        docx_path = utils.entered_arguement(2)
+        docx_path = utils.entered_argument(2)
 
     shutil.move(docx_path, repo_path)
 
@@ -162,7 +163,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
         repo_path = get_document_repo_path(constants)
         
     if docx_path is None:
-        docx_path = Path(repo_path / Path(utils.entered_arguement(2)).name)
+        docx_path = Path(repo_path / Path(utils.entered_argument(2)).name)
         
     objects_path = repo_path / constants.SCCS / constants.OBJECTS
 
@@ -282,7 +283,7 @@ def write_hashed_file_commit_data(constants: SCCSConstants, repo_path: Path | No
     if sha_hash is None:
         sha_hash = create_commit_sha_hash(constants, repo_path)
     if docx_path is None:
-        docx_path = (repo_path / Path(utils.entered_arguement(2)).name)
+        docx_path = (repo_path / Path(utils.entered_argument(2)).name)
 
     try:
         with open(docx_path, "rb") as f:

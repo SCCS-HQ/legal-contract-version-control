@@ -20,7 +20,7 @@ def resolve_entered_url(constants: SCCSConstants, url: str | None = None) -> str
     """
 
     if url is None:
-        url = utils.entered_arguement(2)
+        url = utils.entered_argument(2)
 
     if not url :
         raise exceptions.InvalidArgumentError(constants.EMPTY_URL_ERROR_MESSAGE)
@@ -81,7 +81,6 @@ def print_clone_success_message(constants: SCCSConstants, response: requests.Res
     """Print a success message after cloning the repository."""
 
     print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    response.raise_for_status()
     print(constants.SUCCESS_MESSAGE)
 
 
