@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Merge branches in the SCCS repository."""
+
 import shutil
 import sys
 from pathlib import Path

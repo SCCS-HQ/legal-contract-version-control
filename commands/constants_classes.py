@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Constants and classes for SCCS commands."""
+
 import datetime
 
 

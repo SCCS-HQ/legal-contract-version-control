@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Push the repository to the remote server."""
+
 import io
 import json
 import os

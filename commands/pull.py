@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Pull the repository from the remote server."""
+
 import io
 import sys
 import zipfile

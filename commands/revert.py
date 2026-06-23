@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+"""Revert the current document to the specified commit."""
+
 import shutil
 import sys
 from pathlib import Path
