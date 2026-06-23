@@ -105,7 +105,7 @@ def delete_branch_after_error(Repo: RepositoryLayout, branch_name: str | None = 
         try:
             shutil.rmtree(branch_path)
         except Exception as e:
-            raise exceptions.UpdatingMetadataError from e
+            raise exceptions.UpdatingMetadataError(constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)) from e
 
 
 def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:

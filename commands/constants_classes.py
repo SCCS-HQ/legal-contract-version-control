@@ -38,7 +38,9 @@ class SCCSConstants:
 
         # Commit.py
 
+        self.EMPTY_COMMIT_MESSAGE_ERROR = "Commit message cannot be empty. Please provide a valid commit message."
         self.COMMIT_SCCS_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully.\n"
+        self.COMMIT_FAILURE_ERROR_MESSAGE = "Failed to commit changes."
 
         # Clone.py
 
