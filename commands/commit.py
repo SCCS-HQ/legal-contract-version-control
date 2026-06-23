@@ -15,12 +15,22 @@ def print_commit_confirmation_message(constants: SCCSConstants, Repo: Repository
     print(constants.COMMIT_SCCS_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=Repo.commit_changes(confirmation_msg)[:10]))
 
 
+def validate_commit_message(commit_message: str | None) -> None:
+    if commit_message is None:
+        commit_message = utils.entered_argument(2)
+
+    if commit_message is None or not commit_message.strip():
+        raise exceptions.EmptyArgumentError("Commit message cannot be empty.")
+
+
 def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str | None = None) -> None:
     """Run functions for the <sccs commit> command."""
     Repo.check_repository_layout()
 
     if commit_message is None:
-        commit_message = utils.entered_arguement(2)
+        commit_message = utils.entered_argument(2)
+        validate_commit_message(commit_message)
+        
 
     print_commit_confirmation_message(constants, Repo, commit_message)
 

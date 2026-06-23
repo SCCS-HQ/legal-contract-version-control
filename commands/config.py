@@ -10,7 +10,7 @@ from repository_layout import RepositoryLayout
 from constants_classes import ErrorWrappers, SCCSConstants
 from urllib.parse import urlsplit, urljoin
 
-def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> str:
+def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> None:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
     by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
@@ -28,15 +28,22 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
         raise exceptions.InvalidArgumentError(constants.EMPTY_CONFIG_VALUE_ERROR_MESSAGE)
     
     if not repo_name.strip():
-        raise exceptions.InvalidArgumentError(constants.ERROR_MESSAGE)
+        raise exceptions.EmptyArgumentError(constants.EMPTY_REPO_NAME_ERROR_MESSAGE)
 
     if (repo_name := utils.clean_directory_name(repo_name)) is None:
         raise exceptions.InvalidArgumentError(
             constants.INVALID_REPO_NAME_ERROR_MESSAGE
         )
 
-    if key == constants.REMOTE:
-        url = url.rstrip(constants.SLASH)
+
+def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
+    """Resolve the entered remote URL to the correct format for storing in the config file."""
+
+    if not value.strip():
+        raise exceptions.InvalidArgumentError(constants.EMPTY_CONFIG_VALUE_ERROR_MESSAGE)
+    
+    if key == constants.REMOTE_KEY:
+        url = value.rstrip(constants.SLASH)
         url_parsed = urlsplit(url)
 
         if (
@@ -50,8 +57,6 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
             )
         
         return urljoin(url, f"{constants.REPOS}{constants.SLASH}{repo_name}")
-    
-    return value
 
 
 def print_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
@@ -65,13 +70,15 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str | None = Non
     Repo.check_repository_layout()
 
     if key is None:
-        key = utils.entered_arguement(2)
+        key = utils.entered_argument(2)
     if value is None:
-        value = utils.entered_arguement(3)
+        value = utils.entered_argument(3)
 
     repo_name = Repo.repo_name
     
-    value = validate_entered_value(constants, repo_name, key, value)
+    validate_entered_value(constants, repo_name, key, value)
+
+    value = resolve_key_value(constants, repo_name, key, value)
 
     Repo.write_key_to_config(key, value)
 

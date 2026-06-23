@@ -117,6 +117,12 @@ class InvalidArgumentError(SCCSException):
     default_message = "Invalid command argument."
 
 
+class EmptyArgumentError(SCCSException):
+    """Raised when an empty argument is provided to a command."""
+
+    default_message = "Argument cannot be empty."
+
+
 class InvalidSubcommandError(SCCSException):
     """Raised when an invalid subcommand is provided to a command."""
 

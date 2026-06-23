@@ -20,9 +20,9 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
     """
 
     if subcommand is None:
-        subcommand = utils.entered_arguement(2)
+        subcommand = utils.entered_argument(2)
     if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
@@ -65,7 +65,7 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
     """
 
     if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+        branch_name = utils.clean_directory_name(utils.entered_argument(3))
     if current_branch_name is None:
         current_branch_name = Repo.current_branch_name()
 
@@ -97,7 +97,7 @@ def delete_branch_after_error(Repo: RepositoryLayout, branch_name: str | None = 
     """
 
     if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     branch_path = Repo.branch_path(branch_name)
     
@@ -105,7 +105,7 @@ def delete_branch_after_error(Repo: RepositoryLayout, branch_name: str | None = 
         try:
             shutil.rmtree(branch_path)
         except Exception as e:
-            raise exceptions.FileCopyError from e
+            raise exceptions.UpdatingMetadataError from e
 
 
 def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
@@ -114,7 +114,7 @@ def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
     """
 
     if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+        branch_name = utils.clean_directory_name(utils.entered_argument(3))
     branch_path = Repo.branch_path(branch_name)
 
     Repo.remove_from_branches_list(branch_name)
@@ -123,7 +123,7 @@ def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
         shutil.rmtree(branch_path)
     except Exception as e:
         rollback_changes_after_failure(constants, Repo, branch_name)       
-        raise exceptions.FileCopyError from e
+        raise exceptions.UpdatingMetadataError from e
 
     print(constants.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
@@ -136,7 +136,7 @@ def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLay
     """
 
     if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_arguement(3))
+        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     try:
         Repo.add_to_branches_list(branch_name)
@@ -172,7 +172,7 @@ def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, s
     """
 
     if subcommand is None:
-        subcommand = utils.entered_arguement(2)
+        subcommand = utils.entered_argument(2)
 
     if subcommand == constants.CREATE_SUBCOMMAND:
         branch_create_subcommand(constants, Repo)
@@ -188,7 +188,7 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
 
     validate_subcommand(constants, Repo)
 
-    Repo.check_for_uncommitted_changes("branch")
+    Repo.check_for_uncommitted_changes()
 
     run_specified_subcommand(constants, Repo)
 

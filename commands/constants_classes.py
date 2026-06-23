@@ -29,7 +29,7 @@ class SCCSConstants:
             "Invalid repository name. Repository names cannot be empty or contain only"
             " whitespace. "
         )
-        self.ERROR_MESSAGE = (
+        self.EMPTY_REPO_NAME_ERROR_MESSAGE = (
             "Repository name cannot be empty. Please ensure the repository is properly "
             "initialized with a valid name."
         )
