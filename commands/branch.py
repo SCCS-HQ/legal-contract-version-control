@@ -26,18 +26,18 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
-            constants.NO_SUBCOMMAND_ERROR_MESSAGE
+            constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="subcommand")
         )
 
     if subcommand not in [constants.CREATE_SUBCOMMAND, constants.DELETE_SUBCOMMAND, constants.LIST_SUBCOMMAND]:
         raise exceptions.InvalidSubcommandError(
-            constants.INVALID_SUBCOMMAND_ERROR_MESSAGE_TEMPLATE.format(subcommand=subcommand)
+            constants.INVALID_SUBCOMMAND_ERROR_MESSAGE
         )
 
     if subcommand in [constants.CREATE_SUBCOMMAND, constants.DELETE_SUBCOMMAND]:
         if not branch_name:
             raise exceptions.InvalidArgumentError(
-                constants.NO_BRANCH_NAME_ERROR_MESSAGE
+                constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="branch name")
             )
         
     if subcommand == constants.CREATE_SUBCOMMAND:
@@ -49,12 +49,12 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
     if subcommand == constants.DELETE_SUBCOMMAND:
         if Repo.is_current_branch(branch_name):
             raise exceptions.BranchDeletionError(
-                constants.CURRENT_BRANCH_DELETION_ERROR_MESSAGE
+                constants.CURRENT_BRANCH_DIR_DELETION_ERROR_MESSAGE
             )
 
         if not Repo.branch_exists(branch_name):
             raise exceptions.BranchMissingFromMetadataError(
-                constants.BRANCH_MISSING_FROM_METADATA_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+                constants.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
             )
 
 
@@ -152,12 +152,12 @@ def branch_list_subcommand(constants: SCCSConstants, Repo: RepositoryLayout) -> 
     metadata.
     """
 
-    print(constants.BRANCHES_MESSAGE)
+    print(constants.BRANCHES_DIR_LIST_HEADER)
     for i in Repo.list_branches():
         if i == Repo.current_branch_name():
             print(constants.CURRENT_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
         else:
-            print(constants.OTHER_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
+            print(constants.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
 
 
 def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str | None = None) -> None:

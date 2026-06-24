@@ -9,6 +9,7 @@ import utils
 from repository_layout import RepositoryLayout
 from constants_classes import ErrorWrappers, SCCSConstants
 from urllib.parse import urlsplit, urljoin
+import os
 
 def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> None:
     """
@@ -25,10 +26,10 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
             raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=", ".join(constants.ACCEPTED_KEYS)))
     
     if not value.strip():
-        raise exceptions.InvalidArgumentError(constants.EMPTY_CONFIG_VALUE_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if not repo_name.strip():
-        raise exceptions.EmptyArgumentError(constants.EMPTY_REPO_NAME_ERROR_MESSAGE)
+        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="repository name"))
 
     if (repo_name := utils.clean_directory_name(repo_name)) is None:
         raise exceptions.InvalidArgumentError(
@@ -40,10 +41,10 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
 
     if not value.strip():
-        raise exceptions.InvalidArgumentError(constants.EMPTY_CONFIG_VALUE_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if key == constants.REMOTE_KEY:
-        url = value.rstrip(constants.SLASH)
+        url = value.rstrip(os.sep)
         url_parsed = urlsplit(url)
 
         if (
@@ -56,13 +57,13 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
                 constants.INVALID_URL_ERROR_MESSAGE
             )
         
-        return urljoin(url, f"{constants.REPOS}{constants.SLASH}{repo_name}")
+        return urljoin(url, f"{constants.REPOS}{os.sep}{repo_name}")
 
 
 def print_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
     """Print a confirmation message after successfully setting the configuration."""
 
-    print(constants.SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
+    print(constants.CONFIG_DIR_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
 def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str | None = None, value: str | None = None) -> None:

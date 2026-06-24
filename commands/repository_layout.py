@@ -141,7 +141,7 @@ class RepositoryLayout:
 
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.constants.NO_COMMIT_FILE_PROVIDED_ERROR_MESSAGE
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit file")
             )
         
         commit = Path(str(commit).strip())
@@ -160,7 +160,7 @@ class RepositoryLayout:
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
-                self.constants.COMMIT_FILE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit_file=commit)
+                self.constants.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=commit)
             )
 
         if len(matching_files) > 1:
@@ -223,7 +223,7 @@ class RepositoryLayout:
         """
         if key not in ["remote", "name", "email"]:
             raise exceptions.InvalidArgumentError(
-                self.constants.INVALID_KEY_ERROR_MESSAGE_TEMPLATE.format(key=key)
+                self.constants.INVALID_KEY_ERROR_MESSAGE
             )
         
         with open(self.config_path(), "r", encoding="utf-8", newline="\n") as f:
@@ -279,14 +279,14 @@ class RepositoryLayout:
     def commit_file(self, folder: str, commit: str) -> str:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.constants.NO_COMMIT_FILE_PROVIDED_ERROR_MESSAGE
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit file")
             )
         
         commit = Path(str(commit).strip())
 
         if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
             raise exceptions.InvalidArgumentError(
-                self.constants.INVALID_COMMIT_FILE_NAME_ERROR_MESSAGE
+                self.constants.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
 
         matching_files = []
@@ -298,7 +298,7 @@ class RepositoryLayout:
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
-                self.constants.COMMIT_FILE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit_file=commit)
+                self.constants.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=commit)
             )
 
         if len(matching_files) > 1:
@@ -343,7 +343,7 @@ class RepositoryLayout:
 
         if not hash:
             raise exceptions.InvalidMetadataError(
-                self.constants.INVALID_COMMIT_HISTORY_DATA_ERROR_MESSAGE
+                self.constants.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
             )
         
         self._set_branch_name(None)
@@ -357,7 +357,7 @@ class RepositoryLayout:
         """Write 'key': 'value' to the SCCS config JSON file."""
         if key not in ["remote", "name", "email"]:
             raise exceptions.InvalidArgumentError(
-                self.constants.INVALID_KEY_ERROR_MESSAGE_TEMPLATE.format(key=key)
+                self.constants.INVALID_KEY_ERROR_MESSAGE
             )
 
         try:
@@ -371,7 +371,7 @@ class RepositoryLayout:
             self._set_branch_name(None)
         except Exception as e:
             raise exceptions.UpdatingMetadataError(
-                self.constants.INVALID_CONFIG_VALUE_ERROR_MESSAGE_TEMPLATE.format(config_key=key)
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
             ) from e
 
 
@@ -387,7 +387,7 @@ class RepositoryLayout:
 
         except Exception as e:
             raise exceptions.BranchCreationError(
-                self.constants.BRANCH_CREATION_ERROR_MESSAGE
+                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action="create")
             ) from e
 
         self._set_branch_name(None)
@@ -410,7 +410,7 @@ class RepositoryLayout:
 
         except Exception as e:
             raise exceptions.BranchDeletionError(
-                self.constants.BRANCH_DELETION_ERROR_MESSAGE
+                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action="delete")
                 ) from e
 
         self._set_branch_name(None)
@@ -428,7 +428,7 @@ class RepositoryLayout:
 
         except Exception as e:
             raise exceptions.UpdatingMetadataError(
-                self.constants.INVALID_CONFIG_VALUE_ERROR_MESSAGE_TEMPLATE.format(config_key="current_branch")
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="current_branch")
             ) from e
 
         self._set_branch_name(None)
@@ -483,12 +483,12 @@ class RepositoryLayout:
         for i in dirs:
             if not i.is_dir():
                 raise exceptions.InvalidMetadataError(
-                    self.constants.MISSING_DIRECTORY_ERROR_MESSAGE_TEMPLATE.format(directory_name=i)
+                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=i)
                 )
         for i in files:
             if not i.is_file():
                 raise exceptions.InvalidMetadataError(
-                    self.constants.REPOSITORY_LAYOUT_ERROR_MESSAGE_TEMPLATE.format(missing_file=i)
+                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=i)
                 )
 
         self._set_branch_name(None)
@@ -520,7 +520,7 @@ class RepositoryLayout:
         if raise_on_changes:
             if has_uncommitted_changes:
                 raise exceptions.UncommittedChangesError(
-                    self.constants.UNCOMMITTED_CHANGES_ERROR_MESSAGE
+                    self.constants.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
                 )
 
             self._set_branch_name(None)
@@ -597,7 +597,7 @@ class RepositoryLayout:
             """Generate a SHA-256 hash for the commit."""
 
             return hashlib.sha256(
-                f"{self.constants.PROGRAM_START_TIME}/{commit_message}/{self.config_data('name')}/"
+                f"{self.constants.PROGRAM_START_TIME()}/{commit_message}/{self.config_data('name')}/"
                 f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
             ).hexdigest()
 
@@ -645,7 +645,7 @@ class RepositoryLayout:
 
             if not self.current_branch().byte_hashes_path().is_file():
                 raise FileNotFoundError(
-                    self.constants.MISSING_FILE_ERROR_MESSAGE_TEMPLATE.format(file_name=self.current_branch().byte_hashes_path())
+                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.current_branch().byte_hashes_path())
                 )
 
             try:
@@ -667,7 +667,7 @@ class RepositoryLayout:
 
             if not self.commit_messages_path().is_file():
                 raise FileNotFoundError(
-                    self.constants.MISSING_FILE_ERROR_MESSAGE_TEMPLATE.format(file_name=self.commit_messages_path())
+                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.commit_messages_path())
                 )
 
             with open(
@@ -689,7 +689,7 @@ class RepositoryLayout:
             # Check if history file exists
             if not self.current_branch().history_path().is_file():
                 raise FileNotFoundError(
-                    self.constants.MISSING_FILE_ERROR_MESSAGE_TEMPLATE.format(file_name=self.current_branch().history_path())
+                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.current_branch().history_path())
                 )
 
             history = self.current_branch().history_data()
@@ -706,7 +706,7 @@ class RepositoryLayout:
             history["history"]["commit_order"][str(latest_commit_number)] = f"{sha_hash}"
 
             history["log"][f"{sha_hash}"] = {
-                "timestamp": self.constants.PROGRAM_START_TIME,
+                "timestamp": self.constants.PROGRAM_START_TIME(),
                 "author": f"{self.config_data('name')} <{self.config_data('email')}>",
                 "message": commit_message,
             }
@@ -784,7 +784,7 @@ class RepositoryLayout:
             """Exit if there are no uncommitted changes."""
             if not self.check_for_uncommitted_changes(raise_on_changes=False):
                 raise exceptions.NoUncommittedChangesError(
-                    self.constants.NO_UNCOMMITTED_CHANGES_ERROR_MESSAGE
+                    self.constants.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
                 )
 
         # endregion

@@ -23,10 +23,10 @@ def resolve_entered_url(constants: SCCSConstants, url: str | None = None) -> str
         url = utils.entered_argument(2)
 
     if not url :
-        raise exceptions.InvalidArgumentError(constants.EMPTY_URL_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="URL"))
 
     if not any(url.startswith(i) for i in constants.ACCEPTED_SCHEMES):
-        raise exceptions.InvalidArgumentError(constants.INVALID_SCHEME_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(constants.INVALID_URL_ERROR_MESSAGE)
 
     if not url.endswith(constants.CLONE_ENDPOINT):
        raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
@@ -49,7 +49,7 @@ def request_repo(constants: SCCSConstants, url: str | None = None) -> requests.R
         response.raise_for_status()
     except requests.RequestException as e:
         raise exceptions.HTTPGetRequestError(
-            constants.HTTP_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)
+            constants.HTTP_REQUEST_ERROR_MESSAGE
         ) from e
     
     return response
@@ -67,7 +67,7 @@ def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str | Non
         raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
     
     if len(path_parts) < 2:
-        raise exceptions.InvalidArgumentError(constants.NO_REPO_NAME_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="repository name"))
     
     repo_name = path_parts[-2]
 
@@ -80,8 +80,8 @@ def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str | Non
 def print_clone_success_message(constants: SCCSConstants, response: requests.Response) -> None:
     """Print a success message after cloning the repository."""
 
-    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(constants.SUCCESS_MESSAGE)
+    print(constants.STATUS_CODE_MESSAGE + str(response.status_code))
+    print(constants.CLONE_SUCCESS_MESSAGE)
 
 
 def main(constants: SCCSConstants) -> None:
