@@ -14,6 +14,12 @@ class SCCSException(Exception):
 # Branch Exceptions
 
 
+class BranchNotSetError(SCCSException):
+    """Raised when a branch is not set in the RepositoryLayout."""
+
+    default_message = "Branch not set in RepositoryLayout."
+
+
 class InvalidBranchNameError(SCCSException):
     """Raised when a branch name is invalid."""
 

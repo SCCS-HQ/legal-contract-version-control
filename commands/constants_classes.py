@@ -141,12 +141,78 @@ class SCCSConstants:
         self.FILE_DOES_NOT_EXIST_ERROR_MESSAGE = "File does not exist. Please provide a valid file path to an existing .docx file."
         self.SCCS_SUCCESS_MESSAGE = "SCCS initialization complete.\n"   
 
+        # repository_layout.py
+    
+        # filesystem names and structure
+
+        # formats and types
+
+        # templates and prompts
+        
+        # runtime & defaults
+
+        # error / status messages
+        self.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
+            "Target branch not set. Please chain this method call with a branch "
+            "method before calling history_path(). For example,"
+            "'repo_layout.main_branch().foo()'."
+        )
+        self.NO_COMMIT_FILE_PROVIDED_ERROR_MESSAGE = (
+            "No commit file provided. Please provide a valid commit file to open."
+        )
+        self.INVALID_COMMIT_HASH_ERROR_MESSAGE = (
+            "Invalid commit file name. Please provide a shortened, 10 character commit "
+            "hash or the full 64 character commit hash as the commit identifier."
+        )
+        self.COMMIT_FILE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
+            "Commit file '{commit_file}' not found. Please provide a valid commit file."
+        )
+        self.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
+            "Multiple commit files found matching '{commit}'. Please provide a full, "
+            "64 character commit hash."
+        )
+        self.INVALID_KEY_ERROR_MESSAGE_TEMPLATE = (
+            "Invalid configuration key '{key}'. Accepted keys are 'remote', 'name', and 'email'."
+        )
+        self.INVALID_COMMIT_FILE_NAME_ERROR_MESSAGE = (
+            "Invalid commit file name. Please provide a shortened, 10 character commit "
+            "hash or the full 64 character commit hash as the commit identifier."
+        )
+        self.NONEXISTENT_COMMIT_FILE_ERROR_MESSAGE_TEMPLATE = (
+            "Commit file '{commit_file}' does not exist. Please provide a valid commit file."
+        )
+        self.INVALID_COMMIT_HISTORY_DATA_ERROR_MESSAGE = (
+            "Invalid commit history data. Please ensure that the commit data has not"
+            "been manually modified."
+        )
+        self.BRANCH_CREATION_ERROR_MESSAGE = ("Failed to create branch." )
+        self.INVALID_BRANCH_DATA_ERROR_MESSAGE = (
+            "Invalid branch data. Please ensure that the branch data has not been manually"
+            "modified and the the targeted branch exists."
+        )
+        self.BRANCH_DELETION_ERROR_MESSAGE = ("Failed to delete branch." )
+        self.BRANCH_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
+            "Branch '{branch_name}' does not exist. Please provide a valid branch name."
+        )
+        self.MISSING_DIRECTORY_ERROR_MESSAGE_TEMPLATE = (
+            "Missing directory '{directory_name}' in repository layout. Please ensure the "
+            "directory exists and is properly configured."
+        )
+        self.MISSING_FILE_ERROR_MESSAGE_TEMPLATE = (
+            "Missing file '{file_name}' in repository layout. Please ensure the "
+            "file exists and is properly configured."
+        )
+        self.UNCOMMITTED_CHANGES_ERROR_MESSAGE = (
+            "Uncommitted changes detected. Please clean the working tree before proceeding."
+        )
+        self.NO_UNCOMMITTED_CHANGES_ERROR_MESSAGE = (
+            "No uncommitted changes detected. Uncommitted changes are required before committing."
+        )
+
         # timestamp
         # **Important**: This is set at import time not at runtime, so it may be slightly different from the actual time the command is run
 
         self.PROGRAM_START_TIME = datetime.datetime.now()
- 
-        # data 
         
 
 class ErrorWrappers:
