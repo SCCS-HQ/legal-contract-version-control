@@ -75,22 +75,18 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
             Repo.branch_path(branch_name),
         )
     except Exception as e:
-        delete_branch_after_error(Repo, branch_name)
+        delete_branch_after_error(constants, Repo, branch_name)
         raise exceptions.FileCopyError from e
 
     Repo.add_to_branches_list(branch_name)
 
-    print_msg = constants.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
-        branch_name=branch_name,
-        current_branch_name=current_branch_name
-    )
 
     Repo.set_current_branch(branch_name)
 
-    print(print_msg)
+    print_branch_create_success_message(constants, branch_name, current_branch_name)
     
 
-def delete_branch_after_error(Repo: RepositoryLayout, branch_name: str | None = None) -> None:
+def delete_branch_after_error(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
     """
     Delete a branch after an error has occurred during branch creation by deleting the
     branch directory.
@@ -125,7 +121,7 @@ def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
         rollback_changes_after_failure(constants, Repo, branch_name)       
         raise exceptions.UpdatingMetadataError from e
 
-    print(constants.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
+    print_branch_delete_success_message(constants, branch_name)
 
 
 def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
@@ -180,6 +176,18 @@ def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, s
         branch_delete_subcommand(constants, Repo)
     elif subcommand == constants.LIST_SUBCOMMAND:
         branch_list_subcommand(constants, Repo)
+
+
+def print_branch_delete_success_message(constants: SCCSConstants, branch_name):
+    print(constants.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
+
+
+def print_branch_create_success_message(constants: SCCSConstants, branch_name: str, current_branch_name: str):
+    print(
+        constants.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name, current_branch_name=current_branch_name
+        )
+    )
 
 
 def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
