@@ -197,6 +197,7 @@ class RepositoryLayout:
         path = self.branches_path() / branch_name
         self._set_branch_name(None)
         return path
+    
 
 # Return Data from Files
 
@@ -319,7 +320,7 @@ class RepositoryLayout:
 
     def list_branches(self) -> list[str]:
         self._set_branch_name(None)
-        return [self.branches]
+        return self.current_branch_data().get("branches", [])
 
 
     def current_branch_name(self) -> str:
@@ -434,6 +435,13 @@ class RepositoryLayout:
         self._set_branch_name(None)
 
 
+    def write_diff_html_file(self, html: str) -> None:
+        with open(
+            self.constants.DIFF_HTML_FILE,  "w", encoding="utf-8", newline="\n"
+        ) as f:
+            f.write(html)
+
+
 # Set edit branch status
 
 
@@ -510,8 +518,7 @@ class RepositoryLayout:
         'exit' defaults to True.
         """
 
-        latest_commit = self.current_branch().get_latest_commit()
-
+        latest_commit = self.current_branch().latest_commit()
         
         latest_bytes_hash = self.current_branch().byte_hashes_data()[latest_commit]
 
@@ -637,7 +644,7 @@ class RepositoryLayout:
                 encoding="utf-8",
                 newline="\n",
             ) as f:
-                f.write(utils.wrap_html(self.document_as_html()))
+                f.write(utils.wrap_html(self.convert_docx_to_html()))
 
 
         def update_commit_binary_hash_history() -> dict[str, dict]:
