@@ -228,12 +228,6 @@ class InvalidInputError(SCCSException):
     default_message = "Invalid input."
 
 
-class EmptyCommitMessageError(SCCSException):
-    """Raised when an empty commit message is provided."""
-
-    default_message = "Commit message cannot be empty."
-
-
 # Module Exceptions
 
 
