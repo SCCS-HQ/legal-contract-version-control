@@ -2,6 +2,7 @@
 """Constants and classes for SCCS commands."""
 
 import datetime
+from functools import cached_property
 
 
 class SCCSConstants:
@@ -211,9 +212,10 @@ class SCCSConstants:
         # Unused (not referenced outside this class)
         # (none found)
 
+    @cached_property
     def _program_start_time(self) -> str:
         """Return the program start time in a human-readable format."""
-        return datetime.datetime.now()
+        return datetime.datetime.now().isoformat()
 
 
 class ErrorWrappers:
