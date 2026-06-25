@@ -736,9 +736,7 @@ class RepositoryLayout:
             else:
                 branch_data["updated_branches"] = updated_branch
 
-            current_branch_name = self.current_branch_name()
-
-            return {current_branch_name: branch_data}
+            return {self.current_branch_path(): branch_data}
 
 
         def combine_update_dicts(commit_message) -> dict[Path, dict]:
@@ -771,9 +769,10 @@ class RepositoryLayout:
 
             for i in update_dict.items():
                 key, value = i
+                print(key)
                 try:
                     with open(
-                        key.with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
+                        Path(key).with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
                     ) as f:
                         json.dump(value, f)
                 except Exception as e:
@@ -782,7 +781,7 @@ class RepositoryLayout:
             for i in update_dict.items():
                 key, value = i
                 try:
-                    key.with_suffix(".tmp").replace(key)
+                    Path(key).with_suffix(".tmp").replace(key)
                 except Exception as e:
                     raise exceptions.TemporaryFileError from e
 
