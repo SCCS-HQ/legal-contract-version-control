@@ -262,7 +262,7 @@ def write_commit_message_data(constants: SCCSConstants, repo_path: Path | None =
     }
     try:
         with open(
-            repo_path / constants.SCCS / constants.COMMIT_MESSAGES_DIR_DIR/ constants.COMMIT_MESSAGES_DIR_JSON_FILE,
+            repo_path / constants.SCCS / constants.COMMIT_MESSAGES_DIR/ constants.COMMIT_MESSAGES_DIR_JSON_FILE,
             "w",
             encoding="utf-8",
             newline="\n",
