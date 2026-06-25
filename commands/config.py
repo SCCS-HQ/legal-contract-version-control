@@ -42,7 +42,9 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
 def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
 
-    if not value.strip():
+    value = value.strip()
+
+    if not value:
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if key == constants.REMOTE:
@@ -60,6 +62,8 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
             )
         
         return urljoin(url, f"{constants.REPOS}{os.sep}{repo_name}")
+    
+    return value
 
 
 def print_config_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
