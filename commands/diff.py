@@ -9,30 +9,29 @@ from pathlib import Path
 import exceptions
 import utils
 from bs4 import BeautifulSoup
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def number_tags(html: BeautifulSoup) -> BeautifulSoup:
+def number_tags(constants: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
     """
-    Add a data-number attribute to all tags in the HTML, excluding style tags, with a
+    Add a data-number attribute to all tags in the  HTML, excluding style tags, with a
     unique index value by enumerating through the tags and giving each a data-number
     attribute corresponding to its index in the enumeration.
 
     Return the modified BeautifulSoup object with numbered tags.
     """
 
-    soup = remove_inline_semantics(html)
+    soup = remove_inline_semantics(constants, html)
     
     for i in enumerate(soup.find_all()):
-        if i[1].name == "style":
+        if i[1].name == constants.STYLE_HTML_ATTRIBUTE:
             continue
-        i[1]["data-number"] = str(i[0])
+        i[1][constants.DATA_NUMBER_HTML_ATTRIBUTE] = str(i[0])
     return soup
 
 
-def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
+def strip_number_attribute(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None, past_version: list[str] | None = None, current_version: list[str] | None = None) -> BeautifulSoup:
     """
     Use BeautifulSoup.findall() to return a list of all tags in the HTML, and remove the
     data-number attribute from each tag if it exists.
@@ -41,14 +40,14 @@ def strip_number_attribute(html: BeautifulSoup) -> BeautifulSoup:
     all tags.
     """
 
-    soup = html
+    soup = format_redline_html(constants, Repo, commit_hash, past_version, current_version)
     for i in soup.find_all():
-        if "data-number" in i.attrs:
-            del i["data-number"]
+        if constants.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
+            del i[constants.DATA_NUMBER_HTML_ATTRIBUTE]
     return soup
 
 
-def tags_to_list(html: BeautifulSoup) -> list[str]:
+def tags_to_list(constants: SCCSConstants, html: BeautifulSoup) -> list[str]:
     """
     Use BeautifulSoup.findall() to return a list of all tags in the HTML, and convert
     each tag to a string.
@@ -56,11 +55,11 @@ def tags_to_list(html: BeautifulSoup) -> list[str]:
     Return a list of strings representing each tag in the HTML.
     """
 
-    soup = remove_inline_semantics(html)
+    soup = remove_inline_semantics(constants, html)
     return [str(i) for i in soup.find_all()]
 
 
-def get_data_number(tag_list: list[str]) -> set[str]:
+def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
     """
     Convert a list of tag strings to a set of data-number attribute values by parsing
     each tag to search for the 'data-number' attribute.
@@ -71,15 +70,15 @@ def get_data_number(tag_list: list[str]) -> set[str]:
     data_number = set()
     for i in tag_list:
         parsed_tag = (
-            i if hasattr(i, "attrs") else BeautifulSoup(i, "html.parser").find()
+            i if hasattr(i, "attrs") else BeautifulSoup(i, constants.HTML_PARSER).find()
         )
         if parsed_tag is not None:
-            if parsed_tag.get("data-number") is not None:
-                data_number.add(parsed_tag.get("data-number"))
+            if parsed_tag.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) is not None:
+                data_number.add(parsed_tag.get(constants.DATA_NUMBER_HTML_ATTRIBUTE))
     return data_number
 
 
-def delete_tag(old_changed_strings: list[str]) -> BeautifulSoup:
+def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], commit_hash: str | None = None) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -89,22 +88,25 @@ def delete_tag(old_changed_strings: list[str]) -> BeautifulSoup:
     Return the modified BeautifulSoup object with "deleted" class added to tags.
     """
 
-    soup = get_redline_html()
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+
+    soup = get_redline_html(constants, Repo, commit_hash)
     for i in soup.find_all():
-        if i.name == "style":
+        if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
             continue
 
-        if i.get("data-number") in get_data_number(old_changed_strings):
-            if "class" in i.attrs:
-                i["class"].append("deleted")
+        if i.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) in get_data_number(constants, old_changed_strings):
+            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE)
             else:
-                i["class"] = ["deleted"]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
 def replace_tag(
-    old_changed_strings: list[str], new_changed_strings: list[str]
+    constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], new_changed_strings: list[str], commit_hash: str | None = None
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -116,33 +118,36 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
-    soup = get_redline_html()
+    soup = get_redline_html(constants, Repo, commit_hash)
     match = []
     for i in soup.find_all():
-        if i.name == "style":
+        if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
             continue
-        if i.get("data-number") in get_data_number(old_changed_strings):
+        if i.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) in get_data_number(constants, old_changed_strings):
             match.append(i)
 
     for i in frag.find_all():
         if i.name:
-            if "class" in i.attrs:
-                i["class"].append("inserted")
+            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE)
             else:
-                i["class"] = ["inserted"]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE]
     if match:
         match[-1].insert_after(frag)
         for i in match:
-            if "class" in i.attrs:
-                i["class"].append("deleted")
+            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE)
             else:
-                i["class"] = ["deleted"]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
-def insert_tag(new_changed_strings: list[str], i1: int) -> BeautifulSoup:
+def insert_tag(constants: SCCSConstants, Repo: RepositoryLayout, new_changed_strings: list[str], i1: int, commit_hash: str | None = None) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -152,19 +157,22 @@ def insert_tag(new_changed_strings: list[str], i1: int) -> BeautifulSoup:
     Return the modified BeautifulSoup object with 'inserted' class added to new tags.
     """
 
-    soup = get_redline_html()
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+
+    soup = get_redline_html(constants, Repo, commit_hash)
     for i in soup.find_all():
-        if i.name == "style":
+        if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
             continue
     tags = soup.find_all()
-    frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
+    frag = BeautifulSoup("".join(new_changed_strings), constants.HTML_PARSER)
     for i in frag.find_all():
         if i.name:
-            if "class" in i.attrs:
-                i["class"].append("inserted")
+            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE)
             else:
-                i["class"] = ["inserted"]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:
@@ -172,7 +180,7 @@ def insert_tag(new_changed_strings: list[str], i1: int) -> BeautifulSoup:
     return soup
 
 
-def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
+def remove_inline_semantics(constants: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
     """
     Remove inline semantics tags from the HTML by using BeautifulSoup.findall() to find
     all tags in the HTML, and unwrapping any tags that match the list of inline
@@ -188,26 +196,26 @@ def remove_inline_semantics(html: BeautifulSoup) -> BeautifulSoup:
 
     soup = copy.copy(html)
     for i in soup.find_all(
-        ["b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul"]
+        constants.TAGS_TO_UNWRAP
     ):
-        if i.name == "style":
+        if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
         else:
             i.unwrap()
     return soup
 
 
-def convert_html_to_soup(html: str) -> BeautifulSoup:
+def convert_html_to_soup(constants: SCCSConstants, html: str) -> BeautifulSoup:
     """
     Parse the entered HTML string into a BeautifulSoup object.
 
     Return the BeautifulSoup object representing the parsed HTML.
     """
 
-    return BeautifulSoup(html, "html.parser")
+    return BeautifulSoup(html, constants.HTML_PARSER)
 
 
-def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
+def format_bs4_html_list(constants: SCCSConstants, bs4_obj: BeautifulSoup) -> list[str]:
     """
     Perform a number of functions used to format the HTML before diffing.
 
@@ -217,10 +225,10 @@ def format_bs4_html_list(bs4_obj: BeautifulSoup) -> list[str]:
     Return a list of strings which could be concatenated to produce the formatted HTML.
     """
 
-    return tags_to_list(number_tags(convert_html_to_soup(bs4_obj)))
+    return tags_to_list(constants, number_tags(constants, convert_html_to_soup(constants, bs4_obj)))
 
 
-def get_opcodes() -> list[tuple[str, int, int, int, int]]:
+def get_opcodes(past_version: list[str], current_version: list[str]) -> list[tuple[str, int, int, int, int]]:
     """
     Remove the inline semantics tags and convert the tags into lists using copies of
     both the commit and current version BeautifulSoup objects.
@@ -234,12 +242,11 @@ def get_opcodes() -> list[tuple[str, int, int, int, int]]:
 
     return difflib.SequenceMatcher(
         None,
-        tags_to_list(convert_html_to_soup(Repository.commit_file("html", utils.entered_arguement(2)()))),
-        tags_to_list(convert_html_to_soup(Repository.convert_docx_to_html()))
+        past_version, current_version
     ).get_opcodes()
 
 
-def get_redline_html() -> BeautifulSoup:
+def get_redline_html(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None, commit_file: str | None = None) -> BeautifulSoup:
     """
     Remove the inline semantics tags and convert the tags into lists using a copy of the
     commit BeautifulSoup object.
@@ -247,11 +254,26 @@ def get_redline_html() -> BeautifulSoup:
     Return the BeautifulSoup object to be used as the base HTML for the redline
     document.
     """
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+    
+    if commit_file is None:
+        commit_file = Repo.commit_file(constants.HTML_DIR, commit_hash)
 
-    return number_tags(convert_html_to_soup(Repository.commit_file("html", utils.entered_arguement(2)())))
+    
+
+    return number_tags(constants, convert_html_to_soup(constants, commit_file))
 
 
-def format_redline_html() -> BeautifulSoup:
+def format_redline_html(
+        constants: SCCSConstants,
+        Repo: RepositoryLayout,
+        commit_hash: str | None = None,
+        past_version: list[str] | None = None,
+        current_version: list[str] | None = None,
+        commit_list: list[str] | None = None,
+        docx_current_version_list: list[str] | None = None
+    ) -> BeautifulSoup:
     """
     Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a
     list of 5-tuples.
@@ -269,51 +291,67 @@ def format_redline_html() -> BeautifulSoup:
     difference and perform a subsequent function.
     """
 
-    opcodes = get_opcodes()
-    commit_list = format_bs4_html_list(Repository.commit_file("html", utils.entered_arguement(2)()))
-    docx_current_version_list = format_bs4_html_list(Repository.convert_docx_to_html())
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+
+    if past_version is None:
+        past_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash)))
+
+    if current_version is None:
+        current_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.convert_docx_to_html()))
+
+    if commit_list is None:
+        commit_list = format_bs4_html_list(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
+
+    if docx_current_version_list is None:
+        docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
+
+    opcodes = get_opcodes(past_version, current_version)
 
     for i in reversed(opcodes):
         tag, i1, i2, j1, j2 = i
         old_changed_strings = commit_list[i1:i2]
         new_changed_strings = docx_current_version_list[j1:j2]
-        if tag == "replace":
+        if tag == constants.REPLACE_OPCODE:
 
-            redline = replace_tag(old_changed_strings, new_changed_strings)
-        if tag == "insert":
+            redline = replace_tag(constants, Repo, old_changed_strings, new_changed_strings, commit_hash)
+        if tag == constants.INSERT_OPCODE:
 
-            redline = insert_tag(new_changed_strings, i1)
-        if tag == "delete":
+            redline = insert_tag(constants, Repo, new_changed_strings, i1, commit_hash)
+        if tag == constants.DELETE_OPCODE:
 
-            redline = delete_tag(old_changed_strings)
+            redline = delete_tag(constants, Repo, old_changed_strings, commit_hash)
     return redline
 
 
-def write_redline_html_file() -> None:
-    """
-    Print the redline HTML to a file named 'redline.html' in the current working
-    directory.
-    """
-
-    with open("redline.html", "w", encoding="utf-8", newline="\n") as f:
-        f.write(utils.wrap_html(str(strip_number_attribute(format_redline_html()))))
+def print_diff_success_message(constants: SCCSConstants):
+    print(constants.DIFF_SUCCESS_MESSAGE)
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None) -> None:
     """Run functions for the <sccs diff> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    write_redline_html_file()
+    Repo.check_for_uncommitted_changes()
 
+    if commit_hash is None:
+        commit_hash = utils.entered_argument(2)
+
+    Repo.write_diff_html_file(utils.wrap_html(str(strip_number_attribute(constants, Repo, commit_hash))))
+
+    print_diff_success_message(constants)
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        Repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, Repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
