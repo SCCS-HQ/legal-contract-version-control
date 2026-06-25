@@ -604,7 +604,7 @@ class RepositoryLayout:
             """Generate a SHA-256 hash for the commit."""
 
             return hashlib.sha256(
-                f"{self.constants.PROGRAM_START_TIME()}/{commit_message}/{self.config_data('name')}/"
+                f"{self.constants.PROGRAM_START_TIME}/{commit_message}/{self.config_data('name')}/"
                 f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
             ).hexdigest()
 
@@ -713,7 +713,7 @@ class RepositoryLayout:
             history["history"]["commit_order"][str(latest_commit_number)] = f"{sha_hash}"
 
             history["log"][f"{sha_hash}"] = {
-                "timestamp": self.constants.PROGRAM_START_TIME(),
+                "timestamp": self.constants.PROGRAM_START_TIME,
                 "author": f"{self.config_data('name')} <{self.config_data('email')}>",
                 "message": commit_message,
             }

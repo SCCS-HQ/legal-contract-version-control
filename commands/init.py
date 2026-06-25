@@ -107,7 +107,7 @@ def create_commit_sha_hash(constants: SCCSConstants, repo_path: Path | None = No
 
 
     return hashlib.sha256(
-        f"{constants.PROGRAM_START_TIME()}/{constants.INITIAL_VERSION_HASH_SEGMENT}/{name}/{email}".encode()
+        f"{constants.PROGRAM_START_TIME}/{constants.INITIAL_VERSION_HASH_SEGMENT}/{name}/{email}".encode()
     ).hexdigest()
 
 
@@ -228,7 +228,7 @@ def write_history_data(constants: SCCSConstants, repo_path: Path | None = None, 
         },
         "log": {
             f"{sha_hash}": {
-                "timestamp": constants.PROGRAM_START_TIME(),
+                "timestamp": constants.PROGRAM_START_TIME,
                 "author": f"{name} <{email}>",
                 "message": constants.INITIAL_COMMIT_MESSAGE,
             }
