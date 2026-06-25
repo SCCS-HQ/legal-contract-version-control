@@ -45,7 +45,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
     if not value.strip():
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
-    if key == constants.REMOTE_KEY:
+    if key == constants.REMOTE:
         url = value.rstrip(os.sep)
         url_parsed = urlsplit(url)
 

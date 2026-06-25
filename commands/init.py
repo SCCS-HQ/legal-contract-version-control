@@ -138,7 +138,7 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path | Non
         for path in paths:
             (repo_path / path).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        raise exceptions.FileCreateError()from e
+        raise exceptions.FileCreateError() from e
 
 
 def move_document_to_repo_directory(constants: SCCSConstants, repo_path: Path | None = None, docx_path: Path | None = None) -> None:

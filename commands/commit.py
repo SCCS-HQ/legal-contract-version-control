@@ -15,7 +15,7 @@ def print_commit_confirmation_message(constants: SCCSConstants, Repo: Repository
     try:
         print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=Repo.commit_changes(confirmation_msg)[:10]))
     except Exception as e:
-        raise exceptions.CommitError(constants.COMMIT_FAILURE_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(constants.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
 
 def validate_commit_message(constants: SCCSConstants, commit_message: str | None) -> None:
