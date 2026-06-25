@@ -31,7 +31,9 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
     if not repo_name.strip():
         raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="repository name"))
 
-    if (repo_name := utils.clean_directory_name(repo_name)) is None:
+    repo_name = utils.clean_directory_name(repo_name)
+
+    if repo_name is None:
         raise exceptions.InvalidArgumentError(
             constants.INVALID_REPO_NAME_ERROR_MESSAGE
         )
@@ -60,7 +62,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
         return urljoin(url, f"{constants.REPOS}{os.sep}{repo_name}")
 
 
-def print_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
+def print_config_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
     """Print a confirmation message after successfully setting the configuration."""
 
     print(constants.CONFIG_DIR_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
@@ -83,7 +85,7 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str | None = Non
 
     Repo.write_key_to_config(key, value)
 
-    print_confirmation_message(constants, key, value)
+    print_config_confirmation_message(constants, key, value)
 
 
 if __name__ == "__main__":
