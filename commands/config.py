@@ -88,8 +88,8 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str | None = Non
 
 if __name__ == "__main__":
     try:
-        Repository = RepositoryLayout(Path.cwd())
         constants = SCCSConstants()
+        Repository = RepositoryLayout(Path.cwd(), constants)
         error_wrappers = ErrorWrappers()
         main(constants, Repository)
 

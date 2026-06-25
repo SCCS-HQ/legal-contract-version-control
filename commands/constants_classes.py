@@ -122,14 +122,6 @@ class SCCSConstants:
         self.INIT_SUCCESS_MESSAGE = "SCCS initialization complete.\n"   
 
         # repository_layout.py
-    
-        # filesystem names and structure
-
-        # formats and types
-
-        # templates and prompts
-        
-        # runtime & defaults
 
         # error / status messages
         self.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
@@ -160,10 +152,6 @@ class SCCSConstants:
             "No uncommitted changes detected. Uncommitted changes are required before committing."
         )
 
-        # timestamp
-        # **Important**: This is set at import time not at runtime, so it may be slightly different from the actual time the command is run
-
-        
         # shared
 
         self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = ("{field} cannot be empty. Please provide a valid {field}.")
