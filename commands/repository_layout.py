@@ -35,7 +35,7 @@ class RepositoryLayout:
 
     def sccs_path(self) -> Path:
         """Return the path to the '.sccs' folder."""
-        path = self.root / ".sccs"
+        path = self.root / self.constants.SCCS
         self._set_branch_name(None)
         return path
     
@@ -579,7 +579,7 @@ class RepositoryLayout:
         try:
             with open(self.document_path(), "rb") as f:
                 hasher = hashlib.sha256()
-                for i in iter(lambda: f.read(65536), b""):
+                for i in iter(lambda: f.read(self.constants.MAX_FILE_READ_SIZE), b""):
                     hasher.update(i)
                 hashed_file = hasher.hexdigest()
         except Exception as e:
