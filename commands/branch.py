@@ -60,35 +60,18 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
     """
 
     try:
+        
         shutil.copytree(
             Repo.branch_path(current_branch_name),
             Repo.branch_path(branch_name),
         )
+        Repo.add_to_branches_list(branch_name)
+        Repo.set_current_branch(branch_name)
     except Exception as e:
-        delete_branch_after_error(constants, Repo, branch_name)
-        raise exceptions.FileCopyError from e
-
-    Repo.add_to_branches_list(branch_name)
-
-
-    Repo.set_current_branch(branch_name)
+        rollback_changes_after_failure(constants, Repo, branch_name, constants.CREATE_SUBCOMMAND)
+        raise exceptions.FileCopyError(constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=constants.CREATE_SUBCOMMAND)) from e
 
     print_branch_create_success_message(constants, branch_name, current_branch_name)
-    
-
-def delete_branch_after_error(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
-    """
-    Delete a branch after an error has occurred during branch creation by deleting the
-    branch directory.
-    """
-
-    branch_path = Repo.branch_path(branch_name)
-    
-    if branch_path.is_dir():
-        try:
-            shutil.rmtree(branch_path)
-        except Exception as e:
-            raise exceptions.UpdatingMetadataError(constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)) from e
 
 
 def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
@@ -98,26 +81,32 @@ def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
 
     branch_path = Repo.branch_path(branch_name)
 
-    Repo.remove_from_branches_list(branch_name)
-
     try:
+        Repo.remove_from_branches_list(branch_name)
         shutil.rmtree(branch_path)
     except Exception as e:
-        rollback_changes_after_failure(constants, Repo, branch_name)       
-        raise exceptions.UpdatingMetadataError from e
+        rollback_changes_after_failure(constants, Repo, branch_name, constants.DELETE_SUBCOMMAND)       
+        raise exceptions.FileDeleteError(constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=constants.DELETE_SUBCOMMAND)) from e
 
     print_branch_delete_success_message(constants, branch_name)
 
 
-def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
+def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str, subcommand: str) -> None:
     """
     Rollback changes after a failed branch deletion.
     If an error occurs during branch deletion, the branch metadata will be rolled back
     to include the deleted branch again.
     """
 
+    branch_path = Repo.branch_path(branch_name)
+
     try:
-        Repo.add_to_branches_list(branch_name)
+        if subcommand == constants.CREATE_SUBCOMMAND:
+            Repo.add_to_branches_list(branch_name)
+        if subcommand == constants.DELETE_SUBCOMMAND:
+            Repo.remove_from_branches_list(branch_name)
+            Repo.set_current_branch(constants.MAIN_BRANCH)
+            shutil.rmtree(branch_path)
     except Exception as e:
         raise exceptions.UpdatingMetadataError(
             constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
