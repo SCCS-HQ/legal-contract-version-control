@@ -130,7 +130,7 @@ class RepositoryLayout:
     def commit_path(
         self,
         folder: str,
-        commit: Path | None = None,
+        commit: Path,
     ) -> Path:
         """
         Convert a commit SHA Hash to a pathname of the specified commit using folder as the

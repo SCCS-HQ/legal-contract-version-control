@@ -31,7 +31,15 @@ def number_tags(constants: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
     return soup
 
 
-def strip_number_attribute(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None, past_version: list[str] | None = None, current_version: list[str] | None = None) -> BeautifulSoup:
+def strip_number_attribute(
+        constants: SCCSConstants,
+        Repo: RepositoryLayout,
+        commit_hash: str,
+        past_version: list[str],
+        current_version: list[str],
+        commit_list: list[str],
+        docx_current_version_list: list[str]
+    ) -> BeautifulSoup:
     """
     Use BeautifulSoup.findall() to return a list of all tags in the HTML, and remove the
     data-number attribute from each tag if it exists.
@@ -40,7 +48,7 @@ def strip_number_attribute(constants: SCCSConstants, Repo: RepositoryLayout, com
     all tags.
     """
 
-    soup = format_redline_html(constants, Repo, commit_hash, past_version, current_version)
+    soup = format_redline_html(constants, Repo, commit_hash, past_version, current_version, commit_list, docx_current_version_list)
     for i in soup.find_all():
         if constants.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
             del i[constants.DATA_NUMBER_HTML_ATTRIBUTE]
@@ -78,7 +86,7 @@ def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
     return data_number
 
 
-def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], commit_hash: str | None = None) -> BeautifulSoup:
+def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], commit_hash: str) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -88,10 +96,7 @@ def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_str
     Return the modified BeautifulSoup object with "deleted" class added to tags.
     """
 
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
-
-    soup = get_redline_html(constants, Repo, commit_hash)
+    soup = get_redline_html(constants, commit_hash)
     for i in soup.find_all():
         if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
@@ -106,7 +111,7 @@ def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_str
 
 
 def replace_tag(
-    constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], new_changed_strings: list[str], commit_hash: str | None = None
+    constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], new_changed_strings: list[str], commit_hash: str
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -118,11 +123,8 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
-
     frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
-    soup = get_redline_html(constants, Repo, commit_hash)
+    soup = get_redline_html(constants, commit_hash)
     match = []
     for i in soup.find_all():
         if i.name == constants.STYLE_HTML_ATTRIBUTE:
@@ -147,7 +149,7 @@ def replace_tag(
     return soup
 
 
-def insert_tag(constants: SCCSConstants, Repo: RepositoryLayout, new_changed_strings: list[str], i1: int, commit_hash: str | None = None) -> BeautifulSoup:
+def insert_tag(constants: SCCSConstants, Repo: RepositoryLayout, new_changed_strings: list[str], i1: int, commit_hash: str) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -157,10 +159,7 @@ def insert_tag(constants: SCCSConstants, Repo: RepositoryLayout, new_changed_str
     Return the modified BeautifulSoup object with 'inserted' class added to new tags.
     """
 
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
-
-    soup = get_redline_html(constants, Repo, commit_hash)
+    soup = get_redline_html(constants, commit_hash)
     for i in soup.find_all():
         if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
@@ -215,19 +214,6 @@ def convert_html_to_soup(constants: SCCSConstants, html: str) -> BeautifulSoup:
     return BeautifulSoup(html, constants.HTML_PARSER)
 
 
-def format_bs4_html_list(constants: SCCSConstants, bs4_obj: BeautifulSoup) -> list[str]:
-    """
-    Perform a number of functions used to format the HTML before diffing.
-
-    Functions performed (in order): 'remove_inline_semantics', 'number_tags', and
-    'tags_to_list'.
-
-    Return a list of strings which could be concatenated to produce the formatted HTML.
-    """
-
-    return tags_to_list(constants, number_tags(constants, convert_html_to_soup(constants, bs4_obj)))
-
-
 def get_opcodes(past_version: list[str], current_version: list[str]) -> list[tuple[str, int, int, int, int]]:
     """
     Remove the inline semantics tags and convert the tags into lists using copies of
@@ -246,7 +232,7 @@ def get_opcodes(past_version: list[str], current_version: list[str]) -> list[tup
     ).get_opcodes()
 
 
-def get_redline_html(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None, commit_file: str | None = None) -> BeautifulSoup:
+def get_redline_html(constants: SCCSConstants, commit_file: str) -> BeautifulSoup:
     """
     Remove the inline semantics tags and convert the tags into lists using a copy of the
     commit BeautifulSoup object.
@@ -254,25 +240,30 @@ def get_redline_html(constants: SCCSConstants, Repo: RepositoryLayout, commit_ha
     Return the BeautifulSoup object to be used as the base HTML for the redline
     document.
     """
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
-    
-    if commit_file is None:
-        commit_file = Repo.commit_file(constants.HTML_DIR, commit_hash)
-
-    
 
     return number_tags(constants, convert_html_to_soup(constants, commit_file))
+
+def format_bs4_html_list(constants: SCCSConstants, bs4_obj: BeautifulSoup) -> list[str]:
+    """
+    Perform a number of functions used to format the HTML before diffing.
+
+    Functions performed (in order): 'remove_inline_semantics', 'number_tags', and
+    'tags_to_list'.
+
+    Return a list of strings which could be concatenated to produce the formatted HTML.
+    """
+
+    return tags_to_list(constants, number_tags(constants, convert_html_to_soup(constants, bs4_obj)))
 
 
 def format_redline_html(
         constants: SCCSConstants,
         Repo: RepositoryLayout,
-        commit_hash: str | None = None,
-        past_version: list[str] | None = None,
-        current_version: list[str] | None = None,
-        commit_list: list[str] | None = None,
-        docx_current_version_list: list[str] | None = None
+        commit_hash: str,
+        past_version: list[str],
+        current_version: list[str],
+        commit_list: list[str],
+        docx_current_version_list: list[str]
     ) -> BeautifulSoup:
     """
     Use the list of opcodes provided to modify the base redline HTML. 'opcodes' is a
@@ -290,21 +281,6 @@ def format_redline_html(
     Return a modified version of 'redline' using the opcodes to determine the type of
     difference and perform a subsequent function.
     """
-
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
-
-    if past_version is None:
-        past_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash)))
-
-    if current_version is None:
-        current_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.convert_docx_to_html()))
-
-    if commit_list is None:
-        commit_list = format_bs4_html_list(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
-
-    if docx_current_version_list is None:
-        docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
 
     opcodes = get_opcodes(past_version, current_version)
 
@@ -328,7 +304,15 @@ def print_diff_success_message(constants: SCCSConstants):
     print(constants.DIFF_SUCCESS_MESSAGE)
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None) -> None:
+def main(
+        constants: SCCSConstants,
+        Repo: RepositoryLayout,
+        commit_hash: str | None = None,
+        past_version: list[str] | None = None,
+        current_version: list[str] | None = None,
+        commit_list: list[str] | None = None,
+        docx_current_version_list: list[str] | None = None
+    ) -> None:
     """Run functions for the <sccs diff> command."""
     Repo.check_repository_layout()
 
@@ -337,9 +321,24 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | No
     if commit_hash is None:
         commit_hash = utils.entered_argument(2)
 
-    Repo.write_diff_html_file(utils.wrap_html(str(strip_number_attribute(constants, Repo, commit_hash))))
+    if past_version is None:
+        past_version =  tags_to_list(constants, convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash)))
+
+    if current_version is None:
+        current_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.convert_docx_to_html()))
+
+    if commit_list is None:
+        commit_list = format_bs4_html_list(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
+
+    if docx_current_version_list is None:
+        docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
+
+    Repo.write_diff_html_file(
+        utils.wrap_html(str(strip_number_attribute(constants, Repo, commit_hash, past_version, current_version, commit_list, docx_current_version_list)))
+    )
 
     print_diff_success_message(constants)
+
 
 if __name__ == "__main__":
     try:

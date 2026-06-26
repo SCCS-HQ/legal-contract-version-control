@@ -11,18 +11,13 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants, ErrorWrappers
 
 
-def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str | None = None, branch_name: str | None = None) -> None:
+def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str, branch_name: str) -> None:
     """
     Validate the subcommand entered by the user.
 
     Raise an exception if the subcommand is invalid or if required arguments are
     missing.
     """
-
-    if subcommand is None:
-        subcommand = utils.entered_argument(2)
-    if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
@@ -58,16 +53,11 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
             )
 
 
-def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None, current_branch_name: str | None = None) -> None:
+def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str, current_branch_name: str) -> None:
     """
     Create a new branch from the current branch. The new branch will have the same
     commit history and metadata as the current branch.
     """
-
-    if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_argument(3))
-    if current_branch_name is None:
-        current_branch_name = Repo.current_branch_name()
 
     try:
         shutil.copytree(
@@ -86,14 +76,11 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
     print_branch_create_success_message(constants, branch_name, current_branch_name)
     
 
-def delete_branch_after_error(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
+def delete_branch_after_error(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
     """
     Delete a branch after an error has occurred during branch creation by deleting the
     branch directory.
     """
-
-    if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     branch_path = Repo.branch_path(branch_name)
     
@@ -104,13 +91,11 @@ def delete_branch_after_error(constants: SCCSConstants, Repo: RepositoryLayout, 
             raise exceptions.UpdatingMetadataError(constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)) from e
 
 
-def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
+def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
     """
     Delete an existing branch.
     """
 
-    if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_argument(3))
     branch_path = Repo.branch_path(branch_name)
 
     Repo.remove_from_branches_list(branch_name)
@@ -124,15 +109,12 @@ def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
     print_branch_delete_success_message(constants, branch_name)
 
 
-def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str | None = None) -> None:
+def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
     """
     Rollback changes after a failed branch deletion.
     If an error occurs during branch deletion, the branch metadata will be rolled back
     to include the deleted branch again.
     """
-
-    if branch_name is None:
-        branch_name = utils.clean_directory_name(utils.entered_argument(3))
 
     try:
         Repo.add_to_branches_list(branch_name)
@@ -156,7 +138,7 @@ def branch_list_subcommand(constants: SCCSConstants, Repo: RepositoryLayout) -> 
             print(constants.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
 
 
-def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str | None = None) -> None:
+def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str, branch_name: str, current_branch_name: str) -> None:
     """
     Run the specified subcommand by reading the subcommand entered:
 
@@ -167,13 +149,10 @@ def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, s
     list: branch_list_subcommand
     """
 
-    if subcommand is None:
-        subcommand = utils.entered_argument(2)
-
     if subcommand == constants.CREATE_SUBCOMMAND:
-        branch_create_subcommand(constants, Repo)
+        branch_create_subcommand(constants, Repo, branch_name, current_branch_name)
     elif subcommand == constants.DELETE_SUBCOMMAND:
-        branch_delete_subcommand(constants, Repo)
+        branch_delete_subcommand(constants, Repo, branch_name)
     elif subcommand == constants.LIST_SUBCOMMAND:
         branch_list_subcommand(constants, Repo)
 
@@ -190,15 +169,31 @@ def print_branch_create_success_message(constants: SCCSConstants, branch_name: s
     )
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(
+        constants: SCCSConstants,
+        Repo: RepositoryLayout,
+        subcommand: str | None = None,
+        branch_name: str | None = None,
+        current_branch_name: str | None = None
+    ) -> None:
+
     """Run functions for the <sccs branch> command."""
     Repo.check_repository_layout()
 
-    validate_subcommand(constants, Repo)
+    if subcommand is None:
+        subcommand = utils.entered_argument(2)
+
+    if branch_name is None:
+        branch_name = utils.entered_argument(3)
+
+    if current_branch_name is None:
+        current_branch_name = Repo.current_branch_name()
+
+    validate_subcommand(constants, Repo, subcommand, branch_name)
 
     Repo.check_for_uncommitted_changes()
 
-    run_specified_subcommand(constants, Repo)
+    run_specified_subcommand(constants, Repo, subcommand, branch_name, current_branch_name)
 
 
 if __name__ == "__main__":

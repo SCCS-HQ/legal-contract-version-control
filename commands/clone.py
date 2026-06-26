@@ -11,16 +11,13 @@ import utils
 from urllib.parse import urlsplit
 from constants_classes import SCCSConstants, ErrorWrappers
 
-def resolve_entered_url(constants: SCCSConstants, url: str | None = None) -> str:
+def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
 
     Return 'url' so it begins with 'https://' and ends with '/clone/'.
     """
-
-    if url is None:
-        url = utils.entered_argument(2)
 
     if not url :
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="URL"))
@@ -34,18 +31,15 @@ def resolve_entered_url(constants: SCCSConstants, url: str | None = None) -> str
     return url
 
 
-def request_repo(constants: SCCSConstants, url: str | None = None) -> requests.Response:
+def request_repo(constants: SCCSConstants, url: str, timeout: int) -> requests.Response:
     """
     Make a GET request to 'url' and ensure that the request was successful.
 
     Return the server response after making a get request to 'url'.
     """
 
-    if url is None:
-        url = resolve_entered_url(constants)
-
     try:
-        response = requests.get(url, timeout=constants.HTTP_TIMEOUT_SECONDS)
+        response = requests.get(url, timeout=timeout)
         response.raise_for_status()
     except requests.RequestException as e:
         raise exceptions.HTTPGetRequestError(
@@ -55,11 +49,8 @@ def request_repo(constants: SCCSConstants, url: str | None = None) -> requests.R
     return response
 
 
-def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str | None = None) -> None:
+def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
     """Unzip 'buffer'."""
-
-    if url is None:
-        url = resolve_entered_url(constants)
 
     path_parts = [p for p in urlsplit(url).path.split("/") if p]
 
@@ -84,11 +75,12 @@ def print_clone_success_message(constants: SCCSConstants, response: requests.Res
     print(constants.CLONE_SUCCESS_MESSAGE)
 
 
-def main(constants: SCCSConstants) -> None:
+def main(constants: SCCSConstants, url: str, timeout: int = SCCSConstants.HTTP_TIMEOUT_SECONDS) -> None:
     """Run functions for the <sccs clone> command."""
-    url = resolve_entered_url(constants)
 
-    response = request_repo(constants, url)
+    url = resolve_entered_url(constants, url)
+
+    response = request_repo(constants, url, timeout)
 
     buffer = io.BytesIO(response.content)
 
