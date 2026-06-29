@@ -7,38 +7,11 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
-    """
-    Retrieve the commit log data from the history JSON file by opening
-    'history.json' and reading its JSON
-
-    Return the commit history JSON data.
-    """
-
-    if cwd is None:
-        cwd = Path.cwd()
-    if current_branch is None:
-        current_branch = Repository.current_branch_name()
-
-    # Get JSON log data
-
-    if not Repository.branch(current_branch).history_path().is_file():
-        raise FileNotFoundError(
-            "History file not found. Please run 'sccs init <file_path>' to initialize "
-            "SCCS for this file."
-        )
-
-    with open(Repository.branch(current_branch).history_path(), "r", encoding="utf-8", newline="\n") as f:
-        log_data = json.load(f)
-    return log_data
-
-
-def print_log() -> None:
+def print_log(constants: SCCSConstants, history_data: dict) -> None:
     """
     Read the commit log data by calling 'get_log_data'.
 
@@ -46,33 +19,35 @@ def print_log() -> None:
     timestamp, and commit message.
     """
 
-    log_data = get_log_data()
-    for i in log_data["log"]:
+    for i in history_data[constants.LOG_DICT_KEY]:
         print(
             "------------------------------\n"
             f"Commit File: {i[:10]}\n"
-            f"Author: {log_data['log'][i]['author']}\n"
-            f"Date: {log_data['log'][i]['timestamp']}\n"
-            f"Message: {log_data['log'][i]['message']}\n"
+            f"Author: {history_data[constants.LOG_DICT_KEY][i][constants.AUTHOR_DICT_KEY]}\n"
+            f"Date: {history_data[constants.LOG_DICT_KEY][i][constants.TIMESTAMP_DICT_KEY]}\n"
+            f"Message: {history_data[constants.LOG_DICT_KEY][i][constants.MESSAGE_DICT_KEY]}\n"
             "------------------------------"
         )
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Run functions for the <sccs log> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    print_log()
+    print_log(constants, Repo.current_branch().history_data())
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants
+        repository = RepositoryLayout(Path.cwd, constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
