@@ -562,7 +562,7 @@ class RepositoryLayout:
                 self.constants.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
         
-        # gemerate the SHA256 commit hash
+        # generate the SHA256 commit hash
         commit_hash = hashlib.sha256(
             f"{self.constants.PROGRAM_START_TIME}/{commit_msg}/{self.config_data('name')}/"
             f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
