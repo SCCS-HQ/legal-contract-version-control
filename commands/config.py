@@ -20,8 +20,6 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
     Return the resolved 'remote'.
     """
 
-    key = key.strip().lower()
-
     if key not in constants.ACCEPTED_KEYS:
             raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=", ".join(constants.ACCEPTED_KEYS)))
     
@@ -41,8 +39,6 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
 
 def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
-
-    value = value.strip()
 
     if not value:
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))

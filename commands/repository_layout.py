@@ -263,6 +263,7 @@ class RepositoryLayout:
             )
 
         if path:
+            self._set_branch_name(None)
             return matching_files[0]
 
         with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:

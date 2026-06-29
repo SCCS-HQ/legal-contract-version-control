@@ -10,11 +10,11 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants, ErrorWrappers
 
 
-def print_commit_confirmation_message(constants: SCCSConstants, Repo: RepositoryLayout, confirmation_msg: str) -> None:
+def print_commit_confirmation_message(constants: SCCSConstants, Repo: RepositoryLayout, sha_hash) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
-        print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=Repo.commit_changes(confirmation_msg)[:10]))
+        print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:10]))
     except Exception as e:
         raise exceptions.SCCSException(constants.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
@@ -31,7 +31,9 @@ def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str) 
 
     validate_commit_message(constants, commit_message)
 
-    print_commit_confirmation_message(constants, Repo, commit_message)
+    sha_hash = Repo.commit_changes(commit_message)
+
+    print_commit_confirmation_message(constants, Repo, sha_hash)
 
 
 if __name__ == "__main__":

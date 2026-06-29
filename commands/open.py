@@ -19,7 +19,7 @@ def confirm_before_proceeding() -> None:
         input(
             f"Are you sure you want to overwrite '{Repository.document_path().name}' "
             f"with the contents of '{Repository.commit_path(
-                "docx", Path.cwd(), utils.entered_arguement(2)
+                "docx", Path.cwd(), utils.entered_argument(2)
             ).name[:10]}'?\nThis action will replace the current content of the .docx "
             f"file. (Y/N): "
         )
@@ -38,9 +38,7 @@ def copy_file_commit() -> None:
 
     try:
         shutil.copy2(
-            Repository.commit_path(
-                "docx", Path.cwd(), utils.entered_arguement(2)
-            ), Repository.document_path
+            Repository.commit_file("docx")
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
@@ -54,7 +52,7 @@ def print_rewrite_confirmation_message() -> None:
     print(
         f"File '{Repository.document_path.name}' has been updated with the contents of "
         f"'{Repository.commit_path(
-            "docx", Path.cwd(), utils.entered_arguement(2)
+            "docx", Path.cwd(), utils.entered_argument(2)
         ).name[:10]}'.\n"
     )
 

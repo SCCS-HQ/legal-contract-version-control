@@ -118,7 +118,7 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path) -> N
 
 def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
     """Move the source document into the repo directory."""
-
+    
     shutil.move(docx_path, repo_path)
 
 
@@ -267,6 +267,10 @@ def write_branch_data(constants: SCCSConstants, repo_path: Path) -> None:
         raise exceptions.UpdatingMetadataError from e
 
 
+def delete_repository_after_error(repo_path: Path) -> None:
+    shutil.rmtree(repo_path, ignore_errors=True)
+
+
 def print_init_success_message(constants: SCCSConstants) -> None:
     """Print a confirmation message for successful SCCS initialization."""
 
@@ -278,33 +282,37 @@ def main(constants: SCCSConstants, docx_path: str) -> None:
    
     repo_path = get_document_repo_path(constants, docx_path)
 
-    check_for_prev_init(constants, repo_path)
+    try:
+        check_for_prev_init(constants, repo_path)
 
-    check_file_requirements(constants, docx_path)
+        check_file_requirements(constants, docx_path)
 
-    create_sccs_directory_layout(constants, repo_path)
-    
-    config = config_inputs(constants, repo_path, constants.NAME, constants.EMAIL)
+        create_sccs_directory_layout(constants, repo_path)
+        
+        config = config_inputs(constants, repo_path, constants.NAME, constants.EMAIL)
 
-    name = config[constants.NAME]
-    email = config[constants.EMAIL]
+        name = config[constants.NAME]
+        email = config[constants.EMAIL]
 
-    if sha_hash is None:
         sha_hash = create_commit_sha_hash(constants, name, email)
 
-    move_document_to_repo_directory(repo_path, docx_path)
+        move_document_to_repo_directory(repo_path, docx_path)
 
-    copy_document_to_objects_as_docx_and_html(constants, repo_path, docx_path, sha_hash)
+        copy_document_to_objects_as_docx_and_html(constants, repo_path, docx_path, sha_hash)
 
-    write_history_data(constants, repo_path, name, email, sha_hash)
+        write_history_data(constants, repo_path, name, email, sha_hash)
 
-    write_commit_message_data(constants, repo_path, sha_hash)
+        write_commit_message_data(constants, repo_path, sha_hash)
 
-    write_hashed_file_commit_data(constants, repo_path, docx_path, sha_hash)
+        write_hashed_file_commit_data(constants, repo_path, docx_path, sha_hash)
 
-    write_branch_data(constants, repo_path)
+        write_branch_data(constants, repo_path)
 
-    print_init_success_message(constants)
+        print_init_success_message(constants)
+
+    except Exception:
+        delete_repository_after_error(repo_path)
+        raise
 
 
 if __name__ == "__main__":
