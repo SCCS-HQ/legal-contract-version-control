@@ -43,7 +43,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
     if not value:
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
-    if key == constants.REMOTE:
+    if key == constants.REMOTE_KEY:
         url = value.rstrip(os.sep)
         url_parsed = urlsplit(url)
 
@@ -65,7 +65,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
 def print_config_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
     """Print a confirmation message after successfully setting the configuration."""
 
-    print(constants.CONFIG_DIR_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
+    print(constants.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
 def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str, value: str) -> None:

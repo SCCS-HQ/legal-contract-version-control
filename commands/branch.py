@@ -22,7 +22,7 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
             constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="subcommand")
         )
 
-    if subcommand not in [constants.CREATE_SUBCOMMAND, constants.DELETE_SUBCOMMAND, constants.LIST_SUBCOMMAND]:
+    if subcommand not in constants.ACCEPTED_SUBCOMMANDS:
         raise exceptions.InvalidSubcommandError(
             constants.INVALID_SUBCOMMAND_ERROR_MESSAGE
         )

@@ -7,59 +7,12 @@ from functools import cached_property
 
 class SCCSConstants:
     def __init__(self):
-        # config.py
-
-        ## configuration keys
-        self.REPOS = "repos"
-        self.REMOTE = "remote"
-        self.NAME = "name"
-        self.EMAIL = "email"
-
-        ## accepted values
-        self.ACCEPTED_KEYS = (self.REMOTE, self.NAME, self.EMAIL)
-
-        ## error messages
-        self.INVALID_URL_ERROR_MESSAGE = (
-            "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
-            "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
-        )
-        self.INVALID_KEY_ERROR_MESSAGE = (
-            "Invalid configuration key provided. Accepted keys are: 'name', 'email', and 'remote'."
-        )
-        self.INVALID_REPO_NAME_ERROR_MESSAGE = (
-            "Invalid repository name. Please ensure the repository is properly "
-            "initialized with a valid name."
-        )
-
-        ## success messages
-        self.CONFIG_DIR_SUCCESS_MESSAGE_TEMPLATE = "Configuration '{key}' set to '{value}' successfully.\n"
-
-        # clone.py
-
-        ## endpoints and timeouts
-        self.CLONE_ENDPOINT = "clone"
-        self.HTTP_TIMEOUT_SECONDS = 60
-
-        ## error messages
-        self.INVALID_ENDING_ERROR_MESSAGE = (
-            "Invalid remote URL provided. Please provide a valid URL ending with "
-            "'/clone/'."
-        )
-        self.HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
-        self.UNZIP_FAILED_ERROR_MESSAGE = (
-            "Failed to unzip repository file. Please try again or ensure the zip is valid."
-        )
-
-        ## status / success messages
-        self.STATUS_CODE_MESSAGE = "Status Code:\n"
-        self.CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
-
-        # branch.py
+        #region branch.py
 
         ## subcommands
-        self.CREATE_SUBCOMMAND = "create"
-        self.DELETE_SUBCOMMAND = "delete"
         self.LIST_SUBCOMMAND = "list"
+
+        self.ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
 
         ## validation / argument errors
         self.INVALID_SUBCOMMAND_ERROR_MESSAGE = "Invalid subcommand provided. Accepted subcommands are: create, delete, list."
@@ -80,81 +33,144 @@ class SCCSConstants:
         self.CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
         self.OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
 
-        # commit.py
+        #endregion
+
+        #region clone.py
+
+        ## endpoints and timeouts
+        self.CLONE_ENDPOINT = "clone"
+        self.HTTP_TIMEOUT_SECONDS = 60
+
+        ## error messages
+        self.INVALID_ENDING_ERROR_MESSAGE = (
+            "Invalid remote URL provided. Please provide a valid URL ending with "
+            "'/clone/'."
+        )
+        self.HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
+        self.UNZIP_FAILED_ERROR_MESSAGE = (
+            "Failed to unzip repository file. Please try again or ensure the zip is valid."
+        )
+
+        ## status / success messages
+        self.STATUS_CODE_MESSAGE = "Status Code:\n"
+        self.CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
+
+        #endregion
+
+        #region commit.py
 
         ## success / error messages
         self.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully.\n"
         self.COMMIT_FAILURE_ERROR_MESSAGE = "Failed to commit changes."
 
-        # diff.py
+        #endregion
 
-        ## HTML attributes
-        self.STYLE_HTML_ATTRIBUTE = ("style")
-        self.DATA_NUMBER_HTML_ATTRIBUTE = ("data-number")
-        self.CLASS_HTML_ATTRIBUTE = ("class")
-        self.DELETED_CLASS_HTML_ATTRIBUTE_VALUE = ("deleted")
-        self.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE = ("inserted")
+        #region config.py
 
-        ## parser and tags
-        self.HTML_PARSER = ("html.parser")
-        self.TAGS_TO_UNWRAP = ["b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul"]
+        ## configuration keys
+        self.REMOTE_KEY = "remote"
 
-        ## opcodes
-        self.REPLACE_OPCODE = ("replace")
-        self.INSERT_OPCODE = ("insert")
-        self.DELETE_OPCODE = ("delete")
+        # repos url part
+        self.REPOS = "repos"
+
+        ## error messages
+        self.INVALID_REPO_NAME_ERROR_MESSAGE = (
+            "Invalid repository name. Please ensure the repository is properly "
+            "initialized with a valid name."
+        )
 
         ## success messages
-        self.DIFF_SUCCESS_MESSAGE = ("Commit diff successfully created")
+        self.CONFIG_SUCCESS_MESSAGE_TEMPLATE = "Configuration '{key}' set to '{value}' successfully.\n"
 
-        # init.py
+        #endregion
 
-        ## filesystem names and structure
-        self.SCCS = ".sccs"
-        self.OBJECTS_DIR = "objects"
-        self.BRANCHES_DIR = "branches"
-        self.COMMIT_MESSAGES_DIR = "commit_messages"
-        self.CONFIG_DIR = "config"
-        self.CURRENT_BRANCH_DIR = "current_branch"
-        self.MAIN_BRANCH = "main"
-        self.HISTORY_DIR_JSON_FILE = "history.json"
-        self.COMMIT_MESSAGES_DIR_JSON_FILE = "commit_messages.json"
-        self.COMMIT_FILE_HASH_DIR = "commit_file_hash"
-        self.CONFIG_DIR_JSON_FILE = "config.json"
-        self.COMMIT_FILE_HASH_DIR_JSON_FILE = "commit_file_hash.json"
-        self.CURRENT_BRANCH_DIR_JSON_FILE = "current_branch.json"
+        #region diff.py
 
-        ## runtime limits
-        self.MAX_FILE_READ_SIZE = 64 * 1024
+        ## HTML attributes
+        self.STYLE_HTML_ATTRIBUTE = "style"
+        self.DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
+        self.CLASS_HTML_ATTRIBUTE = "class"
+        self.DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
+        self.INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
+
+        ## parser and tags
+        self.HTML_PARSER = "html.parser"
+        self.TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
+
+        ## opcodes
+        self.REPLACE_OPCODE = "replace"
+        self.INSERT_OPCODE = "insert"
+        self.DELETE_OPCODE = "delete"
+
+        ## success messages
+        self.DIFF_SUCCESS_MESSAGE = "Commit diff successfully created.\n"
+
+        #endregion
+
+        #region help.py
+
+        self.HELP_MESSAGES = [
+            "SCCS Help",
+            "Available commands:",
+            "  sccs branch - Create a new branch, delete, or list branches.",
+            "  sccs clone - Clone a hosted SCCS repository with a URL.",
+            "  sccs commit - Commit changes to the repository.",
+            "  sccs config - Configure a repository's data value (remote, name, email)",
+            "  sccs diff - Show differences between the current document and a past commit.",
+            "  sccs help - Print this help message.",
+            "  sccs init - Initialize a new SCCS repository.",
+            "  sccs log - Print a list of past commits for the current branch.",
+            "  sccs open - Open a commit file and update the current document.",
+            "  sccs publish - Publish a local repository to a hosting service.",
+            "  sccs pull - Pull changes from a remote repository and merge them into the local "
+            "repository.",
+            "  sccs push - Push changes from the local repository to a remote repository.",
+            "  sccs revert - Revert the current document to the specified commit.",
+            "  sccs reset - Delete all uncommitted changes.",
+            "  sccs switch - Switch between document branches.",
+            "  sccs status - Check the status of the current document for uncommitted changes.",
+            "  sccs merge - Merge the entered branch into the current branch.",
+        ]
+
+        #endregion
+
+        #region init.py (constants used only by init.py)
 
         ## hash segments
         self.INITIAL_VERSION_HASH_SEGMENT = "initial_version"
 
-        ## formats and types
-        self.DOCX_DIR = "docx"
-        self.DOCX_EXTENSION = ".docx"
-        self.HTML_DIR = "html"
-        self.VIEW_HTML_DIR = "view_html"
-        self.HISTORY_DIR = "history"
+        ## runtime defaults
+        self.INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
+
+        ## templates and prompts
+        self.INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
+
+        ## filesystem names and structure
+        self.MAIN_BRANCH_DIR = "main"
 
         ## default branch data
         self.DEFAULT_BRANCH_DATA = {
-            self.CURRENT_BRANCH_DIR: self.MAIN_BRANCH,
-            self.BRANCHES_DIR: [self.MAIN_BRANCH],
+            self.CURRENT_BRANCH_DICT_KEY: self.MAIN_BRANCH_ATTRIBUTE,
+            self.BRANCHES_DICT_KEY: [self.MAIN_BRANCH_ATTRIBUTE],
         }
-
-        ## templates and prompts
-        self.INPUT_CONFIG_DIR_VALUE_TEMPLATE = "Enter your {config_key}: "
-
-        ## runtime defaults
-        self.INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
 
         ## error / status messages
         self.ALREADY_INITIALIZED_ERROR_MESSAGE = "This file has already been initialized with SCCS."
         self.INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
         self.INIT_SUCCESS_MESSAGE = "SCCS initialization complete.\n"
 
-        # repository_layout.py
+        #endregion
+
+        #region log.py
+
+        self.LOG_DICT_KEY = "log"
+        self.AUTHOR_DICT_KEY = "author"
+        self.TIMESTAMP_DICT_KEY = "timestamp"
+        self.MESSAGE_DICT_KEY = "message"
+
+        #endregion
+
+        #region repository_layout.py (constants used only by repository_layout.py)
 
         ## error / status messages
         self.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
@@ -186,60 +202,102 @@ class SCCSConstants:
         )
 
         ## diff output filename
-        self.DIFF_HTML_FILE = ("diff.html")
-
-        ## branch operation errors
-        self.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = ("Failed to {action} branch.")
+        self.DIFF_OUTPUT_HTML_FILE = "diff.html"
 
         ## resource errors
-        self.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = ("Resource '{resource_name}' is missing from the repository directory.")
+        self.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
 
-        # Shared (referenced by 2+ command modules)
+        ## resource names
+        self.BRANCH_NAME_RESOURCE_NAME = "branch name"
+        self.COMMIT_FILE_RESOURCE_NAME = "commit file"
 
-        ## accepted URL schemes
+        ## branch name attribute
+        self.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE = "branch_name"
+        self.LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
+        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+        self.TMP_EXTENSION = ".tmp"
+        self.COMMIT_ORDER_DICT_KEY = "commit_order"
+
+        #endregion
+
+        #region Shared (referenced by 2+ command modules)
+
+        ## filesystem names and structure (used by init.py, repository_layout.py)
+        self.SCCS_DIR = ".sccs"
+        self.OBJECTS_DIR = "objects"
+        self.BRANCHES_DIR = "branches"
+        self.COMMIT_MESSAGES_DIR = "commit_messages"
+        self.CONFIG_DIR = "config"
+        self.CURRENT_BRANCH_DIR = "current_branch"
+        self.HISTORY_JSON_FILE = "history.json"
+        self.COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
+        self.COMMIT_FILE_HASH_DIR = "commit_file_hash"
+        self.CONFIG_JSON_FILE = "config.json"
+        self.COMMIT_FILE_HASH_JSON_FILE = "commit_file_hash.json"
+        self.CURRENT_BRANCH_JSON_FILE = "current_branch.json"
+
+        ## formats and types (used by init.py, repository_layout.py)
+        self.DOCX_DIR = "docx"
+        self.DOCX_EXTENSION = ".docx"
+        self.HTML_DIR = "html"
+        self.VIEW_HTML_DIR = "view_html"
+        self.HISTORY_DIR = "history"
+
+        ## runtime limits (used by init.py, repository_layout.py)
+        self.MAX_FILE_READ_SIZE = 64 * 1024
+
+        ## file-system metadata keys (used by init.py, repository_layout.py)
+        self.BRANCHES_DICT_KEY = "branches"
+        self.CURRENT_BRANCH_DICT_KEY = "current_branch"
+        self.HISTORY_DICT_KEY = "history"
+        self.LATEST_COMMIT_DICT_KEY = "latest_commit"
+
+        ## default branch name (used by branch.py, init.py, repository_layout.py)
+        self.MAIN_BRANCH_ATTRIBUTE = "main"
+
+        ## user config keys (used by config.py, init.py, repository_layout.py)
+        self.NAME_KEY = "name"
+        self.EMAIL_KEY = "email"
+
+        ## accepted config keys validator (used by config.py, repository_layout.py)
+        self.ACCEPTED_KEYS = (self.REMOTE_KEY, self.NAME_KEY, self.EMAIL_KEY)
+
+        ## config validation error messages (used by config.py, repository_layout.py)
+        self.INVALID_KEY_ERROR_MESSAGE = (
+            "Invalid configuration key provided. Accepted keys are: 'name', 'email', and 'remote'."
+        )
+
+        ## branch subcommands (used by branch.py, repository_layout.py)
+        self.CREATE_SUBCOMMAND = "create"
+        self.DELETE_SUBCOMMAND = "delete"
+
+        ## branch operation errors (used by branch.py, repository_layout.py)
+        self.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
+
+        ## accepted URL schemes (used by clone.py, config.py)
         self.ACCEPTED_SCHEMES = ("http", "https")
 
-        ## error message templates
-        self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = ("{field} cannot be empty. Please provide a valid {field}.")
+        ## URL validation error message (used by clone.py, config.py)
+        self.INVALID_URL_ERROR_MESSAGE = (
+            "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
+            "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+        )
+
+        ## error message templates (used by branch.py, clone.py, commit.py, config.py, init.py, repository_layout.py)
+        self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = "{field} cannot be empty. Please provide a valid {field}."
+
+        ## file existence error (used by init.py, repository_layout.py)
         self.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
             "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
         )
+
+        ## branch lookup error (used by branch.py, repository_layout.py)
         self.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
 
-        # diff.py
-
-        self.HELP_MESSAGES = [
-            "SCCS Help",
-            "Available commands:",
-            "  sccs branch - Create a new branch, delete, or list branches.",
-            "  sccs clone - Clone a hosted SCCS repository with a URL.",
-            "  sccs commit - Commit changes to the repository.",
-            "  sccs config - Configure a repository's data value (remote, name, email)",
-            "  sccs diff - Show differences between the current document and a past commit.",
-            "  sccs help - Print this help message.",
-            "  sccs init - Initialize a new SCCS repository.",
-            "  sccs log - Print a list of past commits for the current branch.",
-            "  sccs open - Open a commit file and update the current document.",
-            "  sccs publish - Publish a local repository to a hosting service.",
-            "  sccs pull - Pull changes from a remote repository and merge them into the local "
-            "repository.",
-            "  sccs push - Push changes from the local repository to a remote repository.",
-            "  sccs revert - Revert the current document to the specified commit.",
-            "  sccs reset - Delete all uncommitted changes.",
-            "  sccs switch - Switch between document branches.",
-            "  sccs status - Check the status of the current document for uncommitted changes.",
-            "  sccs merge - Merge the entered branch into the current branch.",
-        ]
-        
-        # log.py
-
-        self.LOG_DICT_KEY = "log"
-        self.AUTHOR_DICT_KEY = "author"
-        self.TIMESTAMP_DICT_KEY = "timestamp"
-        self.MESSAGE_DICT_KEY = "message"
-
-        ## program start time getter
+        ## program start time getter (used by init.py, repository_layout.py)
         self.PROGRAM_START_TIME = self._program_start_time
+
+        #endregion
 
 
     @cached_property

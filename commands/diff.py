@@ -94,9 +94,9 @@ def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], soup: B
 
         if i.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) in get_data_number(constants, old_changed_strings):
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE)
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
@@ -125,16 +125,16 @@ def replace_tag(
     for i in frag.find_all():
         if i.name:
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE)
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_HTML_ATTRIBUTE_VALUE]
     if match:
         match[-1].insert_after(frag)
         for i in match:
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE)
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_CLASS_HTML_ATTRIBUTE_VALUE]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
@@ -157,9 +157,9 @@ def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int
     for i in frag.find_all():
         if i.name:
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE)
+                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_CLASS_HTML_ATTRIBUTE_VALUE]
+                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_HTML_ATTRIBUTE_VALUE]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:

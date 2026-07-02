@@ -35,12 +35,12 @@ def config_inputs(constants: SCCSConstants, repo_path: Path, *data: str) -> dict
     values = []
 
     for i in data:
-        data_value = input(constants.INPUT_CONFIG_DIR_VALUE_TEMPLATE.format(config_key=i)).strip()
+        data_value = input(constants.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
         if not data_value:
             raise exceptions.InvalidInputError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i))
         values.append(data_value)
 
-    with open(repo_path / constants.SCCS / constants.CONFIG_DIR / constants.CONFIG_DIR_JSON_FILE, "w", encoding="utf-8") as f:
+    with open(repo_path / constants.SCCS_DIR / constants.CONFIG_DIR / constants.CONFIG_JSON_FILE, "w", encoding="utf-8") as f:
         config = {}
 
         for i, value in enumerate(values):
@@ -59,7 +59,7 @@ def check_for_prev_init(constants: SCCSConstants, repo_path: Path) -> None:
     '.sccs' folder exists for the repository.
     """
 
-    if (repo_path / constants.SCCS).is_dir():
+    if (repo_path / constants.SCCS_DIR).is_dir():
         raise exceptions.AlreadyInitializedError(constants.ALREADY_INITIALIZED_ERROR_MESSAGE)
 
 
@@ -93,18 +93,18 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path) -> N
     """Create the full SCCS directory structure inside the repo path."""
 
     paths = [
-        Path(constants.SCCS),
-        (Path(constants.SCCS) / constants.OBJECTS_DIR),
-        (Path(constants.SCCS) / constants.OBJECTS_DIR / constants.DOCX_DIR),
-        (Path(constants.SCCS) / constants.OBJECTS_DIR / constants.HTML_DIR),
-        (Path(constants.SCCS) / constants.OBJECTS_DIR / constants.VIEW_HTML_DIR),
-        (Path(constants.SCCS) / constants.BRANCHES_DIR),
-        (Path(constants.SCCS) / constants.BRANCHES_DIR / constants.MAIN_BRANCH),
-        (Path(constants.SCCS) / constants.BRANCHES_DIR / constants.MAIN_BRANCH / constants.HISTORY_DIR),
-        (Path(constants.SCCS) / constants.BRANCHES_DIR / constants.MAIN_BRANCH / constants.COMMIT_FILE_HASH_DIR),
-        (Path(constants.SCCS) / constants.COMMIT_MESSAGES_DIR),
-        (Path(constants.SCCS) / constants.CONFIG_DIR),
-        (Path(constants.SCCS) / constants.CURRENT_BRANCH_DIR)
+        Path(constants.SCCS_DIR),
+        (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR),
+        (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR / constants.DOCX_DIR),
+        (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR / constants.HTML_DIR),
+        (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR / constants.VIEW_HTML_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.HISTORY_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.COMMIT_FILE_HASH_DIR),
+        (Path(constants.SCCS_DIR) / constants.COMMIT_MESSAGES_DIR),
+        (Path(constants.SCCS_DIR) / constants.CONFIG_DIR),
+        (Path(constants.SCCS_DIR) / constants.CURRENT_BRANCH_DIR)
     ]
     
     try:
@@ -128,7 +128,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
     folders.
     """
 
-    objects_path = repo_path / constants.SCCS / constants.OBJECTS_DIR
+    objects_path = repo_path / constants.SCCS_DIR / constants.OBJECTS_DIR
 
     try:
         with open(docx_path, "rb") as f:
@@ -175,7 +175,7 @@ def write_history_data(constants: SCCSConstants, repo_path: Path, name: str, ema
         "history": {
             "initial_commit": f"{sha_hash}",
             "latest_commit": f"{sha_hash}",
-            "latest_commit_number": 1,
+            constants.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
             "commit_order": {"1": f"{sha_hash}"},
         },
         "log": {
@@ -188,7 +188,7 @@ def write_history_data(constants: SCCSConstants, repo_path: Path, name: str, ema
     }
     try:
         with open(
-            repo_path / constants.SCCS / constants.BRANCHES_DIR / constants.MAIN_BRANCH / constants.HISTORY_DIR / constants.HISTORY_DIR_JSON_FILE,
+            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.HISTORY_DIR / constants.HISTORY_JSON_FILE,
             "w",
             encoding="utf-8",
             newline="\n",
@@ -209,7 +209,7 @@ def write_commit_message_data(constants: SCCSConstants, repo_path: Path, sha_has
     }
     try:
         with open(
-            repo_path / constants.SCCS / constants.COMMIT_MESSAGES_DIR/ constants.COMMIT_MESSAGES_DIR_JSON_FILE,
+            repo_path / constants.SCCS_DIR / constants.COMMIT_MESSAGES_DIR/ constants.COMMIT_MESSAGES_JSON_FILE,
             "w",
             encoding="utf-8",
             newline="\n",
@@ -242,7 +242,7 @@ def write_hashed_file_commit_data(
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
         with open(
-            repo_path / constants.SCCS / constants.BRANCHES_DIR / constants.MAIN_BRANCH / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_DIR_JSON_FILE,
+            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_JSON_FILE,
             "w",
             encoding="utf-8",
             newline="\n",
@@ -257,7 +257,7 @@ def write_branch_data(constants: SCCSConstants, repo_path: Path) -> None:
 
     try:
         with open(
-            repo_path / constants.SCCS / constants.CURRENT_BRANCH_DIR / constants.CURRENT_BRANCH_DIR_JSON_FILE,
+            repo_path / constants.SCCS_DIR / constants.CURRENT_BRANCH_DIR / constants.CURRENT_BRANCH_JSON_FILE,
             "w",
             encoding="utf-8",
             newline="\n",
@@ -289,10 +289,10 @@ def main(constants: SCCSConstants, docx_path: str) -> None:
 
         create_sccs_directory_layout(constants, repo_path)
         
-        config = config_inputs(constants, repo_path, constants.NAME, constants.EMAIL)
+        config = config_inputs(constants, repo_path, constants.NAME_KEY, constants.EMAIL_KEY)
 
-        name = config[constants.NAME]
-        email = config[constants.EMAIL]
+        name = config[constants.NAME_KEY]
+        email = config[constants.EMAIL_KEY]
 
         sha_hash = create_commit_sha_hash(constants, name, email)
 

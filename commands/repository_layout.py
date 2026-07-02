@@ -11,6 +11,7 @@ import exceptions
 import shutil
 import utils
 from constants_classes import SCCSConstants
+import os
 
 
 class RepositoryLayout:
@@ -23,75 +24,75 @@ class RepositoryLayout:
 
     def _set_branch_name(self, branch_name: str | None) -> None:
         """Set the branch_name attribute to the specified branch name."""
-        setattr(self, "branch_name", branch_name)
+        setattr(self, self.constants.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE, branch_name)
 
 
     def document_path(self) -> Path:
         """Return the path to the current document."""
-        path = self.root / f"{self.root.name}.docx"
+        path = self.root / self.root.name + self.constants.DOCX_EXTENSION
         self._set_branch_name(None)
         return path
     
 
     def sccs_path(self) -> Path:
         """Return the path to the '.sccs' folder."""
-        path = self.root / self.constants.SCCS
+        path = self.root / self.constants.SCCS_DIR
         self._set_branch_name(None)
         return path
     
 
     def branches_path(self) -> Path:
         """Return the path to the 'branches' folder."""
-        path = self.sccs_path() / "branches"
+        path = self.sccs_path() / self.constants.BRANCHES_DIR
         self._set_branch_name(None)
         return path
     
 
     def commit_messages_path(self) -> Path:
         """Return the path to the 'commit_messages.json' file."""
-        path = self.sccs_path() / "commit_messages" / "commit_messages.json"
+        path = self.sccs_path() / self.constants.COMMIT_MESSAGES_DIR / self.constants.COMMIT_MESSAGES_JSON_FILE
         self._set_branch_name(None)
         return path
     
 
     def config_path(self) -> Path:
         """Return the path to the 'config.json' file."""
-        path = self.sccs_path() / "config" / "config.json"
+        path = self.sccs_path() / self.constants.CONFIG_DIR / self.constants.CONFIG_JSON_FILE
         self._set_branch_name(None)
         return path
     
 
     def current_branch_path(self) -> Path:
         """Return the path to the 'current_branch.json' file."""
-        path = self.sccs_path() / "current_branch" / "current_branch.json"
+        path = self.sccs_path() / self.constants.CURRENT_BRANCH_DIR / self.constants.CURRENT_BRANCH_JSON_FILE
         self._set_branch_name(None)
         return path
     
 
     def objects_path(self) -> Path:
         """Return the path to the 'objects' folder."""
-        path = self.sccs_path() / "objects"
+        path = self.sccs_path() / self.constants.OBJECTS_DIR
         self._set_branch_name(None)
         return path
     
 
     def docx_objects_path(self) -> Path:
         """Return the path to the 'docx' objects folder."""
-        path = self.objects_path() / "docx"
+        path = self.objects_path() / self.constants.DOCX_DIR
         self._set_branch_name(None)
         return path
     
 
     def view_html_objects_path(self) -> Path:
         """Return the path to the 'view_html' objects folder."""
-        path = self.objects_path() / "view_html"
+        path = self.objects_path() / self.constants.VIEW_HTML_DIR
         self._set_branch_name(None)
         return path
     
 
     def html_objects_path(self) -> Path:
         """Return the path to the 'html' objects folder."""
-        path = self.objects_path() / "html"
+        path = self.objects_path() / self.constants.HTML_DIR
         self._set_branch_name(None)
         return path
     
@@ -107,7 +108,7 @@ class RepositoryLayout:
                 self.constants.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
             )
 
-        path = (self.branch_path(self.branch_name) / "history" / "history.json")
+        path = (self.branch_path(self.branch_name) / self.constants.HISTORY_DIR / self.constants.HISTORY_JSON_FILE)
         self._set_branch_name(None)
         return path
 
@@ -122,7 +123,7 @@ class RepositoryLayout:
                 self.constants.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
             )
 
-        path = (self.branch_path(self.branch_name) / "commit_file_hash" / "commit_file_hash.json")
+        path = (self.branch_path(self.branch_name) / self.constants.COMMIT_FILE_HASH_DIR / self.constants.COMMIT_FILE_HASH_JSON_FILE)
         self._set_branch_name(None)
         return path
     
@@ -177,7 +178,7 @@ class RepositoryLayout:
         Return the value of the specified key from the SCCS config JSON file.
         Valid keys are 'remote', 'name', and 'email'.
         """
-        if key not in ["remote", "name", "email"]:
+        if key not in self.constants.ACCEPTED_KEYS:
             raise exceptions.InvalidArgumentError(
                 self.constants.INVALID_KEY_ERROR_MESSAGE
             )
@@ -201,9 +202,8 @@ class RepositoryLayout:
             )
 
         with open(
-            self.branch_path(self.branch_name) /
-            "history" /
-            "history.json", "r", encoding="utf-8", newline="\n"
+            self.branch(self.branch_name).history_path()
+            , "r", encoding="utf-8", newline="\n"
         ) as f:
             history_data = json.load(f)
 
@@ -223,8 +223,7 @@ class RepositoryLayout:
 
         with open(
             self.branch_path(self.branch_name) /
-            "commit_file_hash" /
-            "commit_file_hash.json", "r", encoding="utf-8", newline="\n"
+            self.byte_hashes_path(), encoding="utf-8", newline="\n"
         ) as f:
             byte_hashes_data = json.load(f)
 
@@ -235,7 +234,7 @@ class RepositoryLayout:
     def commit_file(self, folder: str, commit: str, path: bool = True) -> str:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit file")
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.COMMIT_FILE_RESOURCE_NAME)
             )
         
         commit = Path(str(commit).strip())
@@ -278,14 +277,14 @@ class RepositoryLayout:
 
     def list_branches(self) -> list[str]:
         self._set_branch_name(None)
-        return self.current_branch_data().get("branches", [])
+        return self.current_branch_data().get(self.constants.BRANCHES_DICT_KEY, [])
 
 
     def current_branch_name(self) -> str:
         with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
             current_branch_data = json.load(f)
         self._set_branch_name(None)
-        return current_branch_data["current_branch"]
+        return current_branch_data[self.constants.CURRENT_BRANCH_DICT_KEY]
     
     
     def latest_commit(self) -> str | None:
@@ -298,8 +297,7 @@ class RepositoryLayout:
                 self.constants.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
             )
 
-        hash = self.history_data()["history"].get("latest_commit")
-
+        hash = self.history_data()[self.constants.HISTORY_DICT_KEY].get(self.constants.LATEST_COMMIT_DICT_KEY)
         if not hash:
             raise exceptions.InvalidMetadataError(
                 self.constants.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
@@ -314,7 +312,7 @@ class RepositoryLayout:
 
     def write_key_to_config(self, key: str, value: str) -> None:
         """Write 'key': 'value' to the SCCS config JSON file."""
-        if key not in ["remote", "name", "email"]:
+        if key not in self.constants.ACCEPTED_KEYS:
             raise exceptions.InvalidArgumentError(
                 self.constants.INVALID_KEY_ERROR_MESSAGE
             )
@@ -339,14 +337,14 @@ class RepositoryLayout:
         try:
             with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
                 branch_data = json.load(f)
-                branch_data["branches"].append(branch_name)
+                branch_data[self.constants.BRANCHES_DICT_KEY].append(branch_name)
                 f.seek(0)
                 json.dump(branch_data, f, indent=4)
                 f.truncate()
 
         except Exception as e:
             raise exceptions.BranchCreationError(
-                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action="create")
+                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=self.constants.CREATE_SUBCOMMAND)
             ) from e
 
         self._set_branch_name(None)
@@ -357,8 +355,8 @@ class RepositoryLayout:
         try:
             with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
                 branch_data = json.load(f)
-                if branch_name in branch_data["branches"]:
-                    branch_data["branches"].remove(branch_name)
+                if branch_name in branch_data[self.constants.BRANCHES_DICT_KEY]:
+                    branch_data[self.constants.BRANCHES_DICT_KEY].remove(branch_name)
                 else:
                     raise exceptions.BranchMissingFromMetadataError(
                         self.constants.INVALID_BRANCH_DATA_ERROR_MESSAGE
@@ -369,7 +367,7 @@ class RepositoryLayout:
 
         except Exception as e:
             raise exceptions.BranchDeletionError(
-                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action="delete")
+                self.constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=self.constants.DELETE_SUBCOMMAND)
                 ) from e
 
         self._set_branch_name(None)
@@ -380,14 +378,14 @@ class RepositoryLayout:
         try:
             with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
                 branch_data = json.load(f)
-                branch_data["current_branch"] = branch_name
+                branch_data[self.constants.CURRENT_BRANCH_DICT_KEY] = branch_name
                 f.seek(0)
                 json.dump(branch_data, f, indent=4)
                 f.truncate()
 
         except Exception as e:
             raise exceptions.UpdatingMetadataError(
-                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="current_branch")
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.BRANCH_NAME_RESOURCE_NAME)
             ) from e
 
         self._set_branch_name(None)
@@ -395,7 +393,7 @@ class RepositoryLayout:
 
     def write_diff_html_file(self, html: str) -> None:
         with open(
-            self.constants.DIFF_HTML_FILE,  "w", encoding="utf-8", newline="\n"
+            self.constants.DIFF_OUTPUT_HTML_FILE,  "w", encoding="utf-8", newline="\n"
         ) as f:
             f.write(html)
 
@@ -494,7 +492,6 @@ class RepositoryLayout:
         self._set_branch_name(None)
         return has_uncommitted_changes
         
-
     def branch_exists(self, branch_name: str) -> bool:
         """Return true if 'branch_name' exists in the repository, false if not."""
         exists = branch_name in self.list_branches()
@@ -563,9 +560,11 @@ class RepositoryLayout:
             )
         
         # generate the SHA256 commit hash
+            
+        hash_parts = [self.constants.PROGRAM_START_TIME, commit_msg, self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY), self.current_branch().latest_commit()]
+
         commit_hash = hashlib.sha256(
-            f"{self.constants.PROGRAM_START_TIME}/{commit_msg}/{self.config_data('name')}/"
-            f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
+            "".join(i + os.sep for i in hash_parts)
         ).hexdigest()
         
         # use mammoth + class method to convert document to html
@@ -573,13 +572,16 @@ class RepositoryLayout:
 
         # copy the current version of the document to the commit directories ('docx', 'html', 'view_html')
         # use the html version for commit directories which require it ('html', 'view_html')
+        
+        docx_commit_filename = commit_hash + self.constants.DOCX_EXTENSION
+        
         shutil.copy2(
                     self.document_path(),
-                    self.docx_objects_path() / f"{commit_hash}.docx",
+                    self.docx_objects_path() / docx_commit_filename,
                 )
 
         with open(
-                self.html_objects_path() / f"{commit_hash}.html",
+                self.html_objects_path() / docx_commit_filename,
                 "w",
                 encoding="utf-8",
                 newline="\n",
@@ -587,7 +589,7 @@ class RepositoryLayout:
                 f.write(utils.default_html_styles + document_as_html)
 
         with open(
-                self.view_html_objects_path() / f"{commit_hash}.html",
+                self.view_html_objects_path() / docx_commit_filename,
                 "w",
                 encoding="utf-8",
                 newline="\n",
@@ -602,7 +604,7 @@ class RepositoryLayout:
         except Exception as e:
             raise exceptions.FileOpenError from e
 
-        commit_file_hash[f"{commit_hash}"] = self.convert_docx_to_binary_hash()
+        commit_file_hash[commit_hash] = self.convert_docx_to_binary_hash()
 
         with open(
             self.commit_messages_path(), "r", encoding="utf-8", newline="\n"
@@ -612,36 +614,36 @@ class RepositoryLayout:
             except Exception as e:
                 raise exceptions.FileOpenError from e
 
-        messages[f"{commit_hash}"] = f"{commit_msg}"
+        messages[commit_hash] =commit_msg
 
         history = self.current_branch().history_data()
 
-        history["history"]["latest_commit"] = f"{commit_hash}"
-        history["history"]["latest_commit_number"] = (
-            history["history"].get("latest_commit_number", 0) + 1
+        history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_DICT_KEY] = commit_hash
+        history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY] = (
+            history[self.constants.HISTORY_DICT_KEY].get(self.constants.LATEST_COMMIT_NUMBER_DICT_KEY, 0) + 1
         )
 
-        latest_commit_number = history["history"]["latest_commit_number"]
+        latest_commit_number = history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY]
 
-        history["history"]["commit_order"][str(latest_commit_number)] = f"{commit_hash}"
+        history[self.constants.HISTORY_DICT_KEY][self.constants.COMMIT_ORDER_DICT_KEY][str(latest_commit_number)] = commit_hash
 
-        history["log"][f"{commit_hash}"] = {
-            "timestamp": self.constants.PROGRAM_START_TIME,
-            "author": f"{self.config_data('name')} <{self.config_data('email')}>",
-            "message": commit_msg,
+        history[self.constants.LOG_DICT_KEY][commit_hash] = {
+            self.constants.TIMESTAMP_DICT_KEY: self.constants.PROGRAM_START_TIME,
+            self.constants.AUTHOR_DICT_KEY: " ".join(self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY)),
+            self.constants.MESSAGE_DICT_KEY: commit_msg,
         }
 
         updated_branch = [self.current_branch_name()]            
         branch_data = self.current_branch_data()
 
-        if "updated_branches" in branch_data and isinstance(
-            branch_data["updated_branches"], list
+        if self.constants.UPDATED_BRANCHES_DICT_KEY in branch_data and isinstance(
+            branch_data[self.constants.UPDATED_BRANCHES_DICT_KEY], list
         ):
-            branch_data["updated_branches"] = list(
-                set(branch_data["updated_branches"] + updated_branch)
+            branch_data[self.constants.UPDATED_BRANCHES_DICT_KEY] = list(
+                set(branch_data[self.constants.UPDATED_BRANCHES_DICT_KEY] + updated_branch)
             )
         else:
-            branch_data["updated_branches"] = updated_branch
+            branch_data[self.constants.UPDATED_BRANCHES_DICT_KEY] = updated_branch
 
         # 'update_dict' is used to ensure that all repository data is updated atomically
         # entires use the format 'Path: JSON'
@@ -656,7 +658,7 @@ class RepositoryLayout:
             print(key)
             try:
                 with open(
-                    Path(key).with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
+                    Path(key).with_suffix(self.constants.TMP_EXTENSION), "w", encoding="utf-8", newline="\n"
                 ) as f:
                     json.dump(value, f)
             except Exception as e:
@@ -664,7 +666,7 @@ class RepositoryLayout:
 
         for key, value in update_dict.items():
             try:
-                Path(key).with_suffix(".tmp").replace(key)
+                Path(key).with_suffix(self.constants.TMP_EXTENSION).replace(key)
             except Exception as e:
                 raise exceptions.TemporaryFileError from e
         
