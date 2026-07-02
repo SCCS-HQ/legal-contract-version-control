@@ -72,8 +72,8 @@ def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
             i if hasattr(i, "attrs") else BeautifulSoup(i, constants.HTML_PARSER).find()
         )
         if parsed_tag is not None:
-            if parsed_tag.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) is not None:
-                data_number.add(parsed_tag.get(constants.DATA_NUMBER_HTML_ATTRIBUTE))
+            if parsed_tag[constants.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
+                data_number.add(parsed_tag[constants.DATA_NUMBER_HTML_ATTRIBUTE])
     return data_number
 
 
@@ -92,7 +92,7 @@ def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], soup: B
             i.decompose()
             continue
 
-        if i.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) in get_data_number(constants, old_changed_strings):
+        if i[constants.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(constants, old_changed_strings):
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
                 i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_HTML_ATTRIBUTE_VALUE)
             else:
@@ -119,7 +119,7 @@ def replace_tag(
         if i.name == constants.STYLE_HTML_ATTRIBUTE:
             i.decompose()
             continue
-        if i.get(constants.DATA_NUMBER_HTML_ATTRIBUTE) in get_data_number(constants, old_changed_strings):
+        if i[constants.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(constants, old_changed_strings):
             match.append(i)
 
     for i in frag.find_all():

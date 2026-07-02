@@ -170,7 +170,7 @@ class RepositoryLayout:
             self._set_branch_name(None)
             return branch_data
         self._set_branch_name(None)
-        return branch_data.get(key)
+        return branch_data[key]
 
 
     def config_data(self, key: str ) -> str | None:
@@ -187,7 +187,7 @@ class RepositoryLayout:
             config_data = json.load(f)
 
         self._set_branch_name(None)
-        return config_data.get(key)
+        return config_data[key]
     
 
     def history_data(self) -> dict:
@@ -277,7 +277,7 @@ class RepositoryLayout:
 
     def list_branches(self) -> list[str]:
         self._set_branch_name(None)
-        return self.current_branch_data().get(self.constants.BRANCHES_DICT_KEY, [])
+        return self.current_branch_data()[self.constants.BRANCHES_DICT_KEY]
 
 
     def current_branch_name(self) -> str:
@@ -297,7 +297,7 @@ class RepositoryLayout:
                 self.constants.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
             )
 
-        hash = self.history_data()[self.constants.HISTORY_DICT_KEY].get(self.constants.LATEST_COMMIT_DICT_KEY)
+        hash = self.history_data()[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_DICT_KEY]
         if not hash:
             raise exceptions.InvalidMetadataError(
                 self.constants.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
@@ -620,7 +620,7 @@ class RepositoryLayout:
 
         history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_DICT_KEY] = commit_hash
         history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY] = (
-            history[self.constants.HISTORY_DICT_KEY].get(self.constants.LATEST_COMMIT_NUMBER_DICT_KEY, 0) + 1
+            history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
         )
 
         latest_commit_number = history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY]
