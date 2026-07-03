@@ -11,7 +11,6 @@ import exceptions
 import shutil
 import utils
 from constants_classes import SCCSConstants
-import os
 
 
 class RepositoryLayout:
@@ -307,6 +306,15 @@ class RepositoryLayout:
         return hash
     
 
+    def create_commit_sha_hash(self, hash_parts: list[str]):
+
+        return hashlib.sha256(
+            self.constants.HASH_PARTS_SEPARATOR.join(hash_parts)
+        ).hexdigest()
+
+        
+
+
 # Write Data to Files
 
 
@@ -563,9 +571,7 @@ class RepositoryLayout:
             
         hash_parts = [self.constants.PROGRAM_START_TIME, commit_msg, self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY), self.current_branch().latest_commit()]
 
-        commit_hash = hashlib.sha256(
-            "".join(i + os.sep for i in hash_parts)
-        ).hexdigest()
+        commit_hash = self.create_commit_sha_hash(hash_parts)
         
         # use mammoth + class method to convert document to html
         document_as_html = self.convert_docx_to_html()

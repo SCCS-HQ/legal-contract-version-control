@@ -84,9 +84,13 @@ def create_commit_sha_hash(constants: SCCSConstants, name: str, email: str) -> s
     Return the created SHA-256 hash as a hexadecimal string.
     """
 
+    hash_parts = [constants.PROGRAM_START_TIME, constants.INITIAL_VERSION_HASH_SEGMENT, name, email]
+
     return hashlib.sha256(
-        f"{constants.PROGRAM_START_TIME}/{constants.INITIAL_VERSION_HASH_SEGMENT}/{name}/{email}".encode()
-    ).hexdigest()
+            constants.HASH_PARTS_SEPARATOR.join(hash_parts)
+        ).hexdigest()
+
+
 
 
 def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path) -> None:

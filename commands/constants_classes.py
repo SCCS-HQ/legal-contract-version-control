@@ -242,6 +242,7 @@ class SCCSConstants:
         self.HTML_DIR = "html"
         self.VIEW_HTML_DIR = "view_html"
         self.HISTORY_DIR = "history"
+        self.HASH_PARTS_SEPARATOR = "/"
 
         ## runtime limits (used by init.py, repository_layout.py)
         self.MAX_FILE_READ_SIZE = 64 * 1024
