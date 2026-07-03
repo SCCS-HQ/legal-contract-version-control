@@ -20,7 +20,7 @@ def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
     """
 
     if not url :
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="URL"))
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.URL_FIELD_NAME))
 
     if not any(url.startswith(i) for i in constants.ACCEPTED_SCHEMES):
         raise exceptions.InvalidArgumentError(constants.INVALID_URL_ERROR_MESSAGE)
@@ -58,12 +58,12 @@ def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str) -> N
         raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
     
     if len(path_parts) < 2:
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="repository name"))
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.REPOSITORY_NAME_FIELD_NAME))
     
     repo_name = path_parts[-2]
 
     try:
-        zipfile.ZipFile(buffer, "r").extractall(repo_name)
+        zipfile.ZipFile(buffer, constants.ZIP_READ_MODE).extractall(repo_name)
     except Exception as e:
         raise exceptions.ZippingFileError(constants.UNZIP_FAILED_ERROR_MESSAGE) from e
 

@@ -113,7 +113,7 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
-    frag = BeautifulSoup("".join(new_changed_strings), "html.parser")
+    frag = BeautifulSoup("".join(new_changed_strings), constants.HTML_PARSER)
     match = []
     for i in soup.find_all():
         if i.name == constants.STYLE_HTML_ATTRIBUTE:

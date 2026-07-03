@@ -19,7 +19,7 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
-            constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="subcommand")
+            constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.SUBCOMMAND_FIELD_NAME)
         )
 
     if subcommand not in constants.ACCEPTED_SUBCOMMANDS:
@@ -30,7 +30,7 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
     if subcommand in [constants.CREATE_SUBCOMMAND, constants.DELETE_SUBCOMMAND]:
         if not branch_name:
             raise exceptions.InvalidArgumentError(
-                constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="branch name")
+                constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.BRANCH_NAME_FIELD_NAME)
             )
         
     if subcommand == constants.CREATE_SUBCOMMAND:
@@ -102,7 +102,7 @@ def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLay
     try:
         if subcommand == constants.CREATE_SUBCOMMAND:
             Repo.remove_from_branches_list(branch_name)
-            Repo.set_current_branch(constants.MAIN_BRANCH)
+            Repo.set_current_branch(constants.MAIN_BRANCH_ATTRIBUTE)
             shutil.rmtree(branch_path)
         if subcommand == constants.DELETE_SUBCOMMAND:
             Repo.add_to_branches_list(branch_name)

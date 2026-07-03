@@ -14,7 +14,7 @@ def print_commit_confirmation_message(constants: SCCSConstants, Repo: Repository
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
-        print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:10]))
+        print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:constants.COMMIT_HASH_DISPLAY_LENGTH]))
     except Exception as e:
         raise exceptions.SCCSException(constants.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
@@ -22,7 +22,7 @@ def print_commit_confirmation_message(constants: SCCSConstants, Repo: Repository
 def validate_commit_message(constants: SCCSConstants, commit_message: str) -> None:
 
     if commit_message is None or not commit_message.strip():
-        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit message"))
+        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_MESSAGE_FIELD_NAME))
 
 
 def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str) -> None:

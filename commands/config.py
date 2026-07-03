@@ -27,7 +27,7 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if not repo_name.strip():
-        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="repository name"))
+        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.REPOSITORY_NAME_FIELD_NAME))
 
     repo_name = utils.clean_directory_name(repo_name)
 

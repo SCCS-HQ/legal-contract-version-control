@@ -21,12 +21,12 @@ def print_log(constants: SCCSConstants, history_data: dict) -> None:
 
     for i in history_data[constants.LOG_DICT_KEY]:
         print(
-            "------------------------------\n"
-            f"Commit File: {i[:10]}\n"
-            f"Author: {history_data[constants.LOG_DICT_KEY][i][constants.AUTHOR_DICT_KEY]}\n"
-            f"Date: {history_data[constants.LOG_DICT_KEY][i][constants.TIMESTAMP_DICT_KEY]}\n"
-            f"Message: {history_data[constants.LOG_DICT_KEY][i][constants.MESSAGE_DICT_KEY]}\n"
-            "------------------------------"
+            f"{constants.LOG_SEPARATOR}\n"
+            f"{constants.LOG_COMMIT_FILE_LABEL}{i[:constants.COMMIT_HASH_DISPLAY_LENGTH]}\n"
+            f"{constants.LOG_AUTHOR_LABEL}{history_data[constants.LOG_DICT_KEY][i][constants.AUTHOR_DICT_KEY]}\n"
+            f"{constants.LOG_DATE_LABEL}{history_data[constants.LOG_DICT_KEY][i][constants.TIMESTAMP_DICT_KEY]}\n"
+            f"{constants.LOG_MESSAGE_LABEL}{history_data[constants.LOG_DICT_KEY][i][constants.MESSAGE_DICT_KEY]}\n"
+            f"{constants.LOG_SEPARATOR}"
         )
 
 

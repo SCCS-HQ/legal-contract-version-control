@@ -33,6 +33,10 @@ class SCCSConstants:
         self.CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
         self.OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
 
+        ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
+        self.SUBCOMMAND_FIELD_NAME = "subcommand"
+        self.BRANCH_NAME_FIELD_NAME = "branch name"
+
         #endregion
 
         #region clone.py
@@ -55,6 +59,10 @@ class SCCSConstants:
         self.STATUS_CODE_MESSAGE = "Status Code:\n"
         self.CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
 
+        ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
+        self.URL_FIELD_NAME = "URL"
+        self.REPOSITORY_NAME_FIELD_NAME = "repository name"
+
         #endregion
 
         #region commit.py
@@ -62,6 +70,12 @@ class SCCSConstants:
         ## success / error messages
         self.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully.\n"
         self.COMMIT_FAILURE_ERROR_MESSAGE = "Failed to commit changes."
+
+        ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
+        self.COMMIT_MESSAGE_FIELD_NAME = "commit message"
+
+        ## commit hash display length (used by commit.py, log.py)
+        self.COMMIT_HASH_DISPLAY_LENGTH = 10
 
         #endregion
 
@@ -134,7 +148,7 @@ class SCCSConstants:
 
         #endregion
 
-        #region init.py (constants used only by init.py)
+        #region init.py
 
         ## hash segments
         self.INITIAL_VERSION_HASH_SEGMENT = "initial_version"
@@ -159,6 +173,13 @@ class SCCSConstants:
         self.INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
         self.INIT_SUCCESS_MESSAGE = "SCCS initialization complete.\n"
 
+        ## history data dict keys
+        self.INITIAL_COMMIT_DICT_KEY = "initial_commit"
+        self.INITIAL_COMMIT_NUMBER = "1"
+
+        ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
+        self.DOCUMENT_PATH_FIELD_NAME = "document path"
+
         #endregion
 
         #region log.py
@@ -168,9 +189,16 @@ class SCCSConstants:
         self.TIMESTAMP_DICT_KEY = "timestamp"
         self.MESSAGE_DICT_KEY = "message"
 
+        ## display format constants
+        self.LOG_SEPARATOR = "------------------------------"
+        self.LOG_COMMIT_FILE_LABEL = "Commit File: "
+        self.LOG_AUTHOR_LABEL = "Author: "
+        self.LOG_DATE_LABEL = "Date: "
+        self.LOG_MESSAGE_LABEL = "Message: "
+
         #endregion
 
-        #region repository_layout.py (constants used only by repository_layout.py)
+        #region repository_layout.py
 
         ## error / status messages
         self.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
@@ -298,8 +326,27 @@ class SCCSConstants:
         ## program start time getter (used by init.py, repository_layout.py)
         self.PROGRAM_START_TIME = self._program_start_time
 
+        ## file I/O modes (used by init.py, clone.py, repository_layout.py)
+        self.FILE_WRITE_MODE = "w"
+        self.FILE_READ_BINARY_MODE = "rb"
+        self.ZIP_READ_MODE = "r"
+
+        ## file I/O encoding and newline (used by init.py, repository_layout.py)
+        self.FILE_ENCODING_UTF8 = "utf-8"
+        self.FILE_NEWLINE = "\n"
+
         #endregion
 
+
+    @cached_property
+    def _program_start_time(self) -> str:
+        """Return the program start time in a human-readable format."""
+        return datetime.datetime.now().isoformat()
+
+
+class ErrorWrappers:
+    def __init__(self):
+        self.EXPECTED_ERROR_TEMPLATE = "An error occurred:\n{e}\n"
 
     @cached_property
     def _program_start_time(self) -> str:
