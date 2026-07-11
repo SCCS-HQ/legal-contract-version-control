@@ -35,7 +35,6 @@ class SCCSConstants:
 
         ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
         self.SUBCOMMAND_FIELD_NAME = "subcommand"
-        self.BRANCH_NAME_FIELD_NAME = "branch name"
 
         #endregion
 
@@ -197,6 +196,17 @@ class SCCSConstants:
         self.LOG_MESSAGE_LABEL = "Message: "
 
         #endregion
+
+        #region merge.py
+
+        self.CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
+        
+
+        self.MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
+
+        self.MERGE_SUCCESS_MESSAGE_TEMPLATE = "Successfully merged branch '{branch}' into branch '{current_branch}'."
+
+        #endregion        
 
         #region repository_layout.py
 

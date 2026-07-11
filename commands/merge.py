@@ -7,76 +7,83 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def validate_branch() -> str:
+def validate_branch(constants: SCCSConstants, Repo: RepositoryLayout, branch: str) -> None:
     """Validate that the entered branch is valid, exists, and is not the current branch."""
 
-    branch = utils.entered_argument(2)
-    current_branch = Repository.current_branch_name()
-
-    if branch is None:
+    if not branch:
         raise exceptions.InvalidArgumentError(
-            "No branch provided. Please provide a branch to merge."
+            constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.BRANCH_NAME_FIELD_NAME)
         )
-    if branch == current_branch:
+    if branch == Repo.current_branch_name():
         raise exceptions.InvalidArgumentError(
-            "Cannot merge the current branch into itself."
+            constants.CURRENT_BRANCH_MERGE_ERROR_MESSAGE
         )
-    if branch not in Repository.list_branches():
-        raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
-    return branch
+    if branch not in Repo.list_branches():
+        raise exceptions.BranchNotFoundError(constants.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch))
 
 
-def copy_branch_data() -> None:
+def copy_branch_data(Repo: RepositoryLayout, branch: str) -> None:
     """Copy the data from the source branch to the target branch."""
 
-    shutil.copytree(Repository.branch(validate_branch()).branch_path, Repository.current_branch.branch_path, dirs_exist_ok=True)
+    try:
+        shutil.copytree(Repo.branch_path(branch), Repo.branch_path(Repo.current_branch_name()), dirs_exist_ok=True)
+    except Exception as e:
+        raise exceptions.FileCopyError
 
 
-def copy_repo_document() -> None:
+def copy_repo_document(constants: SCCSConstants, Repo: RepositoryLayout, branch: str) -> None:
     """Copy the repo document from the source branch to the target branch."""
 
-    shutil.copy2(
-        Repository.branch(validate_branch()).document_path(),
-        Repository.document_path()
-    )
+    try:
+        shutil.copy2(
+            Repo.branch(branch).latest_commit_path(constants.DOCX_DIR),
+            Repo.document_path()
+        )
+    except Exception as e:
+        raise exceptions.FileCopyError from e
 
 
-def print_merge_success_message() -> None:
+def print_merge_success_message(constants: SCCSConstants, Repo: RepositoryLayout, branch: str) -> None:
     """Print a success message after merging the branches."""
     print(
-        f"Successfully merged branch '{validate_branch()}' into branch '{Repository.current_branch_name()}'."
+        constants.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(branch=branch, current_branch=Repo.current_branch_name())
     )
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, branch: str | None = None) -> None:
     """Merge the entered branch into the current branch."""
-    Repository.check_repository_layout()
 
-    Repository.check_for_uncommitted_changes("merge")
+    Repo.check_repository_layout()
 
-    copy_repo_document()
-    copy_branch_data()
+    Repo.check_for_uncommitted_changes()
 
-    utils.commit_changes(
-        f'Merged branch "{validate_branch()}" into "{Repository.current_branch_name()}".'
+    validate_branch(constants, Repo, branch)
+    copy_repo_document(Repo, branch)
+    copy_branch_data(Repo, branch)
+
+    Repo.commit_changes(
+        constants.MERGE_COMMIT_MESSAGE_TEMPLATE.format(branch=branch, current_branch=Repo.current_branch_name())
     )
 
-    print_merge_success_message()
+    print_merge_success_message(constants, Repo, branch)
 
+RepositoryLayout.latest_commit_path()
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
