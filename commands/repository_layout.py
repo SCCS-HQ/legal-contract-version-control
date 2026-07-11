@@ -141,7 +141,7 @@ class RepositoryLayout:
 
         latest_commit = self.current_branch().latest_commit()
 
-        path = self.commit_file(folder, latest_commit, path=True)
+        path = self.commit_file(latest_commit, folder)
 
         self._set_branch_name(None)
         return path
@@ -230,7 +230,7 @@ class RepositoryLayout:
         return byte_hashes_data
 
 
-    def commit_file(self, folder: str, commit: str, path: bool = True) -> str:
+    def commit_file(self, commit: str, folder: str = "html", path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str:
         if commit is None:
             raise exceptions.InvalidArgumentError(
                 self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.COMMIT_FILE_RESOURCE_NAME)
@@ -264,11 +264,18 @@ class RepositoryLayout:
             self._set_branch_name(None)
             return matching_files[0]
 
-        with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:
-            commit_file_data = f.read()
+        if file_data:
+            with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:
+                commit_file_data = f.read()
+            
+            self._set_branch_name(None)
+            return commit_file_data
         
-        self._set_branch_name(None)
-        return commit_file_data
+        if hash_10_char:
+            self._set_branch_name(None)
+            return matching_files[0].stem[:10]
+        
+
 
 
 # Return Miscellaneous Data
