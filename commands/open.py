@@ -7,77 +7,74 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
+
+def validate_commit_hash(constants: SCCSConstants, commit_hash: str) -> None:
+    """
+    Validate the commit hash format.
+    """
+
+    if not commit_hash or not len(commit_hash) == 10 or not len(commit_hash) == 64 or not all(c in "0123456789abcdef" for c in commit_hash):
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_FILE_FIELD_NAME)) from e
 
 
-def confirm_before_proceeding() -> None:
-    """Confirm with the user before proceeding with overwriting the current document."""
-
-    confirm = (
-        input(
-            f"Are you sure you want to overwrite '{Repository.document_path().name}' "
-            f"with the contents of '{Repository.commit_path(
-                "docx", Path.cwd(), utils.entered_argument(2)
-            ).name[:10]}'?\nThis action will replace the current content of the .docx "
-            f"file. (Y/N): "
-        )
-        .strip()
-        .lower()
-    )
-    if confirm != "y":
-        print("Update canceled.\n")
-        sys.exit(0)
-
-
-def copy_file_commit() -> None:
+def copy_file_commit(constants: SCCSConstants, commit_hash: str, commit_path: Path) -> None:
     """
     Copy the commit file to the current document, effectively opening the older commit.
     """
 
     try:
         shutil.copy2(
-            Repository.commit_file("docx")
+            commit_path,
+            constants.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message() -> None:
+def print_rewrite_confirmation_message(constants: SCCSConstants, commit_hash: str) -> None:
     """
     Print the confirmation message after rewriting the file using the document name.
     """
 
     print(
-        f"File '{Repository.document_path.name}' has been updated with the contents of "
-        f"'{Repository.commit_path(
-            "docx", Path.cwd(), utils.entered_argument(2)
-        ).name[:10]}'.\n"
+        constants.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash,
+            output_file=constants.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)
+        )
     )
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None) -> None:
     """Run functions for the <sccs open> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    Repository.check_for_uncommitted_changes("open")
+    Repo.check_for_uncommitted_changes()
 
-    confirm_before_proceeding()
+    validate_commit_hash(constants, commit_hash)
 
-    copy_file_commit()
+    commit_path = Repo.commit_file(commit_hash, constants.DOCX_DIR)
 
-    print_rewrite_confirmation_message()
+    commit_hash = commit_path.stem[:10]
+
+    copy_file_commit(constants, commit_hash, commit_path)
+
+    print_rewrite_confirmation_message(constants, commit_hash)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)

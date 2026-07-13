@@ -230,10 +230,10 @@ class RepositoryLayout:
         return byte_hashes_data
 
 
-    def commit_file(self, commit: str, folder: str = "html", path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str:
+    def commit_file(self, commit: str, folder: str = "html", path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str | Path:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.COMMIT_FILE_RESOURCE_NAME)
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.COMMIT_FILE_FIELD_NAME)
             )
         
         commit = Path(str(commit).strip())
@@ -262,7 +262,7 @@ class RepositoryLayout:
 
         if path:
             self._set_branch_name(None)
-            return matching_files[0]
+            return Path(matching_files[0])
 
         if file_data:
             with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:
@@ -400,7 +400,7 @@ class RepositoryLayout:
 
         except Exception as e:
             raise exceptions.UpdatingMetadataError(
-                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.BRANCH_NAME_RESOURCE_NAME)
+                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.BRANCH_NAME_FIELD_NAME)
             ) from e
 
         self._set_branch_name(None)

@@ -259,7 +259,7 @@ def main(
 
     Repo.check_for_uncommitted_changes()
 
-    commit_soup = convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
+    commit_soup = convert_html_to_soup(constants, Repo.commit_file(commit_hash, constants.HTML_DIR))
 
     current_version_soup = convert_html_to_soup(constants, Repo.convert_docx_to_html())
 

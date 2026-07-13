@@ -208,6 +208,14 @@ class SCCSConstants:
 
         #endregion        
 
+        #region open.py
+
+        self.OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_hash}.docx"
+
+        self.OPEN_SUCCESS_MESSAGE_TEMPLATE = "Commit '{commit_hash}' has been successfully opened in {output_file}.\nIt is safe to delete this file. No changes will be lost unless {output_file} is modified after this point. "
+
+        #endregion
+
         #region repository_layout.py
 
         ## error / status messages
@@ -246,8 +254,8 @@ class SCCSConstants:
         self.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
 
         ## resource names
-        self.BRANCH_NAME_RESOURCE_NAME = "branch name"
-        self.COMMIT_FILE_RESOURCE_NAME = "commit file"
+        self.BRANCH_NAME_FIELD_NAME = "branch name"
+        self.COMMIT_FILE_FIELD_NAME = "commit file hash"
 
         ## branch name attribute
         self.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE = "branch_name"
