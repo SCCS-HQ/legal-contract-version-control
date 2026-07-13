@@ -216,6 +216,28 @@ class SCCSConstants:
 
         #endregion
 
+        #region publish.py
+
+        self.BUFFER_CREATION_FAILED_ERROR_MESSAGE = "Failed to create a buffer for the zipped repository. Please try again."
+        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
+        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
+        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
+        self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
+        self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
+        self.FILE_RESOURCE = "file"
+        self.DATA_RESOURCE = "data"
+        self.ZIP_EXTENSION = ".zip"
+        self.REMOTE_KEY = "remote"
+        self.CONTENT_TYPE_ZIP = "application/zip"
+        self.CONTENT_TYPE_JSON = "application/json"
+        self.PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
+        self.URL_PARTS_SEPARATOR = "/"
+        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
+        self.PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}\n"
+        
+
+        #endregion
+
         #region repository_layout.py
 
         ## error / status messages
