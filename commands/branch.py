@@ -167,9 +167,9 @@ def main(
     """Run functions for the <sccs branch> command."""
     Repo.check_repository_layout()
 
-    validate_subcommand(constants, Repo, subcommand, branch_name)
-
     Repo.check_for_uncommitted_changes()
+    
+    validate_subcommand(constants, Repo, subcommand, branch_name)
 
     run_specified_subcommand(constants, Repo, subcommand, branch_name, Repo.current_branch_name())
 
