@@ -3,36 +3,37 @@
 
 import io
 import sys
+from urllib import response
 import zipfile
 from pathlib import Path
 
 import exceptions
 import requests
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def get_repo_objects() -> list:
+def get_repo_objects(constants: SCCSConstants, Repo: RepositoryLayout) -> list:
     """
     Return of list of every commit hash by iterating through the objects folder's file
     stems, and removing duplicates with a set.
     """
     
-    return list(set(i.stem for i in Repository.objects_path().rglob("*") if i.is_file()))
+    return list(set(i.stem for i in Repo.objects_path().rglob(constants.RGLOB_ALL_FILES_PATTERN) if i.is_file()))
 
 
-def pull() -> requests.Response:
+def pull(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = {"objects": get_repo_objects()}
-    url = f"{Repository.config_data('remote').rstrip('/')}/pull"
+    data = {constants.HTTP_OBJECTS_DATA_KEY: get_repo_objects(constants, Repo)}
+    # url = f"{Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)}/pull"
+    url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
 
     try:
-        response = requests.post(url, json=data, timeout=60)
+        response = requests.post(url, json=data, timeout=constants.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPPostRequestError() from e
+        raise exceptions.HTTPPostRequestError(constants.HTTP_POST_REQUEST_ERROR_MESSAGE.format(url=url)) from e
 
     return response
 
@@ -42,36 +43,48 @@ def update_repo_files(response: requests.Response) -> None:
     Unzip the file in 'response' to 'destination'.
     """
 
-    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-        zf.extractall(Path.cwd())
+    try:
+        with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
+            zf.extractall(Path.cwd())
+    except Exception as e:
+        raise exceptions.UnzipError(constants.UNZIP_FAILED_ERROR_MESSAGE) from e
+
+def print_pull_success_message(constants: SCCSConstants, response: requests.Response, url: str) -> None:
+    """Print a success message after pulling the repository."""
+
+    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(constants.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main():
+def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Run functions for the <sccs pull> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    remote = Repository.config_data("remote")
+    Repo.check_for_uncommitted_changes()
+
+    remote = Repo.config_data(constants.REMOTE_KEY)
     
-    print(f"Pulling repository from {remote}...\n")
-
-    response = pull()
-
-    print(f"Status Code: {response.status_code}\n")
-
+    response = pull(constants, Repo)
     response.raise_for_status()
-    print(f"Repository pulled successfully from {remote}\n")
 
     update_repo_files(response)
+    
+    print_pull_success_message(constants, response, remote)
+
+    
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)

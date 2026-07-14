@@ -238,6 +238,17 @@ class SCCSConstants:
 
         #endregion
 
+        #region pull.py
+
+        self.RGLOB_ALL_FILES_PATTERN = "*"
+        self.HTTP_OBJECTS_DATA_KEY = "objects"
+        self.REMOTE_KEY = "remote"
+        self.PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
+        self.PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}\n"
+
+
+        #endregion
+
         #region repository_layout.py
 
         ## error / status messages
