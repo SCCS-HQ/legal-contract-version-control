@@ -14,19 +14,10 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def get_repo_objects(constants: SCCSConstants, Repo: RepositoryLayout) -> list:
-    """
-    Return of list of every commit hash by iterating through the objects folder's file
-    stems, and removing duplicates with a set.
-    """
-    
-    return list(set(i.stem for i in Repo.objects_path().rglob(constants.RGLOB_ALL_FILES_PATTERN) if i.is_file()))
-
-
 def pull(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = {constants.HTTP_OBJECTS_DATA_KEY: get_repo_objects(constants, Repo)}
+    data = {constants.HTTP_OBJECTS_DATA_KEY: Repo.repo_objects()}
     # url = f"{Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)}/pull"
     url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
 

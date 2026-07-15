@@ -319,7 +319,11 @@ class RepositoryLayout:
             self.constants.HASH_PARTS_SEPARATOR.join(hash_parts)
         ).hexdigest()
 
-        
+
+    def repo_objects(self) -> list[Path]:
+        objects_dir = self.objects_path()
+        objects = list(set(i.stem for i in objects_dir.rglob(self.constants.RGLOB_ALL_FILES_PATTERN) if i.is_file()))
+        return objects
 
 
 # Write Data to Files
@@ -507,6 +511,7 @@ class RepositoryLayout:
         self._set_branch_name(None)
         return has_uncommitted_changes
         
+
     def branch_exists(self, branch_name: str) -> bool:
         """Return true if 'branch_name' exists in the repository, false if not."""
         exists = branch_name in self.list_branches()
