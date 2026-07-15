@@ -314,6 +314,8 @@ class SCCSConstants:
 
         #region Shared (referenced by 2+ command modules)
 
+        self.DEFAULT_HTML_STYLES = ("<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>")
+
         ## filesystem names and structure (used by init.py, repository_layout.py)
         self.SCCS_DIR = ".sccs"
         self.OBJECTS_DIR = "objects"

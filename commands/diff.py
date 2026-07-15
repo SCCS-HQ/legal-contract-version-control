@@ -276,7 +276,7 @@ def main(
     redline_soup = format_redline_html(constants, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
 
     Repo.write_diff_html_file(
-        utils.wrap_html(str(strip_number_attribute(constants, redline_soup)))
+        utils.wrap_html(str(strip_number_attribute(constants, redline_soup), constants.DEFAULT_HTML_STYLES))
     )
 
     print_diff_success_message(constants)

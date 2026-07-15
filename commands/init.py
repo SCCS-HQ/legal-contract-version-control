@@ -155,7 +155,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
             encoding=constants.FILE_ENCODING_UTF8,
             newline=constants.FILE_NEWLINE,
         ) as f:
-            f.write(utils.default_html_styles + result)
+            f.write(constants.DEFAULT_HTML_STYLES + result)
     except Exception as e:
         raise exceptions.FileWriteError from e
 
@@ -166,7 +166,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
             encoding=constants.FILE_ENCODING_UTF8,
             newline=constants.FILE_NEWLINE,
         ) as f:
-            f.write(utils.wrap_html(result))
+            f.write(utils.wrap_html(result), constants.DEFAULT_HTML_STYLES)
     except Exception as e:
         raise exceptions.FileWriteError from e
 

@@ -12,15 +12,6 @@ import sys
 import exceptions
 from repository_layout import RepositoryLayout
 
-default_html_styles = (
-    "<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"
-    ".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n"
-    "\n"
-    ".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n"
-    "\n"
-    ".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>"
-)
-
 
 def clean_directory_name(name: str) -> str:
     """
@@ -30,7 +21,7 @@ def clean_directory_name(name: str) -> str:
     return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
 
 
-def wrap_html(html: str, styles: str = default_html_styles) -> str:
+def wrap_html(html: str, styles: str) -> str:
     """
     Return a wrapped HTML content in a complete document template using 'styles'. This
     requires 'html' to already include proper 'class' attributes.

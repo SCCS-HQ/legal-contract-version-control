@@ -604,7 +604,7 @@ class RepositoryLayout:
                 encoding="utf-8",
                 newline="\n",
             ) as f:
-                f.write(utils.default_html_styles + document_as_html)
+                f.write(self.constants.DEFAULT_HTML_STYLES + document_as_html)
 
         with open(
                 self.view_html_objects_path() / docx_commit_filename,
@@ -612,7 +612,7 @@ class RepositoryLayout:
                 encoding="utf-8",
                 newline="\n",
             ) as f:
-                f.write(utils.wrap_html(document_as_html))
+                f.write(utils.wrap_html(document_as_html), self.constants.DEFAULT_HTML_STYLES)
 
         # update various repository JSON files, update 'update_dict' with the JSON
         try:
