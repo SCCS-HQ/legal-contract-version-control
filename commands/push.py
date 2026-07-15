@@ -11,56 +11,41 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from constants_classes import ErrorWrappers, SCCSConstants
 import exceptions
 import requests
 import utils
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def get_matching_file_paths(filename: str,) -> list:
+def get_matching_file_paths(constants: SCCSConstants, Repo: RepositoryLayout, filename: str) -> list:
     """
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
 
     paths = []
-    for i in Repository.current_branch_data(key="updated_branches",) or []:
-        branch_dir = Repository.branches_path() / i
+    for i in Repo.current_branch_data(constants.UPDATED_BRANCHES_DICT_KEY):
+        branch_dir = Repo.branches_path() / i
         if branch_dir.is_dir():
-            f = branch_dir / filename / f"{filename}.json"
+            f = branch_dir / filename / (filename + constants.JSON_EXTENSION)
             if f.is_file():
                 paths.append(f.resolve())
     return paths
 
 
-def push_GET() -> requests.Response:
+def push_GET(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
-    url = f"{Repository.config_data('remote').rstrip("/")}/push"
-
+    url = constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
     try:
-        response = requests.get(url, timeout=60)
+        response = requests.get(url, timeout=constants.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
         raise exceptions.HTTPGetRequestError() from e
 
     return response
 
 
-def get_repo_objects(cwd: None | Path = None) -> list:
-    """
-    Return of list of every commit hash by iterating through the objects folder's file
-    stems, and removing duplicates with a set.
-    """
-
-    if cwd is None:
-        cwd = Path.cwd()
-    objects_dir = cwd / ".sccs" / "objects"
-    objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
-    return objects
-
-
-def compare_hash_lists(remote_objects: list) -> list:
+def compare_hash_lists(Repo: RepositoryLayout, remote_objects: list) -> list:
     """
     Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list
     of objects that remote is missing.
@@ -72,7 +57,7 @@ def compare_hash_lists(remote_objects: list) -> list:
     Return a list of objects that remote is missing.
     """
 
-    local_objects = get_repo_objects()
+    local_objects = Repo.repo_objects()
 
     obj_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
@@ -81,7 +66,7 @@ def compare_hash_lists(remote_objects: list) -> list:
     return obj_to_upload
 
 
-def zip_files_to_upload(remote_objects: list, cwd: None | Path = None) -> io.BytesIO:
+def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote_objects: list) -> io.BytesIO:
     """
     Create a temporary version of the repository with only the files in 'obj_to_upload'
     and metadata files, ensuring that the folder layout is left intact. Compress said
@@ -91,24 +76,19 @@ def zip_files_to_upload(remote_objects: list, cwd: None | Path = None) -> io.Byt
     layout as a repository.
     """
 
-    if cwd is None:
-        cwd = Path.cwd()
-    cwd = Path(cwd).resolve()
+    document_path = Repo.document_path()
 
-    document_path = [cwd / f"{cwd.name}.docx"]
-
-    repo_name = cwd.name   
-    current_branch_path = [cwd / ".sccs" / "current_branch" / "current_branch.json"]
-    commit_msgs_path = [cwd / ".sccs" / "commit_messages" / "commit_messages.json"]
-    obj_to_upload_set = set(compare_hash_lists(remote_objects))
+    current_branch_path = Repo.current_branch_path()
+    commit_messages_path = Repo.commit_messages_path()
+    obj_to_upload_set = set(compare_hash_lists(Repo, remote_objects))
     objects_paths = [
         i.resolve()
-        for i in (cwd / ".sccs" / "objects").rglob("*")
+        for i in (Repo.objects_path()).rglob(constants.RGLOB_ALL_FILES_PATTERN)
         if i.is_file() and i.stem in obj_to_upload_set
     ]
 
-    history_paths = get_matching_file_paths("history", cwd)
-    byte_hash_paths = get_matching_file_paths("commit_file_hash", cwd)
+    history_paths = get_matching_file_paths(constants, Repo, constants.HISTORY_DIR)
+    byte_hash_paths = get_matching_file_paths(constants, Repo, constants.COMMIT_FILE_HASH_DIR)
 
     files_to_upload = (
         objects_paths
@@ -116,16 +96,16 @@ def zip_files_to_upload(remote_objects: list, cwd: None | Path = None) -> io.Byt
         + byte_hash_paths
         + document_path
         + current_branch_path
-        + commit_msgs_path
+        + commit_messages_path
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_folder_path = Path(temp_dir) / f"tmp_{repo_name}"
+        tmp_folder_path = Path(temp_dir) / constants.TMP_DIR_TEMPLATE.format(repo_name=Repo.repo_name)
         for i in files_to_upload:
-            (tmp_folder_path / i.relative_to(cwd).parent).mkdir(
+            (tmp_folder_path / i.relative_to(Repo.root).parent).mkdir(
                 parents=True, exist_ok=True
             )
-            shutil.copy2(i, tmp_folder_path / i.relative_to(cwd))
+            shutil.copy2(i, tmp_folder_path / i.relative_to(Repo.root))
 
         buffer = io.BytesIO()
 
@@ -139,110 +119,112 @@ def zip_files_to_upload(remote_objects: list, cwd: None | Path = None) -> io.Byt
                         )
         except Exception as e:
             raise exceptions.ZippingFileError(
-                "Failed to zip current working directory"
+                constants.ZIPPING_FILE_ERROR_MESSAGE
             ) from e
 
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError("Failed to reset buffer position") from e
+            raise exceptions.BufferError(constants.BUFFER_RESET_ERROR_MESSAGE) from e
 
     return buffer
 
 
-def push_POST(buffer: io.BytesIO) -> requests.Response:
+def push_POST(constants: SCCSConstants, Repo: RepositoryLayout, buffer: io.BytesIO) -> requests.Response:
     """
     Make a POST request to 'remote', sending 'buffer' as a file.
 
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = Repository.config_data("remote").rstrip("/")
+    remote = Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
 
-    remote_path = urlsplit(remote).path.rstrip("/")
-    if not remote_path.endswith(f"/repos/{Path.cwd().name}"):
+    remote_path = urlsplit(remote).path.rstrip(constants.URL_PARTS_SEPARATOR)
+    if not remote_path.endswith(constants.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=Repo.repo_name)):
         raise exceptions.InvalidAPIURLError(
-            "API URL must end with '/repos/<repo_name>'"
+            constants.INVALID_PATH_ENDING_ERROR_MESSAGE
         )
 
     try:
         response = requests.post(
-            f"{remote}/push",
+            constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=remote),
             files=[
                 (
-                    "file",
+                    constants.FILE_RESOURCE,
                     (
-                        Path.cwd().name + ".zip",
+                        Repo.repo_name + constants.ZIP_EXTENSION,
                         buffer,
-                        "application/zip",
+                        constants.CONTENT_TYPE_ZIP,
                     ),
                 )
             ],
-            timeout=60,
+            timeout=constants.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
-            f"Failed to push to repository {remote}/push"
+            constants.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE.format(url=remote)
         ) from e
 
     return response
 
 
-def clear_updated_branches(cwd: None | Path = None) -> None:
+def clear_updated_branches(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Clear the updated branches list in the current branch file."""
 
-    if cwd is None:
-        cwd = Path.cwd()
 
-    data = Repository.current_branch_data(file_path=Repository.current_branch_path())
+    data = Repo.current_branch_data()
     if data is None:
         data = {}
-    data["updated_branches"] = []
+    data[constants.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:
-        with open(Repository.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
+        with open(Repo.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
             json.dump(data, f, indent=4)
     except Exception as e:
         raise exceptions.FileWriteError(
-            "Push successful, but failed to clear updated branches list in current "
-            "branch file."
-        ) from e
+            constants.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE
+    ) from e
 
 
-def main() -> None:
+def print_push_success_message(constants: SCCSConstants, response: requests.Response, url: str) -> None:
+    """Print a success message after pushing the repository."""
+
+    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(constants.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
+
+
+def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Run functions for the <sccs push> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    remote = Repository.config_data("remote").rstrip("/")
+    remote = Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
 
-    print(f" Pushing changes to remote repository at {remote}...\n")
-
-    GET_response = push_GET()
+    GET_response = push_GET(constants, Repo)
 
     GET_response.raise_for_status()
 
-    remote_objects = GET_response.json().get("objects", [])
+    remote_objects = GET_response.json()[constants.HTTP_OBJECTS_DATA_KEY]
     
-    buffer = zip_files_to_upload(remote_objects)
+    buffer = zip_files_to_upload(constants, Repo, remote_objects)
 
-    POST_response = push_POST(buffer)
-
-    print(f"Status code: {POST_response.status_code}\n")
+    POST_response = push_POST(constants, Repo, buffer)
 
     POST_response.raise_for_status()
-    print(f"Changes pushed successfully to {remote}/push\n")
 
-    clear_updated_branches()
-
+    clear_updated_branches(constants, Repo)
+    print_push_success_message(constants, POST_response, remote)
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)

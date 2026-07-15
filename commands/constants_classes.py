@@ -249,6 +249,19 @@ class SCCSConstants:
 
         #endregion
 
+        #region push.py
+
+        self.JSON_EXTENSION = ".json"
+        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+        self.TMP_DIR_TEMPLATE = "tmp_{repo_name}"
+        self.INVALID_URL_SCHEME_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
+        self.PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
+        self.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}"
+        self.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = "Push successful, but failed to clear updated branches list in current " "branch file."
+        self.PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}\n"
+
+        #endregion
+
         #region repository_layout.py
 
         ## error / status messages
