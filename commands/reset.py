@@ -8,42 +8,46 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def reset() -> None:
+def reset(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Delete all uncommitted changes."""
 
-    shutil.copy2(
-        Repository.current_branch().latest_commit_path("docx"),
-        Repository.document_path(),
-    )
+    try:
+        shutil.copy2(
+            Repo.current_branch().latest_commit_path(constants.DOCX_DIR),
+            Repo.document_path(),
+        )
+    except Exception as e:
+        raise exceptions.FileCopyError(constants.RESET_ERROR_MESSAGE) from e
+        
 
-
-def print_success_message() -> None:
+def print_success_message(constants: SCCSConstants) -> None:
     """Print a success message after resetting the document."""
     print(
-        "All uncommitted changes have been deleted. The document has been reset to the "
-        "latest commit.\n"
+        constants.RESET_SUCCESS_MESSAGE
     )
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Main function to handle the <reset> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    reset()
-    print_success_message()
+    reset(constants, Repo)
+    print_success_message(constants)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository)
     except exceptions.SCCSException as e:
-        print(f"Error: {e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
     except Exception as e:
-        print(f"An unexpected error occurred:\n{e}\n")
-        sys.exit(1)
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
+        sys.exit(2)

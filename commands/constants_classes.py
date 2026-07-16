@@ -312,6 +312,13 @@ class SCCSConstants:
 
         #endregion
 
+        #region reset.py
+        
+        self.RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit.\n"
+        self.RESET_ERROR_MESSAGE = "Failed to reset the document."
+
+        #endregion
+
         #region Shared (referenced by 2+ command modules)
 
         self.DEFAULT_HTML_STYLES = ("<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>")
