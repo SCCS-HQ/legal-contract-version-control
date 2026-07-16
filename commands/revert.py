@@ -7,53 +7,62 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def revert() -> None:
+def revert(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    src = Repository.commit_path("docx", commit=utils.entered_argument(2))
+    src = Repo.commit_file(commit_hash, constants.DOCX_DIR)
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
-            f"Source file '{src.stem}' does not exist."
+            constants.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_name=src.stem)
         )
 
-    shutil.copy2(src, Repository.document_path)
+    try:
+        shutil.copy2(src, Repo.document_path())
+    except Exception as e:
+        raise exceptions.FileCopyError from e
 
 
-def print_revert_confirmation_message() -> None:
+def print_revert_confirmation_message(constants: SCCSConstants, commit_hash: str, new_commit_hash: str) -> None:
     """Print a confirmation message for the revert."""
 
     print(
-        f"Document successfully reverted to commit '{utils.entered_argument(2).stem[:10]}' on commit "
-        f"'{Repository.commit_changes(
-        f"Revert to commit '{utils.entered_argument(2).stem}'")[:10]}'.\n"
+        constants.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(commit_hash=commit_hash, new_commit_hash=new_commit_hash)
     )
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str) -> None:
     """Main function to handle the revert command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    Repository.check_for_uncommitted_changes("revert")
+    Repo.check_for_uncommitted_changes()
 
-    revert()
+    revert(constants, Repo, commit_hash)
 
-    print_revert_confirmation_message()
+    commit_hash = Repo.commit_file(commit_hash, constants.DOCX_DIR, hash_10_char=True)
+
+    new_commit_hash = Repo.commit_changes(
+        constants.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_hash)
+    )
+
+    print_revert_confirmation_message(constants, commit_hash, new_commit_hash)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
