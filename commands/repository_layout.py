@@ -238,7 +238,7 @@ class RepositoryLayout:
         
         commit = Path(str(commit).strip())
 
-        if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
+        if len(commit.stem.strip()) != self.constants.FULL_COMMIT_HASH_LENGTH and len(commit.stem.strip()) != self.constants.COMMIT_HASH_DISPLAY_LENGTH:
             raise exceptions.InvalidArgumentError(
                 self.constants.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
@@ -612,7 +612,7 @@ class RepositoryLayout:
                 encoding="utf-8",
                 newline="\n",
             ) as f:
-                f.write(utils.wrap_html(document_as_html), self.constants.DEFAULT_HTML_STYLES)
+                f.write(utils.wrap_html(self.constants, document_as_html, self.constants.DEFAULT_HTML_STYLES))
 
         # update various repository JSON files, update 'update_dict' with the JSON
         try:

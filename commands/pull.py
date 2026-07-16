@@ -18,7 +18,6 @@ def pull(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
     data = {constants.HTTP_OBJECTS_DATA_KEY: repo.repo_objects()}
-    # url = f"{repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)}/pull"
     url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
 
     try:

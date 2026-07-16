@@ -143,14 +143,14 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
     try:
         shutil.copy2(
             docx_path,
-            (objects_path / constants.DOCX_DIR / f"{sha_hash}.docx"),
+            (objects_path / constants.DOCX_DIR / (sha_hash + constants.DOCX_EXTENSION)),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
     try:
         with open(
-            (objects_path / constants.HTML_DIR / f"{sha_hash}.html"),
+            (objects_path / constants.HTML_DIR / (sha_hash + constants.HTML_EXTENSION)),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -166,7 +166,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
             encoding="utf-8",
             newline="\n",
         ) as f:
-            f.write(utils.wrap_html(result), constants.DEFAULT_HTML_STYLES)
+            f.write(utils.wrap_html(constants, result, constants.DEFAULT_HTML_STYLES))
     except Exception as e:
         raise exceptions.FileWriteError from e
 

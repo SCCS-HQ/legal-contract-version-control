@@ -22,14 +22,13 @@ def clean_directory_name(name: str) -> str:
     return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
 
 
-def wrap_html(html: str, styles: str) -> str:
+def wrap_html(constants: SCCSConstants, html: str, styles: str) -> str:
     """
     Return a wrapped HTML content in a complete document template using 'styles'. This
     requires 'html' to already include proper 'class' attributes.
     """
     return (
-        f"<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head>"
-        f"<body><div class='center'><div id='target'>{html}</div></div></body></html>"
+        constants.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
     )
 
 

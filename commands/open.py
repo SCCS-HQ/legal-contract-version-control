@@ -16,8 +16,8 @@ def validate_commit_hash(constants: SCCSConstants, commit_hash: str) -> None:
     Validate the commit hash format.
     """
 
-    if not commit_hash or not len(commit_hash) == 10 or not len(commit_hash) == 64 or not all(c in "0123456789abcdef" for c in commit_hash):
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_FILE_FIELD_NAME)) from e
+    if not commit_hash or not len(commit_hash) == constants.COMMIT_HASH_DISPLAY_LENGTH and not len(commit_hash) == constants.FULL_COMMIT_HASH_LENGTH or not all(c in constants.HEX_DIGITS for c in commit_hash):
+        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_FILE_FIELD_NAME))
 
 
 def copy_file_commit(constants: SCCSConstants, commit_hash: str, commit_path: Path) -> None:

@@ -153,7 +153,7 @@ class SCCSConstants:
         #region clone.py
 
         ## endpoints and timeouts
-        self.CLONE_ENDPOINT = "clone"
+        self.CLONE_ENDPOINT = "/clone/"
 
         ## error messages
         self.INVALID_ENDING_ERROR_MESSAGE = (
@@ -251,6 +251,10 @@ class SCCSConstants:
         #region init.py
 
         ## hash segments
+        self.HTML_BOILERPLATE_TEMPLATE = "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
+        self.HEX_DIGITS = "0123456789abcdef"   
+        self.FULL_COMMIT_HASH_LENGTH = 64
+        self.HTML_EXTENSION = ".html"
         self.INITIAL_VERSION_HASH_SEGMENT = "initial_version"
 
         ## runtime defaults
