@@ -30,11 +30,11 @@ def print_log(constants: SCCSConstants, history_data: dict) -> None:
         )
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs log> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    print_log(constants, Repo.current_branch().history_data())
+    print_log(constants, repo.current_branch().history_data())
 
 
 if __name__ == "__main__":

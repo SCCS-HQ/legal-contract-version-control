@@ -68,17 +68,17 @@ def print_config_confirmation_message(constants: SCCSConstants, key: str, value:
     print(constants.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str, value: str) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout, key: str, value: str) -> None:
     """Run functions for the <sccs config> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    repo_name = Repo.repo_name
+    repo_name = repo.repo_name
     
     validate_entered_value(constants, repo_name, key, value)
 
     value = resolve_key_value(constants, repo_name, key, value)
 
-    Repo.write_key_to_config(key, value)
+    repo.write_key_to_config(key, value)
 
     print_config_confirmation_message(constants, key, value)
 

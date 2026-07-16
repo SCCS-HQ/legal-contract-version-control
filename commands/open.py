@@ -47,15 +47,15 @@ def print_rewrite_confirmation_message(constants: SCCSConstants, commit_hash: st
     )
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str | None = None) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str | None = None) -> None:
     """Run functions for the <sccs open> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
 
     validate_commit_hash(constants, commit_hash)
 
-    commit_path = Repo.commit_file(commit_hash, constants.DOCX_DIR)
+    commit_path = repo.commit_file(commit_hash, constants.DOCX_DIR)
 
     commit_hash = commit_path.stem[:10]
 

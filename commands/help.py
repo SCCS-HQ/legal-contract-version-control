@@ -17,9 +17,9 @@ def print_help(constants: SCCSConstants) -> None:
         print(i)
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs help> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
     print_help(constants)
 

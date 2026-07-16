@@ -12,13 +12,13 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def reset(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def reset(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Delete all uncommitted changes."""
 
     try:
         shutil.copy2(
-            Repo.current_branch().latest_commit_path(constants.DOCX_DIR),
-            Repo.document_path(),
+            repo.current_branch().latest_commit_path(constants.DOCX_DIR),
+            repo.document_path(),
         )
     except Exception as e:
         raise exceptions.FileCopyError(constants.RESET_ERROR_MESSAGE) from e
@@ -31,11 +31,11 @@ def print_success_message(constants: SCCSConstants) -> None:
     )
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Main function to handle the <reset> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    reset(constants, Repo)
+    reset(constants, repo)
     print_success_message(constants)
 
 

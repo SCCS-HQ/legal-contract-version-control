@@ -10,7 +10,7 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants, ErrorWrappers
 
 
-def print_commit_confirmation_message(constants: SCCSConstants, Repo: RepositoryLayout, sha_hash) -> None:
+def print_commit_confirmation_message(constants: SCCSConstants, repo: RepositoryLayout, sha_hash) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
@@ -25,15 +25,15 @@ def validate_commit_message(constants: SCCSConstants, commit_message: str) -> No
         raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_MESSAGE_FIELD_NAME))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout, commit_message: str) -> None:
     """Run functions for the <sccs commit> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
     validate_commit_message(constants, commit_message)
 
-    sha_hash = Repo.commit_changes(commit_message)
+    sha_hash = repo.commit_changes(commit_message)
 
-    print_commit_confirmation_message(constants, Repo, sha_hash)
+    print_commit_confirmation_message(constants, repo, sha_hash)
 
 
 if __name__ == "__main__":

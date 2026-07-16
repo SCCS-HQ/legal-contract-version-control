@@ -11,7 +11,7 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants, ErrorWrappers
 
 
-def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str, branch_name: str) -> None:
+def validate_subcommand(constants: SCCSConstants, repo: RepositoryLayout, subcommand: str, branch_name: str) -> None:
     """
     Raise an exception if the subcommand is invalid or if required arguments are
     missing.
@@ -34,24 +34,24 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
             )
         
     if subcommand == constants.CREATE_SUBCOMMAND:
-        if Repo.branch_exists(branch_name):
+        if repo.branch_exists(branch_name):
             raise exceptions.BranchAlreadyExistsError(
                 constants.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
             )
         
     if subcommand == constants.DELETE_SUBCOMMAND:
-        if Repo.is_current_branch(branch_name):
+        if repo.is_current_branch(branch_name):
             raise exceptions.BranchDeletionError(
                 constants.CURRENT_BRANCH_DELETION_ERROR_MESSAGE
             )
 
-        if not Repo.branch_exists(branch_name):
+        if not repo.branch_exists(branch_name):
             raise exceptions.BranchMissingFromMetadataError(
                 constants.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
             )
 
 
-def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str, current_branch_name: str) -> None:
+def branch_create_subcommand(constants: SCCSConstants, repo: RepositoryLayout, branch_name: str, current_branch_name: str) -> None:
     """
     Create a new branch from the current branch. The new branch will have the same
     commit history and metadata as the current branch.
@@ -61,72 +61,72 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
         
         
         shutil.copytree(
-            Repo.branch_path(current_branch_name),
-            Repo.branch_path(branch_name),
+            repo.branch_path(current_branch_name),
+            repo.branch_path(branch_name),
         )
-        Repo.add_to_branches_list(branch_name)
-        Repo.set_current_branch(branch_name)
+        repo.add_to_branches_list(branch_name)
+        repo.set_current_branch(branch_name)
     except Exception as e:
-        rollback_changes_after_failure(constants, Repo, branch_name, constants.CREATE_SUBCOMMAND)
+        rollback_changes_after_failure(constants, repo, branch_name, constants.CREATE_SUBCOMMAND)
         raise exceptions.FileCopyError(constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=constants.CREATE_SUBCOMMAND)) from e
 
     print_branch_create_success_message(constants, branch_name, current_branch_name)
 
 
-def branch_delete_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str) -> None:
+def branch_delete_subcommand(constants: SCCSConstants, repo: RepositoryLayout, branch_name: str) -> None:
     """
     Delete an existing branch.
     """
 
-    branch_path = Repo.branch_path(branch_name)
+    branch_path = repo.branch_path(branch_name)
 
     try:
-        Repo.remove_from_branches_list(branch_name)
+        repo.remove_from_branches_list(branch_name)
         shutil.rmtree(branch_path)
     except Exception as e:
-        rollback_changes_after_failure(constants, Repo, branch_name, constants.DELETE_SUBCOMMAND)       
+        rollback_changes_after_failure(constants, repo, branch_name, constants.DELETE_SUBCOMMAND)       
         raise exceptions.FileDeleteError(constants.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=constants.DELETE_SUBCOMMAND)) from e
 
     print_branch_delete_success_message(constants, branch_name)
 
 
-def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLayout, branch_name: str, subcommand: str) -> None:
+def rollback_changes_after_failure(constants: SCCSConstants, repo: RepositoryLayout, branch_name: str, subcommand: str) -> None:
     """
     Rollback changes after a failed branch deletion.
     If an error occurs during branch deletion, the branch metadata will be rolled back
     to include the deleted branch again.
     """
 
-    branch_path = Repo.branch_path(branch_name)
+    branch_path = repo.branch_path(branch_name)
 
     try:
         if subcommand == constants.CREATE_SUBCOMMAND:
-            Repo.remove_from_branches_list(branch_name)
-            Repo.set_current_branch(constants.MAIN_BRANCH_NAME)
+            repo.remove_from_branches_list(branch_name)
+            repo.set_current_branch(constants.MAIN_BRANCH_NAME)
             shutil.rmtree(branch_path)
         if subcommand == constants.DELETE_SUBCOMMAND:
-            Repo.add_to_branches_list(branch_name)
+            repo.add_to_branches_list(branch_name)
     except Exception as e:
         raise exceptions.UpdatingMetadataError(
             constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
         ) from e
     
 
-def branch_list_subcommand(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def branch_list_subcommand(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """
     Print a list of all branches, indicating the current branch found in the repository
     metadata.
     """
 
     print(constants.BRANCHES_DIR_LIST_HEADER)
-    for i in Repo.list_branches():
-        if i == Repo.current_branch_name():
+    for i in repo.list_branches():
+        if i == repo.current_branch_name():
             print(constants.CURRENT_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
         else:
             print(constants.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
 
 
-def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str, branch_name: str, current_branch_name: str) -> None:
+def run_specified_subcommand(constants: SCCSConstants, repo: RepositoryLayout, subcommand: str, branch_name: str, current_branch_name: str) -> None:
     """
     Run the specified subcommand by reading the subcommand entered:
 
@@ -138,11 +138,11 @@ def run_specified_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, s
     """
 
     if subcommand == constants.CREATE_SUBCOMMAND:
-        branch_create_subcommand(constants, Repo, branch_name, current_branch_name)
+        branch_create_subcommand(constants, repo, branch_name, current_branch_name)
     elif subcommand == constants.DELETE_SUBCOMMAND:
-        branch_delete_subcommand(constants, Repo, branch_name)
+        branch_delete_subcommand(constants, repo, branch_name)
     elif subcommand == constants.LIST_SUBCOMMAND:
-        branch_list_subcommand(constants, Repo)
+        branch_list_subcommand(constants, repo)
 
 
 def print_branch_delete_success_message(constants: SCCSConstants, branch_name):
@@ -159,19 +159,19 @@ def print_branch_create_success_message(constants: SCCSConstants, branch_name: s
 
 def main(
         constants: SCCSConstants,
-        Repo: RepositoryLayout,
+        repo: RepositoryLayout,
         subcommand: str,
         branch_name: str
     ) -> None:
 
     """Run functions for the <sccs branch> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
     
-    validate_subcommand(constants, Repo, subcommand, branch_name)
+    validate_subcommand(constants, repo, subcommand, branch_name)
 
-    run_specified_subcommand(constants, Repo, subcommand, branch_name, Repo.current_branch_name())
+    run_specified_subcommand(constants, repo, subcommand, branch_name, repo.current_branch_name())
 
 
 if __name__ == "__main__":

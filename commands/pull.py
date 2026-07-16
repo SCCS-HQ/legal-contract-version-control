@@ -14,12 +14,12 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def pull(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
+def pull(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = {constants.HTTP_OBJECTS_DATA_KEY: Repo.repo_objects()}
-    # url = f"{Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)}/pull"
-    url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    data = {constants.HTTP_OBJECTS_DATA_KEY: repo.repo_objects()}
+    # url = f"{repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)}/pull"
+    url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
 
     try:
         response = requests.post(url, json=data, timeout=constants.HTTP_TIMEOUT_SECONDS)
@@ -47,15 +47,15 @@ def print_pull_success_message(constants: SCCSConstants, response: requests.Resp
     print(constants.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs pull> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
 
-    remote = Repo.config_data(constants.REMOTE_KEY)
+    remote = repo.config_data(constants.REMOTE_KEY)
     
-    response = pull(constants, Repo)
+    response = pull(constants, repo)
     response.raise_for_status()
 
     update_repo_files(response)

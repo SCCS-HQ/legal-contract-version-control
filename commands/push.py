@@ -18,14 +18,14 @@ import utils
 from repository_layout import RepositoryLayout
 
 
-def get_matching_file_paths(constants: SCCSConstants, Repo: RepositoryLayout, filename: str) -> list:
+def get_matching_file_paths(constants: SCCSConstants, repo: RepositoryLayout, filename: str) -> list:
     """
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
 
     paths = []
-    for i in Repo.current_branch_data(constants.UPDATED_BRANCHES_DICT_KEY):
-        branch_dir = Repo.branches_path() / i
+    for i in repo.current_branch_data(constants.UPDATED_BRANCHES_DICT_KEY):
+        branch_dir = repo.branches_path() / i
         if branch_dir.is_dir():
             f = branch_dir / filename / (filename + constants.JSON_EXTENSION)
             if f.is_file():
@@ -33,10 +33,10 @@ def get_matching_file_paths(constants: SCCSConstants, Repo: RepositoryLayout, fi
     return paths
 
 
-def push_GET(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
+def push_GET(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
-    url = constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    url = constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
     try:
         response = requests.get(url, timeout=constants.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
@@ -45,7 +45,7 @@ def push_GET(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Respo
     return response
 
 
-def compare_hash_lists(Repo: RepositoryLayout, remote_objects: list) -> list:
+def compare_hash_lists(repo: RepositoryLayout, remote_objects: list) -> list:
     """
     Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list
     of objects that remote is missing.
@@ -57,7 +57,7 @@ def compare_hash_lists(Repo: RepositoryLayout, remote_objects: list) -> list:
     Return a list of objects that remote is missing.
     """
 
-    local_objects = Repo.repo_objects()
+    local_objects = repo.repo_objects()
 
     obj_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
@@ -66,7 +66,7 @@ def compare_hash_lists(Repo: RepositoryLayout, remote_objects: list) -> list:
     return obj_to_upload
 
 
-def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote_objects: list) -> io.BytesIO:
+def zip_files_to_upload(constants: SCCSConstants, repo: RepositoryLayout, remote_objects: list) -> io.BytesIO:
     """
     Create a temporary version of the repository with only the files in 'obj_to_upload'
     and metadata files, ensuring that the folder layout is left intact. Compress said
@@ -76,19 +76,19 @@ def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote
     layout as a repository.
     """
 
-    document_path = Repo.document_path()
+    document_path = repo.document_path()
 
-    current_branch_path = Repo.current_branch_path()
-    commit_messages_path = Repo.commit_messages_path()
-    obj_to_upload_set = set(compare_hash_lists(Repo, remote_objects))
+    current_branch_path = repo.current_branch_path()
+    commit_messages_path = repo.commit_messages_path()
+    obj_to_upload_set = set(compare_hash_lists(repo, remote_objects))
     objects_paths = [
         i.resolve()
-        for i in (Repo.objects_path()).rglob(constants.RGLOB_ALL_FILES_PATTERN)
+        for i in (repo.objects_path()).rglob(constants.RGLOB_ALL_FILES_PATTERN)
         if i.is_file() and i.stem in obj_to_upload_set
     ]
 
-    history_paths = get_matching_file_paths(constants, Repo, constants.HISTORY_DIR)
-    byte_hash_paths = get_matching_file_paths(constants, Repo, constants.COMMIT_FILE_HASH_DIR)
+    history_paths = get_matching_file_paths(constants, repo, constants.HISTORY_DIR)
+    byte_hash_paths = get_matching_file_paths(constants, repo, constants.COMMIT_FILE_HASH_DIR)
 
     files_to_upload = (
         objects_paths
@@ -100,12 +100,12 @@ def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_folder_path = Path(temp_dir) / constants.TMP_DIR_TEMPLATE.format(repo_name=Repo.repo_name)
+        tmp_folder_path = Path(temp_dir) / constants.TMP_DIR_TEMPLATE.format(repo_name=repo.repo_name)
         for i in files_to_upload:
-            (tmp_folder_path / i.relative_to(Repo.root).parent).mkdir(
+            (tmp_folder_path / i.relative_to(repo.root).parent).mkdir(
                 parents=True, exist_ok=True
             )
-            shutil.copy2(i, tmp_folder_path / i.relative_to(Repo.root))
+            shutil.copy2(i, tmp_folder_path / i.relative_to(repo.root))
 
         buffer = io.BytesIO()
 
@@ -130,17 +130,17 @@ def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote
     return buffer
 
 
-def push_POST(constants: SCCSConstants, Repo: RepositoryLayout, buffer: io.BytesIO) -> requests.Response:
+def push_POST(constants: SCCSConstants, repo: RepositoryLayout, buffer: io.BytesIO) -> requests.Response:
     """
     Make a POST request to 'remote', sending 'buffer' as a file.
 
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
+    remote = repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
 
     remote_path = urlsplit(remote).path.rstrip(constants.URL_PARTS_SEPARATOR)
-    if not remote_path.endswith(constants.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=Repo.repo_name)):
+    if not remote_path.endswith(constants.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=repo.repo_name)):
         raise exceptions.InvalidAPIURLError(
             constants.INVALID_PATH_ENDING_ERROR_MESSAGE
         )
@@ -152,7 +152,7 @@ def push_POST(constants: SCCSConstants, Repo: RepositoryLayout, buffer: io.Bytes
                 (
                     constants.POST_FILE_FIElD_NAME,
                     (
-                        Repo.repo_name + constants.ZIP_EXTENSION,
+                        repo.repo_name + constants.ZIP_EXTENSION,
                         buffer,
                         constants.CONTENT_TYPE_ZIP,
                     ),
@@ -168,17 +168,17 @@ def push_POST(constants: SCCSConstants, Repo: RepositoryLayout, buffer: io.Bytes
     return response
 
 
-def clear_updated_branches(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def clear_updated_branches(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Clear the updated branches list in the current branch file."""
 
 
-    data = Repo.current_branch_data()
+    data = repo.current_branch_data()
     if data is None:
         data = {}
     data[constants.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:
-        with open(Repo.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
+        with open(repo.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
             json.dump(data, f, indent=4)
     except Exception as e:
         raise exceptions.FileWriteError(
@@ -193,25 +193,25 @@ def print_push_success_message(constants: SCCSConstants, response: requests.Resp
     print(constants.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs push> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    remote = Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
+    remote = repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
 
-    GET_response = push_GET(constants, Repo)
+    GET_response = push_GET(constants, repo)
 
     GET_response.raise_for_status()
 
     remote_objects = GET_response.json()[constants.HTTP_OBJECTS_DATA_KEY]
     
-    buffer = zip_files_to_upload(constants, Repo, remote_objects)
+    buffer = zip_files_to_upload(constants, repo, remote_objects)
 
-    POST_response = push_POST(constants, Repo, buffer)
+    POST_response = push_POST(constants, repo, buffer)
 
     POST_response.raise_for_status()
 
-    clear_updated_branches(constants, Repo)
+    clear_updated_branches(constants, repo)
     print_push_success_message(constants, POST_response, remote)
 
 if __name__ == "__main__":

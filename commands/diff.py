@@ -251,17 +251,17 @@ def print_diff_success_message(constants: SCCSConstants):
 
 def main(
         constants: SCCSConstants,
-        Repo: RepositoryLayout,
+        repo: RepositoryLayout,
         commit_hash: str,
     ) -> None:
     """Run functions for the <sccs diff> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
 
-    commit_soup = convert_html_to_soup(constants, Repo.commit_file(commit_hash, constants.HTML_DIR))
+    commit_soup = convert_html_to_soup(constants, repo.commit_file(commit_hash, constants.HTML_DIR))
 
-    current_version_soup = convert_html_to_soup(constants, Repo.convert_docx_to_html())
+    current_version_soup = convert_html_to_soup(constants, repo.convert_docx_to_html())
 
     past_version = tags_to_list(remove_inline_semantics(constants, commit_soup))
 
@@ -275,7 +275,7 @@ def main(
 
     redline_soup = format_redline_html(constants, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
 
-    Repo.write_diff_html_file(
+    repo.write_diff_html_file(
         utils.wrap_html(str(strip_number_attribute(constants, redline_soup), constants.DEFAULT_HTML_STYLES))
     )
 

@@ -11,10 +11,10 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def revert(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str) -> None:
+def revert(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    src = Repo.commit_file(commit_hash, constants.DOCX_DIR)
+    src = repo.commit_file(commit_hash, constants.DOCX_DIR)
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
@@ -22,7 +22,7 @@ def revert(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str) -
         )
 
     try:
-        shutil.copy2(src, Repo.document_path())
+        shutil.copy2(src, repo.document_path())
     except Exception as e:
         raise exceptions.FileCopyError from e
 
@@ -35,17 +35,17 @@ def print_revert_confirmation_message(constants: SCCSConstants, commit_hash: str
     )
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_hash: str) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
     """Main function to handle the revert command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
 
-    revert(constants, Repo, commit_hash)
+    revert(constants, repo, commit_hash)
 
-    commit_hash = Repo.commit_file(commit_hash, constants.DOCX_DIR, hash_10_char=True)
+    commit_hash = repo.commit_file(commit_hash, constants.DOCX_DIR, hash_10_char=True)
 
-    new_commit_hash = Repo.commit_changes(
+    new_commit_hash = repo.commit_changes(
         constants.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_hash)
     )
 

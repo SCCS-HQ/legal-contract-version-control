@@ -19,11 +19,11 @@ def print_status_message(constants: SCCSConstants, uncommitted_changes: bool) ->
         print(constants.NO_UNCOMMITTED_CHANGES)
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs status> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    uncommitted_changes = Repo.check_for_uncommitted_changes(raise_on_changes=False)
+    uncommitted_changes = repo.check_for_uncommitted_changes(raise_on_changes=False)
 
     print_status_message(constants, uncommitted_changes)
 

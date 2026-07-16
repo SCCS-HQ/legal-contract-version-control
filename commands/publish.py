@@ -16,13 +16,13 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def reset_current_branch(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def reset_current_branch(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """
     Modify the document metadata to set the current branch to 'main' in preparation
     for publishing.
     """
 
-    Repo.set_current_branch(constants.MAIN_BRANCH_NAME)
+    repo.set_current_branch(constants.MAIN_BRANCH_NAME)
 
 
 def zip_cwd(constants: SCCSConstants) -> io.BytesIO:
@@ -89,15 +89,15 @@ def print_publish_success_message(constants: SCCSConstants, response: requests.R
     print(constants.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
+def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs publish> command."""
-    Repo.check_repository_layout()
+    repo.check_repository_layout()
 
-    Repo.check_for_uncommitted_changes()
+    repo.check_for_uncommitted_changes()
 
-    reset_current_branch(constants, Repo)
+    reset_current_branch(constants, repo)
 
-    url = constants.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=Repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    url = constants.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
 
     repo_zip = zip_cwd(constants)
     response = post_repo(constants, repo_zip, url)
