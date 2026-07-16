@@ -327,6 +327,32 @@ class SCCSConstants:
 
         #endregion
 
+        #region sccs(sh)
+
+        self.COMMANDS_LIST = [
+            "branch",
+            "clone",
+            "commit",
+            "config",
+            "diff",
+            "help",
+            "init",
+            "log",
+            "merge",
+            "open",
+            "publish",
+            "pull",
+            "push",
+            "reset",
+            "revert",
+            "status",
+            "switch",
+        ]
+        self.PYTHON_EXTENSION = ".py"
+        self.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {entered_command}. Please use clone, commit, config, diff, help, init, log, merge, open, publish, pull, push, reset, revert, status, switch, along with required arguments. For help, use the 'sccs help' command."
+
+        #endregion
+
         #region Shared (referenced by 2+ command modules)
 
         self.DEFAULT_HTML_STYLES = ("<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>")

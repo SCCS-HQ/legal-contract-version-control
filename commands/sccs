@@ -7,26 +7,7 @@ from pathlib import Path
 
 import exceptions
 import utils
-
-COMMANDS = [
-    "init",
-    "commit",
-    "open",
-    "log",
-    "diff",
-    "status",
-    "help",
-    "branch",
-    "switch",
-    "publish",
-    "clone",
-    "config",
-    "revert",
-    "reset",
-    "push",
-    "pull",
-    "merge",
-]
+from constants_classes import SCCSConstants, ErrorWrappers
 
 
 def get_script_directory() -> Path:
@@ -34,7 +15,7 @@ def get_script_directory() -> Path:
     return Path(__file__).parent.resolve()
 
 
-def run_command() -> None:
+def run_command(constants: SCCSConstants, entered_command: str) -> None:
     """
     Run the entered command by running a subprocess of the command and exiting with the
     exit code of the subprocess.
@@ -42,44 +23,40 @@ def run_command() -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            get_script_directory() / f"{utils.entered_argument(1)}.py"]
+            get_script_directory() / entered_command + constants.PYTHON_EXTENSION,]
              + sys.argv[1:]
         ).returncode
     )
 
 
-def execute_command() -> None:
+def validate_command(constants: SCCSConstants, entered_command: str) -> None:
     """
     Ensure 'command' is valid by checking if it is included in 'COMMANDS'. If command'
     is valid, run it with 'run_command()'.
     """
 
-    command = utils.entered_argument(1)
-
-    if command not in COMMANDS:
+    if entered_command not in constants.COMMANDS_LIST:
         raise exceptions.UnknownCommandError(
-            f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
-            f"'diff', 'status', 'help', 'branch', 'switch', 'clone', 'config', 'revert'"
-            f",'reset', 'push', 'pull', or 'merge', along with required arguments. For help, use the 'sccs help' "
-            f"command."
+            constants.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(entered_command=entered_command)
         )
-    run_command()
 
 
-def main() -> None:
-    execute_command()
+def main(constants: SCCSConstants, entered_command: str) -> None:
+    validate_command(constants, entered_command)
+    run_command(constants, entered_command)
 
 
 if __name__ == "__main__":
     try:
-        main()
-
+        constants = SCCSConstants()
+        error_wrappers = ErrorWrappers()
+        main(constants, utils.entered_argument(1))
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
 
 # If on MacOS / Linux, move this file, commit.py, init.py, open.py, log.py, diff.py,
