@@ -57,7 +57,7 @@ def main(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str | No
 
     commit_path = repo.commit_file(commit_hash, constants.DOCX_DIR)
 
-    commit_hash = commit_path.stem[:10]
+    commit_hash = commit_path.stem[constants.COMMIT_HASH_DISPLAY_LENGTH]
 
     copy_file_commit(constants, commit_hash, commit_path)
 

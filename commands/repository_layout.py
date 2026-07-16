@@ -273,7 +273,7 @@ class RepositoryLayout:
         
         if hash_10_char:
             self._set_branch_name(None)
-            return matching_files[0].stem[:10]
+            return matching_files[0].stem[self.constants.COMMIT_HASH_DISPLAY_LENGTH]
         
 
 
