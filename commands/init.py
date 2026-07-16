@@ -320,15 +320,4 @@ def main(constants: SCCSConstants, docx_path: str) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        constants = SCCSConstants()
-        error_wrappers = ErrorWrappers()
-        main(constants, utils.entered_argument(2))
-
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(1)
-
-    except Exception as e:
-        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
-        sys.exit(2)
+    utils.run_command(main, 2, use_RepositoryLayout=False)

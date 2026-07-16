@@ -29,16 +29,4 @@ def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        constants = SCCSConstants()
-        repository = RepositoryLayout(Path.cwd(), constants)
-        error_wrappers = ErrorWrappers()
-        main(repository)
-
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(1)
-
-    except Exception as e:
-        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
-        sys.exit(2)
+    utils.run_command(main)
