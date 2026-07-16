@@ -4,7 +4,6 @@
 import sys
 from pathlib import Path
 
-from commands import constants_classes
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
