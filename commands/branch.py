@@ -42,7 +42,7 @@ def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcom
     if subcommand == constants.DELETE_SUBCOMMAND:
         if Repo.is_current_branch(branch_name):
             raise exceptions.BranchDeletionError(
-                constants.CURRENT_BRANCH_DIR_DELETION_ERROR_MESSAGE
+                constants.CURRENT_BRANCH_DELETION_ERROR_MESSAGE
             )
 
         if not Repo.branch_exists(branch_name):
@@ -102,7 +102,7 @@ def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLay
     try:
         if subcommand == constants.CREATE_SUBCOMMAND:
             Repo.remove_from_branches_list(branch_name)
-            Repo.set_current_branch(constants.MAIN_BRANCH_ATTRIBUTE)
+            Repo.set_current_branch(constants.MAIN_BRANCH_NAME)
             shutil.rmtree(branch_path)
         if subcommand == constants.DELETE_SUBCOMMAND:
             Repo.add_to_branches_list(branch_name)

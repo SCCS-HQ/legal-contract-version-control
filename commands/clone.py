@@ -71,7 +71,7 @@ def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str) -> N
 def print_clone_success_message(constants: SCCSConstants, response: requests.Response) -> None:
     """Print a success message after cloning the repository."""
 
-    print(constants.STATUS_CODE_MESSAGE + str(response.status_code))
+    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(constants.CLONE_SUCCESS_MESSAGE)
 
 

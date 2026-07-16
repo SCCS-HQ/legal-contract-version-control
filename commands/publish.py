@@ -22,7 +22,7 @@ def reset_current_branch(constants: SCCSConstants, Repo: RepositoryLayout) -> No
     for publishing.
     """
 
-    Repo.set_current_branch(constants.MAIN_BRANCH_ATTRIBUTE)
+    Repo.set_current_branch(constants.MAIN_BRANCH_NAME)
 
 
 def zip_cwd(constants: SCCSConstants) -> io.BytesIO:
@@ -48,7 +48,7 @@ def zip_cwd(constants: SCCSConstants) -> io.BytesIO:
     try:
         buffer.seek(0)
     except Exception as e:
-        raise exceptions.BufferError(constants.BUFFER_RESET_ERROR_MESSAGE) from e
+        raise exceptions.BufferError(constants.BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 
@@ -72,14 +72,14 @@ def post_repo(constants: SCCSConstants, repo_zip: io.BytesIO, url: str) -> reque
         response = requests.post(
             url,
             files=[
-                (constants.FILE_RESOURCE, (Path.cwd().name + constants.ZIP_EXTENSION, repo_zip, constants.CONTENT_TYPE_ZIP)),
-                (constants.DATA_RESOURCE, (None, json.dumps({constants.REMOTE_KEY: url}), constants.CONTENT_TYPE_JSON)),
+                (constants.POST_FILE_FIElD_NAME, (Path.cwd().name + constants.ZIP_EXTENSION, repo_zip, constants.CONTENT_TYPE_ZIP)),
+                (constants.POST_DATA_FIELD_NAME, (None, json.dumps({constants.REMOTE_KEY: url}), constants.CONTENT_TYPE_JSON)),
             ],
             timeout=constants.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
-            constants.HTTP_POST_REQUEST_ERROR_MESSAGE.format(url=url)
+            constants.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)
         ) from e
     return response
 

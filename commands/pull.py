@@ -24,7 +24,7 @@ def pull(constants: SCCSConstants, Repo: RepositoryLayout) -> requests.Response:
     try:
         response = requests.post(url, json=data, timeout=constants.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(constants.HTTP_POST_REQUEST_ERROR_MESSAGE.format(url=url)) from e
+        raise exceptions.HTTPPostRequestError(constants.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)) from e
 
     return response
 

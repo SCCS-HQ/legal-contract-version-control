@@ -125,7 +125,7 @@ def zip_files_to_upload(constants: SCCSConstants, Repo: RepositoryLayout, remote
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError(constants.BUFFER_RESET_ERROR_MESSAGE) from e
+            raise exceptions.BufferError(constants.BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 
@@ -150,7 +150,7 @@ def push_POST(constants: SCCSConstants, Repo: RepositoryLayout, buffer: io.Bytes
             constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=remote),
             files=[
                 (
-                    constants.FILE_RESOURCE,
+                    constants.POST_FILE_FIElD_NAME,
                     (
                         Repo.repo_name + constants.ZIP_EXTENSION,
                         buffer,

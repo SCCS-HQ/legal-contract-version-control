@@ -23,7 +23,7 @@ def number_tags(constants: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     
     for i in enumerate(soup.find_all()):
-        if i[1].name == constants.STYLE_HTML_ATTRIBUTE:
+        if i[1].name == constants.STYLE_TAG_NAME:
             continue
         i[1][constants.DATA_NUMBER_HTML_ATTRIBUTE] = str(i[0])
     return soup
@@ -88,7 +88,7 @@ def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], soup: B
     """
 
     for i in soup.find_all():
-        if i.name == constants.STYLE_HTML_ATTRIBUTE:
+        if i.name == constants.STYLE_TAG_NAME:
             i.decompose()
             continue
 
@@ -116,7 +116,7 @@ def replace_tag(
     frag = BeautifulSoup("".join(new_changed_strings), constants.HTML_PARSER)
     match = []
     for i in soup.find_all():
-        if i.name == constants.STYLE_HTML_ATTRIBUTE:
+        if i.name == constants.STYLE_TAG_NAME:
             i.decompose()
             continue
         if i[constants.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(constants, old_changed_strings):
@@ -149,7 +149,7 @@ def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int
     """
 
     for i in soup.find_all():
-        if i.name == constants.STYLE_HTML_ATTRIBUTE:
+        if i.name == constants.STYLE_TAG_NAME:
             i.decompose()
             continue
     tags = soup.find_all()
@@ -185,7 +185,7 @@ def remove_inline_semantics(constants: SCCSConstants, html: BeautifulSoup) -> Be
     for i in soup.find_all(
         constants.TAGS_TO_UNWRAP
     ):
-        if i.name == constants.STYLE_HTML_ATTRIBUTE:
+        if i.name == constants.STYLE_TAG_NAME:
             i.decompose()
         else:
             i.unwrap()

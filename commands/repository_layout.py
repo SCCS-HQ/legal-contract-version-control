@@ -23,7 +23,7 @@ class RepositoryLayout:
 
     def _set_branch_name(self, branch_name: str | None) -> None:
         """Set the branch_name attribute to the specified branch name."""
-        setattr(self, self.constants.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE, branch_name)
+        setattr(self, self.constants.BRANCH_NAME_ATTRIBUTE, branch_name)
 
 
     def document_path(self) -> Path:
@@ -177,7 +177,7 @@ class RepositoryLayout:
         Return the value of the specified key from the SCCS config JSON file.
         Valid keys are 'remote', 'name', and 'email'.
         """
-        if key not in self.constants.ACCEPTED_KEYS:
+        if key not in self.constants.ACCEPTED_CONFIG_KEYS:
             raise exceptions.InvalidArgumentError(
                 self.constants.INVALID_KEY_ERROR_MESSAGE
             )
@@ -331,7 +331,7 @@ class RepositoryLayout:
 
     def write_key_to_config(self, key: str, value: str) -> None:
         """Write 'key': 'value' to the SCCS config JSON file."""
-        if key not in self.constants.ACCEPTED_KEYS:
+        if key not in self.constants.ACCEPTED_CONFIG_KEYS:
             raise exceptions.InvalidArgumentError(
                 self.constants.INVALID_KEY_ERROR_MESSAGE
             )

@@ -12,22 +12,24 @@ class SCCSConstants:
 
         #region Shared - Strings (messages, templates, field names, values, separators, attributes, resources, endpoints)
 
+        self.HISTORY_DICT_KEY = "history"
         self.BRANCH_NAME_FIELD_NAME = "branch name"
         self.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
         self.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
-        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
+        self.BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position"
         self.COMMIT_FILE_FIELD_NAME = "commit file hash"
         self.CONTENT_TYPE_ZIP = "application/zip"
         self.CREATE_SUBCOMMAND = "create"
         self.DELETE_SUBCOMMAND = "delete"
+        self.URL_PARTS_SEPARATOR = "/"
         self.DOCX_EXTENSION = ".docx"
         self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = "{field} cannot be empty. Please provide a valid {field}."
         self.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
             "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
         )
-        self.FILE_RESOURCE = "file"
+        self.POST_FILE_FIElD_NAME = "file"
         self.HASH_PARTS_SEPARATOR = "/"
-        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
+        self.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE = "Failed to post repository to {url}"
         self.INVALID_KEY_ERROR_MESSAGE = (
             "Invalid configuration key provided. Accepted keys are: 'name', 'email', and 'remote'."
         )
@@ -36,7 +38,6 @@ class SCCSConstants:
             "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
             "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
         )
-        self.MAIN_BRANCH_ATTRIBUTE = "main"
         self.PROGRAM_START_TIME = self._program_start_time
         self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
         self.REPOSITORY_NAME_FIELD_NAME = "repository name"
@@ -45,9 +46,9 @@ class SCCSConstants:
         self.UNZIP_FAILED_ERROR_MESSAGE = (
             "Failed to unzip repository file. Please try again or ensure the zip is valid."
         )
-        self.URL_PARTS_SEPARATOR = "/"
         self.ZIP_EXTENSION = ".zip"
         self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
+        self.MAIN_BRANCH_NAME = "main"
 
         #endregion
 
@@ -88,34 +89,25 @@ class SCCSConstants:
         #region Shared - Configuration Values (keys, schemes, dict keys)
 
         self.REMOTE_KEY = "remote"
-        self.REMOTE_KEY = "remote"
-        self.REMOTE_KEY = "remote"
         self.NAME_KEY = "name"
         self.EMAIL_KEY = "email"
-        self.ACCEPTED_KEYS = (self.REMOTE_KEY, self.NAME_KEY, self.EMAIL_KEY)
+        self.ACCEPTED_CONFIG_KEYS = (self.REMOTE_KEY, self.NAME_KEY, self.EMAIL_KEY)
         self.ACCEPTED_SCHEMES = ("http", "https")
         self.AUTHOR_DICT_KEY = "author"
         self.BRANCHES_DICT_KEY = "branches"
         self.COMMIT_ORDER_DICT_KEY = "commit_order"
         self.CURRENT_BRANCH_DICT_KEY = "current_branch"
-        self.HISTORY_DICT_KEY = "history"
-        self.HTTP_OBJECTS_DATA_KEY = "objects"
-        self.LATEST_COMMIT_DICT_KEY = "latest_commit"
         self.LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
         self.LOG_DICT_KEY = "log"
         self.MESSAGE_DICT_KEY = "message"
         self.TIMESTAMP_DICT_KEY = "timestamp"
         self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
-        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+        self.HTTP_OBJECTS_DATA_KEY = "objects"
 
         #endregion
 
         #region Shared - File I/O (modes, encoding, newline)
 
-        self.FILE_ENCODING_UTF8 = "utf-8"
-        self.FILE_NEWLINE = "\n"
-        self.FILE_READ_BINARY_MODE = "rb"
-        self.FILE_WRITE_MODE = "w"
 
         #endregion
 
@@ -139,7 +131,7 @@ class SCCSConstants:
 
         ## branch existence / deletion errors
         self.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' already exists."
-        self.CURRENT_BRANCH_DIR_DELETION_ERROR_MESSAGE = "Cannot delete the current branch. Switch branches first."
+        self.CURRENT_BRANCH_DELETION_ERROR_MESSAGE = "Cannot delete the current branch. Switch branches first."
 
         ## success messages
         self.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = "Branch '{branch_name}' created from '{current_branch_name}' successfully.\n"
@@ -171,14 +163,11 @@ class SCCSConstants:
         self.HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
 
         ## status / success messages
-        self.STATUS_CODE_MESSAGE = "Status Code:\n"
         self.CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
 
         ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
         self.URL_FIELD_NAME = "URL"
 
-        ## file I/O modes
-        self.ZIP_READ_MODE = "r"
 
         #endregion
 
@@ -194,9 +183,6 @@ class SCCSConstants:
         #endregion
 
         #region config.py
-
-        ## configuration keys
-        self.REMOTE_KEY = "remote"
 
         # repos url part
         self.REPOS = "repos"
@@ -215,7 +201,7 @@ class SCCSConstants:
         #region diff.py
 
         ## HTML attributes
-        self.STYLE_HTML_ATTRIBUTE = "style"
+        self.STYLE_TAG_NAME = "style"
         self.DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
         self.CLASS_HTML_ATTRIBUTE = "class"
         self.DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
@@ -274,12 +260,11 @@ class SCCSConstants:
         self.INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
 
         ## filesystem names and structure
-        self.MAIN_BRANCH_DIR = "main"
 
         ## default branch data
         self.DEFAULT_BRANCH_DATA = {
-            self.CURRENT_BRANCH_DICT_KEY: self.MAIN_BRANCH_ATTRIBUTE,
-            self.BRANCHES_DICT_KEY: [self.MAIN_BRANCH_ATTRIBUTE],
+            self.CURRENT_BRANCH_DICT_KEY: self.MAIN_BRANCH_NAME,
+            self.BRANCHES_DICT_KEY: [self.MAIN_BRANCH_NAME],
         }
 
         ## error / status messages
@@ -297,11 +282,6 @@ class SCCSConstants:
         #endregion
 
         #region log.py
-
-        self.LOG_DICT_KEY = "log"
-        self.AUTHOR_DICT_KEY = "author"
-        self.TIMESTAMP_DICT_KEY = "timestamp"
-        self.MESSAGE_DICT_KEY = "message"
 
         ## display format constants
         self.LOG_SEPARATOR = "------------------------------"
@@ -334,61 +314,28 @@ class SCCSConstants:
         #region publish.py
 
         self.BUFFER_CREATION_FAILED_ERROR_MESSAGE = "Failed to create a buffer for the zipped repository. Please try again."
-        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
-        self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
-        self.REMOTE_KEY = "remote"
-        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
-        self.CONTENT_TYPE_ZIP = "application/zip"
         self.CONTENT_TYPE_JSON = "application/json"
         self.PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
-        self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
-        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
         self.PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}\n"
-        self.FILE_RESOURCE = "file"
-        self.DATA_RESOURCE = "data"
-        self.ZIP_EXTENSION = ".zip"
-        self.URL_PARTS_SEPARATOR = "/"
+        self.POST_DATA_FIELD_NAME = "data"
 
         #endregion
 
         #region pull.py
 
-        self.RGLOB_ALL_FILES_PATTERN = "*"
-        self.HTTP_OBJECTS_DATA_KEY = "objects"
-        self.REMOTE_KEY = "remote"
         self.PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
-        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
-        self.UNZIP_FAILED_ERROR_MESSAGE = (
-            "Failed to unzip repository file. Please try again or ensure the zip is valid."
-        )
-        self.HTTP_TIMEOUT_SECONDS = 60
-        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
         self.PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}\n"
-        self.URL_PARTS_SEPARATOR = "/"
 
         #endregion
 
         #region push.py
 
         self.JSON_EXTENSION = ".json"
-        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
         self.TMP_DIR_TEMPLATE = "tmp_{repo_name}"
-        self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
         self.PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
         self.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}"
         self.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = "Push successful, but failed to clear updated branches list in current " "branch file."
         self.PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}\n"
-        self.HTTP_TIMEOUT_SECONDS = 60
-        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
-        self.CONTENT_TYPE_ZIP = "application/zip"
-        self.REMOTE_KEY = "remote"
-        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
-        self.FILE_RESOURCE = "file"
-        self.ZIP_EXTENSION = ".zip"
-        self.URL_PARTS_SEPARATOR = "/"
-        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
-        self.HTTP_OBJECTS_DATA_KEY = "objects"
-        self.RGLOB_ALL_FILES_PATTERN = "*"
 
         #endregion
 
@@ -430,11 +377,8 @@ class SCCSConstants:
         self.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
 
         ## branch name attribute
-        self.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE = "branch_name"
-        self.LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
-        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+        self.BRANCH_NAME_ATTRIBUTE = "branch_name"
         self.TMP_EXTENSION = ".tmp"
-        self.COMMIT_ORDER_DICT_KEY = "commit_order"
 
         #endregion
 
@@ -481,7 +425,7 @@ class SCCSConstants:
 
         #region status.py
 
-        self.UNCOMMIT_CHANGES_FOUND = "Uncommitted changes detected.\n"
+        self.UNCOMMITTED_CHANGES_FOUND = "Uncommitted changes detected.\n"
         self.NO_UNCOMMITTED_CHANGES = "No uncommitted changes detected.\n"
 
         #endregion
@@ -491,24 +435,6 @@ class SCCSConstants:
         self.SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'.\n"
         #endregion
 
-        #region Unused Constants (no references found in project source files)
-
-        self.INVALID_URL_SCHEME_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
-
-        self.NO_BRANCH_ENTERED_ERROR_MESSAGE = "No branch specified. Please provide a branch name to switch to."
-
-        #endregion
-
-
-    @cached_property
-    def _program_start_time(self) -> str:
-        """Return the program start time in a human-readable format."""
-        return datetime.datetime.now().isoformat()
-
-
-class ErrorWrappers:
-    def __init__(self):
-        self.EXPECTED_ERROR_TEMPLATE = "An error occurred:\n{e}\n"
 
     @cached_property
     def _program_start_time(self) -> str:

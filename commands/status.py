@@ -14,7 +14,7 @@ from constants_classes import SCCSConstants, ErrorWrappers
 def print_status_message(constants: SCCSConstants, uncommitted_changes: bool) -> None:
     """Print the status message to the user."""
     if uncommitted_changes:
-        print(constants.UNCOMMIT_CHANGES_FOUND)
+        print(constants.UNCOMMITTED_CHANGES_FOUND)
     else:
         print(constants.NO_UNCOMMITTED_CHANGES)
 

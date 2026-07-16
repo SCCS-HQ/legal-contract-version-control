@@ -20,8 +20,8 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
     Return the resolved 'remote'.
     """
 
-    if key not in constants.ACCEPTED_KEYS:
-            raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=", ".join(constants.ACCEPTED_KEYS)))
+    if key not in constants.ACCEPTED_CONFIG_KEYS:
+            raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=", ".join(constants.ACCEPTED_CONFIG_KEYS)))
     
     if not value.strip():
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))

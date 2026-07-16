@@ -40,7 +40,7 @@ def config_inputs(constants: SCCSConstants, repo_path: Path, *data: str) -> dict
             raise exceptions.InvalidInputError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i))
         values.append(data_value)
 
-    with open(repo_path / constants.SCCS_DIR / constants.CONFIG_DIR / constants.CONFIG_JSON_FILE, constants.FILE_WRITE_MODE, encoding=constants.FILE_ENCODING_UTF8) as f:
+    with open(repo_path / constants.SCCS_DIR / constants.CONFIG_DIR / constants.CONFIG_JSON_FILE, "w", encoding="utf-8") as f:
         config = {}
 
         for i, value in enumerate(values):
@@ -103,9 +103,9 @@ def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path) -> N
         (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR / constants.HTML_DIR),
         (Path(constants.SCCS_DIR) / constants.OBJECTS_DIR / constants.VIEW_HTML_DIR),
         (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR),
-        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR_DIR),
-        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.HISTORY_DIR),
-        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.COMMIT_FILE_HASH_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.HISTORY_DIR),
+        (Path(constants.SCCS_DIR) / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.COMMIT_FILE_HASH_DIR),
         (Path(constants.SCCS_DIR) / constants.COMMIT_MESSAGES_DIR),
         (Path(constants.SCCS_DIR) / constants.CONFIG_DIR),
         (Path(constants.SCCS_DIR) / constants.CURRENT_BRANCH_DIR)
@@ -135,7 +135,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
     objects_path = repo_path / constants.SCCS_DIR / constants.OBJECTS_DIR
 
     try:
-        with open(docx_path, constants.FILE_READ_BINARY_MODE) as f:
+        with open(docx_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
         raise exceptions.ConvertingDocumentToHTMLError from e
@@ -151,9 +151,9 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
     try:
         with open(
             (objects_path / constants.HTML_DIR / f"{sha_hash}.html"),
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             f.write(constants.DEFAULT_HTML_STYLES + result)
     except Exception as e:
@@ -162,9 +162,9 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
     try:
         with open(
             (objects_path / constants.VIEW_HTML_DIR / f"{sha_hash}.html"),
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             f.write(utils.wrap_html(result), constants.DEFAULT_HTML_STYLES)
     except Exception as e:
@@ -192,10 +192,10 @@ def write_history_data(constants: SCCSConstants, repo_path: Path, name: str, ema
     }
     try:
         with open(
-            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.HISTORY_DIR / constants.HISTORY_JSON_FILE,
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.HISTORY_DIR / constants.HISTORY_JSON_FILE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             json.dump(history_data, f, indent=4)
     except Exception as e:
@@ -214,9 +214,9 @@ def write_commit_message_data(constants: SCCSConstants, repo_path: Path, sha_has
     try:
         with open(
             repo_path / constants.SCCS_DIR / constants.COMMIT_MESSAGES_DIR/ constants.COMMIT_MESSAGES_JSON_FILE,
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             json.dump(commit_message_data, f, indent=4)
     except Exception as e:
@@ -235,7 +235,7 @@ def write_hashed_file_commit_data(
     """
 
     try:
-        with open(docx_path, constants.FILE_READ_BINARY_MODE) as f:
+        with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
             for i in iter(lambda: f.read(constants.MAX_FILE_READ_SIZE), b""):
                 hasher.update(i)
@@ -246,10 +246,10 @@ def write_hashed_file_commit_data(
     commit_file_hash_data = {f"{sha_hash}": hashed_file}
     try:
         with open(
-            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_DIR / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_JSON_FILE,
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_JSON_FILE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             json.dump(commit_file_hash_data, f, indent=4)
     except Exception as e:
@@ -262,9 +262,9 @@ def write_branch_data(constants: SCCSConstants, repo_path: Path) -> None:
     try:
         with open(
             repo_path / constants.SCCS_DIR / constants.CURRENT_BRANCH_DIR / constants.CURRENT_BRANCH_JSON_FILE,
-            constants.FILE_WRITE_MODE,
-            encoding=constants.FILE_ENCODING_UTF8,
-            newline=constants.FILE_NEWLINE,
+            "w",
+            encoding="utf-8",
+            newline="\n",
         ) as f:
             json.dump(constants.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:
