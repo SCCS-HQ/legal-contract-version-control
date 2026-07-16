@@ -8,86 +8,80 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def check_branch_to_switch() -> None:
+def check_branch_to_switch(constants: SCCSConstants, Repo: RepositoryLayout, branch_to_switch: str) -> None:
     """Check if the branch to switch to is valid."""
-
-    branch_to_switch = utils.entered_argument(2)
 
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
-            "No branch specified. Please provide a branch name to switch to."
+            constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.BRANCH_NAME_FIELD_NAME)
         )
 
-    if branch_to_switch not in Repository.list_branches():
+    if not Repo.branch_exists(branch_to_switch):
         raise exceptions.BranchNotFoundError(
-            f"Branch '{branch_to_switch}' does not exist."
+            constants.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch)
         )
 
 
-def sanitize_branch() -> str:
-    """Sanitize the branch name."""
-
-    return utils.clean_directory_name(utils.entered_argument(2))
-
-
-def check_commit() -> None:
+def check_commit(constants: SCCSConstants, Repo: RepositoryLayout, branch_to_switch: str) -> None:
     """
     Check if the commit object exists in the document history.
     """
 
-    commit = Repository.branch(sanitize_branch(utils.entered_argument(2))).latest_commit_path("docx")
+    commit = Repo.branch(branch_to_switch).latest_commit_path(constants.DOCX_DIR)
     
     if not (commit).is_file():
-        raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
+        raise exceptions.CommitNotFoundError
 
 
-def copy_commit_to_main() -> None:
+def copy_commit_to_main(constants: SCCSConstants, Repo: RepositoryLayout, branch_to_switch: str) -> None:
     """Copy the commit file to the main document."""
     try:
         shutil.copy2(
-            (Repository.branch(sanitize_branch(utils.entered_argument(2))).latest_commit_path("docx")),
-            (Repository.document_path()),
+            (Repo.branch(branch_to_switch).latest_commit_path(constants.DOCX_DIR)),
+            (Repo.document_path()),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
 
-def print_confirmation() -> None:
+def print_confirmation(constants: SCCSConstants, branch_to_switch: str) -> None:
     """Print a confirmation message for successful branch switch."""
 
-    print(f"Successfully switched to branch '{sanitize_branch(utils.entered_argument(2))}'.\n")
+    print(constants.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, branch_to_switch: str) -> None:
     """Run functions for the <sccs switch> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    Repository.check_for_uncommitted_changes("switch")
+    Repo.check_for_uncommitted_changes()
 
-    check_branch_to_switch()
+    check_branch_to_switch(constants, Repo, branch_to_switch)
 
-    check_commit()
+    check_commit(constants, Repo, branch_to_switch)
 
-    copy_commit_to_main()
+    copy_commit_to_main(constants, Repo, branch_to_switch)
 
-    Repository.set_current_branch(sanitize_branch(utils.entered_argument(2)))
+    Repo.set_current_branch(branch_to_switch)
 
-    print_confirmation()
+    print_confirmation(constants, branch_to_switch)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(constants, repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
