@@ -7,6 +7,126 @@ from functools import cached_property
 
 class SCCSConstants:
     def __init__(self):
+
+        #region Shared Constants (referenced by 2+ command modules)
+
+        #region Shared - Strings (messages, templates, field names, values, separators, attributes, resources, endpoints)
+
+        self.BRANCH_NAME_FIELD_NAME = "branch name"
+        self.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
+        self.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
+        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
+        self.COMMIT_FILE_FIELD_NAME = "commit file hash"
+        self.CONTENT_TYPE_ZIP = "application/zip"
+        self.CREATE_SUBCOMMAND = "create"
+        self.DELETE_SUBCOMMAND = "delete"
+        self.DOCX_EXTENSION = ".docx"
+        self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = "{field} cannot be empty. Please provide a valid {field}."
+        self.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
+            "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
+        )
+        self.FILE_RESOURCE = "file"
+        self.HASH_PARTS_SEPARATOR = "/"
+        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
+        self.INVALID_KEY_ERROR_MESSAGE = (
+            "Invalid configuration key provided. Accepted keys are: 'name', 'email', and 'remote'."
+        )
+        self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
+        self.INVALID_URL_ERROR_MESSAGE = (
+            "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
+            "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+        )
+        self.MAIN_BRANCH_ATTRIBUTE = "main"
+        self.PROGRAM_START_TIME = self._program_start_time
+        self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
+        self.REPOSITORY_NAME_FIELD_NAME = "repository name"
+        self.RGLOB_ALL_FILES_PATTERN = "*"
+        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
+        self.UNZIP_FAILED_ERROR_MESSAGE = (
+            "Failed to unzip repository file. Please try again or ensure the zip is valid."
+        )
+        self.URL_PARTS_SEPARATOR = "/"
+        self.ZIP_EXTENSION = ".zip"
+        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
+
+        #endregion
+
+        #region Shared - Numbers
+
+        self.COMMIT_HASH_DISPLAY_LENGTH = 10
+        self.HTTP_TIMEOUT_SECONDS = 60
+        self.MAX_FILE_READ_SIZE = 64 * 1024
+
+        #endregion
+
+        #region Shared - Paths (directories)
+
+        self.BRANCHES_DIR = "branches"
+        self.COMMIT_FILE_HASH_DIR = "commit_file_hash"
+        self.COMMIT_MESSAGES_DIR = "commit_messages"
+        self.CONFIG_DIR = "config"
+        self.CURRENT_BRANCH_DIR = "current_branch"
+        self.DOCX_DIR = "docx"
+        self.HISTORY_DIR = "history"
+        self.HTML_DIR = "html"
+        self.OBJECTS_DIR = "objects"
+        self.SCCS_DIR = ".sccs"
+        self.VIEW_HTML_DIR = "view_html"
+
+        #endregion
+
+        #region Shared - Paths (files)
+
+        self.COMMIT_FILE_HASH_JSON_FILE = "commit_file_hash.json"
+        self.COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
+        self.CONFIG_JSON_FILE = "config.json"
+        self.CURRENT_BRANCH_JSON_FILE = "current_branch.json"
+        self.HISTORY_JSON_FILE = "history.json"
+
+        #endregion
+
+        #region Shared - Configuration Values (keys, schemes, dict keys)
+
+        self.REMOTE_KEY = "remote"
+        self.REMOTE_KEY = "remote"
+        self.REMOTE_KEY = "remote"
+        self.NAME_KEY = "name"
+        self.EMAIL_KEY = "email"
+        self.ACCEPTED_KEYS = (self.REMOTE_KEY, self.NAME_KEY, self.EMAIL_KEY)
+        self.ACCEPTED_SCHEMES = ("http", "https")
+        self.AUTHOR_DICT_KEY = "author"
+        self.BRANCHES_DICT_KEY = "branches"
+        self.COMMIT_ORDER_DICT_KEY = "commit_order"
+        self.CURRENT_BRANCH_DICT_KEY = "current_branch"
+        self.HISTORY_DICT_KEY = "history"
+        self.HTTP_OBJECTS_DATA_KEY = "objects"
+        self.LATEST_COMMIT_DICT_KEY = "latest_commit"
+        self.LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
+        self.LOG_DICT_KEY = "log"
+        self.MESSAGE_DICT_KEY = "message"
+        self.TIMESTAMP_DICT_KEY = "timestamp"
+        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+        self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+
+        #endregion
+
+        #region Shared - File I/O (modes, encoding, newline)
+
+        self.FILE_ENCODING_UTF8 = "utf-8"
+        self.FILE_NEWLINE = "\n"
+        self.FILE_READ_BINARY_MODE = "rb"
+        self.FILE_WRITE_MODE = "w"
+
+        #endregion
+
+        #region Shared - HTML
+
+        self.DEFAULT_HTML_STYLES = ("<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>")
+
+        #endregion
+
+        #endregion
+
         #region branch.py
 
         ## subcommands
@@ -42,7 +162,6 @@ class SCCSConstants:
 
         ## endpoints and timeouts
         self.CLONE_ENDPOINT = "clone"
-        self.HTTP_TIMEOUT_SECONDS = 60
 
         ## error messages
         self.INVALID_ENDING_ERROR_MESSAGE = (
@@ -50,9 +169,6 @@ class SCCSConstants:
             "'/clone/'."
         )
         self.HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
-        self.UNZIP_FAILED_ERROR_MESSAGE = (
-            "Failed to unzip repository file. Please try again or ensure the zip is valid."
-        )
 
         ## status / success messages
         self.STATUS_CODE_MESSAGE = "Status Code:\n"
@@ -60,7 +176,9 @@ class SCCSConstants:
 
         ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
         self.URL_FIELD_NAME = "URL"
-        self.REPOSITORY_NAME_FIELD_NAME = "repository name"
+
+        ## file I/O modes
+        self.ZIP_READ_MODE = "r"
 
         #endregion
 
@@ -72,9 +190,6 @@ class SCCSConstants:
 
         ## format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
         self.COMMIT_MESSAGE_FIELD_NAME = "commit message"
-
-        ## commit hash display length (used by commit.py, log.py)
-        self.COMMIT_HASH_DISPLAY_LENGTH = 10
 
         #endregion
 
@@ -200,13 +315,13 @@ class SCCSConstants:
         #region merge.py
 
         self.CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
-        
+
 
         self.MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
 
         self.MERGE_SUCCESS_MESSAGE_TEMPLATE = "Successfully merged branch '{branch}' into branch '{current_branch}'."
 
-        #endregion        
+        #endregion
 
         #region open.py
 
@@ -219,22 +334,20 @@ class SCCSConstants:
         #region publish.py
 
         self.BUFFER_CREATION_FAILED_ERROR_MESSAGE = "Failed to create a buffer for the zipped repository. Please try again."
-        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
-        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
         self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
-        self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
         self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
-        self.FILE_RESOURCE = "file"
-        self.DATA_RESOURCE = "data"
-        self.ZIP_EXTENSION = ".zip"
         self.REMOTE_KEY = "remote"
+        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
         self.CONTENT_TYPE_ZIP = "application/zip"
         self.CONTENT_TYPE_JSON = "application/json"
         self.PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
-        self.URL_PARTS_SEPARATOR = "/"
+        self.REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
         self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
         self.PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}\n"
-        
+        self.FILE_RESOURCE = "file"
+        self.DATA_RESOURCE = "data"
+        self.ZIP_EXTENSION = ".zip"
+        self.URL_PARTS_SEPARATOR = "/"
 
         #endregion
 
@@ -244,8 +357,14 @@ class SCCSConstants:
         self.HTTP_OBJECTS_DATA_KEY = "objects"
         self.REMOTE_KEY = "remote"
         self.PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
+        self.HTTP_POST_REQUEST_ERROR_MESSAGE = "Failed to post repository to {url}"
+        self.UNZIP_FAILED_ERROR_MESSAGE = (
+            "Failed to unzip repository file. Please try again or ensure the zip is valid."
+        )
+        self.HTTP_TIMEOUT_SECONDS = 60
+        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
         self.PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}\n"
-
+        self.URL_PARTS_SEPARATOR = "/"
 
         #endregion
 
@@ -254,11 +373,22 @@ class SCCSConstants:
         self.JSON_EXTENSION = ".json"
         self.UPDATED_BRANCHES_DICT_KEY = "updated_branches"
         self.TMP_DIR_TEMPLATE = "tmp_{repo_name}"
-        self.INVALID_URL_SCHEME_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
+        self.INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
         self.PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
         self.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}"
         self.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = "Push successful, but failed to clear updated branches list in current " "branch file."
         self.PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}\n"
+        self.HTTP_TIMEOUT_SECONDS = 60
+        self.STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
+        self.CONTENT_TYPE_ZIP = "application/zip"
+        self.REMOTE_KEY = "remote"
+        self.BUFFER_RESET_ERROR_MESSAGE = "Failed to reset buffer position"
+        self.FILE_RESOURCE = "file"
+        self.ZIP_EXTENSION = ".zip"
+        self.URL_PARTS_SEPARATOR = "/"
+        self.ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory"
+        self.HTTP_OBJECTS_DATA_KEY = "objects"
+        self.RGLOB_ALL_FILES_PATTERN = "*"
 
         #endregion
 
@@ -299,10 +429,6 @@ class SCCSConstants:
         ## resource errors
         self.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
 
-        ## resource names
-        self.BRANCH_NAME_FIELD_NAME = "branch name"
-        self.COMMIT_FILE_FIELD_NAME = "commit file hash"
-
         ## branch name attribute
         self.BRANCH_NAME_REPOSITORY_LAYOUT_ATTRIBUTE = "branch_name"
         self.LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
@@ -313,7 +439,7 @@ class SCCSConstants:
         #endregion
 
         #region reset.py
-        
+
         self.RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit.\n"
         self.RESET_ERROR_MESSAGE = "Failed to reset the document."
 
@@ -362,98 +488,14 @@ class SCCSConstants:
 
         #region switch.py
 
-        self.NO_BRANCH_ENTERED_ERROR_MESSAGE = "No branch specified. Please provide a branch name to switch to."
         self.SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'.\n"
         #endregion
 
-        #region Shared (referenced by 2+ command modules)
+        #region Unused Constants (no references found in project source files)
 
-        self.DEFAULT_HTML_STYLES = ("<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".deleted {\nbackground-color: #fbb6c2;\ndisplay: block;\nwidth: fit-content;\n}\n""\n"".center {\ndisplay: flex;\njustify-content: center;\n}\n</style>")
+        self.INVALID_URL_SCHEME_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'"
 
-        ## filesystem names and structure (used by init.py, repository_layout.py)
-        self.SCCS_DIR = ".sccs"
-        self.OBJECTS_DIR = "objects"
-        self.BRANCHES_DIR = "branches"
-        self.COMMIT_MESSAGES_DIR = "commit_messages"
-        self.CONFIG_DIR = "config"
-        self.CURRENT_BRANCH_DIR = "current_branch"
-        self.HISTORY_JSON_FILE = "history.json"
-        self.COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
-        self.COMMIT_FILE_HASH_DIR = "commit_file_hash"
-        self.CONFIG_JSON_FILE = "config.json"
-        self.COMMIT_FILE_HASH_JSON_FILE = "commit_file_hash.json"
-        self.CURRENT_BRANCH_JSON_FILE = "current_branch.json"
-
-        ## formats and types (used by init.py, repository_layout.py)
-        self.DOCX_DIR = "docx"
-        self.DOCX_EXTENSION = ".docx"
-        self.HTML_DIR = "html"
-        self.VIEW_HTML_DIR = "view_html"
-        self.HISTORY_DIR = "history"
-        self.HASH_PARTS_SEPARATOR = "/"
-
-        ## runtime limits (used by init.py, repository_layout.py)
-        self.MAX_FILE_READ_SIZE = 64 * 1024
-
-        ## file-system metadata keys (used by init.py, repository_layout.py)
-        self.BRANCHES_DICT_KEY = "branches"
-        self.CURRENT_BRANCH_DICT_KEY = "current_branch"
-        self.HISTORY_DICT_KEY = "history"
-        self.LATEST_COMMIT_DICT_KEY = "latest_commit"
-
-        ## default branch name (used by branch.py, init.py, repository_layout.py)
-        self.MAIN_BRANCH_ATTRIBUTE = "main"
-
-        ## user config keys (used by config.py, init.py, repository_layout.py)
-        self.NAME_KEY = "name"
-        self.EMAIL_KEY = "email"
-
-        ## accepted config keys validator (used by config.py, repository_layout.py)
-        self.ACCEPTED_KEYS = (self.REMOTE_KEY, self.NAME_KEY, self.EMAIL_KEY)
-
-        ## config validation error messages (used by config.py, repository_layout.py)
-        self.INVALID_KEY_ERROR_MESSAGE = (
-            "Invalid configuration key provided. Accepted keys are: 'name', 'email', and 'remote'."
-        )
-
-        ## branch subcommands (used by branch.py, repository_layout.py)
-        self.CREATE_SUBCOMMAND = "create"
-        self.DELETE_SUBCOMMAND = "delete"
-
-        ## branch operation errors (used by branch.py, repository_layout.py)
-        self.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
-
-        ## accepted URL schemes (used by clone.py, config.py)
-        self.ACCEPTED_SCHEMES = ("http", "https")
-
-        ## URL validation error message (used by clone.py, config.py)
-        self.INVALID_URL_ERROR_MESSAGE = (
-            "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
-            "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
-        )
-
-        ## error message templates (used by branch.py, clone.py, commit.py, config.py, init.py, repository_layout.py)
-        self.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = "{field} cannot be empty. Please provide a valid {field}."
-
-        ## file existence error (used by init.py, repository_layout.py)
-        self.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
-            "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
-        )
-
-        ## branch lookup error (used by branch.py, repository_layout.py)
-        self.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
-
-        ## program start time getter (used by init.py, repository_layout.py)
-        self.PROGRAM_START_TIME = self._program_start_time
-
-        ## file I/O modes (used by init.py, clone.py, repository_layout.py)
-        self.FILE_WRITE_MODE = "w"
-        self.FILE_READ_BINARY_MODE = "rb"
-        self.ZIP_READ_MODE = "r"
-
-        ## file I/O encoding and newline (used by init.py, repository_layout.py)
-        self.FILE_ENCODING_UTF8 = "utf-8"
-        self.FILE_NEWLINE = "\n"
+        self.NO_BRANCH_ENTERED_ERROR_MESSAGE = "No branch specified. Please provide a branch name to switch to."
 
         #endregion
 
