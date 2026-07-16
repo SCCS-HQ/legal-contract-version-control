@@ -251,6 +251,9 @@ class SCCSConstants:
         #region init.py
 
         ## hash segments
+        self.EMPTY_STRING_FOR_JOINING = ""
+        self.SPACE_FOR_JOINING = " "
+        self.COMMA_AND_SPACE_FOR_JOINING = ", "
         self.HTML_BOILERPLATE_TEMPLATE = "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
         self.HEX_DIGITS = "0123456789abcdef"   
         self.FULL_COMMIT_HASH_LENGTH = 64

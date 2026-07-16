@@ -113,7 +113,7 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
-    frag = BeautifulSoup("".join(new_changed_strings), constants.HTML_PARSER)
+    frag = BeautifulSoup(constants.EMPTY_STRING_FOR_JOINING.join(new_changed_strings), constants.HTML_PARSER)
     match = []
     for i in soup.find_all():
         if i.name == constants.STYLE_TAG_NAME:
@@ -153,7 +153,7 @@ def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int
             i.decompose()
             continue
     tags = soup.find_all()
-    frag = BeautifulSoup("".join(new_changed_strings), constants.HTML_PARSER)
+    frag = BeautifulSoup(constants.EMPTY_STRING_FOR_JOINING.join(new_changed_strings), constants.HTML_PARSER)
     for i in frag.find_all():
         if i.name:
             if constants.CLASS_HTML_ATTRIBUTE in i.attrs:

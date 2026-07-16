@@ -647,7 +647,7 @@ class RepositoryLayout:
 
         history[self.constants.LOG_DICT_KEY][commit_hash] = {
             self.constants.TIMESTAMP_DICT_KEY: self.constants.PROGRAM_START_TIME,
-            self.constants.AUTHOR_DICT_KEY: " ".join(self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY)),
+            self.constants.AUTHOR_DICT_KEY: self.constants.SPACE_FOR_JOINING.join(self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY)),
             self.constants.MESSAGE_DICT_KEY: commit_msg,
         }
 
