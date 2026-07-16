@@ -4,36 +4,41 @@
 import sys
 from pathlib import Path
 
+from commands import constants_classes
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
+from constants_classes import SCCSConstants, ErrorWrappers
 
-Repository = RepositoryLayout(Path.cwd())
 
-
-def print_status_message() -> None:
+def print_status_message(constants: SCCSConstants, uncommitted_changes: bool) -> None:
     """Print the status message to the user."""
-    if Repository.check_for_uncommitted_changes("status", exit=False):
-        print("Uncommitted changes detected.\n")
+    if uncommitted_changes:
+        print(constants.UNCOMMIT_CHANGES_FOUND)
     else:
-        print("No uncommitted changes detected.\n")
+        print(constants.NO_UNCOMMITTED_CHANGES)
 
 
-def main() -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout) -> None:
     """Run functions for the <sccs status> command."""
-    Repository.check_repository_layout()
+    Repo.check_repository_layout()
 
-    print_status_message()
+    uncommitted_changes = Repo.check_for_uncommitted_changes(raise_on_changes=False)
+
+    print_status_message(constants, uncommitted_changes)
 
 
 if __name__ == "__main__":
     try:
-        main()
+        constants = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), constants)
+        error_wrappers = ErrorWrappers()
+        main(repository)
 
     except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(1)
 
     except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
+        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
         sys.exit(2)
