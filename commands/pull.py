@@ -35,7 +35,7 @@ def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
         with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
             zf.extractall(Path.cwd())
     except Exception as e:
-        raise exceptions.UnzipError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 def print_pull_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
     """Print a success message after pulling the repository."""
