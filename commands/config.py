@@ -18,7 +18,7 @@ def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: st
     """
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE.format(keys=c.COMMA_SPACE.join(c.ACCEPTED_CONFIG_KEYS)))
+            raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
     
     if not value.strip():
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
