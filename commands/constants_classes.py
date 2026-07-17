@@ -10,7 +10,7 @@ class SCCSConstants:
 
     #region Shared - Strings (messages, templates, field names, values, separators, attributes, resources, endpoints)
 
-    SINGLE_QUOTE_COMMA_SPACE_SINGLE_QUOTE = ', '
+    COMMA_SPACE = ", "
     HISTORY_DICT_KEY = "history"
     BRANCH_NAME_FIELD_NAME = "branch name"
     BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
@@ -27,13 +27,16 @@ class SCCSConstants:
     )
     POST_FILE_FIELD_NAME = "file"
     PATH_SEPARATOR = "/"
-    HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE = "Failed to post repository to {url}."
-    INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/<repo_name>'."
+    REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
+    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
+    )
+    ACCEPTED_SCHEMES = ("http", "https")
     INVALID_URL_ERROR_MESSAGE = (
-        "Invalid remote URL provided. The URL must start with 'http://' or 'https://',"
+        f"Invalid remote URL provided. The URL must start with one of the following schemes: "
+        f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)},"
         "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
     )
-    REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
     REPOSITORY_NAME_FIELD_NAME = "repository name"
     RGLOB_ALL_FILES_PATTERN = "*"
     STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
@@ -46,7 +49,6 @@ class SCCSConstants:
 
     ## cross-file constants (referenced by 2+ command modules)
     SCCS_COMMAND_PREFIX = "sccs"
-    COMMA_SPACE = ", "
 
     #endregion
 
@@ -90,10 +92,9 @@ class SCCSConstants:
     NAME_KEY = "name"
     EMAIL_KEY = "email"
     ACCEPTED_CONFIG_KEYS = (REMOTE_KEY, NAME_KEY, EMAIL_KEY)
-    ACCEPTED_SCHEMES = ("http", "https")
 
     INVALID_KEY_ERROR_MESSAGE = (
-        f"Invalid configuration key provided. Accepted keys are: {SINGLE_QUOTE_COMMA_SPACE_SINGLE_QUOTE.join(ACCEPTED_CONFIG_KEYS)}."
+        f"Invalid configuration key provided. Accepted keys are: {COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
     )
 
     AUTHOR_DICT_KEY = "author"
@@ -228,8 +229,7 @@ class SCCSConstants:
 
     ## strings - error messages
     INVALID_ENDING_ERROR_MESSAGE = (
-        "Invalid remote URL provided. Please provide a valid URL ending with "
-        "'/clone/'."
+        f"Invalid remote URL provided. Please provide a valid URL ending with '{CLONE_ENDPOINT}'."
     )
     HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
 
@@ -522,7 +522,7 @@ SCCSConstants.HELP_MESSAGES = (
 _missing_commands = [cmd for cmd in SCCSConstants.COMMANDS_LIST if cmd not in SCCSConstants.COMMAND_DESCRIPTIONS]
 if _missing_commands:
     raise ValueError(
-        f"COMMAND_DESCRIPTIONS is missing entries for: {', '.join(_missing_commands)}"
+        f"COMMAND_DESCRIPTIONS is missing entries for: {COMMA_SPACE.join(_missing_commands)}"
     )
 
 
