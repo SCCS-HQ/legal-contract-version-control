@@ -3,15 +3,13 @@
 
 import hashlib
 import json
-import sys
 import shutil
-from datetime import datetime
 from pathlib import Path
 import mammoth
 
 import exceptions
 import utils
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 
 
 def get_document_repo_path(constants: SCCSConstants, docx_path: Path) -> Path:

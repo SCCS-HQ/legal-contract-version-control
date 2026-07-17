@@ -5,13 +5,12 @@ import io
 import json
 import os
 import shutil
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from constants_classes import ErrorWrappers, SCCSConstants
+from constants_classes import SCCSConstants
 import exceptions
 import requests
 import utils

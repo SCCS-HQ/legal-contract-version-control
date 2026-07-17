@@ -4,7 +4,6 @@
 import io
 import json
 import os
-import sys
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -12,7 +11,7 @@ from urllib.parse import urlsplit
 import exceptions
 import requests
 import utils
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 

@@ -2,12 +2,10 @@
 """Merge branches in the SCCS repository."""
 
 import shutil
-import sys
-from pathlib import Path
 
 import exceptions
 import utils
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 

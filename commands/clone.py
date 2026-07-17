@@ -2,14 +2,13 @@
 """Clone a hosted SCCS repository with a URL"""
 
 import io
-import sys
 import zipfile
 
 import exceptions
 import requests
 import utils
 from urllib.parse import urlsplit
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 
 def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
     """

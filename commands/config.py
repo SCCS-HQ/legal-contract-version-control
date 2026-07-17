@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """Command to configure a SCCS repository's settings"""
 
-import sys
-from pathlib import Path
 
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
-from constants_classes import ErrorWrappers, SCCSConstants
+from constants_classes import SCCSConstants
 from urllib.parse import urlsplit, urljoin
-import os
 
 def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> None:
     """

@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """Check the status of the current document for uncommitted changes."""
 
-import sys
-from pathlib import Path
-
-import exceptions
 import utils
 from repository_layout import RepositoryLayout
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 
 
 def print_status_message(constants: SCCSConstants, uncommitted_changes: bool) -> None:

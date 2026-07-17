@@ -3,13 +3,10 @@
 
 import copy
 import difflib
-import sys
-from pathlib import Path
 
-import exceptions
 import utils
 from bs4 import BeautifulSoup
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 

@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 """Commit latest changes to the current branch."""
 
-from pathlib import Path
-import sys
-
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 
 
 def print_commit_confirmation_message(constants: SCCSConstants, repo: RepositoryLayout, sha_hash) -> None:

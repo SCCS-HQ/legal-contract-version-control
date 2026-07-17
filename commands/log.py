@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """Print a list of past commits for the current branch."""
 
-import json
-import sys
-from pathlib import Path
-
-import exceptions
 import utils
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Repository layout class for SCCS."""
 
-import datetime
 import hashlib
 import json
 from pathlib import Path

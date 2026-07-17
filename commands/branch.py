@@ -2,13 +2,11 @@
 """Create, Delete, and List Branches"""
 
 import shutil
-import sys
-from pathlib import Path
 
 import exceptions
 import utils
 from repository_layout import RepositoryLayout
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 
 
 def validate_subcommand(constants: SCCSConstants, repo: RepositoryLayout, subcommand: str, branch_name: str) -> None:

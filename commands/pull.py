@@ -2,15 +2,13 @@
 """Pull the repository from the remote server."""
 
 import io
-import sys
-from urllib import response
 import zipfile
 from pathlib import Path
 
 import exceptions
 import requests
 import utils
-from constants_classes import SCCSConstants, ErrorWrappers
+from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 

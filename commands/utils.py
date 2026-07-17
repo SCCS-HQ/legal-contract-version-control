@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """Module for utility functions used in SCCS."""
 
-import hashlib
-import json
 import re
-import shutil
-from datetime import datetime
 from pathlib import Path
 import sys
 
