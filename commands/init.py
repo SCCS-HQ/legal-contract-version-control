@@ -9,7 +9,7 @@ import mammoth
 
 import exceptions
 import utils
-from constants_classes import SCCSConstants
+from constants_classes import SCCSConstantsw
 
 
 def get_document_repo_path(constants: SCCSConstants, docx_path: Path) -> Path:
@@ -38,7 +38,7 @@ def config_inputs(constants: SCCSConstants, repo_path: Path, *data: str) -> dict
             raise exceptions.InvalidInputError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i))
         values.append(data_value)
 
-    with open(repo_path / constants.SCCS_DIR / constants.CONFIG_DIR / constants.CONFIG_JSON_FILE, "w", encoding="utf-8") as f:
+    with open(repo_path / constants.SCCS_DIR / constants.CONFIG_DIR / constants.CONFIG_JSON_FILE, "w", encoding=constants.UTF_8) as f:
         config = {}
 
         for i, value in enumerate(values):
@@ -148,8 +148,8 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
         with open(
             (objects_path / constants.HTML_DIR / (sha_hash + constants.HTML_EXTENSION)),
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             f.write(constants.DEFAULT_HTML_STYLES + result)
     except Exception as e:
@@ -159,8 +159,8 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
         with open(
             (objects_path / constants.VIEW_HTML_DIR / sha_hash + constants.HTML_EXTENSION),
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             f.write(utils.wrap_html(constants, result, constants.DEFAULT_HTML_STYLES))
     except Exception as e:
@@ -190,8 +190,8 @@ def write_history_data(constants: SCCSConstants, repo_path: Path, name: str, ema
         with open(
             repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.HISTORY_DIR / constants.HISTORY_JSON_FILE,
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             json.dump(history_data, f, indent=4)
     except Exception as e:
@@ -211,8 +211,8 @@ def write_commit_message_data(constants: SCCSConstants, repo_path: Path, sha_has
         with open(
             repo_path / constants.SCCS_DIR / constants.COMMIT_MESSAGES_DIR/ constants.COMMIT_MESSAGES_JSON_FILE,
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             json.dump(commit_message_data, f, indent=4)
     except Exception as e:
@@ -244,8 +244,8 @@ def write_hashed_file_commit_data(
         with open(
             repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_JSON_FILE,
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             json.dump(commit_file_hash_data, f, indent=4)
     except Exception as e:
@@ -259,8 +259,8 @@ def write_branch_data(constants: SCCSConstants, repo_path: Path) -> None:
         with open(
             repo_path / constants.SCCS_DIR / constants.CURRENT_BRANCH_DIR / constants.CURRENT_BRANCH_JSON_FILE,
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=constants.UTF_8,
+            newline=constants.NEWLINE,
         ) as f:
             json.dump(constants.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:

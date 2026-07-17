@@ -162,7 +162,7 @@ class RepositoryLayout:
         provided, return the value of that key from the current branch data.
         """
 
-        with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
+        with open(self.current_branch_path(), "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
             branch_data = json.load(f)
         if key is None:
             self._set_branch_name(None)
@@ -181,7 +181,7 @@ class RepositoryLayout:
                 self.constants.INVALID_KEY_ERROR_MESSAGE
             )
         
-        with open(self.config_path(), "r", encoding="utf-8", newline="\n") as f:
+        with open(self.config_path(), "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
             config_data = json.load(f)
 
         self._set_branch_name(None)
@@ -201,7 +201,7 @@ class RepositoryLayout:
 
         with open(
             self.branch(self.branch_name).history_path()
-            , "r", encoding="utf-8", newline="\n"
+            , "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE
         ) as f:
             history_data = json.load(f)
 
@@ -221,7 +221,7 @@ class RepositoryLayout:
 
         with open(
             self.branch_path(self.branch_name) /
-            self.byte_hashes_path(), encoding="utf-8", newline="\n"
+            self.byte_hashes_path(), encoding=self.constants.UTF_8, newline=self.constants.NEWLINE
         ) as f:
             byte_hashes_data = json.load(f)
 
@@ -262,7 +262,7 @@ class RepositoryLayout:
             return Path(matching_files[0])
 
         if file_data:
-            with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:
+            with open(matching_files[0], "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 commit_file_data = f.read()
             
             self._set_branch_name(None)
@@ -284,7 +284,7 @@ class RepositoryLayout:
 
 
     def current_branch_name(self) -> str:
-        with open(self.current_branch_path(), "r", encoding="utf-8", newline="\n") as f:
+        with open(self.current_branch_path(), "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
             current_branch_data = json.load(f)
         self._set_branch_name(None)
         return current_branch_data[self.constants.CURRENT_BRANCH_DICT_KEY]
@@ -340,7 +340,7 @@ class RepositoryLayout:
             )
 
         try:
-            with open(self.config_path(), "r+", encoding="utf-8", newline="\n") as f:
+            with open(self.config_path(), "r+", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 config = json.load(f)
                 config[key] = value
                 f.seek(0)
@@ -357,7 +357,7 @@ class RepositoryLayout:
     def add_to_branches_list(self, branch_name: str) -> None:
         """Add a new branch to the current branch data in the 'current_branch.json' file."""
         try:
-            with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
+            with open(self.current_branch_path(), "r+", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 branch_data = json.load(f)
                 branch_data[self.constants.BRANCHES_DICT_KEY].append(branch_name)
                 f.seek(0)
@@ -375,7 +375,7 @@ class RepositoryLayout:
     def remove_from_branches_list(self, branch_name: str) -> None:
         """Remove a branch from the current branch data in the 'current_branch.json' file."""
         try:
-            with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
+            with open(self.current_branch_path(), "r+", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 branch_data = json.load(f)
                 if branch_name in branch_data[self.constants.BRANCHES_DICT_KEY]:
                     branch_data[self.constants.BRANCHES_DICT_KEY].remove(branch_name)
@@ -398,7 +398,7 @@ class RepositoryLayout:
     def set_current_branch(self, branch_name: str) -> None:
         """Set the current branch in the 'current_branch.json' file to the specified branch name."""
         try:
-            with open(self.current_branch_path(), "r+", encoding="utf-8", newline="\n") as f:
+            with open(self.current_branch_path(), "r+", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 branch_data = json.load(f)
                 branch_data[self.constants.CURRENT_BRANCH_DICT_KEY] = branch_name
                 f.seek(0)
@@ -416,7 +416,7 @@ class RepositoryLayout:
     def write_diff_html_file(self, html: str) -> None:
         self._set_branch_name(None)
         with open(
-            self.constants.DIFF_OUTPUT_HTML_FILE,  "w", encoding="utf-8", newline="\n"
+            self.constants.DIFF_OUTPUT_HTML_FILE,  "w", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE
         ) as f:
             f.write(html)
 
@@ -604,22 +604,22 @@ class RepositoryLayout:
         with open(
                 self.html_objects_path() / docx_commit_filename,
                 "w",
-                encoding="utf-8",
-                newline="\n",
+                encoding=self.constants.UTF_8,
+                newline=self.constants.NEWLINE,
             ) as f:
                 f.write(utils.wrap_html(self.constants, document_as_html, self.constants.DEFAULT_HTML_STYLES))
 
         with open(
                 self.view_html_objects_path() / docx_commit_filename,
                 "w",
-                encoding="utf-8",
-                newline="\n",
+                encoding=self.constants.UTF_8,
+                newline=self.constants.NEWLINE,
             ) as f:
                 f.write(utils.wrap_html(self.constants, document_as_html, self.constants.DEFAULT_HTML_STYLES))
 
         # update various repository JSON files, update 'update_dict' with the JSON
         try:
-            with open(self.current_branch().byte_hashes_path(), "r", encoding="utf-8", newline="\n") as f:
+            with open(self.current_branch().byte_hashes_path(), "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE) as f:
                 commit_file_hash = json.load(f)
 
         except Exception as e:
@@ -628,7 +628,7 @@ class RepositoryLayout:
         commit_file_hash[commit_hash] = self.convert_docx_to_binary_hash()
 
         with open(
-            self.commit_messages_path(), "r", encoding="utf-8", newline="\n"
+            self.commit_messages_path(), "r", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE
         ) as f:
             try:
                 messages = json.load(f)
@@ -678,7 +678,7 @@ class RepositoryLayout:
         for key, value in update_dict.items():
             try:
                 with open(
-                    Path(key).with_suffix(self.constants.TMP_EXTENSION), "w", encoding="utf-8", newline="\n"
+                    Path(key).with_suffix(self.constants.TMP_EXTENSION), "w", encoding=self.constants.UTF_8, newline=self.constants.NEWLINE
                 ) as f:
                     json.dump(value, f)
             except Exception as e:

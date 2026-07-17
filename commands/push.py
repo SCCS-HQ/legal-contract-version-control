@@ -177,7 +177,7 @@ def clear_updated_branches(constants: SCCSConstants, repo: RepositoryLayout) -> 
     data[constants.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:
-        with open(repo.current_branch_path(), "w", encoding="utf-8", newline="\n") as f:
+        with open(repo.current_branch_path(), "w", encoding=constants.UTF_8, newline=constants.NEWLINE) as f:
             json.dump(data, f, indent=4)
     except Exception as e:
         raise exceptions.FileWriteError(

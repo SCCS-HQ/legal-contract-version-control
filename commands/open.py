@@ -10,16 +10,18 @@ from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 
-def validate_commit_hash(constants: SCCSConstants, commit_hash: str, output_file_name: str) -> None:
+def validate_commit_hash(constants: SCCSConstants, commit_hash: str) -> None:
     """
     Validate the commit hash format.
     """
 
-    if not commit_hash or not len(commit_hash) == constants.COMMIT_HASH_DISPLAY_LENGTH and not len(commit_hash) == constants.FULL_COMMIT_HASH_LENGTH or not all(c in constants.HEX_DIGITS for c in commit_hash):
+    valid_len = len(commit_hash) in (constants.COMMIT_HASH_DISPLAY_LENGTH, constants.FULL_COMMIT_HASH_LENGTH)
+
+    if not commit_hash or not valid_len or not all(c in constants.HEX_DIGITS for c in commit_hash):
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_FILE_FIELD_NAME))
 
 
-def copy_file_commit(constants: SCCSConstants, commit_hash: str, commit_path: Path) -> None:
+def copy_file_commit(commit_path: Path, output_file_name) -> None:
     """
     Copy the commit file to the current document, effectively opening the older commit.
     """
@@ -27,7 +29,7 @@ def copy_file_commit(constants: SCCSConstants, commit_hash: str, commit_path: Pa
     try:
         shutil.copy2(
             commit_path,
-            constants.output_file_name
+            output_file_name
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
@@ -60,7 +62,7 @@ def main(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str | No
 
     commit_hash = commit_path.stem[:constants.COMMIT_HASH_DISPLAY_LENGTH]
 
-    copy_file_commit(constants, commit_hash, commit_path)
+    copy_file_commit(commit_path, output_file_name)
 
     print_rewrite_confirmation_message(constants, commit_hash, output_file_name)
 

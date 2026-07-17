@@ -268,7 +268,7 @@ def main(
 
     docx_current_version_list = tags_to_list(remove_inline_semantics(constants, number_tags(constants, current_version_soup)))
 
-    commit_soup = number_tags(constants, remove_inline_semantics(constants, convert_html_to_soup(constants, commit_hash)))
+    commit_soup = number_tags(constants, remove_inline_semantics(constants, convert_html_to_soup(constants, repo.commit_file(commit_hash, constants.HTML_DIR, path=False, file_data=True))))
 
     redline_soup = format_redline_html(constants, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
 
