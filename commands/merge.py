@@ -71,7 +71,6 @@ def main(constants: SCCSConstants, repo: RepositoryLayout, branch: str | None = 
 
     print_merge_success_message(constants, repo, branch)
 
-RepositoryLayout.latest_commit_path()
 
 if __name__ == "__main__":
     utils.run_command(main, 2)

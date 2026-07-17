@@ -21,7 +21,7 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
     """
 
     if key not in constants.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=constants.COMMA_AND_SPACE_FOR_JOINING.join(constants.ACCEPTED_CONFIG_KEYS)))
+            raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=constants.COMMA_SPACE.join(constants.ACCEPTED_CONFIG_KEYS)))
     
     if not value.strip():
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
@@ -44,7 +44,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if key == constants.REMOTE_KEY:
-        url = value.rstrip(os.sep)
+        url = value.rstrip(constants.PATH_SEPARATOR)
         url_parsed = urlsplit(url)
 
         if (
@@ -57,7 +57,7 @@ def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value:
                 constants.INVALID_URL_ERROR_MESSAGE
             )
         
-        return urljoin(url, f"{constants.REPOS}{os.sep}{repo_name}")
+        return urljoin(url, constants.REPOS_PATH_SEGMENT + constants.PATH_SEPARATOR + repo_name)
     
     return value
 

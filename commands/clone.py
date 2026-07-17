@@ -33,7 +33,7 @@ def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
 
 def request_repo(constants: SCCSConstants, url: str, timeout: int) -> requests.Response:
     """
-    Make a GET request to 'url' and ensure that the request was successful.
+    Make a GET request to url' and ensure that the request was successful.
 
     Return the server response after making a get request to 'url'.
     """
@@ -52,7 +52,7 @@ def request_repo(constants: SCCSConstants, url: str, timeout: int) -> requests.R
 def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
     """Unzip 'buffer'."""
 
-    path_parts = [p for p in urlsplit(url).path.split(constants.URL_PARTS_SEPARATOR) if p]
+    path_parts = [p for p in urlsplit(url).path.split(constants.PATH_SEPARATOR) if p]
 
     if not path_parts or path_parts[-1] != constants.CLONE_ENDPOINT:
         raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)

@@ -11,7 +11,7 @@ from constants_classes import SCCSConstants, ErrorWrappers
 from repository_layout import RepositoryLayout
 
 
-def validate_commit_hash(constants: SCCSConstants, commit_hash: str) -> None:
+def validate_commit_hash(constants: SCCSConstants, commit_hash: str, output_file_name: str) -> None:
     """
     Validate the commit hash format.
     """
@@ -28,13 +28,13 @@ def copy_file_commit(constants: SCCSConstants, commit_hash: str, commit_path: Pa
     try:
         shutil.copy2(
             commit_path,
-            constants.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)
+            constants.output_file_name
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(constants: SCCSConstants, commit_hash: str) -> None:
+def print_rewrite_confirmation_message(constants: SCCSConstants, commit_hash: str, output_file_name: str) -> None:
     """
     Print the confirmation message after rewriting the file using the document name.
     """
@@ -42,7 +42,7 @@ def print_rewrite_confirmation_message(constants: SCCSConstants, commit_hash: st
     print(
         constants.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
             commit_hash=commit_hash,
-            output_file=constants.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)
+            output_file=output_file_name
         )
     )
 
@@ -53,15 +53,17 @@ def main(constants: SCCSConstants, repo: RepositoryLayout, commit_hash: str | No
 
     repo.check_for_uncommitted_changes()
 
-    validate_commit_hash(constants, commit_hash)
+    output_file_name = constants.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash) + constants.DOCX_EXTENSION
+
+    validate_commit_hash(constants, commit_hash, output_file_name)
 
     commit_path = repo.commit_file(commit_hash, constants.DOCX_DIR)
 
-    commit_hash = commit_path.stem[constants.COMMIT_HASH_DISPLAY_LENGTH]
+    commit_hash = commit_path.stem[:constants.COMMIT_HASH_DISPLAY_LENGTH]
 
     copy_file_commit(constants, commit_hash, commit_path)
 
-    print_rewrite_confirmation_message(constants, commit_hash)
+    print_rewrite_confirmation_message(constants, commit_hash, output_file_name)
 
 
 if __name__ == "__main__":

@@ -36,8 +36,8 @@ def zip_cwd(constants: SCCSConstants) -> io.BytesIO:
         raise exceptions.BufferError(constants.BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for root, dirs, files in os.walk("."):
+        with zipfile.ZipFile(buffer, "w", ) as zf:
+            for root, dirs, files in os.walk(constants.WALK_ROOT):
                 for i in files:
                     zf.write(Path(root) / i)
     except Exception as e:
@@ -72,7 +72,7 @@ def post_repo(constants: SCCSConstants, repo_zip: io.BytesIO, url: str) -> reque
         response = requests.post(
             url,
             files=[
-                (constants.POST_FILE_FIElD_NAME, (Path.cwd().name + constants.ZIP_EXTENSION, repo_zip, constants.CONTENT_TYPE_ZIP)),
+                (constants.POST_FILE_FIELD_NAME, (Path.cwd().name + constants.ZIP_EXTENSION, repo_zip, constants.CONTENT_TYPE_ZIP)),
                 (constants.POST_DATA_FIELD_NAME, (None, json.dumps({constants.REMOTE_KEY: url}), constants.CONTENT_TYPE_JSON)),
             ],
             timeout=constants.HTTP_TIMEOUT_SECONDS,
@@ -84,7 +84,7 @@ def post_repo(constants: SCCSConstants, repo_zip: io.BytesIO, url: str) -> reque
     return response
 
 
-def print_publish_success_message(constants: SCCSConstants, response: requests.Response, url: str) -> None:
+def print_publish_success_message(constants: SCCSConstants, repo: RepositoryLayout, response: requests.Response, url: str) -> None:
     print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(constants.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
@@ -97,7 +97,7 @@ def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
 
     reset_current_branch(constants, repo)
 
-    url = constants.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    url = constants.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url())
 
     repo_zip = zip_cwd(constants)
     response = post_repo(constants, repo_zip, url)

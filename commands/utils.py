@@ -19,7 +19,7 @@ def clean_directory_name(name: str) -> str:
     Return a filesystem-safe directory version of 'name' by replacing invalid
     characters.
     """
-    return re.sub(r'[\\/:*?"<>|]', "-", name).strip(". ")
+    return re.sub(r'^[. ]+|[\\/:*?"<>|]|[. ]+$', "-", name)
 
 
 def wrap_html(constants: SCCSConstants, html: str, styles: str) -> str:

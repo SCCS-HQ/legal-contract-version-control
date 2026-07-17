@@ -23,7 +23,7 @@ def get_document_repo_path(constants: SCCSConstants, docx_path: Path) -> Path:
     if not docx_path:
         raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.DOCUMENT_PATH_FIELD_NAME))
     
-    return Path(docx_path).with_suffix("")
+    return Path(docx_path).with_suffix(constants.EMPTY_STRING)
 
 
 def config_inputs(constants: SCCSConstants, repo_path: Path, *data: str) -> dict:
@@ -84,13 +84,11 @@ def create_commit_sha_hash(constants: SCCSConstants, name: str, email: str) -> s
     Return the created SHA-256 hash as a hexadecimal string.
     """
 
-    hash_parts = [constants.PROGRAM_START_TIME, constants.INITIAL_VERSION_HASH_SEGMENT, name, email]
+    hash_parts = [constants.PROGRAM_START_TIME, constants.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
 
     return hashlib.sha256(
-            constants.HASH_PARTS_SEPARATOR.join(hash_parts)
+            constants.PATH_SEPARATOR.join(hash_parts)
         ).hexdigest()
-
-
 
 
 def create_sccs_directory_layout(constants: SCCSConstants, repo_path: Path) -> None:
@@ -161,7 +159,7 @@ def copy_document_to_objects_as_docx_and_html(constants: SCCSConstants, repo_pat
 
     try:
         with open(
-            (objects_path / constants.VIEW_HTML_DIR / f"{sha_hash}.html"),
+            (objects_path / constants.VIEW_HTML_DIR / sha_hash + constants.HTML_EXTENSION),
             "w",
             encoding="utf-8",
             newline="\n",
@@ -177,15 +175,15 @@ def write_history_data(constants: SCCSConstants, repo_path: Path, name: str, ema
 
     history_data = {
         constants.HISTORY_DICT_KEY: {
-            constants.INITIAL_COMMIT_DICT_KEY: f"{sha_hash}",
-            constants.LATEST_COMMIT_DICT_KEY: f"{sha_hash}",
+            constants.INITIAL_COMMIT_DICT_KEY: sha_hash,
+            constants.LATEST_COMMIT_DICT_KEY: sha_hash,
             constants.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
-            constants.COMMIT_ORDER_DICT_KEY: {constants.INITIAL_COMMIT_NUMBER: f"{sha_hash}"},
+            constants.COMMIT_ORDER_DICT_KEY: {constants.INITIAL_COMMIT_NUMBER_DICT_KEY: sha_hash},
         },
         constants.LOG_DICT_KEY: {
-            f"{sha_hash}": {
+            sha_hash: {
                 constants.TIMESTAMP_DICT_KEY: constants.PROGRAM_START_TIME,
-                constants.AUTHOR_DICT_KEY: f"{name} <{email}>",
+                constants.AUTHOR_DICT_KEY: constants.COMMIT_AUTHOR_TEMPLATE.format(name=name, email=email),
                 constants.MESSAGE_DICT_KEY: constants.INITIAL_COMMIT_MESSAGE,
             }
         },
@@ -209,7 +207,7 @@ def write_commit_message_data(constants: SCCSConstants, repo_path: Path, sha_has
     """
 
     commit_message_data = {
-        f"{sha_hash}": constants.INITIAL_COMMIT_MESSAGE
+        sha_hash: constants.INITIAL_COMMIT_MESSAGE
     }
     try:
         with open(
@@ -243,7 +241,7 @@ def write_hashed_file_commit_data(
     except Exception as e:
         raise exceptions.DocumentHashingError from e
 
-    commit_file_hash_data = {f"{sha_hash}": hashed_file}
+    commit_file_hash_data = {sha_hash: hashed_file}
     try:
         with open(
             repo_path / constants.SCCS_DIR / constants.BRANCHES_DIR / constants.MAIN_BRANCH_NAME / constants.COMMIT_FILE_HASH_DIR / constants.COMMIT_FILE_HASH_JSON_FILE,

@@ -36,7 +36,7 @@ def get_matching_file_paths(constants: SCCSConstants, repo: RepositoryLayout, fi
 def push_GET(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a GET request to 'remote'/push, returning the response."""
 
-    url = constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    url = constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url())
     try:
         response = requests.get(url, timeout=constants.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
@@ -137,9 +137,9 @@ def push_POST(constants: SCCSConstants, repo: RepositoryLayout, buffer: io.Bytes
     Return the server response of the POST request to 'remote'.
     """
 
-    remote = repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
+    remote = repo.base_repo_url()
 
-    remote_path = urlsplit(remote).path.rstrip(constants.URL_PARTS_SEPARATOR)
+    remote_path = urlsplit(remote).path.rstrip(constants.PATH_SEPARATOR)
     if not remote_path.endswith(constants.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=repo.repo_name)):
         raise exceptions.InvalidAPIURLError(
             constants.INVALID_PATH_ENDING_ERROR_MESSAGE
@@ -150,7 +150,7 @@ def push_POST(constants: SCCSConstants, repo: RepositoryLayout, buffer: io.Bytes
             constants.PUSH_ENDPOINT_TEMPLATE.format(base_url=remote),
             files=[
                 (
-                    constants.POST_FILE_FIElD_NAME,
+                    constants.POST_FILE_FIELD_NAME,
                     (
                         repo.repo_name + constants.ZIP_EXTENSION,
                         buffer,
@@ -197,13 +197,13 @@ def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs push> command."""
     repo.check_repository_layout()
 
-    remote = repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR)
+    remote = repo.base_repo_url()
 
     GET_response = push_GET(constants, repo)
 
     GET_response.raise_for_status()
 
-    remote_objects = GET_response.json()[constants.HTTP_OBJECTS_DATA_KEY]
+    remote_objects = GET_response.json()[constants.HTTP_OBJECTS_DICT_KEY]
     
     buffer = zip_files_to_upload(constants, repo, remote_objects)
 

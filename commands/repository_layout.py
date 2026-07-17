@@ -28,7 +28,7 @@ class RepositoryLayout:
 
     def document_path(self) -> Path:
         """Return the path to the current document."""
-        path = self.root / self.root.name + self.constants.DOCX_EXTENSION
+        path = self.root / self.repo_name + self.constants.DOCX_EXTENSION
         self._set_branch_name(None)
         return path
     
@@ -230,13 +230,11 @@ class RepositoryLayout:
         return byte_hashes_data
 
 
-    def commit_file(self, commit: str, folder: str = "html", path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str | Path:
+    def commit_file(self, commit: str, folder: str, path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str | Path:
         if commit is None:
             raise exceptions.InvalidArgumentError(
                 self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.constants.COMMIT_FILE_FIELD_NAME)
             )
-        
-        commit = Path(str(commit).strip())
 
         if len(commit.stem.strip()) != self.constants.FULL_COMMIT_HASH_LENGTH and len(commit.stem.strip()) != self.constants.COMMIT_HASH_DISPLAY_LENGTH:
             raise exceptions.InvalidArgumentError(
@@ -314,16 +312,22 @@ class RepositoryLayout:
     
 
     def create_commit_sha_hash(self, hash_parts: list[str]):
-
+        self._set_branch_name(None)
         return hashlib.sha256(
-            self.constants.HASH_PARTS_SEPARATOR.join(hash_parts)
+            self.constants.PATH_SEPARATOR.join(hash_parts)
         ).hexdigest()
 
 
     def repo_objects(self) -> list[Path]:
         objects_dir = self.objects_path()
         objects = list(set(i.stem for i in objects_dir.rglob(self.constants.RGLOB_ALL_FILES_PATTERN) if i.is_file()))
+        self._set_branch_name(None)
         return objects
+
+
+    def base_repo_url(self) -> str:
+        self._set_branch_name(None)
+        return self.config_data(self.constants.REMOTE_KEY).rstrip(self.constants.PATH_SEPARATOR)
 
 
 # Write Data to Files
@@ -411,6 +415,7 @@ class RepositoryLayout:
 
 
     def write_diff_html_file(self, html: str) -> None:
+        self._set_branch_name(None)
         with open(
             self.constants.DIFF_OUTPUT_HTML_FILE,  "w", encoding="utf-8", newline="\n"
         ) as f:
@@ -445,7 +450,6 @@ class RepositoryLayout:
         Validate that required SCCS folders, files, and metadata on the current branch exist
         and that the '.sccs' folder has the correct layout.
         """
-
 
         dirs = [
             self.view_html_objects_path(),
@@ -581,7 +585,7 @@ class RepositoryLayout:
         
         # generate the SHA256 commit hash
             
-        hash_parts = [self.constants.PROGRAM_START_TIME, commit_msg, self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY), self.current_branch().latest_commit()]
+        hash_parts = [self.constants.PROGRAM_START_TIME, commit_msg, self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY)]
 
         commit_hash = self.create_commit_sha_hash(hash_parts)
         
@@ -604,7 +608,7 @@ class RepositoryLayout:
                 encoding="utf-8",
                 newline="\n",
             ) as f:
-                f.write(self.constants.DEFAULT_HTML_STYLES + document_as_html)
+                f.write(utils.wrap_html(self.constants, document_as_html, self.constants.DEFAULT_HTML_STYLES))
 
         with open(
                 self.view_html_objects_path() / docx_commit_filename,
@@ -643,11 +647,11 @@ class RepositoryLayout:
 
         latest_commit_number = history[self.constants.HISTORY_DICT_KEY][self.constants.LATEST_COMMIT_NUMBER_DICT_KEY]
 
-        history[self.constants.HISTORY_DICT_KEY][self.constants.COMMIT_ORDER_DICT_KEY][str(latest_commit_number)] = commit_hash
+        history[self.constants.HISTORY_DICT_KEY][self.constants.COMMIT_ORDER_DICT_KEY][latest_commit_number] = commit_hash
 
         history[self.constants.LOG_DICT_KEY][commit_hash] = {
             self.constants.TIMESTAMP_DICT_KEY: self.constants.PROGRAM_START_TIME,
-            self.constants.AUTHOR_DICT_KEY: self.constants.SPACE_FOR_JOINING.join(self.config_data(self.constants.NAME_KEY), self.config_data(self.constants.EMAIL_KEY)),
+            self.constants.AUTHOR_DICT_KEY: self.constants.COMMIT_AUTHOR_TEMPLATE.format(name=self.config_data(self.constants.NAME_KEY, email=self.config_data(self.constants.EMAIL_KEY))),
             self.constants.MESSAGE_DICT_KEY: commit_msg,
         }
 
@@ -673,7 +677,6 @@ class RepositoryLayout:
         }
 
         for key, value in update_dict.items():
-            print(key)
             try:
                 with open(
                     Path(key).with_suffix(self.constants.TMP_EXTENSION), "w", encoding="utf-8", newline="\n"
@@ -688,6 +691,6 @@ class RepositoryLayout:
             except Exception as e:
                 raise exceptions.TemporaryFileError from e
         
-
+        self._set_branch_name(None)
         return commit_hash
  

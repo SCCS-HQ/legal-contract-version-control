@@ -17,8 +17,8 @@ from repository_layout import RepositoryLayout
 def pull(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = {constants.HTTP_OBJECTS_DATA_KEY: repo.repo_objects()}
-    url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.config_data(constants.REMOTE_KEY).rstrip(constants.URL_PARTS_SEPARATOR))
+    data = {constants.HTTP_OBJECTS_DICT_KEY: repo.repo_objects()}
+    url = constants.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url)
 
     try:
         response = requests.post(url, json=data, timeout=constants.HTTP_TIMEOUT_SECONDS)
@@ -28,7 +28,7 @@ def pull(constants: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     return response
 
 
-def update_repo_files(response: requests.Response) -> None:
+def update_repo_files(constants: SCCSConstants, response: requests.Response) -> None:
     """
     Unzip the file in 'response' to 'destination'.
     """
@@ -57,7 +57,7 @@ def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
     response = pull(constants, repo)
     response.raise_for_status()
 
-    update_repo_files(response)
+    update_repo_files(constants, response)
     
     print_pull_success_message(constants, response, remote)
 
