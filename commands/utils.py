@@ -18,13 +18,13 @@ def clean_directory_name(name: str) -> str:
     return re.sub(r'^[. ]+|[\\/:*?"<>|]|[. ]+$', "-", name)
 
 
-def wrap_html(constants: SCCSConstants, html: str, styles: str) -> str:
+def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     """
     Return a wrapped HTML content in a complete document template using 'styles'. This
     requires 'html' to already include proper 'class' attributes.
     """
     return (
-        constants.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
+        c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
     )
 
 
@@ -36,15 +36,15 @@ def entered_argument(argument: int) -> str | None:
 
 def run_command(main, *args_indices, use_RepositoryLayout: bool = True,):
     try:
-        constants = SCCSConstants()
-        repository = RepositoryLayout(Path.cwd(), constants)
+        c = SCCSConstants()
+        repository = RepositoryLayout(Path.cwd(), c)
         error_wrappers = ErrorWrappers()
         args = [entered_argument(i) for i in args_indices]
 
         if not use_RepositoryLayout:
-            main(constants, *args)
+            main(c, *args)
 
-        main(constants, repository, *args)
+        main(c, repository, *args)
 
 
     except exceptions.SCCSException as e:

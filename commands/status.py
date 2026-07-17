@@ -6,21 +6,21 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants
 
 
-def print_status_message(constants: SCCSConstants, uncommitted_changes: bool) -> None:
+def print_status_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
     """Print the status message to the user."""
     if uncommitted_changes:
-        print(constants.UNCOMMITTED_CHANGES_FOUND)
+        print(c.UNCOMMITTED_CHANGES_FOUND)
     else:
-        print(constants.NO_UNCOMMITTED_CHANGES)
+        print(c.NO_UNCOMMITTED_CHANGES)
 
 
-def main(constants: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
     """Run functions for the <sccs status> command."""
     repo.check_repository_layout()
 
     uncommitted_changes = repo.check_for_uncommitted_changes(raise_on_changes=False)
 
-    print_status_message(constants, uncommitted_changes)
+    print_status_message(c, uncommitted_changes)
 
 
 if __name__ == "__main__":

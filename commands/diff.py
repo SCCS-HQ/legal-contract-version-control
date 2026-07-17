@@ -10,7 +10,7 @@ from constants_classes import SCCSConstants
 from repository_layout import RepositoryLayout
 
 
-def number_tags(constants: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
+def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Add a data-number attribute to all tags in the  HTML, excluding style tags, with a
     unique index value by enumerating through the tags and giving each a data-number
@@ -20,14 +20,14 @@ def number_tags(constants: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     
     for i in enumerate(soup.find_all()):
-        if i[1].name == constants.STYLE_TAG_NAME:
+        if i[1].name == c.STYLE_TAG_NAME:
             continue
-        i[1][constants.DATA_NUMBER_HTML_ATTRIBUTE] = str(i[0])
+        i[1][c.DATA_NUMBER_HTML_ATTRIBUTE] = str(i[0])
     return soup
 
 
 def strip_number_attribute(
-        constants: SCCSConstants,
+        c: SCCSConstants,
         soup: BeautifulSoup
     ) -> BeautifulSoup:
     """
@@ -39,8 +39,8 @@ def strip_number_attribute(
     """
 
     for i in soup.find_all():
-        if constants.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
-            del i[constants.DATA_NUMBER_HTML_ATTRIBUTE]
+        if c.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
+            del i[c.DATA_NUMBER_HTML_ATTRIBUTE]
     return soup
 
 
@@ -55,7 +55,7 @@ def tags_to_list(soup: BeautifulSoup) -> list[str]:
     return [str(i) for i in soup.find_all()]
 
 
-def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
+def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
     """
     Convert a list of tag strings to a set of data-number attribute values by parsing
     each tag to search for the 'data-number' attribute.
@@ -66,15 +66,15 @@ def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
     data_number = set()
     for i in tag_list:
         parsed_tag = (
-            i if hasattr(i, "attrs") else BeautifulSoup(i, constants.HTML_PARSER).find()
+            i if hasattr(i, "attrs") else BeautifulSoup(i, c.HTML_PARSER).find()
         )
         if parsed_tag is not None:
-            if parsed_tag[constants.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
-                data_number.add(parsed_tag[constants.DATA_NUMBER_HTML_ATTRIBUTE])
+            if parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
+                data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
     return data_number
 
 
-def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], soup: BeautifulSoup) -> BeautifulSoup:
+def delete_tag(c: SCCSConstants, old_changed_strings: list[str], soup: BeautifulSoup) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -85,20 +85,20 @@ def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], soup: B
     """
 
     for i in soup.find_all():
-        if i.name == constants.STYLE_TAG_NAME:
+        if i.name == c.STYLE_TAG_NAME:
             i.decompose()
             continue
 
-        if i[constants.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(constants, old_changed_strings):
-            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_HTML_ATTRIBUTE_VALUE)
+        if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
+            if c.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
 def replace_tag(
-    constants: SCCSConstants, old_changed_strings: list[str], new_changed_strings: list[str], soup: BeautifulSoup
+    c: SCCSConstants, old_changed_strings: list[str], new_changed_strings: list[str], soup: BeautifulSoup
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -110,32 +110,32 @@ def replace_tag(
     'inserted' class added to new tags.
     """
 
-    frag = BeautifulSoup(constants.EMPTY_STRING.join(new_changed_strings), constants.HTML_PARSER)
+    frag = BeautifulSoup(c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER)
     match = []
     for i in soup.find_all():
-        if i.name == constants.STYLE_TAG_NAME:
+        if i.name == c.STYLE_TAG_NAME:
             i.decompose()
             continue
-        if i[constants.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(constants, old_changed_strings):
+        if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
             match.append(i)
 
     for i in frag.find_all():
         if i.name:
-            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_HTML_ATTRIBUTE_VALUE)
+            if c.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE]
     if match:
         match[-1].insert_after(frag)
         for i in match:
-            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.DELETED_HTML_ATTRIBUTE_VALUE)
+            if c.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.DELETED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE]
     return soup
 
 
-def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int, soup: BeautifulSoup) -> BeautifulSoup:
+def insert_tag(c: SCCSConstants, new_changed_strings: list[str], i1: int, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -146,17 +146,17 @@ def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int
     """
 
     for i in soup.find_all():
-        if i.name == constants.STYLE_TAG_NAME:
+        if i.name == c.STYLE_TAG_NAME:
             i.decompose()
             continue
     tags = soup.find_all()
-    frag = BeautifulSoup(constants.EMPTY_STRING.join(new_changed_strings), constants.HTML_PARSER)
+    frag = BeautifulSoup(c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER)
     for i in frag.find_all():
         if i.name:
-            if constants.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[constants.CLASS_HTML_ATTRIBUTE].append(constants.INSERTED_HTML_ATTRIBUTE_VALUE)
+            if c.CLASS_HTML_ATTRIBUTE in i.attrs:
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE)
             else:
-                i[constants.CLASS_HTML_ATTRIBUTE] = [constants.INSERTED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:
@@ -164,7 +164,7 @@ def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int
     return soup
 
 
-def remove_inline_semantics(constants: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
+def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
     """
     Remove inline semantics tags from the HTML by using BeautifulSoup.findall() to find
     all tags in the HTML, and unwrapping any tags that match the list of inline
@@ -180,27 +180,27 @@ def remove_inline_semantics(constants: SCCSConstants, html: BeautifulSoup) -> Be
 
     soup = copy.copy(html)
     for i in soup.find_all(
-        constants.TAGS_TO_UNWRAP
+        c.TAGS_TO_UNWRAP
     ):
-        if i.name == constants.STYLE_TAG_NAME:
+        if i.name == c.STYLE_TAG_NAME:
             i.decompose()
         else:
             i.unwrap()
     return soup
 
 
-def convert_html_to_soup(constants: SCCSConstants, html: str) -> BeautifulSoup:
+def convert_html_to_soup(c: SCCSConstants, html: str) -> BeautifulSoup:
     """
     Parse the entered HTML string into a BeautifulSoup object.
 
     Return the BeautifulSoup object representing the parsed HTML.
     """
 
-    return BeautifulSoup(html, constants.HTML_PARSER)
+    return BeautifulSoup(html, c.HTML_PARSER)
 
 
 def format_redline_html(
-        constants: SCCSConstants,
+        c: SCCSConstants,
         past_version: list[str],
         current_version: list[str],
         commit_list: list[str],
@@ -230,24 +230,24 @@ def format_redline_html(
         tag, i1, i2, j1, j2 = i
         old_changed_strings = commit_list[i1:i2]
         new_changed_strings = docx_current_version_list[j1:j2]
-        if tag == constants.REPLACE_OPCODE:
+        if tag == c.REPLACE_OPCODE:
 
-            redline = replace_tag(constants, old_changed_strings, new_changed_strings, soup)
-        if tag == constants.INSERT_OPCODE:
+            redline = replace_tag(c, old_changed_strings, new_changed_strings, soup)
+        if tag == c.INSERT_OPCODE:
 
-            redline = insert_tag(constants, new_changed_strings, i1, soup)
-        if tag == constants.DELETE_OPCODE:
+            redline = insert_tag(c, new_changed_strings, i1, soup)
+        if tag == c.DELETE_OPCODE:
 
-            redline = delete_tag(constants, old_changed_strings, soup)
+            redline = delete_tag(c, old_changed_strings, soup)
     return redline
 
 
-def print_diff_success_message(constants: SCCSConstants):
-    print(constants.DIFF_SUCCESS_MESSAGE)
+def print_diff_success_message(c: SCCSConstants):
+    print(c.DIFF_SUCCESS_MESSAGE)
 
 
 def main(
-        constants: SCCSConstants,
+        c: SCCSConstants,
         repo: RepositoryLayout,
         commit_hash: str,
     ) -> None:
@@ -256,31 +256,31 @@ def main(
 
     repo.check_for_uncommitted_changes()
 
-    commit_soup = convert_html_to_soup(constants, repo.commit_file(commit_hash, constants.HTML_DIR))
+    commit_soup = convert_html_to_soup(c, repo.commit_file(commit_hash, c.HTML_DIR))
 
-    current_version_soup = convert_html_to_soup(constants, repo.convert_docx_to_html())
+    current_version_soup = convert_html_to_soup(c, repo.convert_docx_to_html())
 
-    past_version = tags_to_list(remove_inline_semantics(constants, commit_soup))
+    past_version = tags_to_list(remove_inline_semantics(c, commit_soup))
 
-    current_version = tags_to_list(remove_inline_semantics(constants, current_version_soup))
+    current_version = tags_to_list(remove_inline_semantics(c, current_version_soup))
 
-    commit_list = tags_to_list(remove_inline_semantics(constants, number_tags(constants, commit_soup)))
+    commit_list = tags_to_list(remove_inline_semantics(c, number_tags(c, commit_soup)))
 
-    docx_current_version_list = tags_to_list(remove_inline_semantics(constants, number_tags(constants, current_version_soup)))
+    docx_current_version_list = tags_to_list(remove_inline_semantics(c, number_tags(c, current_version_soup)))
 
-    commit_soup = number_tags(constants, remove_inline_semantics(constants, convert_html_to_soup(constants, repo.commit_file(commit_hash, constants.HTML_DIR, path=False, file_data=True))))
+    commit_soup = number_tags(c, remove_inline_semantics(c, convert_html_to_soup(c, repo.commit_file(commit_hash, c.HTML_DIR, path=False, file_data=True))))
 
-    redline_soup = format_redline_html(constants, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
+    redline_soup = format_redline_html(c, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
 
     repo.write_diff_html_file(
         utils.wrap_html(
-            constants,
-            str(strip_number_attribute(constants, redline_soup)),
-            constants.DEFAULT_HTML_STYLES
+            c,
+            str(strip_number_attribute(c, redline_soup)),
+            c.DEFAULT_HTML_STYLES
         )
     )
 
-    print_diff_success_message(constants)
+    print_diff_success_message(c)
 
 
 if __name__ == "__main__":

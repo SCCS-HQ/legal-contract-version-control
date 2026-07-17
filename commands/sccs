@@ -15,7 +15,7 @@ def get_script_directory() -> Path:
     return Path(__file__).parent.resolve()
 
 
-def run_command(constants: SCCSConstants, entered_command: str) -> None:
+def run_command(c: SCCSConstants, entered_command: str) -> None:
     """
     Run the entered command by running a subprocess of the command and exiting with the
     exit code of the subprocess.
@@ -23,27 +23,27 @@ def run_command(constants: SCCSConstants, entered_command: str) -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            get_script_directory() / entered_command + constants.PYTHON_EXTENSION,]
+            get_script_directory() / entered_command + c.PYTHON_EXTENSION,]
              + sys.argv[1:]
         ).returncode
     )
 
 
-def validate_command(constants: SCCSConstants, entered_command: str) -> None:
+def validate_command(c: SCCSConstants, entered_command: str) -> None:
     """
     Ensure 'command' is valid by checking if it is included in 'COMMANDS'. If command'
     is valid, run it with 'run_command()'.
     """
 
-    if entered_command not in constants.COMMANDS_LIST:
+    if entered_command not in c.COMMANDS_LIST:
         raise exceptions.UnknownCommandError(
-            constants.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(entered_command=entered_command)
+            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(entered_command=entered_command)
         )
 
 
-def main(constants: SCCSConstants, entered_command: str) -> None:
-    validate_command(constants, entered_command)
-    run_command(constants, entered_command)
+def main(c: SCCSConstants, entered_command: str) -> None:
+    validate_command(c, entered_command)
+    run_command(c, entered_command)
 
 
 if __name__ == "__main__":

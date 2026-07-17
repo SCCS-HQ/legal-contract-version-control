@@ -7,30 +7,30 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants
 
 
-def print_commit_confirmation_message(constants: SCCSConstants, repo: RepositoryLayout, sha_hash) -> None:
+def print_commit_confirmation_message(c: SCCSConstants, repo: RepositoryLayout, sha_hash) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
-        print(constants.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:constants.COMMIT_HASH_DISPLAY_LENGTH]))
+        print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]))
     except Exception as e:
-        raise exceptions.SCCSException(constants.COMMIT_FAILURE_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
 
-def validate_commit_message(constants: SCCSConstants, commit_message: str) -> None:
+def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
 
     if commit_message is None or not commit_message.strip():
-        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.COMMIT_MESSAGE_FIELD_NAME))
+        raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_MESSAGE_FIELD_NAME))
 
 
-def main(constants: SCCSConstants, repo: RepositoryLayout, commit_message: str) -> None:
+def main(c: SCCSConstants, repo: RepositoryLayout, commit_message: str) -> None:
     """Run functions for the <sccs commit> command."""
     repo.check_repository_layout()
 
-    validate_commit_message(constants, commit_message)
+    validate_commit_message(c, commit_message)
 
     sha_hash = repo.commit_changes(commit_message)
 
-    print_commit_confirmation_message(constants, repo, sha_hash)
+    print_commit_confirmation_message(c, repo, sha_hash)
 
 
 if __name__ == "__main__":

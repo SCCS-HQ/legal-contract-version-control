@@ -8,7 +8,7 @@ from repository_layout import RepositoryLayout
 from constants_classes import SCCSConstants
 from urllib.parse import urlsplit, urljoin
 
-def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> None:
+def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> None:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
     by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
@@ -17,67 +17,67 @@ def validate_entered_value(constants: SCCSConstants, repo_name: str, key: str, v
     Return the resolved 'remote'.
     """
 
-    if key not in constants.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(constants.INVALID_KEY_ERROR_MESSAGE.format(keys=constants.COMMA_SPACE.join(constants.ACCEPTED_CONFIG_KEYS)))
+    if key not in c.ACCEPTED_CONFIG_KEYS:
+            raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE.format(keys=c.COMMA_SPACE.join(c.ACCEPTED_CONFIG_KEYS)))
     
     if not value.strip():
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
+        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
     if not repo_name.strip():
-        raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.REPOSITORY_NAME_FIELD_NAME))
+        raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
 
     repo_name = utils.clean_directory_name(repo_name)
 
     if repo_name is None:
         raise exceptions.InvalidArgumentError(
-            constants.INVALID_REPO_NAME_ERROR_MESSAGE
+            c.INVALID_REPO_NAME_ERROR_MESSAGE
         )
 
 
-def resolve_key_value(constants: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
+def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
 
     if not value:
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
+        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
     
-    if key == constants.REMOTE_KEY:
-        url = value.rstrip(constants.PATH_SEPARATOR)
+    if key == c.REMOTE_KEY:
+        url = value.rstrip(c.PATH_SEPARATOR)
         url_parsed = urlsplit(url)
 
         if (
-            url_parsed.scheme.lower() not in constants.ACCEPTED_SCHEMES
+            url_parsed.scheme.lower() not in c.ACCEPTED_SCHEMES
             or not url_parsed.netloc
             or url_parsed.query
             or url_parsed.fragment
         ):
             raise exceptions.InvalidArgumentError(
-                constants.INVALID_URL_ERROR_MESSAGE
+                c.INVALID_URL_ERROR_MESSAGE
             )
         
-        return urljoin(url, constants.REPOS_PATH_SEGMENT + constants.PATH_SEPARATOR + repo_name)
+        return urljoin(url, c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name)
     
     return value
 
 
-def print_config_confirmation_message(constants: SCCSConstants, key: str, value: str) -> None:
+def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) -> None:
     """Print a confirmation message after successfully setting the configuration."""
 
-    print(constants.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
+    print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(constants: SCCSConstants, repo: RepositoryLayout, key: str, value: str) -> None:
+def main(c: SCCSConstants, repo: RepositoryLayout, key: str, value: str) -> None:
     """Run functions for the <sccs config> command."""
     repo.check_repository_layout()
 
     repo_name = repo.repo_name
     
-    validate_entered_value(constants, repo_name, key, value)
+    validate_entered_value(c, repo_name, key, value)
 
-    value = resolve_key_value(constants, repo_name, key, value)
+    value = resolve_key_value(c, repo_name, key, value)
 
     repo.write_key_to_config(key, value)
 
-    print_config_confirmation_message(constants, key, value)
+    print_config_confirmation_message(c, key, value)
 
 
 if __name__ == "__main__":

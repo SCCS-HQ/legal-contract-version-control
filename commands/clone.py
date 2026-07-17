@@ -10,7 +10,7 @@ import utils
 from urllib.parse import urlsplit
 from constants_classes import SCCSConstants
 
-def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
+def resolve_entered_url(c: SCCSConstants, url: str) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
@@ -19,18 +19,18 @@ def resolve_entered_url(constants: SCCSConstants, url: str) -> str:
     """
 
     if not url :
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.URL_FIELD_NAME))
+        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME))
 
-    if not any(url.startswith(i) for i in constants.ACCEPTED_SCHEMES):
-        raise exceptions.InvalidArgumentError(constants.INVALID_URL_ERROR_MESSAGE)
+    if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
+        raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 
-    if not url.endswith(constants.CLONE_ENDPOINT):
-       raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
+    if not url.endswith(c.CLONE_ENDPOINT):
+       raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
 
     return url
 
 
-def request_repo(constants: SCCSConstants, url: str, timeout: int) -> requests.Response:
+def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
     """
     Make a GET request to url' and ensure that the request was successful.
 
@@ -42,52 +42,52 @@ def request_repo(constants: SCCSConstants, url: str, timeout: int) -> requests.R
         response.raise_for_status()
     except requests.RequestException as e:
         raise exceptions.HTTPGetRequestError(
-            constants.HTTP_REQUEST_ERROR_MESSAGE
+            c.HTTP_REQUEST_ERROR_MESSAGE
         ) from e
     
     return response
 
 
-def unzip_repo_file(constants: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
+def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
     """Unzip 'buffer'."""
 
-    path_parts = [p for p in urlsplit(url).path.split(constants.PATH_SEPARATOR) if p]
+    path_parts = [p for p in urlsplit(url).path.split(c.PATH_SEPARATOR) if p]
 
-    if not path_parts or path_parts[-1] != constants.CLONE_ENDPOINT:
-        raise exceptions.InvalidArgumentError(constants.INVALID_ENDING_ERROR_MESSAGE)
+    if not path_parts or path_parts[-1] != c.CLONE_ENDPOINT:
+        raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
     
     if len(path_parts) < 2:
-        raise exceptions.InvalidArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=constants.REPOSITORY_NAME_FIELD_NAME))
+        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
     
     repo_name = path_parts[-2]
 
     try:
         zipfile.ZipFile(buffer, "r").extractall(repo_name)
     except Exception as e:
-        raise exceptions.ZippingFileError(constants.UNZIP_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 
-def print_clone_success_message(constants: SCCSConstants, response: requests.Response) -> None:
+def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
     """Print a success message after cloning the repository."""
 
-    print(constants.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(constants.CLONE_SUCCESS_MESSAGE)
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(c.CLONE_SUCCESS_MESSAGE)
 
 
-def main(constants: SCCSConstants, url: str) -> None:
+def main(c: SCCSConstants, url: str) -> None:
     """Run functions for the <sccs clone> command."""
 
-    url = resolve_entered_url(constants, url)
+    url = resolve_entered_url(c, url)
 
-    response = request_repo(constants, url, constants.HTTP_TIMEOUT_SECONDS)
+    response = request_repo(c, url, c.HTTP_TIMEOUT_SECONDS)
 
     buffer = io.BytesIO(response.content)
 
-    unzip_repo_file(constants, buffer, url)
+    unzip_repo_file(c, buffer, url)
 
     response.raise_for_status()
 
-    print_clone_success_message(constants, response)
+    print_clone_success_message(c, response)
 
 
 if __name__ == "__main__":
