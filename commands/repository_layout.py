@@ -140,7 +140,7 @@ class RepositoryLayout:
 
         latest_commit = self.current_branch().latest_commit()
 
-        path = self.commit_file(latest_commit, folder)
+        path = self.commit_file(latest_commit, folder, path=True)
 
         self._set_branch_name(None)
         return path
@@ -229,7 +229,7 @@ class RepositoryLayout:
         return byte_hashes_data
 
 
-    def commit_file(self, commit: str, folder: str, path: bool = True, file_data: bool = False, hash_10_char: bool = False) -> str | Path:
+    def commit_file(self, commit: str, folder: str, path: bool = False, file_data: bool = False, hash_10_char: bool = False) -> str | Path:
         if commit is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.COMMIT_FILE_FIELD_NAME)
@@ -239,6 +239,12 @@ class RepositoryLayout:
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
+
+
+
+        if sum((path, file_data, hash_10_char)) != 1:
+            raise TypeError("Exactly one of a, b, or c must be provided.")
+            
 
         matching_files = []
 
@@ -260,7 +266,7 @@ class RepositoryLayout:
         if path:
             self._set_branch_name(None)
             return Path(matching_files[0])
-
+        
         if file_data:
             with open(matching_files[0], "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
                 commit_file_data = f.read()
@@ -270,7 +276,7 @@ class RepositoryLayout:
         
         if hash_10_char:
             self._set_branch_name(None)
-            return matching_files[0].stem[self.c.COMMIT_HASH_DISPLAY_LENGTH]
+            return matching_files[0].stem[:self.c.COMMIT_HASH_DISPLAY_LENGTH]
         
 
 

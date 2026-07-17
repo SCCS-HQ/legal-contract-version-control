@@ -58,7 +58,7 @@ def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str | None = Non
 
     validate_commit_hash(c, commit_hash, output_file_name)
 
-    commit_path = repo.commit_file(commit_hash, c.DOCX_DIR)
+    commit_path = repo.commit_file(commit_hash, c.DOCX_DIR, path=True)
 
     commit_hash = commit_path.stem[:c.COMMIT_HASH_DISPLAY_LENGTH]
 

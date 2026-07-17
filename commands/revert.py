@@ -12,7 +12,7 @@ from repository_layout import RepositoryLayout
 def revert(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    src = repo.commit_file(commit_hash, c.DOCX_DIR)
+    src = repo.commit_file(commit_hash, c.DOCX_DIR, path=True)
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
