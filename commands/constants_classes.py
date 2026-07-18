@@ -6,7 +6,7 @@ from functools import cached_property
 
 
 class SCCSConstants:
-    #region Shared (holds all shared sections)
+    #region Shared (constants used in multiple command modules)
 
     #region Shared - Strings (messages, templates, field names, values, separators, attributes, resources, endpoints)
 
@@ -102,11 +102,13 @@ class SCCSConstants:
     COMMIT_ORDER_DICT_KEY = "commit_order"
     CURRENT_BRANCH_DICT_KEY = "current_branch"
     LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
+    LATEST_COMMIT_DICT_KEY = "latest_commit"
     LOG_DICT_KEY = "log"
     MESSAGE_DICT_KEY = "message"
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
     HTTP_OBJECTS_DICT_KEY = "objects"
+    HEX_DIGITS = "0123456789abcdef"
 
     #endregion
 
@@ -136,7 +138,6 @@ class SCCSConstants:
             }
     </style>
     """
-
 
     #endregion
 
@@ -175,6 +176,7 @@ class SCCSConstants:
         "help": "Print this help message.",
         "init": "Initialize a new SCCS repository.",
         "log": "Print a list of past commits for the current branch.",
+        "merge": "Merge the entered branch into the current branch.",
         "open": "Open a commit file and update the current document.",
         "publish": "Publish a local repository to a hosting service.",
         "pull": "Pull changes from a remote repository and merge them into the local repository.",
@@ -183,8 +185,27 @@ class SCCSConstants:
         "reset": "Delete all uncommitted changes.",
         "switch": "Switch between document branches.",
         "status": "Check the status of the current document for uncommitted changes.",
-        "merge": "Merge the entered branch into the current branch.",
     }
+
+    #endregion
+
+    #region Shared - File I/O
+
+    UTF_8 = "utf-8"
+    NEWLINE = "\n"
+    JSON_EXTENSION = ".json"
+    TMP_EXTENSION = ".tmp"
+    EMPTY_STRING = ""
+    SPACE = " "
+
+    #endregion
+
+    #region Shared - Runtime
+
+    @cached_property
+    def PROGRAM_START_TIME(self) -> str:
+        """Return the program start time in a human-readable format."""
+        return datetime.datetime.now().isoformat()
 
     #endregion
 
@@ -296,16 +317,14 @@ class SCCSConstants:
     ## HELP_MESSAGES is assigned at module level after the class (see bottom of file),
     ## because it depends on COMMANDS_LIST and COMMAND_DESCRIPTIONS which are not yet
     ## bound to the class name during class-body execution.
+    HELP_MESSAGES: tuple
 
     #endregion
 
     #region init.py
 
     ## strings - hash segments
-    EMPTY_STRING = ""
-    SPACE = " "
     HTML_BOILERPLATE_TEMPLATE = "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
-    HEX_DIGITS = "0123456789abcdef"
     FULL_COMMIT_HASH_LENGTH = 64
     HTML_EXTENSION = ".html"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
@@ -397,7 +416,6 @@ class SCCSConstants:
     #region push.py
 
     ## strings - extensions / dir templates
-    JSON_EXTENSION = ".json"
     TMP_DIR_TEMPLATE = "tmp_{repo_name}"
 
     ## strings - endpoints
@@ -451,7 +469,6 @@ class SCCSConstants:
 
     ## strings - branch name attribute / extensions
     BRANCH_NAME_ATTRIBUTE = "branch_name"
-    TMP_EXTENSION = ".tmp"
 
     #endregion
 
@@ -466,8 +483,6 @@ class SCCSConstants:
     #region revert.py
 
     ## strings - error messages
-    NEWLINE = "\n"
-    UTF_8 = "utf-8"
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
 
     ## strings - success / template messages
@@ -501,11 +516,6 @@ class SCCSConstants:
 
     #endregion
 
-    @cached_property
-    def PROGRAM_START_TIME(self) -> str:
-        """Return the program start time in a human-readable format."""
-        return datetime.datetime.now().isoformat()
-
 
 # --- Module-level post-class setup ---
 # These depend on COMMANDS_LIST / COMMAND_DESCRIPTIONS, which are not bound to the
@@ -519,10 +529,13 @@ SCCSConstants.HELP_MESSAGES = (
     for i in SCCSConstants.COMMANDS_LIST
 )
 
-_missing_commands = [cmd for cmd in SCCSConstants.COMMANDS_LIST if cmd not in SCCSConstants.COMMAND_DESCRIPTIONS]
+_missing_commands = [
+    cmd for cmd in SCCSConstants.COMMANDS_LIST
+    if cmd not in SCCSConstants.COMMAND_DESCRIPTIONS
+]
 if _missing_commands:
     raise ValueError(
-        f"COMMAND_DESCRIPTIONS is missing entries for: {COMMA_SPACE.join(_missing_commands)}"
+        f"COMMAND_DESCRIPTIONS is missing entries for: {SCCSConstants.COMMA_SPACE.join(_missing_commands)}"
     )
 
 

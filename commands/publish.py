@@ -84,7 +84,7 @@ def post_repo(c: SCCSConstants, repo: RepositoryLayout, repo_zip: io.BytesIO, ur
             )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
-            c.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)
+            c.HTTP_REQUEST_ERROR_MESSAGE
         ) from e
     return response
 

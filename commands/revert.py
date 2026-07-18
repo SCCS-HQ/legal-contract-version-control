@@ -3,6 +3,8 @@
 
 import shutil
 
+from anyio import Path
+
 import exceptions
 import utils
 from constants_classes import SCCSConstants

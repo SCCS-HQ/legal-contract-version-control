@@ -17,11 +17,11 @@ def validate_commit_hash(c: SCCSConstants, commit_hash: str) -> None:
 
     valid_len = len(commit_hash) in (c.COMMIT_HASH_DISPLAY_LENGTH, c.FULL_COMMIT_HASH_LENGTH)
 
-    if not commit_hash or not valid_len or not all(c in c.HEX_DIGITS for c in commit_hash):
+    if not commit_hash or not valid_len or not all(i in c.HEX_DIGITS for i in commit_hash):
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME))
 
 
-def copy_file_commit(commit_path: Path, output_file_name) -> None:
+def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
     """
     Copy the commit file to the current document, effectively opening the older commit.
     """
@@ -35,7 +35,7 @@ def copy_file_commit(commit_path: Path, output_file_name) -> None:
         raise exceptions.FileCopyError from e
 
 
-def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, output_file_name: str) -> None:
+def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, output_file_name: Path) -> None:
     """
     Print the confirmation message after rewriting the file using the document name.
     """
@@ -48,7 +48,7 @@ def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, outpu
     )
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str | None = None) -> None:
+def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
     """Run functions for the <sccs open> command."""
     repo.check_repository_layout()
 
@@ -56,11 +56,9 @@ def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str | None = Non
 
     output_file_name = Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)).with_suffix(c.DOCX_EXTENSION)
 
-    validate_commit_hash(c, commit_hash, output_file_name)
+    validate_commit_hash(c, commit_hash)
 
     commit_path = repo.commit_file(commit_hash, c.DOCX_DIR, path=True)
-
-    commit_hash = commit_path.stem[:c.COMMIT_HASH_DISPLAY_LENGTH]
 
     copy_file_commit(commit_path, output_file_name)
 

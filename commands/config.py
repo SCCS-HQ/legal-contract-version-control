@@ -34,7 +34,7 @@ def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: st
         )
 
 
-def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> str | None:
+def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> str:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
 
     if not value:

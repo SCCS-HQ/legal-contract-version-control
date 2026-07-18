@@ -85,7 +85,7 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
     hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
 
     return hashlib.sha256(
-            c.PATH_SEPARATOR.join(hash_parts)
+            c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)
         ).hexdigest()
 
 
@@ -233,7 +233,7 @@ def write_hashed_file_commit_data(
     try:
         with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
-            for i in iter(lambda: f.read(c.MAX_FILE_READ_SIZE), b""):
+            while i := f.read(c.MAX_FILE_READ_SIZE):
                 hasher.update(i)
             hashed_file = hasher.hexdigest()
     except Exception as e:
@@ -277,7 +277,7 @@ def print_init_success_message(c: SCCSConstants) -> None:
     print(c.INIT_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, docx_path: str) -> None:
+def main(c: SCCSConstants, docx_path: Path) -> None:
     """Run functions for the <sccs init> command."""
    
     repo_path = get_document_repo_path(c, docx_path)

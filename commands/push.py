@@ -23,7 +23,9 @@ def get_matching_file_paths(c: SCCSConstants, repo: RepositoryLayout, filename: 
     """
 
     paths = []
-    for i in repo.current_branch_data(c.UPDATED_BRANCHES_DICT_KEY):
+    updated_branches = repo.current_branch_data(c.UPDATED_BRANCHES_DICT_KEY)
+    assert updated_branches is not None
+    for i in updated_branches:
         branch_dir = repo.branches_path() / i
         if branch_dir.is_dir():
             f = (branch_dir / filename / filename).with_suffix(c.JSON_EXTENSION)
@@ -75,10 +77,10 @@ def zip_files_to_upload(c: SCCSConstants, repo: RepositoryLayout, remote_objects
     layout as a repository.
     """
 
-    document_path = repo.document_path()
+    document_path = [repo.document_path()]
 
-    current_branch_path = repo.current_branch_path()
-    commit_messages_path = repo.commit_messages_path()
+    current_branch_path = [repo.current_branch_path()]
+    commit_messages_path = [repo.commit_messages_path()]
     obj_to_upload_set = set(compare_hash_lists(repo, remote_objects))
     objects_paths = [
         i.resolve()
@@ -174,6 +176,8 @@ def clear_updated_branches(c: SCCSConstants, repo: RepositoryLayout) -> None:
     data = repo.current_branch_data()
     if data is None:
         data = {}
+    if not isinstance(data, dict):
+        raise ValueError
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:

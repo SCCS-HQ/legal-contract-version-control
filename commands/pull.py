@@ -15,13 +15,13 @@ from repository_layout import RepositoryLayout
 def pull(c: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = {c.HTTP_OBJECTS_DICT_KEY: repo.repo_objects()}
+    data = f"{c.HTTP_OBJECTS_DICT_KEY: repo.repo_objects()}"
     url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url)
 
     try:
         response = requests.post(url, json=data, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(c.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)) from e
+        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 

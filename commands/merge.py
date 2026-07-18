@@ -52,7 +52,7 @@ def print_merge_success_message(c: SCCSConstants, repo: RepositoryLayout, branch
     )
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, branch: str | None = None) -> None:
+def main(c: SCCSConstants, repo: RepositoryLayout, branch: str) -> None:
     """Merge the entered branch into the current branch."""
 
     repo.check_repository_layout()
@@ -60,7 +60,7 @@ def main(c: SCCSConstants, repo: RepositoryLayout, branch: str | None = None) ->
     repo.check_for_uncommitted_changes()
 
     validate_branch(c, repo, branch)
-    copy_repo_document(repo, branch)
+    copy_repo_document(c, repo, branch)
     copy_branch_data(repo, branch)
 
     repo.commit_changes(
