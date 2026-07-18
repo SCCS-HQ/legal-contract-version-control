@@ -52,7 +52,7 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
     return buffer
 
 
-def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str) -> requests.Response:
+def post_repo(c: SCCSConstants, repo: RepositoryLayout, repo_zip: io.BytesIO, url: str) -> requests.Response:
     """
     Make a POST request to 'remote', sending the zipped current working directory as a file
     and 'remote' as JSON.
@@ -71,11 +71,17 @@ def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str) -> requests.Resp
         response = requests.post(
             url,
             files=[
-                (c.POST_FILE_FIELD_NAME, (Path.cwd().name + c.ZIP_EXTENSION, repo_zip, c.CONTENT_TYPE_ZIP)),
-                (c.POST_DATA_FIELD_NAME, (None, json.dumps({c.REMOTE_KEY: url}), c.CONTENT_TYPE_JSON)),
+                (
+                    c.POST_FILE_FIELD_NAME,
+                    (
+                        str(Path(repo.repo_name).with_suffix(c.ZIP_EXTENSION)),
+                        repo_zip,
+                        c.CONTENT_TYPE_ZIP,
+                    ),
+                ),
             ],
             timeout=c.HTTP_TIMEOUT_SECONDS,
-        )
+            )
     except Exception as e:
         raise exceptions.HTTPPostRequestError(
             c.HTTP_POST_REQUEST_ERROR_MESSAGE_TEMPLATE.format(url=url)
@@ -99,11 +105,11 @@ def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url())
 
     repo_zip = zip_cwd(c)
-    response = post_repo(c, repo_zip, url)
+    response = post_repo(c, repo, repo_zip, url)
 
     response.raise_for_status()
 
-    print_publish_success_message(c, response, url)
+    print_publish_success_message(c, repo, response, url)
 
 
 if __name__ == "__main__":

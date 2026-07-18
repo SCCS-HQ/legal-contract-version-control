@@ -27,7 +27,7 @@ class RepositoryLayout:
 
     def document_path(self) -> Path:
         """Return the path to the current document."""
-        path = self.root / self.repo_name + self.c.DOCX_EXTENSION
+        path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
         self._set_branch_name(None)
         return path
     
@@ -600,7 +600,7 @@ class RepositoryLayout:
         # copy the current version of the document to the commit directories ('docx', 'html', 'view_html')
         # use the html version for commit directories which require it ('html', 'view_html')
         
-        docx_commit_filename = commit_hash + self.c.DOCX_EXTENSION
+        docx_commit_filename = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
         
         shutil.copy2(
                     self.document_path(),

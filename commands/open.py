@@ -54,7 +54,7 @@ def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str | None = Non
 
     repo.check_for_uncommitted_changes()
 
-    output_file_name = c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash) + c.DOCX_EXTENSION
+    output_file_name = Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)).with_suffix(c.DOCX_EXTENSION)
 
     validate_commit_hash(c, commit_hash, output_file_name)
 

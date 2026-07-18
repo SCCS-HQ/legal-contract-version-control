@@ -23,7 +23,7 @@ def run_command(c: SCCSConstants, entered_command: str) -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            get_script_directory() / entered_command + c.PYTHON_EXTENSION,]
+            Path(get_script_directory() / entered_command).with_suffix(c.PYTHON_EXTENSION),]
              + sys.argv[1:]
         ).returncode
     )

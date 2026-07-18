@@ -26,7 +26,7 @@ def get_matching_file_paths(c: SCCSConstants, repo: RepositoryLayout, filename: 
     for i in repo.current_branch_data(c.UPDATED_BRANCHES_DICT_KEY):
         branch_dir = repo.branches_path() / i
         if branch_dir.is_dir():
-            f = branch_dir / filename / (filename + c.JSON_EXTENSION)
+            f = (branch_dir / filename / filename).with_suffix(c.JSON_EXTENSION)
             if f.is_file():
                 paths.append(f.resolve())
     return paths
@@ -151,7 +151,7 @@ def push_POST(c: SCCSConstants, repo: RepositoryLayout, buffer: io.BytesIO) -> r
                 (
                     c.POST_FILE_FIELD_NAME,
                     (
-                        repo.repo_name + c.ZIP_EXTENSION,
+                        str(Path(repo.repo_name).with_suffix(c.ZIP_EXTENSION)),
                         buffer,
                         c.CONTENT_TYPE_ZIP,
                     ),
