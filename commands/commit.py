@@ -18,7 +18,7 @@ def print_commit_confirmation_message(c: SCCSConstants, repo: RepositoryLayout, 
 
 def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
 
-    if commit_message is None or not commit_message.strip():
+    if commit_message is None or not commit_message:
         raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_MESSAGE_FIELD_NAME))
 
 
