@@ -35,17 +35,16 @@ def entered_argument(argument: int) -> str | None:
     return arg_value.strip() if isinstance(arg_value, str) else None
 
 def run_command(main, *args_indices, use_RepositoryLayout: bool = True,):
+    error_wrappers = ErrorWrappers()
+    c = SCCSConstants()
+    repository = RepositoryLayout(Path.cwd(), c)
     try:
-        c = SCCSConstants()
-        repository = RepositoryLayout(Path.cwd(), c)
-        error_wrappers = ErrorWrappers()
         args = [entered_argument(i) for i in args_indices]
 
         if not use_RepositoryLayout:
             main(c, *args)
 
         main(c, repository, *args)
-
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
