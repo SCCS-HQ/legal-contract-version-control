@@ -1,0 +1,3672 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../CODE_OF_CONDUCT/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Documentation - Simple Contract Communication System</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Simple Contract Communication System" class="md-header__button md-logo" aria-label="Simple Contract Communication System" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Simple Contract Communication System
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Simple Contract Communication System" class="md-nav__button md-logo" aria-label="Simple Contract Communication System" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Simple Contract Communication System
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Branch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subcommands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subcommands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clone
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Clone">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valid-configuration-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valid Configuration Keys
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Valid Configuration Keys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remote
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Init
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompted-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompted Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Merge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Open">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirmation-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirmation Prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publish
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publish">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Push
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Push">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revert
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Revert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Switch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-initialize-a-new-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Initialize a New Repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configure-your-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Configure Your Identity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-create-your-first-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Create Your First Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-check-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Check Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-view-commit-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. View Commit History
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-create-and-switch-to-a-new-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Create and Switch to a New Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-make-changes-and-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Make Changes and Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-view-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. View Differences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-merge-back-to-main" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Merge Back to Main
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-configure-remote-and-push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Configure Remote and Push
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_OF_CONDUCT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code of Conduct
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Branch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subcommands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subcommands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Subcommands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clone
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Clone">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valid-configuration-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Valid Configuration Keys
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Valid Configuration Keys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        name
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#email" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        email
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        remote
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Init
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Init">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompted-inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompted Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Merge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Open">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirmation-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirmation Prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publish
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Publish">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pull
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pull">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Push
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Push">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revert
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Revert">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Switch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Switch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start Guide
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-initialize-a-new-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Initialize a New Repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-configure-your-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Configure Your Identity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-create-your-first-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Create Your First Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-check-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Check Status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-view-commit-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. View Commit History
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-create-and-switch-to-a-new-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Create and Switch to a New Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-make-changes-and-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Make Changes and Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-view-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. View Differences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-merge-back-to-main" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Merge Back to Main
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-configure-remote-and-push" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Configure Remote and Push
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="documentation">Documentation</h1>
+<p>This documentation covers all available commands in the <strong>SCCS (Specialized Contract Control System)</strong> — a version control and diffing tool designed specifically for <code>.docx</code> legal contracts and documents.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#branch">Branch</a> — Create, delete, and manage branches</li>
+<li><a href="#clone">Clone</a> — Clone a hosted repository</li>
+<li><a href="#commit">Commit</a> — Commit changes to the repository</li>
+<li><a href="#config">Config</a> — Configure repository settings</li>
+<li><a href="#diff">Diff</a> — Display differences between commits</li>
+<li><a href="#help">Help</a> — Display help information</li>
+<li><a href="#init">Init</a> — Initialize a new repository</li>
+<li><a href="#log">Log</a> — View commit history</li>
+<li><a href="#merge">Merge</a> — Merge branches together</li>
+<li><a href="#open">Open</a> — Open a historical commit</li>
+<li><a href="#publish">Publish</a> — Publish repository to a hosting service</li>
+<li><a href="#pull">Pull</a> — Pull changes from remote repository</li>
+<li><a href="#push">Push</a> — Push changes to remote repository</li>
+<li><a href="#reset">Reset</a> — Discard uncommitted changes</li>
+<li><a href="#revert">Revert</a> — Revert to a previous commit</li>
+<li><a href="#status">Status</a> — Check for uncommitted changes</li>
+<li><a href="#switch">Switch</a> — Switch between branches</li>
+</ol>
+<hr />
+<h2 id="branch">Branch</h2>
+<p><strong>Create, delete, and list branches within your repository.</strong></p>
+<h3 id="usage">Usage</h3>
+<pre><code class="language-bash">sccs branch &lt;subcommand&gt; [branch-name]
+</code></pre>
+<h3 id="subcommands">Subcommands</h3>
+<h4 id="create">create</h4>
+<p>Creates a new branch based on the current branch.</p>
+<p><strong>Usage:</strong> <code>sccs branch create &lt;branch-name&gt;</code></p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>&lt;branch-name&gt;</code> — The name of the new branch to create</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>The new branch inherits all commits and history from the current branch</li>
+<li>The newly created branch becomes the current branch</li>
+<li>Branch names are sanitized to be valid directory names</li>
+<li>Fails if a branch with the same name already exists</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">sccs branch create feature-update
+</code></pre>
+<h4 id="delete">delete</h4>
+<p>Deletes an existing branch.</p>
+<p><strong>Usage:</strong> <code>sccs branch delete &lt;branch-name&gt;</code></p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li><code>&lt;branch-name&gt;</code> — The name of the branch to delete</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Cannot delete the current branch (switch branches first)</li>
+<li>Removes the branch from all metadata files</li>
+<li>Fails if the branch does not exist</li>
+<li>Changes are rolled back if deletion fails partway through</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">sccs branch delete old-version
+</code></pre>
+<h4 id="list">list</h4>
+<p>Displays all branches in the repository, marking the current branch with an asterisk.</p>
+<p><strong>Usage:</strong> <code>sccs branch list</code></p>
+<p><strong>Arguments:</strong> None</p>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Lists all branches in alphabetical order</li>
+<li>Marks the current branch with <code>*</code> (current)</li>
+<li>Other branches are prefixed with spaces</li>
+</ul>
+<p><strong>Example Output:</strong></p>
+<pre><code>Branches:
+
+  backup-branch
+  feature-update
+* main (current)
+</code></pre>
+<hr />
+<h2 id="clone">Clone</h2>
+<p>Download a hosted SCCS repository to your local machine.</p>
+<h3 id="usage_1">Usage</h3>
+<pre><code class="language-bash">sccs clone &lt;url&gt;
+</code></pre>
+<h3 id="arguments">Arguments</h3>
+<ul>
+<li><code>&lt;url&gt;</code> — The hosted repository URL (must be a valid HTTP/HTTPS URL)</li>
+</ul>
+<h3 id="behavior">Behavior</h3>
+<ul>
+<li>Automatically appends <code>/clone</code> to the URL if not present</li>
+<li>Downloads and extracts the repository as a zip file</li>
+<li>Creates a folder named after the repository in the current directory</li>
+<li>Requires internet connectivity</li>
+</ul>
+<h3 id="example">Example</h3>
+<pre><code class="language-bash">sccs clone https://api.example.com/legal-contracts
+</code></pre>
+<hr />
+<h2 id="commit">Commit</h2>
+<p>Save the current document changes as a new commit in the repository.</p>
+<h3 id="usage_2">Usage</h3>
+<pre><code class="language-bash">sccs commit &quot;&lt;commit-message&gt;&quot;
+</code></pre>
+<h3 id="arguments_1">Arguments</h3>
+<ul>
+<li><code>&lt;commit-message&gt;</code> — A descriptive message describing the changes (required, cannot be empty)</li>
+</ul>
+<h3 id="behavior_1">Behavior</h3>
+<ul>
+<li>Creates a snapshot of the current document state</li>
+<li>Generates a unique SHA-256 commit hash</li>
+<li>Stores both <code>.docx</code> and <code>.html</code> versions</li>
+<li>Commits are immutable once created</li>
+<li>Records the author name and email (from config) and timestamp</li>
+</ul>
+<h3 id="example_1">Example</h3>
+<pre><code class="language-bash">sccs commit &quot;Updated Section 3 terms and conditions&quot;
+</code></pre>
+<hr />
+<h2 id="config">Config</h2>
+<p>Configure repository-specific settings.</p>
+<h3 id="usage_3">Usage</h3>
+<pre><code class="language-bash">sccs config &lt;key&gt; &lt;value&gt;
+</code></pre>
+<h3 id="arguments_2">Arguments</h3>
+<ul>
+<li><code>&lt;key&gt;</code> — The configuration key to set (see valid keys below)</li>
+<li><code>&lt;value&gt;</code> — The value to assign to the key</li>
+</ul>
+<h3 id="valid-configuration-keys">Valid Configuration Keys</h3>
+<h4 id="name">name</h4>
+<p>Your name, used to identify commits you make.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">sccs config name &quot;John Doe&quot;
+</code></pre>
+<h4 id="email">email</h4>
+<p>Your email address, used alongside your name in commit metadata.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">sccs config email &quot;john.doe@example.com&quot;
+</code></pre>
+<h4 id="remote">remote</h4>
+<p>The URL of the remote hosting service for push/pull operations.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">sccs config remote https://api.example.com/repos
+</code></pre>
+<h3 id="behavior_2">Behavior</h3>
+<ul>
+<li>The remote value is automatically formatted to end with <code>/repos/&lt;repository-name&gt;</code></li>
+<li>Remote URLs must start with <code>http://</code> or <code>https://</code></li>
+<li>Configuration values are stored in <code>.sccs/config/config.json</code></li>
+</ul>
+<hr />
+<h2 id="diff">Diff</h2>
+<p>Generate an HTML redline document showing differences between two commits.</p>
+<h3 id="usage_4">Usage</h3>
+<pre><code class="language-bash">sccs diff &lt;commit-hash&gt;
+</code></pre>
+<h3 id="arguments_3">Arguments</h3>
+<ul>
+<li><code>&lt;commit-hash&gt;</code> — The commit SHA hash (or first 10 characters) to compare against the current document</li>
+</ul>
+<h3 id="behavior_3">Behavior</h3>
+<ul>
+<li>Compares the historical commit with the current document</li>
+<li>Creates an HTML file named <code>redline.html</code> in the current directory</li>
+<li>Color-codes changes:</li>
+<li>Deleted content appears with a <code>"deleted"</code> class (typically red strikethrough)</li>
+<li>Inserted content appears with an <code>"inserted"</code> class (typically green highlight)</li>
+<li>Removes inline formatting tags to avoid duplication in the diff</li>
+<li>Can be opened in any web browser</li>
+</ul>
+<h3 id="example_2">Example</h3>
+<pre><code class="language-bash">sccs diff 5a3b2c1d9e
+</code></pre>
+<hr />
+<h2 id="help">Help</h2>
+<p>Display a list of all available SCCS commands.</p>
+<h3 id="usage_5">Usage</h3>
+<pre><code class="language-bash">sccs help
+</code></pre>
+<h3 id="arguments_4">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_4">Behavior</h3>
+<ul>
+<li>Prints a summary of all available commands with brief descriptions</li>
+<li>Useful as a quick reference guide</li>
+</ul>
+<hr />
+<h2 id="init">Init</h2>
+<p>Initialize a new SCCS repository for a <code>.docx</code> document.</p>
+<h3 id="usage_6">Usage</h3>
+<pre><code class="language-bash">sccs init &lt;file-path&gt;
+</code></pre>
+<h3 id="arguments_5">Arguments</h3>
+<ul>
+<li><code>&lt;file-path&gt;</code> — The path to the <code>.docx</code> file to initialize</li>
+</ul>
+<h3 id="behavior_5">Behavior</h3>
+<ul>
+<li>Creates the <code>.sccs</code> directory structure</li>
+<li>Prompts for your name and email (used for commits)</li>
+<li>Moves the document into a repository directory</li>
+<li>Creates an initial commit with the document's current state</li>
+<li>Initializes the main branch</li>
+<li>Fails if the file has already been initialized or is not a <code>.docx</code> file</li>
+</ul>
+<h3 id="prompted-inputs">Prompted Inputs</h3>
+<ul>
+<li><code>name</code> — Your full name</li>
+<li><code>email</code> — Your email address</li>
+</ul>
+<h3 id="example_3">Example</h3>
+<pre><code class="language-bash">sccs init contract.docx
+</code></pre>
+<h3 id="output">Output</h3>
+<pre><code>Enter your name: Jane Smith
+Enter your email: jane.smith@example.com
+SCCS initialization complete.
+</code></pre>
+<hr />
+<h2 id="log">Log</h2>
+<p>Display the commit history for the current branch.</p>
+<h3 id="usage_7">Usage</h3>
+<pre><code class="language-bash">sccs log
+</code></pre>
+<h3 id="arguments_6">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_6">Behavior</h3>
+<ul>
+<li>Shows all commits in the current branch in reverse chronological order</li>
+<li>Displays for each commit:</li>
+<li>First 10 characters of the SHA hash</li>
+<li>Commit author</li>
+<li>Timestamp (ISO 8601 format)</li>
+<li>Commit message</li>
+<li>Each commit entry is separated by a dashed line</li>
+</ul>
+<h3 id="example-output">Example Output</h3>
+<pre><code>------------------------------
+Commit File: 5a3b2c1d9e
+Author: John Doe &lt;john.doe@example.com&gt;
+Date: 2025-01-15T14:30:45.123456
+Message: Updated liability clause
+------------------------------
+</code></pre>
+<hr />
+<h2 id="merge">Merge</h2>
+<p>Merge another branch into the current branch.</p>
+<h3 id="usage_8">Usage</h3>
+<pre><code class="language-bash">sccs merge &lt;branch-name&gt;
+</code></pre>
+<h3 id="arguments_7">Arguments</h3>
+<ul>
+<li><code>&lt;branch-name&gt;</code> — The name of the branch to merge into the current branch</li>
+</ul>
+<h3 id="behavior_7">Behavior</h3>
+<ul>
+<li>Copies all commit history from the source branch to the current branch</li>
+<li>Overwrites the current document with the source branch's latest version</li>
+<li>Creates an automatic commit with a merge message</li>
+<li>Cannot merge a branch into itself</li>
+<li>Fails if the target branch does not exist</li>
+<li>Requires no uncommitted changes</li>
+</ul>
+<h3 id="example_4">Example</h3>
+<pre><code class="language-bash">sccs merge feature-update
+</code></pre>
+<h3 id="output_1">Output</h3>
+<pre><code>Successfully merged branch 'feature-update' into branch 'main'.
+</code></pre>
+<hr />
+<h2 id="open">Open</h2>
+<p>Open a historical commit and update the current document to that version.</p>
+<h3 id="usage_9">Usage</h3>
+<pre><code class="language-bash">sccs open &lt;commit-hash&gt;
+</code></pre>
+<h3 id="arguments_8">Arguments</h3>
+<ul>
+<li><code>&lt;commit-hash&gt;</code> — The SHA hash (or first 10 characters) of the commit to open</li>
+</ul>
+<h3 id="behavior_8">Behavior</h3>
+<ul>
+<li>Displays a confirmation prompt before overwriting the current document</li>
+<li>Replaces the current document with the selected historical version</li>
+<li>Does not create a new commit (use after this if you want to save changes)</li>
+<li>Fails if the commit does not exist</li>
+<li>Requires no uncommitted changes</li>
+</ul>
+<h3 id="example_5">Example</h3>
+<pre><code class="language-bash">sccs open 5a3b2c1d9e
+</code></pre>
+<h3 id="confirmation-prompt">Confirmation Prompt</h3>
+<pre><code>Are you sure you want to overwrite './contract.docx' with the contents of 'commit_5a3b2c1d9e'?
+This action will replace the current content of the .docx file. (Y/N):
+</code></pre>
+<hr />
+<h2 id="publish">Publish</h2>
+<p>Publish the repository to a remote hosting service.</p>
+<h3 id="usage_10">Usage</h3>
+<pre><code class="language-bash">sccs publish
+</code></pre>
+<h3 id="arguments_9">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_9">Behavior</h3>
+<ul>
+<li>Requires a remote URL configured via <code>sccs config remote</code></li>
+<li>Compresses the entire repository into a zip file</li>
+<li>Sends the zip to the remote server via HTTP POST</li>
+<li>Resets the current branch to main before publishing</li>
+<li>Provides status code and confirmation message</li>
+</ul>
+<h3 id="example_6">Example</h3>
+<pre><code class="language-bash">sccs publish
+</code></pre>
+<h3 id="output_2">Output</h3>
+<pre><code>Publishing repository to https://api.example.com/repos/contract...
+
+Status Code: 200
+
+Repository published successfully to https://api.example.com/repos/contract
+</code></pre>
+<hr />
+<h2 id="pull">Pull</h2>
+<p>Fetch and merge changes from a remote repository.</p>
+<h3 id="usage_11">Usage</h3>
+<pre><code class="language-bash">sccs pull
+</code></pre>
+<h3 id="arguments_10">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_10">Behavior</h3>
+<ul>
+<li>Requires a remote URL configured via <code>sccs config remote</code></li>
+<li>Compares local commits with remote commits</li>
+<li>Downloads only the missing commit objects</li>
+<li>Merges remote history into the local repository</li>
+<li>Updates the current document to match the remote</li>
+</ul>
+<h3 id="example_7">Example</h3>
+<pre><code class="language-bash">sccs pull
+</code></pre>
+<h3 id="output_3">Output</h3>
+<pre><code>Pulling repository from https://api.example.com/repos/contract...
+
+Status Code: 200
+
+Repository pulled successfully from https://api.example.com/repos/contract
+</code></pre>
+<hr />
+<h2 id="push">Push</h2>
+<p>Send local changes to a remote repository.</p>
+<h3 id="usage_12">Usage</h3>
+<pre><code class="language-bash">sccs push
+</code></pre>
+<h3 id="arguments_11">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_11">Behavior</h3>
+<ul>
+<li>Requires a remote URL configured via <code>sccs config remote</code></li>
+<li>Compares local and remote commit objects</li>
+<li>Uploads only commits that the remote is missing</li>
+<li>Fails if the local repository is missing commits from the remote</li>
+<li>Clears the <code>updated_branches</code> list after successful push</li>
+</ul>
+<h3 id="example_8">Example</h3>
+<pre><code class="language-bash">sccs push
+</code></pre>
+<h3 id="output_4">Output</h3>
+<pre><code>Pushing changes to remote repository at https://api.example.com/repos/contract...
+
+Status code: 200
+
+Changes pushed successfully to https://api.example.com/repos/contract/push
+</code></pre>
+<hr />
+<h2 id="reset">Reset</h2>
+<p>Discard all uncommitted changes and restore the document to the latest commit.</p>
+<h3 id="usage_13">Usage</h3>
+<pre><code class="language-bash">sccs reset
+</code></pre>
+<h3 id="arguments_12">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_12">Behavior</h3>
+<ul>
+<li>Replaces the current document with the latest commit on the current branch</li>
+<li>Fails if there are no uncommitted changes to reset</li>
+<li>Irreversible operation (use with caution)</li>
+</ul>
+<h3 id="example_9">Example</h3>
+<pre><code class="language-bash">sccs reset
+</code></pre>
+<h3 id="output_5">Output</h3>
+<pre><code>All uncommitted changes have been deleted. The document has been reset to the latest commit.
+</code></pre>
+<hr />
+<h2 id="revert">Revert</h2>
+<p>Create a new commit that reverts the document to a previous commit state.</p>
+<h3 id="usage_14">Usage</h3>
+<pre><code class="language-bash">sccs revert &lt;commit-hash&gt;
+</code></pre>
+<h3 id="arguments_13">Arguments</h3>
+<ul>
+<li><code>&lt;commit-hash&gt;</code> — The SHA hash (or first 10 characters) of the commit to revert to</li>
+</ul>
+<h3 id="behavior_13">Behavior</h3>
+<ul>
+<li>Reverts the document to the state of the specified commit</li>
+<li>Automatically creates a new commit with message <code>Revert to commit '&lt;hash&gt;'</code></li>
+<li>The revert is saved as a new commit in the history</li>
+<li>Different from reset because it preserves history (creates a new commit)</li>
+<li>Fails if the specified commit does not exist</li>
+<li>Requires no uncommitted changes</li>
+</ul>
+<h3 id="example_10">Example</h3>
+<pre><code class="language-bash">sccs revert 5a3b2c1d9e
+</code></pre>
+<h3 id="output_6">Output</h3>
+<pre><code>Document successfully reverted to commit '5a3b2c1d' on commit '8f4e9d2c1b'.
+</code></pre>
+<hr />
+<h2 id="status">Status</h2>
+<p>Check for uncommitted changes in the current document.</p>
+<h3 id="usage_15">Usage</h3>
+<pre><code class="language-bash">sccs status
+</code></pre>
+<h3 id="arguments_14">Arguments</h3>
+<p>None</p>
+<h3 id="behavior_14">Behavior</h3>
+<ul>
+<li>Compares the current document with the latest commit</li>
+<li>Uses binary hash comparison (detects any changes, no matter how small)</li>
+<li>Prints one of two messages:</li>
+<li><code>"Uncommitted changes detected."</code> — if the document has been modified</li>
+<li><code>"No uncommitted changes detected."</code> — if the document matches the latest commit</li>
+</ul>
+<h3 id="example_11">Example</h3>
+<pre><code class="language-bash">sccs status
+</code></pre>
+<h3 id="output_7">Output</h3>
+<pre><code>Uncommitted changes detected.
+</code></pre>
+<hr />
+<h2 id="switch">Switch</h2>
+<p>Switch between branches.</p>
+<h3 id="usage_16">Usage</h3>
+<pre><code class="language-bash">sccs switch &lt;branch-name&gt;
+</code></pre>
+<h3 id="arguments_15">Arguments</h3>
+<ul>
+<li><code>&lt;branch-name&gt;</code> — The name of the branch to switch to</li>
+</ul>
+<h3 id="behavior_15">Behavior</h3>
+<ul>
+<li>Updates metadata to mark the specified branch as current</li>
+<li>Replaces the current document with the latest commit from the target branch</li>
+<li>Fails if the target branch does not exist</li>
+<li>Fails if there are uncommitted changes (commit or reset first)</li>
+<li>The switched branch becomes the active branch for all future operations</li>
+</ul>
+<h3 id="example_12">Example</h3>
+<pre><code class="language-bash">sccs switch feature-update
+</code></pre>
+<h3 id="output_8">Output</h3>
+<pre><code>Successfully switched to branch 'feature-update'.
+</code></pre>
+<hr />
+<h2 id="quick-start-guide">Quick Start Guide</h2>
+<h3 id="1-initialize-a-new-repository">1. Initialize a New Repository</h3>
+<pre><code class="language-bash">sccs init my_contract.docx
+</code></pre>
+<h3 id="2-configure-your-identity">2. Configure Your Identity</h3>
+<pre><code class="language-bash">sccs config name &quot;Your Name&quot;
+sccs config email &quot;your.email@example.com&quot;
+</code></pre>
+<h3 id="3-create-your-first-commit">3. Create Your First Commit</h3>
+<pre><code class="language-bash">sccs commit &quot;Initial version of contract&quot;
+</code></pre>
+<h3 id="4-check-status">4. Check Status</h3>
+<pre><code class="language-bash">sccs status
+</code></pre>
+<h3 id="5-view-commit-history">5. View Commit History</h3>
+<pre><code class="language-bash">sccs log
+</code></pre>
+<h3 id="6-create-and-switch-to-a-new-branch">6. Create and Switch to a New Branch</h3>
+<pre><code class="language-bash">sccs branch create revision-v2
+sccs switch revision-v2
+</code></pre>
+<h3 id="7-make-changes-and-commit">7. Make Changes and Commit</h3>
+<pre><code class="language-bash"># (Edit your document)
+sccs commit &quot;Updated payment terms&quot;
+</code></pre>
+<h3 id="8-view-differences">8. View Differences</h3>
+<pre><code class="language-bash">sccs diff &lt;previous-commit-hash&gt;
+</code></pre>
+<h3 id="9-merge-back-to-main">9. Merge Back to Main</h3>
+<pre><code class="language-bash">sccs switch main
+sccs merge revision-v2
+</code></pre>
+<h3 id="10-configure-remote-and-push">10. Configure Remote and Push</h3>
+<pre><code class="language-bash">sccs config remote https://api.example.com
+sccs push
+</code></pre>
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li>All commit hashes are SHA-256 hexadecimal strings; only the first 10 characters are typically needed</li>
+<li>Document <code>.docx</code> files are automatically converted to <code>.html</code> for diffing purposes</li>
+<li>All timestamps are stored in ISO 8601 format</li>
+<li>Branch names and document names are sanitized to be valid directory names</li>
+<li>The <code>.sccs</code> folder contains all version control metadata and should not be manually edited</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
