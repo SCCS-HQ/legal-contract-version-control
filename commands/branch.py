@@ -61,6 +61,7 @@ def branch_create_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, b
 
     try:
         
+        
         shutil.copytree(
             Repo.branch_path(current_branch_name),
             Repo.branch_path(branch_name),
@@ -102,11 +103,11 @@ def rollback_changes_after_failure(constants: SCCSConstants, Repo: RepositoryLay
 
     try:
         if subcommand == constants.CREATE_SUBCOMMAND:
-            Repo.add_to_branches_list(branch_name)
-        if subcommand == constants.DELETE_SUBCOMMAND:
             Repo.remove_from_branches_list(branch_name)
             Repo.set_current_branch(constants.MAIN_BRANCH)
             shutil.rmtree(branch_path)
+        if subcommand == constants.DELETE_SUBCOMMAND:
+            Repo.add_to_branches_list(branch_name)
     except Exception as e:
         raise exceptions.UpdatingMetadataError(
             constants.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
