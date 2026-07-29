@@ -33,7 +33,6 @@ def number_tags(constants: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
 
 def strip_number_attribute(
         constants: SCCSConstants,
-        Repo: RepositoryLayout,
         commit_hash: str,
         past_version: list[str],
         current_version: list[str],
@@ -48,7 +47,7 @@ def strip_number_attribute(
     all tags.
     """
 
-    soup = format_redline_html(constants, Repo, commit_hash, past_version, current_version, commit_list, docx_current_version_list)
+    soup = format_redline_html(constants, commit_hash, past_version, current_version, commit_list, docx_current_version_list)
     for i in soup.find_all():
         if constants.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
             del i[constants.DATA_NUMBER_HTML_ATTRIBUTE]
@@ -86,7 +85,7 @@ def get_data_number(constants: SCCSConstants, tag_list: list[str]) -> set[str]:
     return data_number
 
 
-def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], commit_hash: str) -> BeautifulSoup:
+def delete_tag(constants: SCCSConstants, old_changed_strings: list[str], commit_hash: str) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -111,7 +110,7 @@ def delete_tag(constants: SCCSConstants, Repo: RepositoryLayout, old_changed_str
 
 
 def replace_tag(
-    constants: SCCSConstants, Repo: RepositoryLayout, old_changed_strings: list[str], new_changed_strings: list[str], commit_hash: str
+    constants: SCCSConstants, old_changed_strings: list[str], new_changed_strings: list[str], commit_hash: str
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -149,7 +148,7 @@ def replace_tag(
     return soup
 
 
-def insert_tag(constants: SCCSConstants, Repo: RepositoryLayout, new_changed_strings: list[str], i1: int, commit_hash: str) -> BeautifulSoup:
+def insert_tag(constants: SCCSConstants, new_changed_strings: list[str], i1: int, commit_hash: str) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -258,7 +257,6 @@ def format_bs4_html_list(constants: SCCSConstants, bs4_obj: BeautifulSoup) -> li
 
 def format_redline_html(
         constants: SCCSConstants,
-        Repo: RepositoryLayout,
         commit_hash: str,
         past_version: list[str],
         current_version: list[str],
@@ -290,13 +288,13 @@ def format_redline_html(
         new_changed_strings = docx_current_version_list[j1:j2]
         if tag == constants.REPLACE_OPCODE:
 
-            redline = replace_tag(constants, Repo, old_changed_strings, new_changed_strings, commit_hash)
+            redline = replace_tag(constants, old_changed_strings, new_changed_strings, commit_hash)
         if tag == constants.INSERT_OPCODE:
 
-            redline = insert_tag(constants, Repo, new_changed_strings, i1, commit_hash)
+            redline = insert_tag(constants, new_changed_strings, i1, commit_hash)
         if tag == constants.DELETE_OPCODE:
 
-            redline = delete_tag(constants, Repo, old_changed_strings, commit_hash)
+            redline = delete_tag(constants, old_changed_strings, commit_hash)
     return redline
 
 
@@ -334,7 +332,7 @@ def main(
         docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
 
     Repo.write_diff_html_file(
-        utils.wrap_html(str(strip_number_attribute(constants, Repo, commit_hash, past_version, current_version, commit_list, docx_current_version_list)))
+        utils.wrap_html(str(strip_number_attribute(constants, commit_hash, past_version, current_version, commit_list, docx_current_version_list)))
     )
 
     print_diff_success_message(constants)
