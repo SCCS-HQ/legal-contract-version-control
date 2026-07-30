@@ -125,52 +125,7 @@ class RepositoryLayout:
         path = (self.branch_path(self.branch_name) / "commit_file_hash" / "commit_file_hash.json")
         self._set_branch_name(None)
         return path
-
-
-    def commit_path(
-        self,
-        folder: str,
-        commit: Path,
-    ) -> Path:
-        """
-        Convert a commit SHA Hash to a pathname of the specified commit using folder as the
-        type of commit requested (html, docx).
-
-        Return the full pathname of the commit using the SHA Hash.
-        """
-
-        if commit is None:
-            raise exceptions.InvalidArgumentError(
-                self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit file")
-            )
-        
-        commit = Path(str(commit).strip())
-
-        if len(commit.stem.strip()) != 64 and len(commit.stem.strip()) != 10:
-            raise exceptions.InvalidArgumentError(
-                self.constants.INVALID_COMMIT_HASH_ERROR_MESSAGE
-            )
-
-        matching_files = []
-
-        for i in Path(self.objects_path() / folder).iterdir():
-
-            if str(i.stem).startswith(str(commit.stem.strip())):
-                matching_files.append(i)
-
-        if not matching_files:
-            raise exceptions.InvalidArgumentError(
-                self.constants.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=commit)
-            )
-
-        if len(matching_files) > 1:
-            raise exceptions.InvalidArgumentError(
-                self.constants.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit=commit)
-            )
-
-        self._set_branch_name(None)
-        return matching_files[0]
-
+    
 
     def latest_commit_path(self, folder: str) -> Path:
         """
@@ -186,7 +141,7 @@ class RepositoryLayout:
 
         latest_commit = self.current_branch().latest_commit()
 
-        path = self.commit_path(folder, latest_commit)
+        path = self.commit_file(folder, latest_commit, path=True)
 
         self._set_branch_name(None)
         return path
@@ -277,7 +232,7 @@ class RepositoryLayout:
         return byte_hashes_data
 
 
-    def commit_file(self, folder: str, commit: str) -> str:
+    def commit_file(self, folder: str, commit: str, path: bool = True) -> str:
         if commit is None:
             raise exceptions.InvalidArgumentError(
                 self.constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit file")
@@ -307,9 +262,11 @@ class RepositoryLayout:
                 self.constants.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit=commit)
             )
 
+        if path:
+            return matching_files[0]
+
         with open(matching_files[0], "r", encoding="utf-8", newline="\n") as f:
             commit_file_data = f.read()
-        
         
         self._set_branch_name(None)
         return commit_file_data
@@ -598,214 +555,118 @@ class RepositoryLayout:
         commit_message.
         """
 
-        # region Commit Helpers
-
-        def generate_commit_hash(commit_message: str) -> str:
-            """Generate a SHA-256 hash for the commit."""
-
-            return hashlib.sha256(
-                f"{self.constants.PROGRAM_START_TIME}/{commit_message}/{self.config_data('name')}/"
-                f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
-            ).hexdigest()
-
-
-        def copy_docx_to_objects() -> None:
-            """Copy the current document to the objects directory renamed to 'sha_hash'."""
-            
-            shutil.copy2(
-                self.document_path(),
-                self.docx_objects_path() / f"{generate_commit_hash(commit_msg)}.docx",
+        # ensure that uncommitted changes exist before committing
+        if not self.check_for_uncommitted_changes(raise_on_changes=False):
+            raise exceptions.NoUncommittedChangesError(
+                self.constants.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
+        
+        # gemerate the SHA256 commit hash
+        commit_hash = hashlib.sha256(
+            f"{self.constants.PROGRAM_START_TIME}/{commit_msg}/{self.config_data('name')}/"
+            f"{self.config_data('email')}/{self.current_branch().latest_commit()}".encode()
+        ).hexdigest()
+        
+        # use mammoth + class method to convert document to html
+        document_as_html = self.convert_docx_to_html()
 
-
-        def write_docx_html() -> None:
-            """
-            Write the document as HTML to the objects directory, naming the file 'sha_hash'.
-            """
-
-            with open(
-                self.html_objects_path() / f"{generate_commit_hash(commit_msg)}.html",
-                "w",
-                encoding="utf-8",
-                newline="\n",
-            ) as f:
-                f.write(utils.default_html_styles + self.convert_docx_to_html())
-
-
-        def write_view_html() -> None:
-            """
-            Write the document HTML used for viewing, which is centered unlike the normal
-            document HTML. Name the HTML file 'sha_hash'.
-            """
-
-            with open(
-                self.view_html_objects_path() / f"{generate_commit_hash(commit_msg)}.html",
-                "w",
-                encoding="utf-8",
-                newline="\n",
-            ) as f:
-                f.write(utils.wrap_html(self.convert_docx_to_html()))
-
-
-        def update_commit_binary_hash_history() -> dict[str, dict]:
-            """Update the commit bytes hash history."""
-
-            if not self.current_branch().byte_hashes_path().is_file():
-                raise FileNotFoundError(
-                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.current_branch().byte_hashes_path())
+        # copy the current version of the document to the commit directories ('docx', 'html', 'view_html')
+        # use the html version for commit directories which require it ('html', 'view_html')
+        shutil.copy2(
+                    self.document_path(),
+                    self.docx_objects_path() / f"{commit_hash}.docx",
                 )
 
-            try:
-                with open(self.current_branch().byte_hashes_path(), "r", encoding="utf-8", newline="\n") as f:
-                    commit_file_hash = json.load(f)
+        with open(
+                self.html_objects_path() / f"{commit_hash}.html",
+                "w",
+                encoding="utf-8",
+                newline="\n",
+            ) as f:
+                f.write(utils.default_html_styles + document_as_html)
 
+        with open(
+                self.view_html_objects_path() / f"{commit_hash}.html",
+                "w",
+                encoding="utf-8",
+                newline="\n",
+            ) as f:
+                f.write(utils.wrap_html(document_as_html))
+
+        # update various repository JSON files, update 'update_dict' with the JSON
+        try:
+            with open(self.current_branch().byte_hashes_path(), "r", encoding="utf-8", newline="\n") as f:
+                commit_file_hash = json.load(f)
+
+        except Exception as e:
+            raise exceptions.FileOpenError from e
+
+        commit_file_hash[f"{commit_hash}"] = self.convert_docx_to_binary_hash()
+
+        with open(
+            self.commit_messages_path(), "r", encoding="utf-8", newline="\n"
+        ) as f:
+            try:
+                messages = json.load(f)
             except Exception as e:
                 raise exceptions.FileOpenError from e
 
-            commit_file_hash[f"{generate_commit_hash(commit_msg)}"] = self.convert_docx_to_binary_hash()
+        messages[f"{commit_hash}"] = f"{commit_msg}"
 
-            return {self.current_branch().byte_hashes_path(): commit_file_hash}
+        history = self.current_branch().history_data()
 
+        history["history"]["latest_commit"] = f"{commit_hash}"
+        history["history"]["latest_commit_number"] = (
+            history["history"].get("latest_commit_number", 0) + 1
+        )
 
-        def update_commit_messages(commit_message) -> dict[str, dict]:
-            """Update commit messages history."""
+        latest_commit_number = history["history"]["latest_commit_number"]
 
-            # Check if commit messages file exists
+        history["history"]["commit_order"][str(latest_commit_number)] = f"{commit_hash}"
 
-            if not self.commit_messages_path().is_file():
-                raise FileNotFoundError(
-                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.commit_messages_path())
-                )
+        history["log"][f"{commit_hash}"] = {
+            "timestamp": self.constants.PROGRAM_START_TIME,
+            "author": f"{self.config_data('name')} <{self.config_data('email')}>",
+            "message": commit_msg,
+        }
 
-            with open(
-                self.commit_messages_path(), "r", encoding="utf-8", newline="\n"
-            ) as f:
-                try:
-                    messages = json.load(f)
-                except Exception as e:
-                    raise exceptions.FileOpenError from e
+        updated_branch = [self.current_branch_name()]            
+        branch_data = self.current_branch_data()
 
-            messages[f"{generate_commit_hash(commit_message)}"] = f"{commit_message}"
-
-            return {self.commit_messages_path(): messages}
-
-
-        def update_commit_log_history(commit_message) -> dict[str, dict]:
-            """Update the commit log history."""
-
-            # Check if history file exists
-            if not self.current_branch().history_path().is_file():
-                raise FileNotFoundError(
-                    self.constants.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=self.current_branch().history_path())
-                )
-
-            history = self.current_branch().history_data()
-            sha_hash = generate_commit_hash(commit_message)
-
-            # Update history
-            history["history"]["latest_commit"] = f"{sha_hash}"
-            history["history"]["latest_commit_number"] = (
-                history["history"].get("latest_commit_number", 0) + 1
+        if "updated_branches" in branch_data and isinstance(
+            branch_data["updated_branches"], list
+        ):
+            branch_data["updated_branches"] = list(
+                set(branch_data["updated_branches"] + updated_branch)
             )
+        else:
+            branch_data["updated_branches"] = updated_branch
 
-            latest_commit_number = history["history"]["latest_commit_number"]
+        # 'update_dict' is used to ensure that all repository data is updated atomically
+        # entires use the format 'Path: JSON'
+        update_dict = {
+            self.current_branch().byte_hashes_path(): commit_file_hash,
+            self.commit_messages_path(): messages,
+            self.current_branch().history_path(): history,
+            self.current_branch_path(): branch_data,
+        }
 
-            history["history"]["commit_order"][str(latest_commit_number)] = f"{sha_hash}"
+        for key, value in update_dict.items():
+            print(key)
+            try:
+                with open(
+                    Path(key).with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
+                ) as f:
+                    json.dump(value, f)
+            except Exception as e:
+                raise exceptions.TemporaryFileError from e
 
-            history["log"][f"{sha_hash}"] = {
-                "timestamp": self.constants.PROGRAM_START_TIME,
-                "author": f"{self.config_data('name')} <{self.config_data('email')}>",
-                "message": commit_message,
-            }
-            return {self.current_branch().history_path(): history}
+        for key, value in update_dict.items():
+            try:
+                Path(key).with_suffix(".tmp").replace(key)
+            except Exception as e:
+                raise exceptions.TemporaryFileError from e
+        
 
-
-        def update_changed_branches() -> dict[Path, dict] | None:
-            """Update the list of branches with unpushed changes."""
-
-
-            updated_branch = [self.current_branch_name()]            
-            branch_data = self.current_branch_data()
-
-            if "updated_branches" in branch_data and isinstance(
-                branch_data["updated_branches"], list
-            ):
-                branch_data["updated_branches"] = list(
-                    set(branch_data["updated_branches"] + updated_branch)
-                )
-            else:
-                branch_data["updated_branches"] = updated_branch
-
-            return {self.current_branch_path(): branch_data}
-
-
-        def combine_update_dicts(commit_message) -> dict[Path, dict]:
-            """
-            Combine multiple update dictionaries into a single dictionary for atomically
-            updating document history metadata.
-            """
-
-            dicts = [
-                update_commit_log_history(commit_message),
-                update_commit_binary_hash_history(),
-                update_commit_messages(commit_message),
-                update_changed_branches()
-            ]
-
-            update_dict = {}
-            for i in dicts:
-                update_dict.update(i)
-            return update_dict
-
-
-        def atomically_update_history(update_dict: dict[Path, dict]) -> None:
-            """
-            For each pair in the dictionary, the key is a Path object and the value is a JSON
-            dictionary. Write the JSON to temporary files, then rename the temporary files to
-            atomically write.
-
-            Open the key and write the value for each pair in the dictionary.
-            """
-
-            for i in update_dict.items():
-                key, value = i
-                print(key)
-                try:
-                    with open(
-                        Path(key).with_suffix(".tmp"), "w", encoding="utf-8", newline="\n"
-                    ) as f:
-                        json.dump(value, f)
-                except Exception as e:
-                    raise exceptions.TemporaryFileError from e
-
-            for i in update_dict.items():
-                key, value = i
-                try:
-                    Path(key).with_suffix(".tmp").replace(key)
-                except Exception as e:
-                    raise exceptions.TemporaryFileError from e
-
-
-        def exit_if_no_uncommitted_changes() -> None:
-            """Exit if there are no uncommitted changes."""
-            if not self.check_for_uncommitted_changes(raise_on_changes=False):
-                raise exceptions.NoUncommittedChangesError(
-                    self.constants.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-                )
-
-        # endregion
-
-        exit_if_no_uncommitted_changes()
-
-        sha_hash = generate_commit_hash(commit_msg)
-
-        copy_docx_to_objects()
-
-        write_docx_html()
-
-        write_view_html()
-
-        atomically_update_history(combine_update_dicts(commit_msg))
-
-        return sha_hash
+        return commit_hash
  
