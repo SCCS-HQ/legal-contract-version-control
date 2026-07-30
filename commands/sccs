@@ -42,7 +42,7 @@ def run_command() -> None:
     sys.exit(
         subprocess.run([
             sys.executable,
-            get_script_directory() / f"{utils.entered_arguement(1)}.py"]
+            get_script_directory() / f"{utils.entered_argument(1)}.py"]
              + sys.argv[1:]
         ).returncode
     )
@@ -54,7 +54,7 @@ def execute_command() -> None:
     is valid, run it with 'run_command()'.
     """
 
-    command = utils.entered_arguement(1)
+    command = utils.entered_argument(1)
 
     if command not in COMMANDS:
         raise exceptions.UnknownCommandError(

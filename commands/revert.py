@@ -15,7 +15,7 @@ Repository = RepositoryLayout(Path.cwd())
 def revert() -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    src = Repository.commit_path("docx", commit=utils.entered_arguement(2))
+    src = Repository.commit_path("docx", commit=utils.entered_argument(2))
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
@@ -29,9 +29,9 @@ def print_revert_confirmation_message() -> None:
     """Print a confirmation message for the revert."""
 
     print(
-        f"Document successfully reverted to commit '{utils.entered_arguement(2).stem[:10]}' on commit "
+        f"Document successfully reverted to commit '{utils.entered_argument(2).stem[:10]}' on commit "
         f"'{Repository.commit_changes(
-        f"Revert to commit '{utils.entered_arguement(2).stem}'")[:10]}'.\n"
+        f"Revert to commit '{utils.entered_argument(2).stem}'")[:10]}'.\n"
     )
 
 

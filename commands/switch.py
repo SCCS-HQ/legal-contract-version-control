@@ -16,7 +16,7 @@ Repository = RepositoryLayout(Path.cwd())
 def check_branch_to_switch() -> None:
     """Check if the branch to switch to is valid."""
 
-    branch_to_switch = utils.entered_arguement(2)
+    branch_to_switch = utils.entered_argument(2)
 
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
@@ -32,7 +32,7 @@ def check_branch_to_switch() -> None:
 def sanitize_branch() -> str:
     """Sanitize the branch name."""
 
-    return utils.clean_directory_name(utils.entered_arguement(2))
+    return utils.clean_directory_name(utils.entered_argument(2))
 
 
 def check_commit() -> None:
@@ -40,7 +40,7 @@ def check_commit() -> None:
     Check if the commit object exists in the document history.
     """
 
-    commit = Repository.branch(sanitize_branch(utils.entered_arguement(2))).latest_commit_path("docx")
+    commit = Repository.branch(sanitize_branch(utils.entered_argument(2))).latest_commit_path("docx")
     
     if not (commit).is_file():
         raise exceptions.CommitNotFoundError(f"Commit object '{commit}' not found.")
@@ -50,7 +50,7 @@ def copy_commit_to_main() -> None:
     """Copy the commit file to the main document."""
     try:
         shutil.copy2(
-            (Repository.branch(sanitize_branch(utils.entered_arguement(2))).latest_commit_path("docx")),
+            (Repository.branch(sanitize_branch(utils.entered_argument(2))).latest_commit_path("docx")),
             (Repository.document_path()),
         )
     except Exception as e:
@@ -60,7 +60,7 @@ def copy_commit_to_main() -> None:
 def print_confirmation() -> None:
     """Print a confirmation message for successful branch switch."""
 
-    print(f"Successfully switched to branch '{sanitize_branch(utils.entered_arguement(2))}'.\n")
+    print(f"Successfully switched to branch '{sanitize_branch(utils.entered_argument(2))}'.\n")
 
 
 def main() -> None:
@@ -75,7 +75,7 @@ def main() -> None:
 
     copy_commit_to_main()
 
-    Repository.set_current_branch(sanitize_branch(utils.entered_arguement(2)))
+    Repository.set_current_branch(sanitize_branch(utils.entered_argument(2)))
 
     print_confirmation()
 

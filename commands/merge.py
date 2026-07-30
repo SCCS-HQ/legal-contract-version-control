@@ -15,7 +15,7 @@ Repository = RepositoryLayout(Path.cwd())
 def validate_branch() -> str:
     """Validate that the entered branch is valid, exists, and is not the current branch."""
 
-    branch = utils.entered_arguement(2)
+    branch = utils.entered_argument(2)
     current_branch = Repository.current_branch_name()
 
     if branch is None:

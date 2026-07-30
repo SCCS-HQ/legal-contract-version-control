@@ -12,9 +12,6 @@ import sys
 import exceptions
 from repository_layout import RepositoryLayout
 
-Repository = RepositoryLayout(Path.cwd())
-
-
 default_html_styles = (
     "<style>\n* {\nfont-family: Arial, Helvetica, sans-serif;\n}\n\n"
     ".inserted {\nbackground-color: #d4fcbc;\ndisplay: block;\nwidth: fit-content;\n}\n"
@@ -44,8 +41,8 @@ def wrap_html(html: str, styles: str = default_html_styles) -> str:
     )
 
 
-def entered_arguement(argument: int) -> str | None:
+def entered_argument(argument: int) -> str | None:
     """Return the entered command-line argument at the specified index if provided, else None."""
-    
-    arg_value = sys.argv[argument] if len(sys.argv) > argument else None
+
+    arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
     return arg_value.strip() if isinstance(arg_value, str) else None
