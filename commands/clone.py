@@ -75,12 +75,12 @@ def print_clone_success_message(constants: SCCSConstants, response: requests.Res
     print(constants.CLONE_SUCCESS_MESSAGE)
 
 
-def main(constants: SCCSConstants, url: str, timeout: int = SCCSConstants.HTTP_TIMEOUT_SECONDS) -> None:
+def main(constants: SCCSConstants, url: str) -> None:
     """Run functions for the <sccs clone> command."""
 
     url = resolve_entered_url(constants, url)
 
-    response = request_repo(constants, url, timeout)
+    response = request_repo(constants, url, constants.HTTP_TIMEOUT_SECONDS)
 
     buffer = io.BytesIO(response.content)
 
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     try:
         constants = SCCSConstants()
         error_wrappers = ErrorWrappers()
-        main(constants)
+        main(constants, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))

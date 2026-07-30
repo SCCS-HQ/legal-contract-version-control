@@ -273,14 +273,10 @@ def print_init_success_message(constants: SCCSConstants) -> None:
     print(constants.INIT_SUCCESS_MESSAGE)
 
 
-def main(constants: SCCSConstants, docx_path: str | None = None, repo_path: Path | None = None, sha_hash: str | None = None) -> None:
+def main(constants: SCCSConstants, docx_path: str) -> None:
     """Run functions for the <sccs init> command."""
    
-    if docx_path is None:
-        docx_path = utils.entered_argument(2)
-   
-    if repo_path is None:
-        repo_path = get_document_repo_path(constants, docx_path)
+    repo_path = get_document_repo_path(constants, docx_path)
 
     check_for_prev_init(constants, repo_path)
 
@@ -315,7 +311,7 @@ if __name__ == "__main__":
     try:
         constants = SCCSConstants()
         error_wrappers = ErrorWrappers()
-        main(constants)
+        main(constants, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))

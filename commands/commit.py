@@ -25,12 +25,9 @@ def validate_commit_message(constants: SCCSConstants, commit_message: str) -> No
         raise exceptions.EmptyArgumentError(constants.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field="commit message"))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str | None = None) -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, commit_message: str) -> None:
     """Run functions for the <sccs commit> command."""
     Repo.check_repository_layout()
-
-    if commit_message is None:
-        commit_message = utils.entered_argument(3)
 
     validate_commit_message(constants, commit_message)
 
@@ -42,7 +39,7 @@ if __name__ == "__main__":
         constants = SCCSConstants()
         Repository = RepositoryLayout(Path.cwd(), constants)
         error_wrappers = ErrorWrappers()
-        main(constants, Repository)
+        main(constants, Repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))

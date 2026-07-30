@@ -72,14 +72,9 @@ def print_config_confirmation_message(constants: SCCSConstants, key: str, value:
     print(constants.CONFIG_DIR_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str | None = None, value: str | None = None) -> None:
+def main(constants: SCCSConstants, Repo: RepositoryLayout, key: str, value: str) -> None:
     """Run functions for the <sccs config> command."""
     Repo.check_repository_layout()
-
-    if key is None:
-        key = utils.entered_argument(2)
-    if value is None:
-        value = utils.entered_argument(3)
 
     repo_name = Repo.repo_name
     
@@ -97,7 +92,7 @@ if __name__ == "__main__":
         constants = SCCSConstants()
         Repository = RepositoryLayout(Path.cwd(), constants)
         error_wrappers = ErrorWrappers()
-        main(constants, Repository)
+        main(constants, Repository, utils.entered_argument(2), utils.entered_argument(3))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))

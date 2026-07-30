@@ -305,31 +305,20 @@ def print_diff_success_message(constants: SCCSConstants):
 def main(
         constants: SCCSConstants,
         Repo: RepositoryLayout,
-        commit_hash: str | None = None,
-        past_version: list[str] | None = None,
-        current_version: list[str] | None = None,
-        commit_list: list[str] | None = None,
-        docx_current_version_list: list[str] | None = None
+        commit_hash: str,
     ) -> None:
     """Run functions for the <sccs diff> command."""
     Repo.check_repository_layout()
 
     Repo.check_for_uncommitted_changes()
 
-    if commit_hash is None:
-        commit_hash = utils.entered_argument(2)
+    past_version =  tags_to_list(constants, convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash)))
 
-    if past_version is None:
-        past_version =  tags_to_list(constants, convert_html_to_soup(constants, Repo.commit_file(constants.HTML_DIR, commit_hash)))
+    current_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.convert_docx_to_html()))
 
-    if current_version is None:
-        current_version = tags_to_list(constants, convert_html_to_soup(constants, Repo.convert_docx_to_html()))
+    commit_list = format_bs4_html_list(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
 
-    if commit_list is None:
-        commit_list = format_bs4_html_list(constants, Repo.commit_file(constants.HTML_DIR, commit_hash))
-
-    if docx_current_version_list is None:
-        docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
+    docx_current_version_list = format_bs4_html_list(constants, Repo.convert_docx_to_html())
 
     Repo.write_diff_html_file(
         utils.wrap_html(str(strip_number_attribute(constants, commit_hash, past_version, current_version, commit_list, docx_current_version_list)))
@@ -343,7 +332,7 @@ if __name__ == "__main__":
         constants = SCCSConstants()
         Repository = RepositoryLayout(Path.cwd(), constants)
         error_wrappers = ErrorWrappers()
-        main(constants, Repository)
+        main(constants, Repository, utils.entered_argument(2))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))

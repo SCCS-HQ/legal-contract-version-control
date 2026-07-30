@@ -13,8 +13,6 @@ from constants_classes import SCCSConstants, ErrorWrappers
 
 def validate_subcommand(constants: SCCSConstants, Repo: RepositoryLayout, subcommand: str, branch_name: str) -> None:
     """
-    Validate the subcommand entered by the user.
-
     Raise an exception if the subcommand is invalid or if required arguments are
     missing.
     """
@@ -162,37 +160,26 @@ def print_branch_create_success_message(constants: SCCSConstants, branch_name: s
 def main(
         constants: SCCSConstants,
         Repo: RepositoryLayout,
-        subcommand: str | None = None,
-        branch_name: str | None = None,
-        current_branch_name: str | None = None
+        subcommand: str,
+        branch_name: str
     ) -> None:
 
     """Run functions for the <sccs branch> command."""
     Repo.check_repository_layout()
 
-    if subcommand is None:
-        subcommand = utils.entered_argument(2)
-
-    if branch_name is None:
-        branch_name = utils.entered_argument(3)
-
-    if current_branch_name is None:
-        current_branch_name = Repo.current_branch_name()
-
     validate_subcommand(constants, Repo, subcommand, branch_name)
 
     Repo.check_for_uncommitted_changes()
 
-    run_specified_subcommand(constants, Repo, subcommand, branch_name, current_branch_name)
+    run_specified_subcommand(constants, Repo, subcommand, branch_name, Repo.current_branch_name())
 
 
 if __name__ == "__main__":
     try:
-        
         constants = SCCSConstants()
         Repository = RepositoryLayout(Path.cwd(), constants)
         error_wrappers = ErrorWrappers()
-        main(constants, Repository)
+        main(constants, Repository, utils.entered_argument(2), utils.entered_argument(3))
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
