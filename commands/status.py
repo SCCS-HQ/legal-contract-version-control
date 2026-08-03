@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Check the status of the current document for uncommitted changes."""
 
+from pathlib import Path
+
 import utils
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryStatus,
+    TargetBranch,
+)
 from constants_classes import SCCSConstants
 
 
@@ -14,14 +19,16 @@ def print_status_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
         print(c.NO_UNCOMMITTED_CHANGES)
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs status> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    uncommitted_changes = repo.check_for_uncommitted_changes(raise_on_changes=False)
+    uncommitted_changes = rs.check_for_uncommitted_changes()
 
     print_status_message(c, uncommitted_changes)
 
 
 if __name__ == "__main__":
-    utils.run_command(main)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(main, RepositoryStatus(Path.cwd(), c, target))

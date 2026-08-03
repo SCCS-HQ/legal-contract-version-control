@@ -9,14 +9,18 @@ import exceptions
 import requests
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def pull(c: SCCSConstants, repo: RepositoryLayout) -> requests.Response:
+def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = f"{c.HTTP_OBJECTS_DICT_KEY: repo.repo_objects()}"
-    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url)
+    data = f"{c.HTTP_OBJECTS_DICT_KEY: rd.repo_objects()}"
+    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url)
 
     try:
         response = requests.post(url, json=data, timeout=c.HTTP_TIMEOUT_SECONDS)
@@ -44,15 +48,15 @@ def print_pull_success_message(c: SCCSConstants, response: requests.Response, ur
     print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, rs: RepositoryStatus, rd: RepositoryData) -> None:
     """Run functions for the <sccs pull> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo.check_for_uncommitted_changes()
+    rs.check_for_uncommitted_changes()
 
-    remote = repo.config_data(c.REMOTE_KEY)
+    remote = rd.config_data(c.REMOTE_KEY)
     
-    response = pull(c, repo)
+    response = pull(c, rd)
     response.raise_for_status()
 
     update_repo_files(c, response)
@@ -63,4 +67,10 @@ def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), c, target),
+    )

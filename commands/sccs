@@ -47,7 +47,7 @@ def main(c: SCCSConstants, entered_command: str) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 1)
+    utils.run_command(main, utils.entered_argument(1))
 
 # If on MacOS / Linux, move all files in commands/, and make this file executable
 # with `chmod +x /usr/local/bin/sccs`.

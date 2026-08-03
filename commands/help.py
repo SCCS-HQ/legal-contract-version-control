@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Print a list of all available commands."""
 
+from pathlib import Path
+
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
 def print_help(c: SCCSConstants) -> None:
@@ -13,12 +18,14 @@ def print_help(c: SCCSConstants) -> None:
         print(i)
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs help> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
     print_help(c)
 
 
 if __name__ == "__main__":
-    utils.run_command(main)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(main, RepositoryStatus(Path.cwd(), c, target))

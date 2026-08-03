@@ -7,7 +7,11 @@ from pathlib import Path
 import exceptions
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
 def validate_commit_hash(c: SCCSConstants, commit_hash: str) -> None:
@@ -48,17 +52,17 @@ def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, outpu
     )
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
+def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs open> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo.check_for_uncommitted_changes()
+    rs.check_for_uncommitted_changes()
 
     output_file_name = Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=commit_hash)).with_suffix(c.DOCX_EXTENSION)
 
     validate_commit_hash(c, commit_hash)
 
-    commit_path = repo.commit_file(commit_hash, c.DOCX_DIR, path=True)
+    commit_path = rd.hash_to_full_path(commit_hash)
 
     copy_file_commit(commit_path, output_file_name)
 
@@ -66,4 +70,11 @@ def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

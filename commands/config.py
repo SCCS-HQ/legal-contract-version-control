@@ -2,9 +2,16 @@
 """Command to configure a SCCS repository's settings"""
 
 
+from pathlib import Path
+
 import exceptions
 import utils
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryPaths,
+    RepositoryWrite,
+    RepositoryStatus,
+    TargetBranch,
+)
 from constants_classes import SCCSConstants
 from urllib.parse import urlsplit, urljoin
 
@@ -65,20 +72,29 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, key: str, value: str) -> None:
+def main(c: SCCSConstants, key: str, value: str, rs: RepositoryStatus, rw: RepositoryWrite, rp: RepositoryPaths) -> None:
     """Run functions for the <sccs config> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo_name = repo.repo_name
-    
+    repo_name = rp.repo_name
+
     validate_entered_value(c, repo_name, key, value)
 
     value = resolve_key_value(c, repo_name, key, value)
 
-    repo.write_key_to_config(key, value)
+    rw.write_key_to_config(key, value)
 
     print_config_confirmation_message(c, key, value)
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2, 3)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        utils.entered_argument(3),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+    )

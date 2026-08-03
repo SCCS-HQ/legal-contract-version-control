@@ -2,19 +2,24 @@
 """Revert the current document to the specified commit."""
 
 import shutil
-
-from anyio import Path
+from pathlib import Path
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryPaths,
+    RepositoryData,
+    RepositoryWrite,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def revert(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
+def revert(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    src = repo.commit_file(commit_hash, c.DOCX_DIR, path=True)
+    src = rd.hash_to_full_path(commit_hash)
 
     if not src.is_file():
         raise exceptions.InvalidArgumentError(
@@ -22,7 +27,7 @@ def revert(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
         )
 
     try:
-        shutil.copy2(src, repo.document_path())
+        shutil.copy2(src, rp.document_path())
     except Exception as e:
         raise exceptions.FileCopyError from e
 
@@ -35,22 +40,31 @@ def print_revert_confirmation_message(c: SCCSConstants, commit_hash: str, new_co
     )
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, commit_hash: str) -> None:
+def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Main function to handle the revert command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo.check_for_uncommitted_changes()
+    rs.check_for_uncommitted_changes()
 
-    revert(c, repo, commit_hash)
+    revert(c, commit_hash, rd, rp)
 
-    commit_hash = repo.commit_file(commit_hash, c.DOCX_DIR, hash_10_char=True)
+    commit_path = rd.hash_to_full_path(commit_hash)
 
-    new_commit_hash = repo.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_hash)
+    new_commit_hash = rw.commit_changes(
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_path)
     )
 
     print_revert_confirmation_message(c, commit_hash, new_commit_hash)
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

@@ -12,16 +12,22 @@ import exceptions
 import requests
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryPaths,
+    RepositoryData,
+    RepositoryWrite,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def reset_current_branch(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def reset_current_branch(c: SCCSConstants, rw: RepositoryWrite) -> None:
     """
     Modify the document metadata to set the current branch to 'main' in preparation
     for publishing.
     """
 
-    repo.set_current_branch(c.MAIN_BRANCH_NAME)
+    rw.set_current_branch(c.MAIN_BRANCH_NAME)
 
 
 def zip_cwd(c: SCCSConstants) -> io.BytesIO:
@@ -52,7 +58,7 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
     return buffer
 
 
-def post_repo(c: SCCSConstants, repo: RepositoryLayout, repo_zip: io.BytesIO, url: str) -> requests.Response:
+def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths) -> requests.Response:
     """
     Make a POST request to 'remote', sending the zipped current working directory as a file
     and 'remote' as JSON.
@@ -74,7 +80,7 @@ def post_repo(c: SCCSConstants, repo: RepositoryLayout, repo_zip: io.BytesIO, ur
                 (
                     c.POST_FILE_FIELD_NAME,
                     (
-                        str(Path(repo.repo_name).with_suffix(c.ZIP_EXTENSION)),
+                        str(Path(rp.repo_name).with_suffix(c.ZIP_EXTENSION)),
                         repo_zip,
                         c.CONTENT_TYPE_ZIP,
                     ),
@@ -89,28 +95,36 @@ def post_repo(c: SCCSConstants, repo: RepositoryLayout, repo_zip: io.BytesIO, ur
     return response
 
 
-def print_publish_success_message(c: SCCSConstants, repo: RepositoryLayout, response: requests.Response, url: str) -> None:
+def print_publish_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, rs: RepositoryStatus, rw: RepositoryWrite, rd: RepositoryData, rp: RepositoryPaths) -> None:
     """Run functions for the <sccs publish> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo.check_for_uncommitted_changes()
+    rs.check_for_uncommitted_changes()
 
-    reset_current_branch(c, repo)
+    reset_current_branch(c, rw)
 
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=repo.base_repo_url())
+    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
     repo_zip = zip_cwd(c)
-    response = post_repo(c, repo, repo_zip, url)
+    response = post_repo(c, repo_zip, url, rp)
 
     response.raise_for_status()
 
-    print_publish_success_message(c, repo, response, url)
+    print_publish_success_message(c, response, url)
 
 
 if __name__ == "__main__":
-    utils.run_command(main)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+    )

@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """Print a list of past commits for the current branch."""
 
+from pathlib import Path
+
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryIO,
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
 def print_log(c: SCCSConstants, history_data: dict) -> None:
@@ -25,12 +32,21 @@ def print_log(c: SCCSConstants, history_data: dict) -> None:
         )
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, ri: RepositoryIO, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs log> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    print_log(c, repo.current_branch().history_data())
+    ri.target.set(rd.current_branch())
+
+    print_log(c, ri.read_history())
 
 
 if __name__ == "__main__":
-    utils.run_command(main)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryIO(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

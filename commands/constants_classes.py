@@ -468,7 +468,7 @@ class SCCSConstants:
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
 
     ## strings - branch name attribute / extensions
-    BRANCH_NAME_ATTRIBUTE = "branch_name"
+    TARGET_BRANCH_ATTRIBUTE = "_target_branch"
 
     #endregion
 

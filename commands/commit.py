@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Commit latest changes to the current branch."""
 
+from pathlib import Path
+
 import exceptions
 import utils
-from repository_layout import RepositoryLayout
+from repository_layout import (
+    RepositoryWrite,
+    RepositoryStatus,
+    TargetBranch,
+)
 from constants_classes import SCCSConstants
 
 
-def print_commit_confirmation_message(c: SCCSConstants, repo: RepositoryLayout, sha_hash) -> None:
+def print_commit_confirmation_message(c: SCCSConstants, sha_hash) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
@@ -22,16 +28,23 @@ def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
         raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_MESSAGE_FIELD_NAME))
 
 
-def main(c: SCCSConstants, repo: RepositoryLayout, commit_message: str) -> None:
+def main(c: SCCSConstants, commit_message: str, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs commit> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
     validate_commit_message(c, commit_message)
 
-    sha_hash = repo.commit_changes(commit_message)
+    sha_hash = rw.commit_changes(commit_message)
 
-    print_commit_confirmation_message(c, repo, sha_hash)
+    print_commit_confirmation_message(c, sha_hash)
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

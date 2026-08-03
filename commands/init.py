@@ -316,4 +316,4 @@ def main(c: SCCSConstants, docx_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2, use_RepositoryLayout=False)
+    utils.run_command(main, utils.entered_argument(2))

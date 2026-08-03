@@ -3,12 +3,17 @@
 
 import copy
 import difflib
+from pathlib import Path
 
 import utils
 from bs4 import BeautifulSoup
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryLayout
-
+from repository_layout import (
+    RepositoryIO,
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
@@ -189,7 +194,7 @@ def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulS
     return soup
 
 
-def convert_html_to_soup(c: SCCSConstants, html: str) -> BeautifulSoup:
+def convert_html_to_soup(c: SCCSConstants, html: str | bytes) -> BeautifulSoup:
     """
     Parse the entered HTML string into a BeautifulSoup object.
 
@@ -226,6 +231,7 @@ def format_redline_html(
 
     opcodes = difflib.SequenceMatcher(None, past_version, current_version).get_opcodes()
 
+    redline = soup
     for i in reversed(opcodes):
         tag, i1, i2, j1, j2 = i
         old_changed_strings = commit_list[i1:i2]
@@ -248,17 +254,19 @@ def print_diff_success_message(c: SCCSConstants):
 
 def main(
         c: SCCSConstants,
-        repo: RepositoryLayout,
         commit_hash: str,
+        rs: RepositoryStatus,
+        rd: RepositoryData,
+        ri: RepositoryIO
     ) -> None:
     """Run functions for the <sccs diff> command."""
-    repo.check_repository_layout()
+    rs.check_repository_layout()
 
-    repo.check_for_uncommitted_changes()
+    rs.check_for_uncommitted_changes()
 
-    commit_soup = convert_html_to_soup(c, repo.commit_file(commit_hash, c.HTML_DIR, path=True))
+    commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
-    current_version_soup = convert_html_to_soup(c, repo.convert_docx_to_html())
+    current_version_soup = convert_html_to_soup(c, ri.document_html())
 
     past_version = tags_to_list(remove_inline_semantics(c, commit_soup))
 
@@ -268,20 +276,29 @@ def main(
 
     docx_current_version_list = tags_to_list(remove_inline_semantics(c, number_tags(c, current_version_soup)))
 
-    commit_soup = number_tags(c, remove_inline_semantics(c, convert_html_to_soup(c, repo.commit_file(commit_hash, c.HTML_DIR, file_data=True))))
+    commit_soup = number_tags(c, remove_inline_semantics(c, convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))))
 
-    redline_soup = format_redline_html(c, utils.entered_argument(2), past_version, current_version, commit_list, docx_current_version_list, commit_soup)
+    redline_soup = format_redline_html(c, past_version, current_version, commit_list, docx_current_version_list, commit_soup)
 
-    repo.write_diff_html_file(
+    ri.write_diff_output(
         utils.wrap_html(
             c,
             str(strip_number_attribute(c, redline_soup)),
             c.DEFAULT_HTML_STYLES
-        )
+        ),
+        commit_hash
     )
 
     print_diff_success_message(c)
 
 
 if __name__ == "__main__":
-    utils.run_command(main, 2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryIO(Path.cwd(), c, target),
+    )
