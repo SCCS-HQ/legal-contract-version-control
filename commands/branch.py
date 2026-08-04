@@ -150,7 +150,7 @@ def run_specified_subcommand(c: SCCSConstants, subcommand: str, branch_name: str
         branch_list_subcommand(c, rd)
 
 
-def print_branch_delete_success_message(c: SCCSConstants, branch_name):
+def print_branch_delete_success_message(c: SCCSConstants, branch_name: str):
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 

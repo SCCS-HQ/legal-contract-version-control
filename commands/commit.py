@@ -13,7 +13,7 @@ from repository_layout import (
 from constants_classes import SCCSConstants
 
 
-def print_commit_confirmation_message(c: SCCSConstants, sha_hash) -> None:
+def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:

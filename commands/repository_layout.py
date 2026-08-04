@@ -23,7 +23,6 @@ class TargetBranch:
 
     def set(self, branch_name: str | None) -> None:
         """Set the target branch (and expose it as the configured attribute)."""
-        setattr(self, self.c.TARGET_BRANCH_ATTRIBUTE, branch_name)
         self._branch = branch_name
 
     def get(self) -> str | None:
@@ -186,7 +185,7 @@ class RepositoryIO:
         self.repo_name = root.stem
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, c, target)
+        self.paths = RepositoryPaths(root, c, self.target)
 
     def file_bytes(self, path: Path) -> bytes:
         """Return the raw bytes of the file at 'path' (I/O)."""
@@ -210,7 +209,7 @@ class RepositoryIO:
         return self.read_current_branch_data()[key]
 
     def write_current_branch_data(self, data: dict) -> None:
-        with open(self.paths.current_branch_data_file_path(), "r+", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.current_branch_data_file_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             json.dump(data, f, indent=4)
             f.truncate()
 
@@ -219,7 +218,7 @@ class RepositoryIO:
             return json.load(f)
 
     def write_config(self, data: dict) -> None:
-        with open(self.paths.config_path(), "r+", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.config_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             json.dump(data, f, indent=4)
             f.truncate()
 
@@ -274,7 +273,7 @@ class RepositoryIO:
             f.write(diff)
 
 class RepositoryData:
-    def __init__(self, root: Path, c: SCCSConstants, target) -> None:
+    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
         self.repo_name = root.stem
         self.c = c
@@ -364,10 +363,7 @@ class RepositoryData:
         return self.io.file_bytes(matching_files[0])
 
 
-    def latest_commit(self, branch) -> str:
-
-        self.io.target.set(branch)
-
+    def latest_commit(self) -> str:
         hash = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
         if not hash:
             raise exceptions.InvalidMetadataError(
@@ -519,9 +515,9 @@ class RepositoryWrite:
         else:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated_branch
 
-        self.io.write_byte_hashes(current_branch)
+        self.io.write_byte_hashes(commit_file_hash)
         self.io.write_commit_messages(messages)
-        self.io.write_history(current_branch)
+        self.io.write_history(history)
         self.io.write_current_branch_data(branch_data)
 
         return commit_hash

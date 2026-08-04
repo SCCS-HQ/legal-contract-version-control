@@ -18,14 +18,14 @@ def resolve_entered_url(c: SCCSConstants, url: str) -> str:
     Return 'url' so it begins with 'https://' and ends with '/clone/'.
     """
 
-    if not url :
+    if not url:
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME))
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
         raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 
     if not url.endswith(c.CLONE_ENDPOINT):
-       raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
 
     return url
 

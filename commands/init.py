@@ -279,5 +279,4 @@ def main(c: SCCSConstants, rp: RepositoryPaths, docx_path, ri: RepositoryIO) -> 
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    ri = RepositoryIO(Path(utils.entered_argument(2)), c, target)
-    utils.run_command(main, c, RepositoryPaths(Path(utils.entered_argument(2)), c, target), utils.entered_argument(2), ri)
+    utils.run_command(main, RepositoryPaths(Path(utils.entered_argument(2)), c, target), utils.entered_argument(2), RepositoryIO(Path(utils.entered_argument(2)), c, target))
