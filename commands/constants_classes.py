@@ -194,9 +194,7 @@ class SCCSConstants:
     UTF_8 = "utf-8"
     NEWLINE = "\n"
     JSON_EXTENSION = ".json"
-    TMP_EXTENSION = ".tmp"
     EMPTY_STRING = ""
-    SPACE = " "
 
     #endregion
 
@@ -340,12 +338,6 @@ class SCCSConstants:
     INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
     INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
 
-    ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
-    DOCUMENT_PATH_FIELD_NAME = "document path"
-
-    ## numbers
-    LOG_SEPARATOR_LENGTH = 30
-
     ## dicts
     DEFAULT_BRANCH_DATA = {
         CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
@@ -395,10 +387,8 @@ class SCCSConstants:
     ## strings - error messages
     BUFFER_CREATION_FAILED_ERROR_MESSAGE = "Failed to create a buffer for the zipped repository. Please try again."
 
-    ## strings - content type / endpoints / field names
-    CONTENT_TYPE_JSON = "application/json"
+    ## strings - endpoints
     PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
-    POST_DATA_FIELD_NAME = "data"
 
     ## strings - success messages
     PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
