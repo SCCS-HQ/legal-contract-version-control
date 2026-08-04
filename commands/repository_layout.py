@@ -49,61 +49,91 @@ class RepositoryPaths:
     def document_path(self) -> Path:
         """Return the path to the current document."""
         path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
-        self.target.set(None)
+        
         return path
 
     def sccs_path(self) -> Path:
         """Return the path to the '.sccs' folder."""
         path = self.root / self.c.SCCS_DIR
-        self.target.set(None)
+        
         return path
 
     def branches_path(self) -> Path:
         """Return the path to the 'branches' folder."""
         path = self.sccs_path() / self.c.BRANCHES_DIR
-        self.target.set(None)
+        
+        return path
+
+    def commit_messages_dir_path(self) -> Path:
+        """Return the path to the 'commit_messages' folder."""
+        path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
+        
         return path
 
     def commit_messages_path(self) -> Path:
         """Return the path to the 'commit_messages.json' file."""
-        path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR / self.c.COMMIT_MESSAGES_JSON_FILE
-        self.target.set(None)
+        path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
+        
+        return path
+
+    def config_dir_path(self) -> Path:
+        """Return the path to the 'config' folder."""
+        path = self.sccs_path() / self.c.CONFIG_DIR
+        
         return path
 
     def config_path(self) -> Path:
         """Return the path to the 'config.json' file."""
-        path = self.sccs_path() / self.c.CONFIG_DIR / self.c.CONFIG_JSON_FILE
-        self.target.set(None)
+        path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
+        
+        return path
+
+    def current_branch_dir_path(self) -> Path:
+        """Return the path to the 'current_branch' folder."""
+        path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
+        
         return path
 
     def current_branch_data_file_path(self) -> Path:
         """Return the path to the 'current_branch.json' file."""
-        path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR / self.c.CURRENT_BRANCH_JSON_FILE
-        self.target.set(None)
+        path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
+        
         return path
 
     def objects_path(self) -> Path:
         """Return the path to the 'objects' folder."""
         path = self.sccs_path() / self.c.OBJECTS_DIR
-        self.target.set(None)
+        
         return path
 
     def docx_objects_path(self) -> Path:
         """Return the path to the 'docx' objects folder."""
         path = self.objects_path() / self.c.DOCX_DIR
-        self.target.set(None)
+        
         return path
 
     def view_html_objects_path(self) -> Path:
         """Return the path to the 'view_html' objects folder."""
         path = self.objects_path() / self.c.VIEW_HTML_DIR
-        self.target.set(None)
+        
         return path
 
     def html_objects_path(self) -> Path:
         """Return the path to the 'html' objects folder."""
         path = self.objects_path() / self.c.HTML_DIR
-        self.target.set(None)
+        
+        return path
+
+    def history_dir_path(self) -> Path:
+        """
+        Return the path to the 'history' folder for the current branch. Chaining this
+        method with a branch method is required.
+        """
+
+        branch = self.target.require()
+
+        path = (self.branch_path(branch) / self.c.HISTORY_DIR)
+        
         return path
 
     def history_path(self) -> Path:
@@ -112,10 +142,19 @@ class RepositoryPaths:
         method with a branch method is required.
         """
 
+        path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
+        
+        return path
+
+    def byte_hashes_dir_path(self) -> Path:
+        """
+        Return the path to the 'commit_file_hash' folder for the current branch.
+        Chaining this method with a branch method is required.
+        """
         branch = self.target.require()
 
-        path = (self.branch_path(branch) / self.c.HISTORY_DIR / self.c.HISTORY_JSON_FILE)
-        self.target.set(None)
+        path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
+        
         return path
 
     def byte_hashes_path(self) -> Path:
@@ -123,16 +162,14 @@ class RepositoryPaths:
         Return the path to the 'commit_file_hash.json' file for the current branch.
         Chaining this method with a branch method is required.
         """
-        branch = self.target.require()
-
-        path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR / self.c.COMMIT_FILE_HASH_JSON_FILE)
-        self.target.set(None)
+        path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
+        
         return path
 
     def branch_path(self, branch_name: str) -> Path:
         """Return the path to the specified branch folder."""
         path = self.branches_path() / branch_name
-        self.target.set(None)
+        
         return path
 
     def branch(self, branch_name: str | None) -> Self:
@@ -142,7 +179,7 @@ class RepositoryPaths:
 
 
 class RepositoryIO:
-    """Owns all filesystem I/O. Depends only on RepositoryPathLayout for paths."""
+    """Owns all filesystem I/O. Depends only on RepositoryPaths for paths."""
 
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root

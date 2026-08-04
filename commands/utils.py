@@ -27,11 +27,15 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     )
 
 
-def entered_argument(argument: int) -> str | None:
+def entered_argument(argument: int) -> str:
     """Return the entered command-line argument at the specified index if provided, else None."""
 
     arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
-    return arg_value.strip() if isinstance(arg_value, str) else None
+
+    if arg_value:
+        return arg_value 
+    else:
+        raise exceptions.InvalidArgumentError()
 
 def run_command(main, *args) -> None:
     error_wrappers = ErrorWrappers()
