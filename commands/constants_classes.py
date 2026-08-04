@@ -27,15 +27,12 @@ class SCCSConstants:
     )
     POST_FILE_FIELD_NAME = "file"
     PATH_SEPARATOR = "/"
-    REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
-    INVALID_PATH_ENDING_ERROR_MESSAGE = (
-        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
-    )
+
     ACCEPTED_SCHEMES = ("http", "https")
     INVALID_URL_ERROR_MESSAGE = (
         f"Invalid remote URL provided. The URL must start with one of the following schemes: "
         f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)},"
-        "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+        " and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
     )
     REPOSITORY_NAME_FIELD_NAME = "repository name"
     RGLOB_ALL_FILES_PATTERN = "*"
@@ -275,6 +272,10 @@ class SCCSConstants:
 
     ## strings - repos url part
     REPOS_PATH_SEGMENT = "repos"
+    REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOS_PATH_SEGMENT}/{{repo_name}}"
+    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
+    )
 
     ## strings - error messages
     INVALID_REPO_NAME_ERROR_MESSAGE = (

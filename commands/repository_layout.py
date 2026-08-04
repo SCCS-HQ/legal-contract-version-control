@@ -269,8 +269,8 @@ class RepositoryIO:
             with open(d / name, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
                 f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
-    def write_diff_output(self, diff: str, commit_hash: str) -> None:
-        with open(self.root / self.c.DIFF_OUTPUT_HTML_FILE, "w", encoding=self.c.UTF_8) as f:
+    def write_diff_output(self, diff: str) -> None:
+        with open(self.root / self.c.DIFF_OUTPUT_HTML_FILE, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             f.write(diff)
 
 class RepositoryData:

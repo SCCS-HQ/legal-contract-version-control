@@ -29,7 +29,7 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
             raise exceptions.InvalidInputError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i))
         values.append(data_value)
 
-    with open(rp.config_path(), "w", encoding=c.UTF_8) as f:
+    with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
         config = {}
 
         for i, value in enumerate(values):

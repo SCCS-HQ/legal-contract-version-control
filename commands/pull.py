@@ -19,8 +19,8 @@ from repository_layout import (
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """Make a POST request to 'remote'/pull, returning the response."""
 
-    data = f"{c.HTTP_OBJECTS_DICT_KEY: rd.repo_objects()}"
-    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url)
+    data = {c.HTTP_OBJECTS_DICT_KEY: rd.repo_objects()}
+    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
     try:
         response = requests.post(url, json=data, timeout=c.HTTP_TIMEOUT_SECONDS)
