@@ -286,7 +286,6 @@ def main(
             str(strip_number_attribute(c, redline_soup)),
             c.DEFAULT_HTML_STYLES
         ),
-        commit_hash
     )
 
     print_diff_success_message(c)
