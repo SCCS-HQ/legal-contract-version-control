@@ -72,7 +72,7 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(c: SCCSConstants, key: str, value: str, rs: RepositoryStatus, rw: RepositoryWrite, rp: RepositoryPaths) -> None:
+def main(c: SCCSConstants, key: str, value: str, rp: RepositoryPaths, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs config> command."""
     rs.check_repository_layout()
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         utils.entered_argument(3),
+        RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
     )

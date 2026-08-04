@@ -255,8 +255,8 @@ def print_diff_success_message(c: SCCSConstants):
 def main(
         c: SCCSConstants,
         commit_hash: str,
-        rs: RepositoryStatus,
         rd: RepositoryData,
+        rs: RepositoryStatus,
         ri: RepositoryIO
     ) -> None:
     """Run functions for the <sccs diff> command."""
@@ -298,7 +298,7 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         utils.entered_argument(2),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
     )

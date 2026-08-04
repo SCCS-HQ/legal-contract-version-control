@@ -48,7 +48,7 @@ def print_pull_success_message(c: SCCSConstants, response: requests.Response, ur
     print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rs: RepositoryStatus, rd: RepositoryData) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs pull> command."""
     rs.check_repository_layout()
 
@@ -71,6 +71,6 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
     )

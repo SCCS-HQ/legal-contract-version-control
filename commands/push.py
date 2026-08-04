@@ -203,7 +203,7 @@ def print_push_success_message(c: SCCSConstants, response: requests.Response, ur
     print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rs: RepositoryStatus, rd: RepositoryData, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Run functions for the <sccs push> command."""
     rs.check_repository_layout()
 
@@ -229,8 +229,8 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
     )

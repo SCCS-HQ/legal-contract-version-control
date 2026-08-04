@@ -45,7 +45,7 @@ def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> 
 
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(branch)),
+            rd.hash_to_full_path(rd.latest_commit()),
             rp.document_path()
         )
     except Exception as e:

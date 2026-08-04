@@ -240,7 +240,7 @@ def print_init_success_message(c: SCCSConstants) -> None:
     print(c.INIT_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, rp: RepositoryPaths, docx_path, ri: RepositoryIO) -> None:
+def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Run functions for the <sccs init> command."""
 
     try:

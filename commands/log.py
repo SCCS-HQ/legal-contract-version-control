@@ -32,7 +32,7 @@ def print_log(c: SCCSConstants, history_data: dict) -> None:
         )
 
 
-def main(c: SCCSConstants, rd: RepositoryData, ri: RepositoryIO, rs: RepositoryStatus) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, ri: RepositoryIO) -> None:
     """Run functions for the <sccs log> command."""
     rs.check_repository_layout()
 
@@ -47,6 +47,6 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
+        RepositoryIO(Path.cwd(), c, target),
     )

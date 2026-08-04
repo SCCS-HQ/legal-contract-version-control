@@ -100,7 +100,7 @@ def print_publish_success_message(c: SCCSConstants, response: requests.Response,
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rs: RepositoryStatus, rw: RepositoryWrite, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs publish> command."""
     rs.check_repository_layout()
 
@@ -123,8 +123,8 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
         RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
     )
