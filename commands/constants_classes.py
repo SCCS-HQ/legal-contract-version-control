@@ -10,12 +10,12 @@ class SCCSConstants:
 
     #region Shared - Strings (messages, templates, field names, values, separators, attributes, resources, endpoints)
 
-    COMMA_SPACE = ", "
-    HISTORY_DICT_KEY = "history"
+    ACCEPTED_SCHEMES = ("http", "https")
     BRANCH_NAME_FIELD_NAME = "branch name"
     BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata."
     BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
     BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position."
+    COMMA_SPACE = ", "
     COMMIT_FILE_FIELD_NAME = "commit file hash"
     CONTENT_TYPE_ZIP = "application/zip"
     CREATE_SUBCOMMAND = "create"
@@ -25,27 +25,27 @@ class SCCSConstants:
     ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
         "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
     )
-    POST_FILE_FIELD_NAME = "file"
-    PATH_SEPARATOR = "/"
-
-    ACCEPTED_SCHEMES = ("http", "https")
+    HISTORY_DICT_KEY = "history"
     INVALID_URL_ERROR_MESSAGE = (
         f"Invalid remote URL provided. The URL must start with one of the following schemes: "
         f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)},"
         " and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
     )
+
+    MAIN_BRANCH_NAME = "main"
+    PATH_SEPARATOR = "/"
+    POST_FILE_FIELD_NAME = "file"
     REPOSITORY_NAME_FIELD_NAME = "repository name"
     RGLOB_ALL_FILES_PATTERN = "*"
+    SCCS_COMMAND_PREFIX = "sccs"
     STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
     UNZIP_FAILED_ERROR_MESSAGE = (
         "Failed to unzip repository file. Please try again or ensure the zip is valid."
     )
-    ZIP_EXTENSION = ".zip"
     ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
-    MAIN_BRANCH_NAME = "main"
 
     ## cross-file constants (referenced by 2+ command modules)
-    SCCS_COMMAND_PREFIX = "sccs"
+    ZIP_EXTENSION = ".zip"
 
     #endregion
 
@@ -85,27 +85,31 @@ class SCCSConstants:
 
     #region Shared - Configuration Values (keys, schemes, dict keys)
 
-    REMOTE_KEY = "remote"
-    NAME_KEY = "name"
+    # The 3 following constants are not alphabetized because they would be dependencies of earlier constants.
     EMAIL_KEY = "email"
+    NAME_KEY = "name"
+    REMOTE_KEY = "remote"
+
     ACCEPTED_CONFIG_KEYS = (REMOTE_KEY, NAME_KEY, EMAIL_KEY)
-
-    INVALID_KEY_ERROR_MESSAGE = (
-        f"Invalid configuration key provided. Accepted keys are: {COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
-    )
-
     AUTHOR_DICT_KEY = "author"
     BRANCHES_DICT_KEY = "branches"
     COMMIT_ORDER_DICT_KEY = "commit_order"
+
     CURRENT_BRANCH_DICT_KEY = "current_branch"
-    LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
+
+
+    HEX_DIGITS = "0123456789abcdef"
+    HTTP_OBJECTS_DICT_KEY = "objects"
+    INVALID_KEY_ERROR_MESSAGE = (
+        f"Invalid configuration key provided. Accepted keys are: {COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
+    )
     LATEST_COMMIT_DICT_KEY = "latest_commit"
+    LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
     LOG_DICT_KEY = "log"
     MESSAGE_DICT_KEY = "message"
+
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
-    HTTP_OBJECTS_DICT_KEY = "objects"
-    HEX_DIGITS = "0123456789abcdef"
 
     #endregion
 
@@ -188,10 +192,10 @@ class SCCSConstants:
 
     #region Shared - File I/O
 
-    UTF_8 = "utf-8"
-    NEWLINE = "\n"
-    JSON_EXTENSION = ".json"
     EMPTY_STRING = ""
+    JSON_EXTENSION = ".json"
+    NEWLINE = "\n"
+    UTF_8 = "utf-8"
 
     #endregion
 
@@ -209,32 +213,32 @@ class SCCSConstants:
     #region branch.py
 
     ## strings - subcommands / templates / values
-    WALK_ROOT = "."
-    COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
-    LIST_SUBCOMMAND = "list"
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
+    BRANCHES_DIR_LIST_HEADER = "Branches:"
+    BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' already exists."
+    BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = "Branch '{branch_name}' created from '{current_branch_name}' successfully."
 
     ## strings - validation / argument errors
-    INVALID_SUBCOMMAND_ERROR_MESSAGE = "Invalid subcommand provided. Accepted subcommands are: create, delete, list."
+    BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE = "Branch '{branch_name}' deleted successfully."
 
     ## strings - branch existence / deletion errors
-    BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' already exists."
+    COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
     CURRENT_BRANCH_DELETION_ERROR_MESSAGE = "Cannot delete the current branch. Switch branches first."
 
     ## strings - success messages
-    BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = "Branch '{branch_name}' created from '{current_branch_name}' successfully."
-    BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE = "Branch '{branch_name}' deleted successfully."
+    CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
+    INVALID_SUBCOMMAND_ERROR_MESSAGE = "Invalid subcommand provided. Accepted subcommands are: create, delete, list."
 
     ## strings - rollback / update errors
-    ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to rollback metadata after failure for branch '{branch_name}'."
+    LIST_SUBCOMMAND = "list"
 
     ## strings - listing messages
-    BRANCHES_DIR_LIST_HEADER = "Branches:"
-    CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
+    ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to rollback metadata after failure for branch '{branch_name}'."
+    SUBCOMMAND_FIELD_NAME = "subcommand"
 
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
-    SUBCOMMAND_FIELD_NAME = "subcommand"
+    WALK_ROOT = "."
 
     #endregion
 
@@ -244,13 +248,13 @@ class SCCSConstants:
     CLONE_ENDPOINT = "/clone/"
 
     ## strings - error messages
-    INVALID_ENDING_ERROR_MESSAGE = (
-        f"Invalid remote URL provided. Please provide a valid URL ending with '{CLONE_ENDPOINT}'."
-    )
+    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
     HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
 
     ## strings - status / success messages
-    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
+    INVALID_ENDING_ERROR_MESSAGE = (
+        f"Invalid remote URL provided. Please provide a valid URL ending with '{CLONE_ENDPOINT}'."
+    )
 
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
     URL_FIELD_NAME = "URL"
@@ -270,44 +274,46 @@ class SCCSConstants:
 
     #region config.py
 
-    ## strings - repos url part
+    # The 2 following constants are not alphabetized because they would be dependencies of earlier constants.
+    ## strings - error messages
     REPOS_PATH_SEGMENT = "repos"
+    
+    ## strings - success messages
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOS_PATH_SEGMENT}/{{repo_name}}"
+
+    ## strings - repos url part
+    CONFIG_SUCCESS_MESSAGE_TEMPLATE = "Configuration '{key}' set to '{value}' successfully."
     INVALID_PATH_ENDING_ERROR_MESSAGE = (
         f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
-
-    ## strings - error messages
     INVALID_REPO_NAME_ERROR_MESSAGE = (
         "Invalid repository name. Please ensure the repository is properly "
         "initialized with a valid name."
     )
 
-    ## strings - success messages
-    CONFIG_SUCCESS_MESSAGE_TEMPLATE = "Configuration '{key}' set to '{value}' successfully."
 
     #endregion
 
     #region diff.py
 
     ## strings - HTML attributes
-    STYLE_TAG_NAME = "style"
-    DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     CLASS_HTML_ATTRIBUTE = "class"
+    DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
-    INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
+    DELETE_OPCODE = "delete"
+    DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
 
     ## strings - parser and tags
     HTML_PARSER = "html.parser"
-    TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
+    INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
 
     ## strings - opcodes
-    REPLACE_OPCODE = "replace"
     INSERT_OPCODE = "insert"
-    DELETE_OPCODE = "delete"
+    REPLACE_OPCODE = "replace"
+    STYLE_TAG_NAME = "style"
 
     ## strings - success messages
-    DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
+    TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
 
     #endregion
 
@@ -323,42 +329,42 @@ class SCCSConstants:
     #region init.py
 
     ## strings - hash segments
-    HTML_BOILERPLATE_TEMPLATE = "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
-    FULL_COMMIT_HASH_LENGTH = 64
-    HTML_EXTENSION = ".html"
-    INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
-
-    ## strings - runtime defaults
-    INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
-
-    ## strings - templates and prompts
-    INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
-
-    ## strings - error / status messages
     ALREADY_INITIALIZED_ERROR_MESSAGE = "This file has already been initialized with SCCS."
-    INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
-    INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
-
-    ## dicts
     DEFAULT_BRANCH_DATA = {
         CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
         BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
     }
+    FULL_COMMIT_HASH_LENGTH = 64
+    HTML_BOILERPLATE_TEMPLATE = "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body><div class='center'><div id='target'>{html}</div></div></body></html>"
+
+    ## strings - runtime defaults
+    HTML_EXTENSION = ".html"
+
+    ## strings - templates and prompts
+    INITIAL_COMMIT_DICT_KEY = "initial_commit"
+
+    ## strings - error / status messages
+    INITIAL_COMMIT_MESSAGE = "initial commit (This is a default commit message for initial version)"
+    INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
+    INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
+
+    ## dicts
+    INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
 
     ## dict keys
-    INITIAL_COMMIT_DICT_KEY = "initial_commit"
-    INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
+    INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
+    INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
 
     #endregion
 
     #region log.py
 
     ## strings - display format constants
-    LOG_SEPARATOR = "-" * 30
-    LOG_COMMIT_FILE_LABEL = "Commit File: "
     LOG_AUTHOR_LABEL = "Author: "
+    LOG_COMMIT_FILE_LABEL = "Commit File: "
     LOG_DATE_LABEL = "Date: "
     LOG_MESSAGE_LABEL = "Message: "
+    LOG_SEPARATOR = "-" * 30
 
     #endregion
 
@@ -407,78 +413,78 @@ class SCCSConstants:
     #region push.py
 
     ## strings - extensions / dir templates
-    TMP_DIR_TEMPLATE = "tmp_{repo_name}"
+    CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = "Push successful, but failed to clear updated branches list in current " "branch file."
 
     ## strings - endpoints
     PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
 
     ## strings - error messages
     PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}."
-    CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = "Push successful, but failed to clear updated branches list in current " "branch file."
+    PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
 
     ## strings - success messages
-    PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
+    TMP_DIR_TEMPLATE = "tmp_{repo_name}"
 
     #endregion
 
     #region repository_layout.py
 
     ## strings - error / status messages
-    TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
-        "Target branch not set. Please chain this method call with a branch "
-        "method before calling history_path(). For example,"
-        "'repo_layout.main_branch().foo()'."
+    DIFF_OUTPUT_HTML_FILE = "diff.html"
+    INVALID_BRANCH_DATA_ERROR_MESSAGE = (
+        "Invalid branch data. Please ensure that the branch data has not been manually"
+        "modified and the targeted branch exists."
     )
     INVALID_COMMIT_HASH_ERROR_MESSAGE = (
         "Invalid commit file name. Please provide a shortened, 10 character commit "
         "hash or the full 64 character commit hash as the commit identifier."
     )
-    MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Multiple commit files found matching '{commit}'. Please provide a full, "
-        "64 character commit hash."
-    )
     INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE = (
         "Invalid commit history data. Please ensure that the commit data has not"
         "been manually modified."
     )
-    INVALID_BRANCH_DATA_ERROR_MESSAGE = (
-        "Invalid branch data. Please ensure that the branch data has not been manually"
-        "modified and the targeted branch exists."
-    )
-    UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
-        "Uncommitted changes detected. Please clean the working tree before proceeding."
+    MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
+    MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
+        "Multiple commit files found matching '{commit}'. Please provide a full, "
+        "64 character commit hash."
     )
     NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
         "No uncommitted changes detected. Uncommitted changes are required before committing."
     )
 
     ## strings - diff output filename
-    DIFF_OUTPUT_HTML_FILE = "diff.html"
+    TARGET_BRANCH_ATTRIBUTE = "_target_branch"
 
     ## strings - resource errors
-    MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
+    TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
+        "Target branch not set. Please chain this method call with a branch "
+        "method before calling history_path(). For example,"
+        "'repo_layout.main_branch().foo()'."
+    )
 
     ## strings - branch name attribute / extensions
-    TARGET_BRANCH_ATTRIBUTE = "_target_branch"
+    UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
+        "Uncommitted changes detected. Please clean the working tree before proceeding."
+    )
 
     #endregion
 
     #region reset.py
 
     ## strings - success / error messages
-    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit."
     RESET_ERROR_MESSAGE = "Failed to reset the document."
+    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit."
 
     #endregion
 
     #region revert.py
 
     ## strings - error messages
-    SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
+    REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_hash}'."
 
     ## strings - success / template messages
     REVERT_SUCCESS_MESSAGE_TEMPLATE = "Document successfully reverted to commit '{commit_hash}' on commit '{new_commit_hash}'."
-    REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_hash}'."
+    SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
 
     #endregion
 
@@ -495,8 +501,8 @@ class SCCSConstants:
     #region status.py
 
     ## strings - status messages
-    UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
     NO_UNCOMMITTED_CHANGES = "Status Report: No uncommitted changes detected."
+    UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
 
     #endregion
 
