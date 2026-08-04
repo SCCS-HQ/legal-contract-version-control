@@ -285,11 +285,7 @@ class RepositoryData:
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_KEY_ERROR_MESSAGE
             )
-        value = self.io.read_config().get(key)
-        if value is None:
-            raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-            )
+        value = self.io.read_config()[key]
         return value
 
     def raise_for_commit_length(self, commit: str) -> None:
@@ -469,8 +465,8 @@ class RepositoryWrite:
             )
 
         config = self.io.read_config()
-        name = config.get(self.c.NAME_KEY)
-        email = config.get(self.c.EMAIL_KEY)
+        name = config[self.c.NAME_KEY]
+        email = config[self.c.EMAIL_KEY]
 
         hash_parts = [self.c.PROGRAM_START_TIME, commit_msg, name, email]
         commit_hash = hashlib.sha256(
