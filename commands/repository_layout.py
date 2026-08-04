@@ -2,7 +2,6 @@
 """Repository layout classes for SCCS."""
 
 import hashlib
-from io import BytesIO
 import json
 from pathlib import Path
 from typing import Any, Self

@@ -2,7 +2,6 @@
 """Module for utility functions used in SCCS."""
 
 import re
-from pathlib import Path
 import sys
 
 import exceptions

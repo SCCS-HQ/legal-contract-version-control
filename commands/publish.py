@@ -2,7 +2,6 @@
 """Publish a SCCS repository to a hosted API"""
 
 import io
-import json
 import os
 import zipfile
 from pathlib import Path

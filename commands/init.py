@@ -7,7 +7,6 @@ from pydoc import doc
 import shutil
 from pathlib import Path
 import mammoth
-from pydantic.type_adapter import R
 
 import exceptions
 import utils
