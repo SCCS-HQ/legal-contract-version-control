@@ -78,7 +78,9 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
     return data_number
 
 
-def delete_tag(c: SCCSConstants, old_changed_strings: list[str], soup: BeautifulSoup) -> BeautifulSoup:
+def delete_tag(
+    c: SCCSConstants, old_changed_strings: list[str], soup: BeautifulSoup
+) -> BeautifulSoup:
     """
     Add a "deleted" class to all tags in the list of modified strings that have a
     data-number attribute.
@@ -95,14 +97,21 @@ def delete_tag(c: SCCSConstants, old_changed_strings: list[str], soup: Beautiful
 
         if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
+                i[c.CLASS_HTML_ATTRIBUTE].append(
+                    c.DELETED_HTML_ATTRIBUTE_VALUE
+                )  # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [
+                    c.DELETED_HTML_ATTRIBUTE_VALUE
+                ]  # pyright: ignore [reportArgumentType]
     return soup
 
 
 def replace_tag(
-    c: SCCSConstants, old_changed_strings: list[str], new_changed_strings: list[str], soup: BeautifulSoup
+    c: SCCSConstants,
+    old_changed_strings: list[str],
+    new_changed_strings: list[str],
+    soup: BeautifulSoup,
 ) -> BeautifulSoup:
     """
     Replace tags matching old_changed_strings with new_changed_strings in the entered
@@ -126,9 +135,13 @@ def replace_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
+                i[c.CLASS_HTML_ATTRIBUTE].append(
+                    c.INSERTED_HTML_ATTRIBUTE_VALUE
+                )  # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [
+                    c.INSERTED_HTML_ATTRIBUTE_VALUE
+                ]  # pyright: ignore [reportArgumentType]
     if match:
         match[-1].insert_after(frag)
         for i in match:
@@ -139,7 +152,9 @@ def replace_tag(
     return soup
 
 
-def insert_tag(c: SCCSConstants, new_changed_strings: list[str], i1: int, soup: BeautifulSoup) -> BeautifulSoup:
+def insert_tag(
+    c: SCCSConstants, new_changed_strings: list[str], i1: int, soup: BeautifulSoup
+) -> BeautifulSoup:
     """
     Insert new tags matching new_changed_strings into the entered HTML at the position
     corresponding to i1.
@@ -158,9 +173,13 @@ def insert_tag(c: SCCSConstants, new_changed_strings: list[str], i1: int, soup: 
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
+                i[c.CLASS_HTML_ATTRIBUTE].append(
+                    c.INSERTED_HTML_ATTRIBUTE_VALUE
+                )  # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [
+                    c.INSERTED_HTML_ATTRIBUTE_VALUE
+                ]  # pyright: ignore [reportArgumentType]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:
@@ -251,7 +270,9 @@ def print_diff_success_message(c: SCCSConstants):
     print(c.DIFF_SUCCESS_MESSAGE)
 
 
-def generate_diff_output(c: SCCSConstants, commit_hash: str, ri: RepositoryIO, rd: RepositoryData):
+def generate_diff_output(
+    c: SCCSConstants, commit_hash: str, ri: RepositoryIO, rd: RepositoryData
+):
     commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
     current_version_soup = convert_html_to_soup(c, ri.document_html())
@@ -262,11 +283,16 @@ def generate_diff_output(c: SCCSConstants, commit_hash: str, ri: RepositoryIO, r
 
     commit_list = tags_to_list(remove_inline_semantics(c, number_tags(c, commit_soup)))
 
-    docx_current_version_list = tags_to_list(remove_inline_semantics(c, number_tags(c, current_version_soup)))
+    docx_current_version_list = tags_to_list(
+        remove_inline_semantics(c, number_tags(c, current_version_soup))
+    )
 
     commit_soup = number_tags(c, remove_inline_semantics(c, commit_soup))
 
-    return format_redline_html(c, past_version, current_version, commit_list, docx_current_version_list, commit_soup)
+    return format_redline_html(
+        c, past_version, current_version, commit_list,
+        docx_current_version_list, commit_soup
+    )
 
 
 def main(
@@ -284,7 +310,15 @@ def main(
     full_commit_hash = rd.resolve_full_hash(commit_hash)
 
     ri.write_diff_output(
-        utils.wrap_html(c, str(strip_number_attribute(c, generate_diff_output(c, full_commit_hash, ri, rd))), c.DEFAULT_HTML_STYLES)
+        utils.wrap_html(
+            c,
+            str(
+                strip_number_attribute(
+                    c, generate_diff_output(c, full_commit_hash, ri, rd)
+                )
+            ),
+            c.DEFAULT_HTML_STYLES,
+        )
     )
     print_diff_success_message(c)
     rs.target.reset()

@@ -16,7 +16,9 @@ from repository_layout import (
 from constants_classes import SCCSConstants
 
 
-def validate_subcommand(c: SCCSConstants, subcommand: str, branch_name: str, rs: RepositoryStatus) -> None:
+def validate_subcommand(
+    c: SCCSConstants, subcommand: str, branch_name: str, rs: RepositoryStatus
+) -> None:
     """
     Raise an exception if the subcommand is invalid or if required arguments are
     missing.
@@ -35,13 +37,17 @@ def validate_subcommand(c: SCCSConstants, subcommand: str, branch_name: str, rs:
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         if not branch_name:
             raise exceptions.InvalidArgumentError(
-                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
+                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=c.BRANCH_NAME_FIELD_NAME
+                )
             )
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if rs.branch_exists(branch_name):
             raise exceptions.BranchAlreadyExistsError(
-                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
             )
 
     if subcommand == c.DELETE_SUBCOMMAND:
@@ -52,11 +58,19 @@ def validate_subcommand(c: SCCSConstants, subcommand: str, branch_name: str, rs:
 
         if not rs.branch_exists(branch_name):
             raise exceptions.BranchMissingFromMetadataError(
-                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
             )
 
 
-def branch_create_subcommand(c: SCCSConstants, branch_name: str, current_branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def branch_create_subcommand(
+    c: SCCSConstants,
+    branch_name: str,
+    current_branch_name: str,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """
     Create a new branch from the current branch. The new branch will have the same
     commit history and metadata as the current branch.
@@ -71,12 +85,18 @@ def branch_create_subcommand(c: SCCSConstants, branch_name: str, current_branch_
         rw.set_current_branch(branch_name)
     except Exception as e:
         rollback_changes_after_failure(c, branch_name, c.CREATE_SUBCOMMAND, rp, rw)
-        raise exceptions.FileCopyError(c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=c.CREATE_SUBCOMMAND)) from e
+        raise exceptions.FileCopyError(
+            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                action=c.CREATE_SUBCOMMAND
+            )
+        ) from e
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
 
 
-def branch_delete_subcommand(c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def branch_delete_subcommand(
+    c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
+) -> None:
     """
     Delete an existing branch.
     """
@@ -86,12 +106,22 @@ def branch_delete_subcommand(c: SCCSConstants, branch_name: str, rp: RepositoryP
         shutil.rmtree(rp.branch_path(branch_name))
     except Exception as e:
         rollback_changes_after_failure(c, branch_name, c.DELETE_SUBCOMMAND, rp, rw)
-        raise exceptions.FileDeleteError(c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=c.DELETE_SUBCOMMAND)) from e
+        raise exceptions.FileDeleteError(
+            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                action=c.DELETE_SUBCOMMAND
+            )
+        ) from e
 
     print_branch_delete_success_message(c, branch_name)
 
 
-def rollback_changes_after_failure(c: SCCSConstants, branch_name: str, subcommand: str, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def rollback_changes_after_failure(
+    c: SCCSConstants,
+    branch_name: str,
+    subcommand: str,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """
     Rollback changes after a failed branch deletion.
     If an error occurs during branch deletion, the branch metadata will be rolled back
@@ -107,7 +137,9 @@ def rollback_changes_after_failure(c: SCCSConstants, branch_name: str, subcomman
             rw.add_to_branches_list(branch_name)
     except Exception as e:
         raise exceptions.UpdatingMetadataError(
-            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_name
+            )
         ) from e
 
 
@@ -125,7 +157,15 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
             print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
 
 
-def run_specified_subcommand(c: SCCSConstants, subcommand: str, branch_name: str, current_branch_name: str, rd: RepositoryData, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def run_specified_subcommand(
+    c: SCCSConstants,
+    subcommand: str,
+    branch_name: str,
+    current_branch_name: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """
     Run the specified subcommand by reading the subcommand entered:
 
@@ -148,7 +188,9 @@ def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> N
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
-def print_branch_create_success_message(c: SCCSConstants, branch_name: str, current_branch_name: str) -> None:
+def print_branch_create_success_message(
+    c: SCCSConstants, branch_name: str, current_branch_name: str
+) -> None:
     print(
         c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
             branch_name=branch_name, current_branch_name=current_branch_name
@@ -175,7 +217,9 @@ def main(
 
     validate_subcommand(c, subcommand, branch_name, rs)
 
-    run_specified_subcommand(c, subcommand, branch_name, rd.current_branch(), rd, rp, rw)
+    run_specified_subcommand(
+        c, subcommand, branch_name, rd.current_branch(), rd, rp, rw
+    )
 
     rs.target.reset()
 

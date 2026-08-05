@@ -17,7 +17,9 @@ from constants_classes import SCCSConstants
 from urllib.parse import urlsplit, urljoin
 
 
-def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> None:
+def validate_entered_value(
+    c: SCCSConstants, repo_name: str, key: str, value: str
+) -> None:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
     by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
@@ -30,19 +32,31 @@ def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: st
             raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
 
     if not value:
-        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+        )
 
     if not repo_name:
-        raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
+        raise exceptions.EmptyArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.REPOSITORY_NAME_FIELD_NAME
+            )
+        )
 
     repo_name = utils.clean_directory_name(repo_name)
 
 
-def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> str:
-    """Resolve the entered remote URL to the correct format for storing in the config file."""
+def resolve_key_value(
+    c: SCCSConstants, repo_name: str, key: str, value: str
+) -> str:
+    """Resolve the entered remote URL to the correct format for storing
+    in the config file.
+    """
 
     if not value:
-        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+        )
 
     if key == c.REMOTE_KEY:
         url = value.rstrip(c.PATH_SEPARATOR)
@@ -69,7 +83,15 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(c: SCCSConstants, key: str, value: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    key: str,
+    value: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """Run functions for the <sccs config> command."""
     rs.target.set(rd.current_branch())
 

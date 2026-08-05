@@ -21,7 +21,9 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
 
     if not commit_path.is_file():
         raise exceptions.InvalidArgumentError(
-            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_name=commit_path.stem)
+            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                file_name=commit_path.stem
+            )
         )
 
     try:
@@ -30,14 +32,25 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
         raise exceptions.FileCopyError() from e
 
 
-def print_revert_confirmation_message(c: SCCSConstants, commit_hash: str, new_commit_hash: str) -> None:
+def print_revert_confirmation_message(
+    c: SCCSConstants, commit_hash: str, new_commit_hash: str
+) -> None:
     """Print a confirmation message for the revert."""
 
     print(
-        c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(commit_hash=commit_hash, new_commit_hash=new_commit_hash)
+        c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash, new_commit_hash=new_commit_hash
+        )
     )
 
-def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    commit_hash: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """Main function to handle the revert command."""
 
     rs.target.set(rd.current_branch())

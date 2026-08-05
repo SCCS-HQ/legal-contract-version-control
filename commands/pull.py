@@ -42,7 +42,9 @@ def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 
-def print_pull_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
+def print_pull_success_message(
+    c: SCCSConstants, response: requests.Response, url: str
+) -> None:
     """Print a success message after pulling the repository."""
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))

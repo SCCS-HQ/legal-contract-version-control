@@ -27,7 +27,7 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 
 
 def entered_argument(argument: int) -> str:
-    """Return the entered command-line argument at the specified index if provided, else None."""
+    """Return the command-line argument at the given index, or None."""
 
     arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
 
@@ -48,5 +48,9 @@ def run_command(main, *args) -> None:
         sys.exit(1)
 
     except Exception as e:
-        print(error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(type_name=type(e).__name__, e=e))
+        print(
+            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+                type_name=type(e).__name__, e=e
+            )
+        )
         sys.exit(2)

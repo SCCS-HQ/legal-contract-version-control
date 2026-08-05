@@ -21,8 +21,14 @@ def validate_commit_hash(c: SCCSConstants, commit_hash: str) -> None:
 
     valid_len = len(commit_hash) == (c.FULL_COMMIT_HASH_LENGTH)
 
-    if not commit_hash or not valid_len or not all(i in c.HEX_DIGITS for i in commit_hash):
-        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME))
+    if not commit_hash or not valid_len or not all(
+        i in c.HEX_DIGITS for i in commit_hash
+    ):
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_FILE_FIELD_NAME
+            )
+        )
 
 
 def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
@@ -39,7 +45,9 @@ def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
         raise exceptions.FileCopyError() from e
 
 
-def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, output_file_name: Path) -> None:
+def print_rewrite_confirmation_message(
+    c: SCCSConstants, commit_hash: str, output_file_name: Path
+) -> None:
     """
     Print the confirmation message after rewriting the file using the document name.
     """
@@ -52,7 +60,9 @@ def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, outpu
     )
 
 
-def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus) -> None:
+def main(
+    c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus
+) -> None:
     """Run functions for the <sccs open> command."""
     rs.target.set(rd.current_branch())
 
@@ -64,7 +74,9 @@ def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryS
 
     full_commit_hash = rd.resolve_full_hash(commit_hash)
 
-    output_file_name = Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=full_commit_hash)).with_suffix(c.DOCX_EXTENSION)
+    output_file_name = Path(
+        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=full_commit_hash)
+    ).with_suffix(c.DOCX_EXTENSION)
 
     copy_file_commit(commit_path, output_file_name)
 

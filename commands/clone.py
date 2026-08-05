@@ -20,7 +20,9 @@ def resolve_entered_url(c: SCCSConstants, url: str) -> str:
     """
 
     if not url:
-        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME))
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
+        )
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
         raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
@@ -58,7 +60,11 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
         raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
 
     if len(path_parts) < 2:
-        raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.REPOSITORY_NAME_FIELD_NAME
+            )
+        )
 
     repo_name = path_parts[-2]
 

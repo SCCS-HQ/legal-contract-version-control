@@ -57,9 +57,12 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
     return buffer
 
 
-def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths) -> requests.Response:
+def post_repo(
+    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths
+) -> requests.Response:
     """
-    Make a POST request to 'remote', sending the zipped current working directory as a file
+    Make a POST request to 'remote', sending the zipped current
+    working directory as a file
     and 'remote' as JSON.
 
     Return the server response of the POST request to 'remote'.
@@ -94,12 +97,22 @@ def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPa
     return response
 
 
-def print_publish_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+def print_publish_success_message(
+    c: SCCSConstants, response: requests.Response, url: str
+) -> None:
+    print(
+        c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code)
+    )
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """Run functions for the <sccs publish> command."""
     rs.target.set(rd.current_branch())
 

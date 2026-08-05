@@ -10,7 +10,9 @@ import mammoth
 import exceptions
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryPaths, TargetBranch, RepositoryIO, RepositoryStatus
+from repository_layout import (
+    RepositoryPaths, TargetBranch, RepositoryIO, RepositoryStatus
+)
 
 
 def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
@@ -24,7 +26,9 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
     for i in data:
         data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
         if not data_value:
-            raise exceptions.InvalidInputError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i))
+            raise exceptions.InvalidInputError(
+                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
+            )
         values.append(data_value)
 
     with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
@@ -59,7 +63,11 @@ def check_file_requirements(c: SCCSConstants, file: Path) -> None:
         raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
     if not file.is_file():
-        raise exceptions.FileDoesNotExistError(c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file))
+        raise exceptions.FileDoesNotExistError(
+            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                file_path=file
+            )
+        )
 
 
 def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
@@ -77,7 +85,9 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
         ).hexdigest()
 
 
-def create_sccs_directory_layout(c: SCCSConstants, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
+def create_sccs_directory_layout(
+    c: SCCSConstants, rs: RepositoryStatus, rp: RepositoryPaths
+) -> None:
     """Create the full SCCS directory structure inside the repo path."""
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -113,7 +123,9 @@ def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
     shutil.move(docx_path, repo_path)
 
 
-def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path, sha_hash: str, rp: RepositoryPaths) -> None:
+def copy_document_to_objects_as_docx_and_html(
+    c: SCCSConstants, docx_path: Path, sha_hash: str, rp: RepositoryPaths
+) -> None:
     """
     Copy the document into objects as both .docx and .html. to their corresponding
     folders.
@@ -156,7 +168,10 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         raise exceptions.FileWriteError() from e
 
 
-def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rs: RepositoryStatus, ri: RepositoryIO) -> None:
+def write_history_data(
+    c: SCCSConstants, name: str, email: str, sha_hash: str,
+    rs: RepositoryStatus, ri: RepositoryIO,
+) -> None:
     """Write the initial commit history JSON file to the main branch history folder."""
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -171,7 +186,9 @@ def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, r
         c.LOG_DICT_KEY: {
             sha_hash: {
                 c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
-                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(name=name, email=email),
+                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                    name=name, email=email
+                ),
                 c.MESSAGE_DICT_KEY: c.INITIAL_COMMIT_MESSAGE,
             }
         },
@@ -182,7 +199,9 @@ def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, r
     rs.target.reset()
 
 
-def write_commit_message_data(c: SCCSConstants, sha_hash: str, ri: RepositoryIO) -> None:
+def write_commit_message_data(
+    c: SCCSConstants, sha_hash: str, ri: RepositoryIO
+) -> None:
     """
     Write the initial commit message JSON file to the main branch commit messages
     folder.
@@ -251,7 +270,10 @@ def print_init_success_message(c: SCCSConstants) -> None:
     print(c.INIT_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def main(
+    c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths,
+    ri: RepositoryIO,
+) -> None:
     """Run functions for the <sccs init> command."""
 
     try:
@@ -290,4 +312,16 @@ def main(c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths,
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    utils.run_command(main, utils.entered_argument(2), RepositoryStatus(Path(utils.entered_argument(2)), c, target), RepositoryPaths(Path(utils.entered_argument(2)), c, target), RepositoryIO(Path(utils.entered_argument(2)), c, target))
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryStatus(
+            Path(utils.entered_argument(2)), c, target
+        ),
+        RepositoryPaths(
+            Path(utils.entered_argument(2)), c, target
+        ),
+        RepositoryIO(
+            Path(utils.entered_argument(2)), c, target
+        ),
+    )

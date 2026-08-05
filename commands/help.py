@@ -33,4 +33,8 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    utils.run_command(main, RepositoryData(Path.cwd(), c, target), RepositoryStatus(Path.cwd(), c, target))
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

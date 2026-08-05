@@ -24,7 +24,9 @@ from repository_layout import (
 )
 
 
-def get_matching_file_paths(c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths) -> list[Path]:
+def get_matching_file_paths(
+    c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
+) -> list[Path]:
     """
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
@@ -74,11 +76,18 @@ def compare_hash_lists(remote_objects: list, rd: RepositoryData) -> list[Path]:
     return obj_to_upload
 
 
-def zip_files_to_upload(c: SCCSConstants, remote_objects: list, rp: RepositoryPaths, ri: RepositoryIO, rd: RepositoryData) -> io.BytesIO:
+def zip_files_to_upload(
+    c: SCCSConstants,
+    remote_objects: list,
+    rp: RepositoryPaths,
+    ri: RepositoryIO,
+    rd: RepositoryData,
+) -> io.BytesIO:
     """
     Create a temporary version of the repository with only the files in 'obj_to_upload'
-    and metadata files, ensuring that the folder layout is left intact. Compress said
-    folder and return it as a Bytes.io memory buffer and xdelete the temporary directory.
+    and metadata files, ensuring that the folder layout is left intact.
+    Compress said folder and return it as a Bytes.io memory buffer and
+    xdelete the temporary directory.
 
     Return a zip archive of files in 'obj_to_upload' and metadata files using the same
     layout as a repository.
@@ -108,7 +117,9 @@ def zip_files_to_upload(c: SCCSConstants, remote_objects: list, rp: RepositoryPa
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_folder_path = Path(temp_dir) / c.TMP_DIR_TEMPLATE.format(repo_name=rp.repo_name)
+        tmp_folder_path = Path(temp_dir) / c.TMP_DIR_TEMPLATE.format(
+            repo_name=rp.repo_name
+        )
         for i in files_to_upload:
             (tmp_folder_path / i.relative_to(rp.root).parent).mkdir(
                 parents=True, exist_ok=True
@@ -138,7 +149,9 @@ def zip_files_to_upload(c: SCCSConstants, remote_objects: list, rp: RepositoryPa
     return buffer
 
 
-def push_POST(c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths) -> requests.Response:
+def push_POST(
+    c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
+) -> requests.Response:
     """
     Make a POST request to 'remote', sending 'buffer' as a file.
 
@@ -148,7 +161,9 @@ def push_POST(c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: Repo
     remote = rd.base_repo_url()
 
     remote_path = urlsplit(remote).path.rstrip(c.PATH_SEPARATOR)
-    if not remote_path.endswith(c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)):
+    if not remote_path.endswith(
+        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
+    ):
         raise exceptions.InvalidAPIURLError(
             c.INVALID_PATH_ENDING_ERROR_MESSAGE
         )
@@ -176,7 +191,9 @@ def push_POST(c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: Repo
     return response
 
 
-def clear_updated_branches(c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths) -> None:
+def clear_updated_branches(
+    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
+) -> None:
     """Clear the updated branches list in the current branch file."""
 
 
@@ -188,7 +205,12 @@ def clear_updated_branches(c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPat
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:
-        with open(rp.current_branch_data_file_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
+        with open(
+            rp.current_branch_data_file_path(),
+            "w",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
     except Exception as e:
         raise exceptions.FileWriteError(
@@ -196,14 +218,22 @@ def clear_updated_branches(c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPat
     ) from e
 
 
-def print_push_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
+def print_push_success_message(
+    c: SCCSConstants, response: requests.Response, url: str
+) -> None:
     """Print a success message after pushing the repository."""
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    ri: RepositoryIO,
+) -> None:
     """Run functions for the <sccs push> command."""
     rs.target.set(rd.current_branch())
 

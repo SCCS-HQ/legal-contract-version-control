@@ -16,7 +16,9 @@ from repository_layout import (
 )
 
 
-def check_branch_to_switch(c: SCCSConstants, branch_to_switch: str, rs: RepositoryStatus) -> None:
+def check_branch_to_switch(
+    c: SCCSConstants, branch_to_switch: str, rs: RepositoryStatus
+) -> None:
     """Check if the branch to switch to is valid."""
 
     if not branch_to_switch:
@@ -26,11 +28,15 @@ def check_branch_to_switch(c: SCCSConstants, branch_to_switch: str, rs: Reposito
 
     if not rs.branch_exists(branch_to_switch):
         raise exceptions.BranchNotFoundError(
-            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch)
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_to_switch
+            )
         )
 
 
-def check_commit(branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus) -> None:
+def check_commit(
+    branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus
+) -> None:
     """
     Check if the commit object exists in the document history.
     """
@@ -38,13 +44,21 @@ def check_commit(branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus
     rs.target.set(branch_to_switch)
 
 
-    if not (rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)).is_file():
+    if not (
+        rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)
+    ).is_file():
         raise exceptions.CommitNotFoundError()
 
     rs.target.reset()
 
 
-def copy_commit_to_main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
+def copy_commit_to_main(
+    c: SCCSConstants,
+    branch_to_switch: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+) -> None:
     """Copy the commit file to the main document."""
     
     rs.target.set(branch_to_switch)
@@ -52,7 +66,7 @@ def copy_commit_to_main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryD
     try:
         shutil.copy2(
             rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
-            (rp.document_path()),
+            rp.document_path(),
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
@@ -65,7 +79,14 @@ def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
     print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
 
-def main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    branch_to_switch: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """Run functions for the <sccs switch> command."""
     rs.target.set(rd.current_branch())
 

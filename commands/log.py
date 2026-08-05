@@ -32,7 +32,12 @@ def print_log(c: SCCSConstants, history_data: dict) -> None:
         )
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, ri: RepositoryIO) -> None:
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    ri: RepositoryIO,
+) -> None:
     """Run functions for the <sccs log> command."""
 
     rs.target.set(rd.current_branch())

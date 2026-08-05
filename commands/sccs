@@ -21,10 +21,14 @@ def run_command(c: SCCSConstants, entered_command: str) -> None:
     exit code of the subprocess.
     """
     sys.exit(
-        subprocess.run([
-            sys.executable,
-            Path(get_script_directory() / entered_command).with_suffix(c.PYTHON_EXTENSION),]
-             + sys.argv[1:]
+        subprocess.run(
+            [
+                sys.executable,
+                Path(
+                    get_script_directory() / entered_command
+                ).with_suffix(c.PYTHON_EXTENSION),
+            ]
+            + sys.argv[1:]
         ).returncode
     )
 
@@ -37,7 +41,9 @@ def validate_command(c: SCCSConstants, entered_command: str) -> None:
 
     if entered_command not in c.COMMANDS_LIST:
         raise exceptions.UnknownCommandError(
-            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(entered_command=entered_command)
+            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(
+                entered_command=entered_command
+            )
         )
 
 

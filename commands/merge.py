@@ -16,8 +16,12 @@ from repository_layout import (
 )
 
 
-def validate_branch(c: SCCSConstants, branch: str, rd: RepositoryData) -> None:
-    """Validate that the entered branch is valid, exists, and is not the current branch."""
+def validate_branch(
+    c: SCCSConstants, branch: str, rd: RepositoryData
+) -> None:
+    """Validate that the entered branch is valid, exists, and is
+    not the current branch.
+    """
 
     if not branch:
         raise exceptions.InvalidArgumentError(
@@ -28,19 +32,29 @@ def validate_branch(c: SCCSConstants, branch: str, rd: RepositoryData) -> None:
             c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE
         )
     if branch not in rd.branches():
-        raise exceptions.BranchNotFoundError(c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch))
+        raise exceptions.BranchNotFoundError(
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch
+            )
+        )
 
 
 def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
     """Copy the data from the source branch to the target branch."""
 
     try:
-        shutil.copytree(rp.branch_path(branch), rp.branch_path(rd.current_branch()), dirs_exist_ok=True)
+        shutil.copytree(
+            rp.branch_path(branch),
+            rp.branch_path(rd.current_branch()),
+            dirs_exist_ok=True,
+        )
     except Exception as e:
         raise exceptions.FileCopyError() from e
 
 
-def copy_repo_document(branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
+def copy_repo_document(
+    branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
+) -> None:
     """Copy the repo document from the source branch to the target branch."""
 
     rs.target.set(branch)
@@ -56,14 +70,25 @@ def copy_repo_document(branch: str, rd: RepositoryData, rs: RepositoryStatus, rp
     rs.target.reset()
 
 
-def print_merge_success_message(c: SCCSConstants, branch: str, rd: RepositoryData) -> None:
+def print_merge_success_message(
+    c: SCCSConstants, branch: str, rd: RepositoryData
+) -> None:
     """Print a success message after merging the branches."""
     print(
-        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(branch=branch, current_branch=rd.current_branch())
+        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch=branch, current_branch=rd.current_branch()
+        )
     )
 
 
-def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    branch: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
     """Merge the entered branch into the current branch."""
 
     rs.target.set(rd.current_branch())
@@ -77,7 +102,9 @@ def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus
     copy_branch_data(branch, rd, rp)
 
     rw.commit_changes(
-        c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(branch=branch, current_branch=rd.current_branch())
+        c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
+            branch=branch, current_branch=rd.current_branch()
+        )
     )
 
     print_merge_success_message(c, branch, rd)

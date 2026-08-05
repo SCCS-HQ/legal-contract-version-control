@@ -26,10 +26,20 @@ def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
 def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
 
     if commit_message is None or not commit_message:
-        raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_MESSAGE_FIELD_NAME))
+        raise exceptions.EmptyArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_MESSAGE_FIELD_NAME
+            )
+        )
 
 
-def main(c: SCCSConstants, commit_message: str, rd: RepositoryData, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
+def main(
+    c: SCCSConstants,
+    commit_message: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
     """Run functions for the <sccs commit> command."""
 
     rw.target.set(rd.current_branch())

@@ -223,7 +223,12 @@ class RepositoryIO:
 
 
     def read_current_branch_data(self) -> dict:
-        with open(self.paths.current_branch_data_file_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.current_branch_data_file_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             return json.load(f)
 
 
@@ -232,49 +237,94 @@ class RepositoryIO:
 
 
     def write_current_branch_data(self, data: dict) -> None:
-        with open(self.paths.current_branch_data_file_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.current_branch_data_file_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
             f.truncate()
 
 
     def read_config(self) -> dict:
-        with open(self.paths.config_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.config_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             return json.load(f)
 
 
     def write_config(self, data: dict) -> None:
-        with open(self.paths.config_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.config_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
             f.truncate()
 
 
     def read_history(self) -> dict:
-        with open(self.paths.history_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.history_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             return json.load(f)
 
 
     def write_history(self, data: dict) -> None:
-        with open(self.paths.history_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.history_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
 
 
     def read_byte_hashes(self) -> dict:
-        with open(self.paths.byte_hashes_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.byte_hashes_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             return json.load(f)
 
 
     def write_byte_hashes(self, data: dict) -> None:
-        with open(self.paths.byte_hashes_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.byte_hashes_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
 
 
     def read_commit_messages(self) -> dict:
-        with open(self.paths.commit_messages_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.commit_messages_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             return json.load(f)
 
 
     def write_commit_messages(self, data: dict) -> None:
-        with open(self.paths.commit_messages_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.paths.commit_messages_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             json.dump(data, f, indent=4)
 
 
@@ -291,7 +341,6 @@ class RepositoryIO:
             result = mammoth.convert_to_html(f)
             return result.value
 
-
     def copy_document_to_commit(self, commit_hash: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
         shutil.copy2(self.paths.document_path(), self.paths.docx_objects_path() / name)
@@ -299,13 +348,30 @@ class RepositoryIO:
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
-        for d in (self.paths.html_objects_path(), self.paths.view_html_objects_path()):
-            with open(d / name, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
-                f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
+        for d in (
+            self.paths.html_objects_path(),
+            self.paths.view_html_objects_path(),
+        ):
+            with open(
+                d / name,
+                "w",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                f.write(
+                    utils.wrap_html(
+                        self.c, html, self.c.DEFAULT_HTML_STYLES
+                    )
+                )
 
 
     def write_diff_output(self, diff: str) -> None:
-        with open(self.root / self.c.DIFF_OUTPUT_HTML_FILE, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(
+            self.root / self.c.DIFF_OUTPUT_HTML_FILE,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
             f.write(diff)
 
 
@@ -331,10 +397,15 @@ class RepositoryData:
     def raise_for_commit_length(self, commit: str) -> None:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.COMMIT_FILE_FIELD_NAME)
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
             )
 
-        if len(commit) != self.c.FULL_COMMIT_HASH_LENGTH and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH:
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
@@ -343,28 +414,39 @@ class RepositoryData:
     def hash_to_full_path(self, commit: str, folder: str) -> Path:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.COMMIT_FILE_FIELD_NAME)
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
             )
 
-        if len(commit) != self.c.FULL_COMMIT_HASH_LENGTH and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH:
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
 
         matching_files = []
 
-        for i in Path(self.paths.objects_path() / folder).iterdir():
+        for i in Path(
+            self.paths.objects_path() / folder
+        ).iterdir():
             if str(i.stem).startswith(commit):
                 matching_files.append(i)
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=commit)
+                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                    file_path=commit
+                )
             )
 
         if len(matching_files) > 1:
             raise exceptions.InvalidArgumentError(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit=commit)
+                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    commit=commit
+                )
             )
 
         return Path(matching_files[0])
@@ -373,28 +455,39 @@ class RepositoryData:
     def commit_file_bytes(self, commit: str, folder: str) -> bytes:
         if commit is None:
             raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.COMMIT_FILE_FIELD_NAME)
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
             )
 
-        if len(commit) != self.c.FULL_COMMIT_HASH_LENGTH and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH:
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
             )
 
         matching_files = []
 
-        for i in Path(self.paths.objects_path() / folder).iterdir():
+        for i in Path(
+            self.paths.objects_path() / folder
+        ).iterdir():
             if str(i.stem).startswith(commit):
                 matching_files.append(i)
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=commit)
+                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                    file_path=commit
+                )
             )
 
         if len(matching_files) > 1:
             raise exceptions.InvalidArgumentError(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(commit=commit)
+                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    commit=commit
+                )
             )
 
         return self.io.file_bytes(matching_files[0])
@@ -410,7 +503,9 @@ class RepositoryData:
 
 
     def latest_commit(self) -> str:
-        hash = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
+        hash = self.io.read_history()[
+            self.c.HISTORY_DICT_KEY
+        ][self.c.LATEST_COMMIT_DICT_KEY]
         if not hash:
             raise exceptions.InvalidMetadataError(
                 self.c.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
@@ -426,7 +521,15 @@ class RepositoryData:
 
 
     def repo_objects(self) -> list:
-        return list(set(i.stem for i in self.paths.objects_path().rglob(self.c.RGLOB_ALL_FILES_PATTERN) if i.is_file()))
+        return list(
+            set(
+                i.stem
+                for i in self.paths.objects_path().rglob(
+                    self.c.RGLOB_ALL_FILES_PATTERN
+                )
+                if i.is_file()
+            )
+        )
 
 
     def base_repo_url(self) -> str:
@@ -468,20 +571,30 @@ class RepositoryWrite:
             ) from e
 
 
-    def add_to_branches_list(self, branch_name: str) -> None:
-        """Add a new branch to the current branch data in the 'current_branch.json' file."""
+    def add_to_branches_list(
+        self, branch_name: str
+    ) -> None:
+        """Add a new branch to the current branch data in the
+        'current_branch.json' file.
+        """
         try:
             branch_data = self.io.read_current_branch_data()
             branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
             raise exceptions.BranchCreationError(
-                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=self.c.CREATE_SUBCOMMAND)
+                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                    action=self.c.CREATE_SUBCOMMAND
+                )
             ) from e
 
 
-    def remove_from_branches_list(self, branch_name: str) -> None:
-        """Remove a branch from the current branch data in the 'current_branch.json' file."""
+    def remove_from_branches_list(
+        self, branch_name: str
+    ) -> None:
+        """Remove a branch from the current branch data in the
+        'current_branch.json' file.
+        """
         try:
             branch_data = self.io.read_current_branch_data()
             if branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
@@ -493,19 +606,27 @@ class RepositoryWrite:
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
             raise exceptions.BranchDeletionError(
-                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=self.c.DELETE_SUBCOMMAND)
+                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                    action=self.c.DELETE_SUBCOMMAND
+                )
             ) from e
 
 
-    def set_current_branch(self, branch_name: str) -> None:
-        """Set the current branch in the 'current_branch.json' file to the specified branch name."""
+    def set_current_branch(
+        self, branch_name: str
+    ) -> None:
+        """Set the current branch in the 'current_branch.json' file to the
+        specified branch name.
+        """
         try:
             branch_data = self.io.read_current_branch_data()
             branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
             raise exceptions.UpdatingMetadataError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.BRANCH_NAME_FIELD_NAME)
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.BRANCH_NAME_FIELD_NAME
+                )
             ) from e
 
 
@@ -515,8 +636,12 @@ class RepositoryWrite:
         commit_message.
         """
 
-        current_branch = self.io.read_current_branch_data()[self.c.CURRENT_BRANCH_DICT_KEY]
-        latest_commit = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
+        current_branch = self.io.read_current_branch_data()[
+            self.c.CURRENT_BRANCH_DICT_KEY
+        ]
+        latest_commit = self.io.read_history()[
+            self.c.LATEST_COMMIT_DICT_KEY
+        ]
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_binary_hash()
 
@@ -551,12 +676,18 @@ class RepositoryWrite:
             history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
         )
 
-        latest_commit_number = history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
-        history[self.c.HISTORY_DICT_KEY][self.c.COMMIT_ORDER_DICT_KEY][latest_commit_number] = commit_hash
+        latest_commit_number = history[self.c.HISTORY_DICT_KEY][
+            self.c.LATEST_COMMIT_NUMBER_DICT_KEY
+        ]
+        history[self.c.HISTORY_DICT_KEY][
+            self.c.COMMIT_ORDER_DICT_KEY
+        ][latest_commit_number] = commit_hash
 
         history[self.c.LOG_DICT_KEY][commit_hash] = {
             self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
-            self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(name=name, email=email),
+            self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                name=name, email=email
+            ),
             self.c.MESSAGE_DICT_KEY: commit_msg,
         }
 
@@ -591,8 +722,9 @@ class RepositoryStatus:
 
     def check_repository_layout(self) -> None:
         """
-        Validate that required SCCS folders, files, and metadata on the current branch exist
-        and that the '.sccs' folder has the correct layout.
+        Validate that required SCCS folders, files, and metadata on the
+        current branch exist and that the '.sccs' folder has the correct
+        layout.
         """
 
         dirs = [
@@ -614,18 +746,23 @@ class RepositoryStatus:
         for i in dirs:
             if not i.is_dir():
                 raise exceptions.InvalidMetadataError(
-                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=i)
+                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+                        resource_name=i
+                    )
                 )
         for i in files:
             if not i.is_file():
                 raise exceptions.InvalidMetadataError(
-                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(resource_name=i)
+                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+                        resource_name=i
+                    )
                 )
 
 
     def check_for_uncommitted_changes(self) -> bool:
         """
-        Check for uncommitted changes by hashing the current document bytes and comparing
+        Check for uncommitted changes by hashing the current document
+        bytes and comparing
         that to the latest commit bytes hash from the SCCS metadata.
         """
 
@@ -653,5 +790,7 @@ class RepositoryStatus:
 
     def is_current_branch(self, branch_name: str) -> bool:
         """Return true if 'branch_name' is the current branch, false if not."""
-        current_branch = self.io.read_current_branch_data()[self.c.CURRENT_BRANCH_DICT_KEY]
+        current_branch = self.io.read_current_branch_data()[
+            self.c.CURRENT_BRANCH_DICT_KEY
+        ]
         return branch_name == current_branch

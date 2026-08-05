@@ -15,7 +15,9 @@ from repository_layout import (
 )
 
 
-def reset(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
+def reset(
+    c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
+) -> None:
     """Delete all uncommitted changes."""
 
     rs.target.set(rd.current_branch())
@@ -32,12 +34,15 @@ def reset(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposi
 
 def print_success_message(c: SCCSConstants) -> None:
     """Print a success message after resetting the document."""
-    print(
-        c.RESET_SUCCESS_MESSAGE
-    )
+    print(c.RESET_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rp: RepositoryPaths,
+) -> None:
     """Main function to handle the <reset> command."""
     rs.target.set(rd.current_branch())
 
