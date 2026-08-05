@@ -55,7 +55,7 @@ def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     return response
 
 
-def compare_hash_lists(remote_objects: list, rd: RepositoryData) -> list[Path]:
+def compare_hash_lists(remote_objects: list[str], rd: RepositoryData) -> list[str]:
     """
     Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list
     of objects that remote is missing.
@@ -78,7 +78,7 @@ def compare_hash_lists(remote_objects: list, rd: RepositoryData) -> list[Path]:
 
 def zip_files_to_upload(
     c: SCCSConstants,
-    remote_objects: list,
+    remote_objects: list[str],
     rp: RepositoryPaths,
     ri: RepositoryIO,
     rd: RepositoryData,

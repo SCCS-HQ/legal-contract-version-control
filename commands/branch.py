@@ -17,7 +17,7 @@ from constants_classes import SCCSConstants
 
 
 def validate_subcommand(
-    c: SCCSConstants, subcommand: str, branch_name: str, rs: RepositoryStatus
+    c: SCCSConstants, subcommand: str | None, branch_name: str | None, rs: RepositoryStatus
 ) -> None:
     """
     Raise an exception if the subcommand is invalid or if required arguments are
@@ -159,8 +159,8 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
 
 def run_specified_subcommand(
     c: SCCSConstants,
-    subcommand: str,
-    branch_name: str,
+    subcommand: str | None,
+    branch_name: str | None,
     current_branch_name: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
@@ -177,8 +177,10 @@ def run_specified_subcommand(
     """
 
     if subcommand == c.CREATE_SUBCOMMAND:
+        assert branch_name is not None
         branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
+        assert branch_name is not None
         branch_delete_subcommand(c, branch_name, rp, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
@@ -200,8 +202,8 @@ def print_branch_create_success_message(
 
 def main(
         c: SCCSConstants,
-        subcommand: str,
-        branch_name: str,
+        subcommand: str | None,
+        branch_name: str | None,
         rd: RepositoryData,
         rs: RepositoryStatus,
         rp: RepositoryPaths,

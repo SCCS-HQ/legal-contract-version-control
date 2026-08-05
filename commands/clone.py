@@ -11,7 +11,7 @@ from urllib.parse import urlsplit
 from constants_classes import SCCSConstants
 
 
-def resolve_entered_url(c: SCCSConstants, url: str) -> str:
+def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
     if missing.
@@ -23,6 +23,8 @@ def resolve_entered_url(c: SCCSConstants, url: str) -> str:
         raise exceptions.InvalidArgumentError(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
         )
+
+    assert url is not None
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
         raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
@@ -51,7 +53,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
     return response
 
 
-def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
+def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str | None) -> None:
     """Unzip 'buffer'."""
 
     path_parts = [p for p in urlsplit(url).path.split(c.PATH_SEPARATOR) if p]
@@ -81,7 +83,7 @@ def print_clone_success_message(c: SCCSConstants, response: requests.Response) -
     print(c.CLONE_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, url: str) -> None:
+def main(c: SCCSConstants, url: str | None) -> None:
     """Run functions for the <sccs clone> command."""
 
     url = resolve_entered_url(c, url)

@@ -18,7 +18,7 @@ from urllib.parse import urlsplit, urljoin
 
 
 def validate_entered_value(
-    c: SCCSConstants, repo_name: str, key: str, value: str
+    c: SCCSConstants, repo_name: str | None, key: str | None, value: str | None
 ) -> None:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
@@ -47,7 +47,7 @@ def validate_entered_value(
 
 
 def resolve_key_value(
-    c: SCCSConstants, repo_name: str, key: str, value: str
+    c: SCCSConstants, repo_name: str, key: str | None, value: str | None
 ) -> str:
     """Resolve the entered remote URL to the correct format for storing
     in the config file.
@@ -85,8 +85,8 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
 
 def main(
     c: SCCSConstants,
-    key: str,
-    value: str,
+    key: str | None,
+    value: str | None,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rp: RepositoryPaths,
@@ -98,6 +98,9 @@ def main(
     rs.check_repository_layout()
 
     repo_name = rp.repo_name
+
+    assert key is not None
+    assert value is not None
 
     validate_entered_value(c, repo_name, key, value)
 

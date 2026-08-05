@@ -2,6 +2,7 @@
 """Print a list of past commits for the current branch."""
 
 from pathlib import Path
+from typing import Any
 
 import utils
 from constants_classes import SCCSConstants
@@ -13,7 +14,7 @@ from repository_layout import (
 )
 
 
-def print_log(c: SCCSConstants, history_data: dict) -> None:
+def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
     """
     Read the commit log data by calling 'get_log_data'.
 

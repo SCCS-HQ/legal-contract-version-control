@@ -15,7 +15,7 @@ from repository_layout import (
 )
 
 
-def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
+def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
     """
     Prompt the user for a config value and return it if provided, otherwise raise an
     exception.
@@ -271,7 +271,7 @@ def print_init_success_message(c: SCCSConstants) -> None:
 
 
 def main(
-    c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths,
+    c: SCCSConstants, docx_path: Path, rs: RepositoryStatus, rp: RepositoryPaths,
     ri: RepositoryIO,
 ) -> None:
     """Run functions for the <sccs init> command."""

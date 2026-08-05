@@ -14,14 +14,21 @@ from repository_layout import (
 )
 
 
-def validate_commit_hash(c: SCCSConstants, commit_hash: str) -> None:
+def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
     """
     Validate the commit hash format.
     """
 
+    if not commit_hash:
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_FILE_FIELD_NAME
+            )
+        )
+
     valid_len = len(commit_hash) == (c.FULL_COMMIT_HASH_LENGTH)
 
-    if not commit_hash or not valid_len or not all(
+    if not valid_len or not all(
         i in c.HEX_DIGITS for i in commit_hash
     ):
         raise exceptions.InvalidArgumentError(
@@ -61,7 +68,7 @@ def print_rewrite_confirmation_message(
 
 
 def main(
-    c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus
+    c: SCCSConstants, commit_hash: str | None, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
     """Run functions for the <sccs open> command."""
     rs.target.set(rd.current_branch())
@@ -69,6 +76,8 @@ def main(
     rs.check_repository_layout()
 
     rs.raise_for_uncommitted_changes()
+
+    assert commit_hash is not None
 
     commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 

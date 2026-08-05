@@ -6,6 +6,7 @@ import sys
 
 import exceptions
 from constants_classes import SCCSConstants, ErrorWrappers
+from typing import Any, Callable
 
 
 def clean_directory_name(name: str) -> str:
@@ -37,7 +38,7 @@ def entered_argument(argument: int) -> str:
         raise exceptions.InvalidArgumentError()
 
 
-def run_command(main, *args) -> None:
+def run_command(main: Callable[..., None], *args: Any) -> None:
     error_wrappers = ErrorWrappers()
     c = SCCSConstants()
     try:

@@ -216,13 +216,13 @@ class RepositoryIO:
         return self.file_bytes(self.paths.document_path())
 
 
-    def write_document_bytes(self, data: Any) -> None:
+    def write_document_bytes(self, data: bytes) -> None:
         """Write raw bytes 'data' to the current DOCX document (I/O)."""
         with open(self.paths.document_path(), "wb") as f:
             f.write(data)
 
 
-    def read_current_branch_data(self) -> dict:
+    def read_current_branch_data(self) -> dict[str, Any]:
         with open(
             self.paths.current_branch_data_file_path(),
             "r",
@@ -236,7 +236,7 @@ class RepositoryIO:
         return self.read_current_branch_data()[key]
 
 
-    def write_current_branch_data(self, data: dict) -> None:
+    def write_current_branch_data(self, data: dict[str, Any]) -> None:
         with open(
             self.paths.current_branch_data_file_path(),
             "w",
@@ -247,7 +247,7 @@ class RepositoryIO:
             f.truncate()
 
 
-    def read_config(self) -> dict:
+    def read_config(self) -> dict[str, str]:
         with open(
             self.paths.config_path(),
             "r",
@@ -257,7 +257,7 @@ class RepositoryIO:
             return json.load(f)
 
 
-    def write_config(self, data: dict) -> None:
+    def write_config(self, data: dict[str, str]) -> None:
         with open(
             self.paths.config_path(),
             "w",
@@ -268,7 +268,7 @@ class RepositoryIO:
             f.truncate()
 
 
-    def read_history(self) -> dict:
+    def read_history(self) -> dict[str, Any]:
         with open(
             self.paths.history_path(),
             "r",
@@ -278,7 +278,7 @@ class RepositoryIO:
             return json.load(f)
 
 
-    def write_history(self, data: dict) -> None:
+    def write_history(self, data: dict[str, Any]) -> None:
         with open(
             self.paths.history_path(),
             "w",
@@ -288,7 +288,7 @@ class RepositoryIO:
             json.dump(data, f, indent=4)
 
 
-    def read_byte_hashes(self) -> dict:
+    def read_byte_hashes(self) -> dict[str, str]:
         with open(
             self.paths.byte_hashes_path(),
             "r",
@@ -298,7 +298,7 @@ class RepositoryIO:
             return json.load(f)
 
 
-    def write_byte_hashes(self, data: dict) -> None:
+    def write_byte_hashes(self, data: dict[str, str]) -> None:
         with open(
             self.paths.byte_hashes_path(),
             "w",
@@ -308,7 +308,7 @@ class RepositoryIO:
             json.dump(data, f, indent=4)
 
 
-    def read_commit_messages(self) -> dict:
+    def read_commit_messages(self) -> dict[str, str]:
         with open(
             self.paths.commit_messages_path(),
             "r",
@@ -318,7 +318,7 @@ class RepositoryIO:
             return json.load(f)
 
 
-    def write_commit_messages(self, data: dict) -> None:
+    def write_commit_messages(self, data: dict[str, str]) -> None:
         with open(
             self.paths.commit_messages_path(),
             "w",
@@ -520,7 +520,7 @@ class RepositoryData:
         ).hexdigest()
 
 
-    def repo_objects(self) -> list:
+    def repo_objects(self) -> list[str]:
         return list(
             set(
                 i.stem
@@ -540,7 +540,7 @@ class RepositoryData:
         return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
 
 
-    def branches(self) -> list:
+    def branches(self) -> list[str]:
         return self.io.read_current_branch_data_key(self.c.BRANCHES_DICT_KEY)
 
 
@@ -782,14 +782,18 @@ class RepositoryStatus:
             )
 
 
-    def branch_exists(self, branch_name: str) -> bool:
+    def branch_exists(self, branch_name: str | None) -> bool:
         """Return true if 'branch_name' exists in the repository, false if not."""
+        if branch_name is None:
+            return False
         branches = self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
         return branch_name in branches
 
 
-    def is_current_branch(self, branch_name: str) -> bool:
+    def is_current_branch(self, branch_name: str | None) -> bool:
         """Return true if 'branch_name' is the current branch, false if not."""
+        if branch_name is None:
+            return False
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]

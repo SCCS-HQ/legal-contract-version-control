@@ -266,13 +266,13 @@ def format_redline_html(
     return redline
 
 
-def print_diff_success_message(c: SCCSConstants):
+def print_diff_success_message(c: SCCSConstants) -> None:
     print(c.DIFF_SUCCESS_MESSAGE)
 
 
 def generate_diff_output(
     c: SCCSConstants, commit_hash: str, ri: RepositoryIO, rd: RepositoryData
-):
+) -> BeautifulSoup:
     commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
     current_version_soup = convert_html_to_soup(c, ri.document_html())

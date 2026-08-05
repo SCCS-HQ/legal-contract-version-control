@@ -17,7 +17,7 @@ from repository_layout import (
 
 
 def validate_branch(
-    c: SCCSConstants, branch: str, rd: RepositoryData
+    c: SCCSConstants, branch: str | None, rd: RepositoryData
 ) -> None:
     """Validate that the entered branch is valid, exists, and is
     not the current branch.
@@ -83,7 +83,7 @@ def print_merge_success_message(
 
 def main(
     c: SCCSConstants,
-    branch: str,
+    branch: str | None,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rp: RepositoryPaths,
@@ -96,6 +96,8 @@ def main(
     rs.check_repository_layout()
 
     rs.raise_for_uncommitted_changes()
+
+    assert branch is not None
 
     validate_branch(c, branch, rd)
     copy_repo_document(branch, rd, rs, rp)

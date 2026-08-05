@@ -17,7 +17,7 @@ from repository_layout import (
 
 
 def check_branch_to_switch(
-    c: SCCSConstants, branch_to_switch: str, rs: RepositoryStatus
+    c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
     """Check if the branch to switch to is valid."""
 
@@ -35,7 +35,7 @@ def check_branch_to_switch(
 
 
 def check_commit(
-    branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus
+    c: SCCSConstants, branch_to_switch: str | None, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
     """
     Check if the commit object exists in the document history.
@@ -81,7 +81,7 @@ def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
 
 def main(
     c: SCCSConstants,
-    branch_to_switch: str,
+    branch_to_switch: str | None,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rp: RepositoryPaths,
@@ -96,7 +96,9 @@ def main(
 
     check_branch_to_switch(c, branch_to_switch, rs)
 
-    check_commit(branch_to_switch, rd, rs)
+    assert branch_to_switch is not None
+
+    check_commit(c, branch_to_switch, rd, rs)
 
     copy_commit_to_main(c, branch_to_switch, rd, rs, rp)
 

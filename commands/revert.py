@@ -45,7 +45,7 @@ def print_revert_confirmation_message(
 
 def main(
     c: SCCSConstants,
-    commit_hash: str,
+    commit_hash: str | None,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rp: RepositoryPaths,
@@ -56,6 +56,8 @@ def main(
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()
+
+    assert commit_hash is not None
 
     commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 
