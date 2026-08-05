@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Switch between document branches."""
 
 import shutil
 from pathlib import Path
@@ -19,7 +18,6 @@ from repository_layout import (
 def check_branch_to_switch(
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
-    """Check if the branch to switch to is valid."""
 
     if not branch_to_switch:
         raise exceptions.InvalidArgumentError(
@@ -37,9 +35,6 @@ def check_branch_to_switch(
 def check_commit(
     c: SCCSConstants, branch_to_switch: str | None, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
-    """
-    Check if the commit object exists in the document history.
-    """
 
     rs.target.set(branch_to_switch)
 
@@ -59,7 +54,6 @@ def copy_commit_to_main(
     rs: RepositoryStatus,
     rp: RepositoryPaths,
 ) -> None:
-    """Copy the commit file to the main document."""
     
     rs.target.set(branch_to_switch)
 
@@ -74,7 +68,6 @@ def copy_commit_to_main(
     rs.target.reset()
 
 def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
-    """Print a confirmation message for successful branch switch."""
 
     print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
@@ -87,7 +80,6 @@ def main(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """Run functions for the <sccs switch> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

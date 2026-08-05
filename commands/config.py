@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Command to configure a SCCS repository's settings"""
 
 
 from pathlib import Path
@@ -20,13 +19,6 @@ from urllib.parse import urlsplit, urljoin
 def validate_entered_value(
     c: SCCSConstants, repo_name: str | None, key: str | None, value: str | None
 ) -> None:
-    """
-    Resolve the entered remote URL to the correct format for storing in the config file
-    by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
-    ends with '/repos/<repo-name>'.
-
-    Return the resolved 'remote'.
-    """
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
@@ -49,9 +41,6 @@ def validate_entered_value(
 def resolve_key_value(
     c: SCCSConstants, repo_name: str, key: str | None, value: str | None
 ) -> str:
-    """Resolve the entered remote URL to the correct format for storing
-    in the config file.
-    """
 
     if not value:
         raise exceptions.InvalidArgumentError(
@@ -78,7 +67,6 @@ def resolve_key_value(
 
 
 def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) -> None:
-    """Print a confirmation message after successfully setting the configuration."""
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
@@ -92,7 +80,6 @@ def main(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """Run functions for the <sccs config> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

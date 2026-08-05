@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Initialize a document with SCCS."""
 
 import hashlib
 import json
@@ -16,10 +15,6 @@ from repository_layout import (
 
 
 def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
-    """
-    Prompt the user for a config value and return it if provided, otherwise raise an
-    exception.
-    """
 
     values = []
 
@@ -44,20 +39,12 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str
 
 
 def check_for_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
-    """
-    Exit if the document has already been initialized with SCCS by checking if the a
-    '.sccs' folder exists for the repository.
-    """
 
     if (rp.sccs_path()).is_dir():
         raise exceptions.AlreadyInitializedError(c.ALREADY_INITIALIZED_ERROR_MESSAGE)
 
 
 def check_file_requirements(c: SCCSConstants, file: Path) -> None:
-    """
-    Validate that the entered path points to an existing .docx file by checking the file
-    extension and if the file exists.
-    """
 
     if file.suffix.lower() != c.DOCX_EXTENSION:
         raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
@@ -71,12 +58,6 @@ def check_file_requirements(c: SCCSConstants, file: Path) -> None:
 
 
 def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
-    """
-    Create a SHA-256 hash for the initial commit using the timestamp, user name, and
-    user email.
-
-    Return the created SHA-256 hash as a hexadecimal string.
-    """
 
     hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
 
@@ -88,7 +69,6 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
 def create_sccs_directory_layout(
     c: SCCSConstants, rs: RepositoryStatus, rp: RepositoryPaths
 ) -> None:
-    """Create the full SCCS directory structure inside the repo path."""
 
     rs.target.set(c.MAIN_BRANCH_NAME)
 
@@ -118,7 +98,6 @@ def create_sccs_directory_layout(
     rs.target.reset()
 
 def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
-    """Move the source document into the repo directory."""
 
     shutil.move(docx_path, repo_path)
 
@@ -126,10 +105,6 @@ def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
 def copy_document_to_objects_as_docx_and_html(
     c: SCCSConstants, docx_path: Path, sha_hash: str, rp: RepositoryPaths
 ) -> None:
-    """
-    Copy the document into objects as both .docx and .html. to their corresponding
-    folders.
-    """
 
     try:
         with open(docx_path, "rb") as f:
@@ -172,7 +147,6 @@ def write_history_data(
     c: SCCSConstants, name: str, email: str, sha_hash: str,
     rs: RepositoryStatus, ri: RepositoryIO,
 ) -> None:
-    """Write the initial commit history JSON file to the main branch history folder."""
 
     rs.target.set(c.MAIN_BRANCH_NAME)
 
@@ -202,10 +176,6 @@ def write_history_data(
 def write_commit_message_data(
     c: SCCSConstants, sha_hash: str, ri: RepositoryIO
 ) -> None:
-    """
-    Write the initial commit message JSON file to the main branch commit messages
-    folder.
-    """
 
     commit_message_data = {
         sha_hash: c.INITIAL_COMMIT_MESSAGE
@@ -220,10 +190,6 @@ def write_hashed_file_commit_data(
         rs: RepositoryStatus,
         ri: RepositoryIO
     ) -> None:
-    """
-    Write the initial commit file binary hash JSON file to the main branch commit file
-    hash folder.
-    """
 
     rs.target.set(c.MAIN_BRANCH_NAME)
 
@@ -246,7 +212,6 @@ def write_hashed_file_commit_data(
 
 
 def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
-    """Write the initial branch tracking JSON file."""
 
     try:
         with open(
@@ -265,7 +230,6 @@ def delete_repository_after_error(repo_path: Path) -> None:
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
-    """Print a confirmation message for successful SCCS initialization."""
 
     print(c.INIT_SUCCESS_MESSAGE)
 
@@ -274,7 +238,6 @@ def main(
     c: SCCSConstants, docx_path: Path, rs: RepositoryStatus, rp: RepositoryPaths,
     ri: RepositoryIO,
 ) -> None:
-    """Run functions for the <sccs init> command."""
 
     try:
         check_for_prev_init(c, rp)

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Publish a SCCS repository to a hosted API"""
 
 import io
 import os
@@ -21,19 +20,11 @@ from repository_layout import (
 
 
 def reset_current_branch(c: SCCSConstants, rw: RepositoryWrite) -> None:
-    """
-    Modify the document metadata to set the current branch to 'main' in preparation
-    for publishing.
-    """
 
     rw.set_current_branch(c.MAIN_BRANCH_NAME)
 
 
 def zip_cwd(c: SCCSConstants) -> io.BytesIO:
-    """
-    Zip the current working directory into the memory buffer to compress before
-    publication.
-    """
     try:
         buffer = io.BytesIO()
     except Exception as e:
@@ -60,13 +51,6 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
 def post_repo(
     c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths
 ) -> requests.Response:
-    """
-    Make a POST request to 'remote', sending the zipped current
-    working directory as a file
-    and 'remote' as JSON.
-
-    Return the server response of the POST request to 'remote'.
-    """
 
     if not urlsplit(url).path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
@@ -113,7 +97,6 @@ def main(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """Run functions for the <sccs publish> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

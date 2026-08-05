@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Create, Delete, and List Branches"""
 
 import shutil
 from pathlib import Path
@@ -19,10 +18,6 @@ from constants_classes import SCCSConstants
 def validate_subcommand(
     c: SCCSConstants, subcommand: str | None, branch_name: str | None, rs: RepositoryStatus
 ) -> None:
-    """
-    Raise an exception if the subcommand is invalid or if required arguments are
-    missing.
-    """
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
@@ -71,10 +66,6 @@ def branch_create_subcommand(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """
-    Create a new branch from the current branch. The new branch will have the same
-    commit history and metadata as the current branch.
-    """
 
     try:
         shutil.copytree(
@@ -97,9 +88,6 @@ def branch_create_subcommand(
 def branch_delete_subcommand(
     c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
 ) -> None:
-    """
-    Delete an existing branch.
-    """
 
     try:
         rw.remove_from_branches_list(branch_name)
@@ -122,11 +110,6 @@ def rollback_changes_after_failure(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """
-    Rollback changes after a failed branch deletion.
-    If an error occurs during branch deletion, the branch metadata will be rolled back
-    to include the deleted branch again.
-    """
 
     try:
         if subcommand == c.CREATE_SUBCOMMAND:
@@ -144,10 +127,6 @@ def rollback_changes_after_failure(
 
 
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
-    """
-    Print a list of all branches, indicating the current branch found in the repository
-    metadata.
-    """
 
     print(c.BRANCHES_DIR_LIST_HEADER)
     for i in rd.branches():
@@ -166,15 +145,6 @@ def run_specified_subcommand(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """
-    Run the specified subcommand by reading the subcommand entered:
-
-    create: branch_create_subcommand
-
-    delete: branch_delete_subcommand
-
-    list: branch_list_subcommand
-    """
 
     if subcommand == c.CREATE_SUBCOMMAND:
         assert branch_name is not None
@@ -210,7 +180,6 @@ def main(
         rw: RepositoryWrite
     ) -> None:
 
-    """Run functions for the <sccs branch> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

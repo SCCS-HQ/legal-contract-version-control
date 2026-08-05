@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Merge branches in the SCCS repository."""
 
 import shutil
 from pathlib import Path
@@ -19,9 +18,6 @@ from repository_layout import (
 def validate_branch(
     c: SCCSConstants, branch: str | None, rd: RepositoryData
 ) -> None:
-    """Validate that the entered branch is valid, exists, and is
-    not the current branch.
-    """
 
     if not branch:
         raise exceptions.InvalidArgumentError(
@@ -40,7 +36,6 @@ def validate_branch(
 
 
 def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
-    """Copy the data from the source branch to the target branch."""
 
     try:
         shutil.copytree(
@@ -55,7 +50,6 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
 def copy_repo_document(
     branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
 ) -> None:
-    """Copy the repo document from the source branch to the target branch."""
 
     rs.target.set(branch)
 
@@ -73,7 +67,6 @@ def copy_repo_document(
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
-    """Print a success message after merging the branches."""
     print(
         c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
             branch=branch, current_branch=rd.current_branch()
@@ -89,7 +82,6 @@ def main(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """Merge the entered branch into the current branch."""
 
     rs.target.set(rd.current_branch())
 

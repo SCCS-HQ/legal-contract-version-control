@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Repository layout classes for SCCS."""
 
 import hashlib
 import json
@@ -14,7 +13,6 @@ from constants_classes import SCCSConstants
 
 
 class TargetBranch:
-    """Owns the target-branch state and guard logic. Pure: no I/O, no paths."""
 
     def __init__(self, c: SCCSConstants) -> None:
         self.c = c
@@ -22,17 +20,14 @@ class TargetBranch:
 
 
     def set(self, branch_name: str | None) -> None:
-        """Set the target branch (and expose it as the configured attribute)."""
         self._branch = branch_name
 
 
     def get(self) -> str | None:
-        """Return the currently-set target branch, or None."""
         return self._branch
 
 
     def require(self) -> str:
-        """Return the target branch, raising BranchNotSetError if unset."""
         if self._branch is None:
             raise exceptions.BranchNotSetError(
                 self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
@@ -52,101 +47,84 @@ class RepositoryPaths:
 
 
     def document_path(self) -> Path:
-        """Return the path to the current document."""
         path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
 
         return path
 
 
     def sccs_path(self) -> Path:
-        """Return the path to the '.sccs' folder."""
         path = self.root / self.c.SCCS_DIR
 
         return path
 
 
     def branches_path(self) -> Path:
-        """Return the path to the 'branches' folder."""
         path = self.sccs_path() / self.c.BRANCHES_DIR
 
         return path
 
 
     def commit_messages_dir_path(self) -> Path:
-        """Return the path to the 'commit_messages' folder."""
         path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
 
         return path
 
 
     def commit_messages_path(self) -> Path:
-        """Return the path to the 'commit_messages.json' file."""
         path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
 
         return path
 
 
     def config_dir_path(self) -> Path:
-        """Return the path to the 'config' folder."""
         path = self.sccs_path() / self.c.CONFIG_DIR
 
         return path
 
 
     def config_path(self) -> Path:
-        """Return the path to the 'config.json' file."""
         path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
 
         return path
 
 
     def current_branch_dir_path(self) -> Path:
-        """Return the path to the 'current_branch' folder."""
         path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
 
         return path
 
 
     def current_branch_data_file_path(self) -> Path:
-        """Return the path to the 'current_branch.json' file."""
         path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
 
         return path
 
 
     def objects_path(self) -> Path:
-        """Return the path to the 'objects' folder."""
         path = self.sccs_path() / self.c.OBJECTS_DIR
 
         return path
 
 
     def docx_objects_path(self) -> Path:
-        """Return the path to the 'docx' objects folder."""
         path = self.objects_path() / self.c.DOCX_DIR
 
         return path
 
 
     def view_html_objects_path(self) -> Path:
-        """Return the path to the 'view_html' objects folder."""
         path = self.objects_path() / self.c.VIEW_HTML_DIR
 
         return path
 
 
     def html_objects_path(self) -> Path:
-        """Return the path to the 'html' objects folder."""
         path = self.objects_path() / self.c.HTML_DIR
 
         return path
 
 
     def history_dir_path(self) -> Path:
-        """
-        Return the path to the 'history' folder for the current branch. Chaining this
-        method with a branch method is required.
-        """
 
         branch = self.target.require()
 
@@ -156,10 +134,6 @@ class RepositoryPaths:
 
 
     def history_path(self) -> Path:
-        """
-        Return the path to the 'history.json' file for the current branch. Chaining this
-        method with a branch method is required.
-        """
 
         path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
         
@@ -167,10 +141,6 @@ class RepositoryPaths:
 
 
     def byte_hashes_dir_path(self) -> Path:
-        """
-        Return the path to the 'commit_file_hash' folder for the current branch.
-        Chaining this method with a branch method is required.
-        """
         branch = self.target.require()
 
         path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
@@ -179,24 +149,18 @@ class RepositoryPaths:
 
 
     def byte_hashes_path(self) -> Path:
-        """
-        Return the path to the 'commit_file_hash.json' file for the current branch.
-        Chaining this method with a branch method is required.
-        """
         path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
 
         return path
 
 
     def branch_path(self, branch_name: str) -> Path:
-        """Return the path to the specified branch folder."""
         path = self.branches_path() / branch_name
 
         return path
 
 
 class RepositoryIO:
-    """Owns all filesystem I/O. Depends only on RepositoryPaths for paths."""
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
         self.repo_name = root.stem
@@ -206,18 +170,15 @@ class RepositoryIO:
 
 
     def file_bytes(self, path: Path) -> bytes:
-        """Return the raw bytes of the file at 'path' (I/O)."""
         with open(path, "rb") as f:
             return f.read()
 
 
     def document_bytes(self) -> bytes:
-        """Return the raw bytes of the current DOCX document (I/O)."""
         return self.file_bytes(self.paths.document_path())
 
 
     def write_document_bytes(self, data: bytes) -> None:
-        """Write raw bytes 'data' to the current DOCX document (I/O)."""
         with open(self.paths.document_path(), "wb") as f:
             f.write(data)
 
@@ -494,10 +455,6 @@ class RepositoryData:
 
 
     def resolve_full_hash(self, commit: str) -> str:
-        """
-        Accept a short or full commit hash from user input, resolve it to the
-        canonical 64-character hash string, and return it.
-        """
         path = self.hash_to_full_path(commit, self.c.DOCX_DIR)
         return path.stem
 
@@ -555,7 +512,6 @@ class RepositoryWrite:
 
 
     def write_key_to_config(self, key: str, value: str) -> None:
-        """Write 'key': 'value' to the SCCS config JSON file."""
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_KEY_ERROR_MESSAGE
@@ -574,9 +530,6 @@ class RepositoryWrite:
     def add_to_branches_list(
         self, branch_name: str
     ) -> None:
-        """Add a new branch to the current branch data in the
-        'current_branch.json' file.
-        """
         try:
             branch_data = self.io.read_current_branch_data()
             branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
@@ -592,9 +545,6 @@ class RepositoryWrite:
     def remove_from_branches_list(
         self, branch_name: str
     ) -> None:
-        """Remove a branch from the current branch data in the
-        'current_branch.json' file.
-        """
         try:
             branch_data = self.io.read_current_branch_data()
             if branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
@@ -615,9 +565,6 @@ class RepositoryWrite:
     def set_current_branch(
         self, branch_name: str
     ) -> None:
-        """Set the current branch in the 'current_branch.json' file to the
-        specified branch name.
-        """
         try:
             branch_data = self.io.read_current_branch_data()
             branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
@@ -631,10 +578,6 @@ class RepositoryWrite:
 
 
     def commit_changes(self, commit_msg: str) -> str:
-        """
-        Commit uncommitted changes to the current branch using 'commit_msg' as the
-        commit_message.
-        """
 
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
@@ -721,11 +664,6 @@ class RepositoryStatus:
 
 
     def check_repository_layout(self) -> None:
-        """
-        Validate that required SCCS folders, files, and metadata on the
-        current branch exist and that the '.sccs' folder has the correct
-        layout.
-        """
 
         dirs = [
             self.paths.view_html_objects_path(),
@@ -760,11 +698,6 @@ class RepositoryStatus:
 
 
     def check_for_uncommitted_changes(self) -> bool:
-        """
-        Check for uncommitted changes by hashing the current document
-        bytes and comparing
-        that to the latest commit bytes hash from the SCCS metadata.
-        """
 
         latest_commit = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
@@ -774,7 +707,6 @@ class RepositoryStatus:
 
 
     def raise_for_uncommitted_changes(self) -> None:
-        """Raise UncommittedChangesError if uncommitted changes exist."""
 
         if self.check_for_uncommitted_changes():
             raise exceptions.UncommittedChangesError(
@@ -783,7 +715,6 @@ class RepositoryStatus:
 
 
     def branch_exists(self, branch_name: str | None) -> bool:
-        """Return true if 'branch_name' exists in the repository, false if not."""
         if branch_name is None:
             return False
         branches = self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
@@ -791,7 +722,6 @@ class RepositoryStatus:
 
 
     def is_current_branch(self, branch_name: str | None) -> bool:
-        """Return true if 'branch_name' is the current branch, false if not."""
         if branch_name is None:
             return False
         current_branch = self.io.read_current_branch_data()[

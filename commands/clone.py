@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Clone a hosted SCCS repository with a URL"""
 
 import io
 import zipfile
@@ -12,12 +11,6 @@ from constants_classes import SCCSConstants
 
 
 def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
-    """
-    Resolve the entered URL by adding 'https://' if missing and appending '/clone'
-    if missing.
-
-    Return 'url' so it begins with 'https://' and ends with '/clone/'.
-    """
 
     if not url:
         raise exceptions.InvalidArgumentError(
@@ -36,11 +29,6 @@ def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
 
 
 def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
-    """
-    Make a GET request to url' and ensure that the request was successful.
-
-    Return the server response after making a get request to 'url'.
-    """
 
     try:
         response = requests.get(url, timeout=timeout)
@@ -54,7 +42,6 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
 
 
 def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str | None) -> None:
-    """Unzip 'buffer'."""
 
     path_parts = [p for p in urlsplit(url).path.split(c.PATH_SEPARATOR) if p]
 
@@ -77,14 +64,12 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str | None) -> No
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
-    """Print a success message after cloning the repository."""
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.CLONE_SUCCESS_MESSAGE)
 
 
 def main(c: SCCSConstants, url: str | None) -> None:
-    """Run functions for the <sccs clone> command."""
 
     url = resolve_entered_url(c, url)
 

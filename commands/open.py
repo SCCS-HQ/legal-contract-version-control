@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Open a commit file and update the current document."""
 
 import shutil
 from pathlib import Path
@@ -15,9 +14,6 @@ from repository_layout import (
 
 
 def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
-    """
-    Validate the commit hash format.
-    """
 
     if not commit_hash:
         raise exceptions.InvalidArgumentError(
@@ -39,9 +35,6 @@ def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
 
 
 def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
-    """
-    Copy the commit file to the current document, effectively opening the older commit.
-    """
 
     try:
         shutil.copy2(
@@ -55,9 +48,6 @@ def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
 def print_rewrite_confirmation_message(
     c: SCCSConstants, commit_hash: str, output_file_name: Path
 ) -> None:
-    """
-    Print the confirmation message after rewriting the file using the document name.
-    """
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -70,7 +60,6 @@ def print_rewrite_confirmation_message(
 def main(
     c: SCCSConstants, commit_hash: str | None, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
-    """Run functions for the <sccs open> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

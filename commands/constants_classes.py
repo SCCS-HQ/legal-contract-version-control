@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Constants and classes for SCCS commands."""
 
 import datetime
 from functools import cached_property
@@ -213,7 +212,6 @@ class SCCSConstants:
 
     @cached_property
     def PROGRAM_START_TIME(self) -> str:
-        """Return the program start time in a human-readable format."""
         return datetime.datetime.now().isoformat()
 
     #endregion

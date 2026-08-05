@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Commit latest changes to the current branch."""
 
 from pathlib import Path
 
@@ -15,7 +14,6 @@ from constants_classes import SCCSConstants
 
 
 def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
-    """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
         print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash))
@@ -40,7 +38,6 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
-    """Run functions for the <sccs commit> command."""
 
     rw.target.set(rd.current_branch())
 

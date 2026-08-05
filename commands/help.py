@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Print a list of all available commands."""
 
 from pathlib import Path
 
@@ -13,14 +12,12 @@ from repository_layout import (
 
 
 def print_help(c: SCCSConstants) -> None:
-    """Print help each item in 'messages'."""
 
     for i in c.HELP_MESSAGES:
         print(i)
 
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
-    """Run functions for the <sccs help> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

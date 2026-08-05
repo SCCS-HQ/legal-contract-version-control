@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Print a list of past commits for the current branch."""
 
 from pathlib import Path
 from typing import Any
@@ -15,12 +14,6 @@ from repository_layout import (
 
 
 def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
-    """
-    Read the commit log data by calling 'get_log_data'.
-
-    Print the first 10 characters of the commit SHA hash, along with the commit author,
-    timestamp, and commit message.
-    """
 
     for i in history_data[c.LOG_DICT_KEY]:
         print(
@@ -39,7 +32,6 @@ def main(
     rs: RepositoryStatus,
     ri: RepositoryIO,
 ) -> None:
-    """Run functions for the <sccs log> command."""
 
     rs.target.set(rd.current_branch())
 

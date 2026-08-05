@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Delete all uncommitted changes."""
 
 import shutil
 from pathlib import Path
@@ -18,7 +17,6 @@ from repository_layout import (
 def reset(
     c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
 ) -> None:
-    """Delete all uncommitted changes."""
 
     rs.target.set(rd.current_branch())
 
@@ -33,7 +31,6 @@ def reset(
     rs.target.reset()
 
 def print_success_message(c: SCCSConstants) -> None:
-    """Print a success message after resetting the document."""
     print(c.RESET_SUCCESS_MESSAGE)
 
 
@@ -43,7 +40,6 @@ def main(
     rs: RepositoryStatus,
     rp: RepositoryPaths,
 ) -> None:
-    """Main function to handle the <reset> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

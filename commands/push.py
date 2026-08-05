@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Push the repository to the remote server."""
 
 import io
 import json
@@ -27,9 +26,6 @@ from repository_layout import (
 def get_matching_file_paths(
     c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
 ) -> list[Path]:
-    """
-    Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
-    """
 
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
@@ -44,7 +40,6 @@ def get_matching_file_paths(
 
 
 def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
-    """Make a GET request to 'remote'/push, returning the response."""
 
     url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
     try:
@@ -56,16 +51,6 @@ def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
 
 def compare_hash_lists(remote_objects: list[str], rd: RepositoryData) -> list[str]:
-    """
-    Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list
-    of objects that remote is missing.
-
-    To check if local is missing objects from remote, subract 'local_objects' from
-    'remote_objects' and ensure and ensure the subsequently created list is empty,
-    otherwise raise.
-
-    Return a list of objects that remote is missing.
-    """
 
     local_objects = rd.repo_objects()
 
@@ -83,15 +68,6 @@ def zip_files_to_upload(
     ri: RepositoryIO,
     rd: RepositoryData,
 ) -> io.BytesIO:
-    """
-    Create a temporary version of the repository with only the files in 'obj_to_upload'
-    and metadata files, ensuring that the folder layout is left intact.
-    Compress said folder and return it as a Bytes.io memory buffer and
-    xdelete the temporary directory.
-
-    Return a zip archive of files in 'obj_to_upload' and metadata files using the same
-    layout as a repository.
-    """
 
     document_path = [rp.document_path()]
 
@@ -152,11 +128,6 @@ def zip_files_to_upload(
 def push_POST(
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
-    """
-    Make a POST request to 'remote', sending 'buffer' as a file.
-
-    Return the server response of the POST request to 'remote'.
-    """
 
     remote = rd.base_repo_url()
 
@@ -194,7 +165,6 @@ def push_POST(
 def clear_updated_branches(
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
 ) -> None:
-    """Clear the updated branches list in the current branch file."""
 
 
     data = ri.read_current_branch_data()
@@ -221,7 +191,6 @@ def clear_updated_branches(
 def print_push_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
-    """Print a success message after pushing the repository."""
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
@@ -234,7 +203,6 @@ def main(
     rp: RepositoryPaths,
     ri: RepositoryIO,
 ) -> None:
-    """Run functions for the <sccs push> command."""
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()

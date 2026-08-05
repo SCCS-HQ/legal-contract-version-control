@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Revert the current document to the specified commit."""
 
 import shutil
 from pathlib import Path
@@ -17,7 +16,6 @@ from repository_layout import (
 
 
 def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
-    """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
     if not commit_path.is_file():
         raise exceptions.InvalidArgumentError(
@@ -35,7 +33,6 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
 def print_revert_confirmation_message(
     c: SCCSConstants, commit_hash: str, new_commit_hash: str
 ) -> None:
-    """Print a confirmation message for the revert."""
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -51,7 +48,6 @@ def main(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
-    """Main function to handle the revert command."""
 
     rs.target.set(rd.current_branch())
 
