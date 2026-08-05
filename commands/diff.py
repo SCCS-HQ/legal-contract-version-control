@@ -97,13 +97,13 @@ def delete_tag(
 
         if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(
+                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
                     c.DELETED_HTML_ATTRIBUTE_VALUE
-                )  # pyright: ignore [reportAttributeAccessIssue]
+                )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [
+                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
                     c.DELETED_HTML_ATTRIBUTE_VALUE
-                ]  # pyright: ignore [reportArgumentType]
+                ]
     return soup
 
 
@@ -135,13 +135,13 @@ def replace_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(
+                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
-                )  # pyright: ignore [reportAttributeAccessIssue]
+                )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [
+                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
-                ]  # pyright: ignore [reportArgumentType]
+                ]
     if match:
         match[-1].insert_after(frag)
         for i in match:
@@ -173,13 +173,13 @@ def insert_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(
+                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
-                )  # pyright: ignore [reportAttributeAccessIssue]
+                )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [
+                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
-                ]  # pyright: ignore [reportArgumentType]
+                ]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:
