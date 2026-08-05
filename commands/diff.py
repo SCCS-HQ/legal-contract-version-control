@@ -95,9 +95,9 @@ def delete_tag(c: SCCSConstants, old_changed_strings: list[str], soup: Beautiful
 
         if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE)
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
     return soup
 
 
@@ -126,9 +126,9 @@ def replace_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE)
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
     if match:
         match[-1].insert_after(frag)
         for i in match:
@@ -158,9 +158,9 @@ def insert_tag(c: SCCSConstants, new_changed_strings: list[str], i1: int, soup: 
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE)
+                i[c.CLASS_HTML_ATTRIBUTE].append(c.INSERTED_HTML_ATTRIBUTE_VALUE) # pyright: ignore [reportAttributeAccessIssue]
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE]
+                i[c.CLASS_HTML_ATTRIBUTE] = [c.INSERTED_HTML_ATTRIBUTE_VALUE] # pyright: ignore [reportArgumentType]
     if i1 < len(tags):
         tags[i1].insert_before(frag)
     else:
