@@ -41,7 +41,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
     return response
 
 
-def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str | None) -> None:
+def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
 
     path_parts = [p for p in urlsplit(url).path.split(c.PATH_SEPARATOR) if p]
 
