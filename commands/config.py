@@ -48,7 +48,7 @@ def resolve_key_value(
         )
 
     if key == c.REMOTE_KEY:
-        url = value.rstrip(c.PATH_SEPARATOR)
+        url = value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
         url_parsed = urlsplit(url)
 
         if (
@@ -60,6 +60,12 @@ def resolve_key_value(
             raise exceptions.InvalidArgumentError(
                 c.INVALID_URL_ERROR_MESSAGE
             )
+
+        print(value)
+        print(url)
+        print(c.REPOS_PATH_SEGMENT)
+        print(c.PATH_SEPARATOR)
+        print(repo_name)
 
         return urljoin(url, c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name)
 
