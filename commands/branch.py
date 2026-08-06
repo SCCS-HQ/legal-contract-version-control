@@ -63,8 +63,6 @@ def branch_create_subcommand(c: SCCSConstants, branch_name: str, current_branch_
     """
 
     try:
-
-
         shutil.copytree(
             rp.branch_path(current_branch_name),
             rp.branch_path(branch_name),
@@ -150,11 +148,11 @@ def run_specified_subcommand(c: SCCSConstants, subcommand: str, branch_name: str
         branch_list_subcommand(c, rd)
 
 
-def print_branch_delete_success_message(c: SCCSConstants, branch_name: str):
+def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
-def print_branch_create_success_message(c: SCCSConstants, branch_name: str, current_branch_name: str):
+def print_branch_create_success_message(c: SCCSConstants, branch_name: str, current_branch_name: str) -> None:
     print(
         c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
             branch_name=branch_name, current_branch_name=current_branch_name
