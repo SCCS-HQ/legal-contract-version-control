@@ -19,12 +19,13 @@ A lightweight CLI distributed version control system designed to help legal prof
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Contact](mailto:danielaphillion@gmail.com)
+- [Commands Documentation](DOCX.md)
 
 ## 🧠 About
 
 - While there are many different version control systems, many struggle to track diffs in .docx files because they are binary. SCCS solves this by converting .docx files to HTML using [Mammoth](https://github.com/mwilliamson/python-mammoth), and keeping a HTML version of each commit.
-  
-- SCCS is for legal professionals searching for a better way to track and view file changes of contracts.
+- 
+- SCCS is for professionals frequently working with Word Documents who are searching for a better way to track and view file changes of contracts.
   
 - Currently, most version control for contracts is just multiple versions of mostly identical files, emailed back and forth between people. Storing a folder of history metadata, hidden from the user simplifies this process. It also cleanly shows diff between version of a file, as opposed to between different files.
 
