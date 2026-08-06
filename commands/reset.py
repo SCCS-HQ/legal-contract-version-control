@@ -15,10 +15,10 @@ from repository_layout import (
 )
 
 
-def reset(c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def reset(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
     """Delete all uncommitted changes."""
 
-    rd.target.set(rd.current_branch())
+    rs.target.set(rd.current_branch())
 
     try:
         shutil.copy2(
@@ -28,7 +28,7 @@ def reset(c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths) -> None:
     except Exception as e:
         raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
 
-    rd.target.reset()
+    rs.target.reset()
 
 def print_success_message(c: SCCSConstants) -> None:
     """Print a success message after resetting the document."""
@@ -43,7 +43,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
 
     rs.check_repository_layout()
 
-    reset(c, rd, rp)
+    reset(c, rd, rs, rp)
     print_success_message(c)
 
     rs.target.reset()

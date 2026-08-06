@@ -24,14 +24,14 @@ from repository_layout import (
 )
 
 
-def get_matching_file_paths(c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths) -> list:
+def get_matching_file_paths(c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths) -> list[Path]:
     """
     Iterate through 'updated_branches' to retrieve each branch's version of 'filename'.
     """
 
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
-    assert updated_branches is not None
+    if updated_branches is None: raise exceptions.InvalidMetadataError()
     for i in updated_branches:
         branch_dir = rp.branches_path() / i
         if branch_dir.is_dir():
@@ -53,7 +53,7 @@ def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     return response
 
 
-def compare_hash_lists(remote_objects: list, rd: RepositoryData) -> list:
+def compare_hash_lists(remote_objects: list, rd: RepositoryData) -> list[Path]:
     """
     Subtract 'remote_objects' from 'local_objects' by converting to sets to get a list
     of objects that remote is missing.

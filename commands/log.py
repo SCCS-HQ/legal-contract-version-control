@@ -35,13 +35,13 @@ def print_log(c: SCCSConstants, history_data: dict) -> None:
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, ri: RepositoryIO) -> None:
     """Run functions for the <sccs log> command."""
 
-    ri.target.set(rd.current_branch())
+    rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()
 
     print_log(c, ri.read_history())
 
-    ri.target.reset()
+    rs.target.reset()
 
 
 if __name__ == "__main__":

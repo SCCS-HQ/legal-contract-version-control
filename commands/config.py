@@ -37,11 +37,6 @@ def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: st
 
     repo_name = utils.clean_directory_name(repo_name)
 
-    if repo_name is None:
-        raise exceptions.InvalidArgumentError(
-            c.INVALID_REPO_NAME_ERROR_MESSAGE
-        )
-
 
 def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> str:
     """Resolve the entered remote URL to the correct format for storing in the config file."""
@@ -74,7 +69,7 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(c: SCCSConstants, key: str, value: str, rp: RepositoryPaths, rd: RepositoryData, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
+def main(c: SCCSConstants, key: str, value: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs config> command."""
     rs.target.set(rd.current_branch())
 
@@ -100,8 +95,8 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         utils.entered_argument(3),
-        RepositoryPaths(Path.cwd(), c, target),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target)
     )

@@ -37,13 +37,13 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
     try:
         shutil.copytree(rp.branch_path(branch), rp.branch_path(rd.current_branch()), dirs_exist_ok=True)
     except Exception as e:
-        raise exceptions.FileCopyError
+        raise exceptions.FileCopyError from e
 
 
-def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def copy_repo_document(branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
     """Copy the repo document from the source branch to the target branch."""
 
-    rd.target.set(branch)
+    rs.target.set(branch)
 
     try:
         shutil.copy2(
@@ -53,7 +53,7 @@ def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> 
     except Exception as e:
         raise exceptions.FileCopyError from e
 
-    rd.target.reset()
+    rs.target.reset()
 
 
 def print_merge_success_message(c: SCCSConstants, branch: str, rd: RepositoryData) -> None:
@@ -66,14 +66,14 @@ def print_merge_success_message(c: SCCSConstants, branch: str, rd: RepositoryDat
 def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Merge the entered branch into the current branch."""
 
-    rw.target.set(rd.current_branch())
+    rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
     validate_branch(c, branch, rd)
-    copy_repo_document(branch, rd, rp)
+    copy_repo_document(branch, rd, rs, rp)
     copy_branch_data(branch, rd, rp)
 
     rw.commit_changes(
@@ -82,7 +82,7 @@ def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus
 
     print_merge_success_message(c, branch, rd)
 
-    rw.target.reset()
+    rs.target.reset()
 
 if __name__ == "__main__":
     c = SCCSConstants()

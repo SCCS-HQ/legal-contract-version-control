@@ -66,7 +66,7 @@ def post_repo(c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPa
     """
 
     if not urlsplit(url).path.endswith(
-        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=Path.cwd().name)
+        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
     ):
         raise exceptions.InvalidAPIURLError(
             c.INVALID_PATH_ENDING_ERROR_MESSAGE

@@ -11,7 +11,7 @@ import mammoth
 import exceptions
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import RepositoryPaths, TargetBranch, RepositoryIO
+from repository_layout import RepositoryPaths, TargetBranch, RepositoryIO, RepositoryStatus
 
 
 def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
@@ -78,10 +78,10 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
         ).hexdigest()
 
 
-def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
+def create_sccs_directory_layout(c: SCCSConstants, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
     """Create the full SCCS directory structure inside the repo path."""
 
-    rp.target.set(c.MAIN_BRANCH_NAME)
+    rs.target.set(c.MAIN_BRANCH_NAME)
 
     paths = [
         rp.sccs_path(),
@@ -106,7 +106,7 @@ def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
     except Exception as e:
         raise exceptions.FileCreateError() from e
 
-    rp.target.reset()
+    rs.target.reset()
 
 def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
     """Move the source document into the repo directory."""
@@ -157,10 +157,10 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         raise exceptions.FileWriteError from e
 
 
-def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Write the initial commit history JSON file to the main branch history folder."""
 
-    ri.target.set(c.MAIN_BRANCH_NAME)
+    rs.target.set(c.MAIN_BRANCH_NAME)
 
     history_data = {
         c.HISTORY_DICT_KEY: {
@@ -180,7 +180,7 @@ def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, r
 
     ri.write_history(history_data)
 
-    ri.target.reset()
+    rs.target.reset()
 
 
 def write_commit_message_data(c: SCCSConstants, sha_hash: str, rp: RepositoryPaths, ri: RepositoryIO) -> None:
@@ -199,6 +199,7 @@ def write_hashed_file_commit_data(
         c: SCCSConstants,
         docx_path: Path,
         sha_hash: str,
+        rs: RepositoryStatus,
         rp: RepositoryPaths,
         ri: RepositoryIO
     ) -> None:
@@ -207,7 +208,7 @@ def write_hashed_file_commit_data(
     hash folder.
     """
 
-    ri.target.set(c.MAIN_BRANCH_NAME)
+    rs.target.set(c.MAIN_BRANCH_NAME)
 
     try:
         with open(docx_path, "rb") as f:
@@ -224,7 +225,7 @@ def write_hashed_file_commit_data(
 
     ri.write_byte_hashes(commit_file_hash_data)
 
-    ri.target.reset()
+    rs.target.reset()
 
 
 def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
@@ -252,7 +253,7 @@ def print_init_success_message(c: SCCSConstants) -> None:
     print(c.INIT_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def main(c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Run functions for the <sccs init> command."""
 
     try:
@@ -260,7 +261,7 @@ def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> 
 
         check_file_requirements(c, docx_path)
 
-        create_sccs_directory_layout(c, rp)
+        create_sccs_directory_layout(c, rs, rp)
 
         config = config_inputs(c, rp, c.NAME_KEY, c.EMAIL_KEY)
 
@@ -273,11 +274,11 @@ def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> 
 
         copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
 
-        write_history_data(c, name, email, sha_hash, rp, ri)
+        write_history_data(c, name, email, sha_hash, rs, rp, ri)
 
         write_commit_message_data(c, sha_hash, rp, ri)
 
-        write_hashed_file_commit_data(c, docx_path, sha_hash, rp, ri)
+        write_hashed_file_commit_data(c, docx_path, sha_hash, rs, rp, ri)
 
         write_branch_data(c, rp)
 
@@ -291,4 +292,4 @@ def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> 
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    utils.run_command(main, utils.entered_argument(2), RepositoryPaths(Path(utils.entered_argument(2)), c, target), RepositoryIO(Path(utils.entered_argument(2)), c, target))
+    utils.run_command(main, utils.entered_argument(2), RepositoryStatus(Path(utils.entered_argument(2)), c, target), RepositoryPaths(Path(utils.entered_argument(2)), c, target), RepositoryIO(Path(utils.entered_argument(2)), c, target))

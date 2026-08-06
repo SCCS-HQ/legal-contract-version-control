@@ -24,11 +24,11 @@ def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
 
     Return the modified BeautifulSoup object with numbered tags.
     """
-
-    for i in enumerate(soup.find_all()):
-        if i[1].name == c.STYLE_TAG_NAME:
+    
+    for index, tag in enumerate(soup.find_all()):
+        if tag.name == c.STYLE_TAG_NAME:
             continue
-        i[1][c.DATA_NUMBER_HTML_ATTRIBUTE] = str(i[0])
+        tag[c.DATA_NUMBER_HTML_ATTRIBUTE] = str(index)
     return soup
 
 
@@ -71,9 +71,7 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
 
     data_number = set()
     for i in tag_list:
-        parsed_tag = (
-            i if hasattr(i, "attrs") else BeautifulSoup(i, c.HTML_PARSER).find()
-        )
+        parsed_tag = (BeautifulSoup(i, c.HTML_PARSER).find())
         if parsed_tag is not None:
             if parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
                 data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
