@@ -400,6 +400,15 @@ class RepositoryData:
         return self.io.file_bytes(matching_files[0])
 
 
+    def resolve_full_hash(self, commit: str) -> str:
+        """
+        Accept a short or full commit hash from user input, resolve it to the
+        canonical 64-character hash string, and return it.
+        """
+        path = self.hash_to_full_path(commit, self.c.DOCX_DIR)
+        return path.stem
+
+
     def latest_commit(self) -> str:
         hash = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
         if not hash:

@@ -16,16 +16,16 @@ from repository_layout import (
 )
 
 
-def revert(c: SCCSConstants, commit_hash: Path, rp: RepositoryPaths) -> None:
+def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
     """Revert the current document to the specified commit by copying 'src' to 'dst'."""
 
-    if not commit_hash.is_file():
+    if not commit_path.is_file():
         raise exceptions.InvalidArgumentError(
-            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_name=commit_hash.stem)
+            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_name=commit_path.stem)
         )
 
     try:
-        shutil.copy2(commit_hash, rp.document_path())
+        shutil.copy2(commit_path, rp.document_path())
     except Exception as e:
         raise exceptions.FileCopyError() from e
 
@@ -44,15 +44,17 @@ def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryS
 
     rs.check_repository_layout()
 
-    full_hash = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
+    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 
-    revert(c, full_hash, rp)
+    revert(c, commit_path, rp)
 
     new_commit_hash = rw.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=hash)
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_path.stem)
     )
 
-    print_revert_confirmation_message(c, new_commit_hash, commit_hash)
+    full_commit_hash = rd.resolve_full_hash(commit_hash)
+
+    print_revert_confirmation_message(c, full_commit_hash, new_commit_hash)
 
     rs.target.reset()
 

@@ -278,22 +278,15 @@ def main(
     ) -> None:
     """Run functions for the <sccs diff> command."""
     rs.target.set(rd.current_branch())
-
     rs.check_repository_layout()
-
     rs.raise_for_uncommitted_changes()
-    
+
+    full_commit_hash = rd.resolve_full_hash(commit_hash)
 
     ri.write_diff_output(
-        utils.wrap_html(
-            c,
-            str(strip_number_attribute(c, generate_diff_output(c, commit_hash, ri, rd))),
-            c.DEFAULT_HTML_STYLES
-        ),
+        utils.wrap_html(c, str(strip_number_attribute(c, generate_diff_output(c, full_commit_hash, ri, rd))), c.DEFAULT_HTML_STYLES)
     )
-
     print_diff_success_message(c)
-
     rs.target.reset()
 
 if __name__ == "__main__":

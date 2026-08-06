@@ -18,7 +18,7 @@ def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
     """Print a confirmation message for the commit using 'sha_hash'."""
 
     try:
-        print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]))
+        print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash))
     except Exception as e:
         raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
