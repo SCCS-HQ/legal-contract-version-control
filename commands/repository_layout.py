@@ -309,7 +309,7 @@ class RepositoryIO:
 
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
-        name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
+        name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
         for i in (
             self.paths.html_objects_path(),
             self.paths.view_html_objects_path(),
