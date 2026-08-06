@@ -101,6 +101,7 @@ if __name__ == "__main__":
         utils.entered_argument(2),
         utils.entered_argument(3),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )
