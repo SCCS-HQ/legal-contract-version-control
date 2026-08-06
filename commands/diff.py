@@ -253,20 +253,7 @@ def print_diff_success_message(c: SCCSConstants):
     print(c.DIFF_SUCCESS_MESSAGE)
 
 
-def main(
-        c: SCCSConstants,
-        commit_hash: str,
-        rd: RepositoryData,
-        rs: RepositoryStatus,
-        ri: RepositoryIO
-    ) -> None:
-    """Run functions for the <sccs diff> command."""
-    rs.target.set(rd.current_branch())
-
-    rs.check_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
+def generate_diff_output(c: SCCSConstants, commit_hash: str, ri: RepositoryIO, rd: RepositoryData):
     commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
     current_version_soup = convert_html_to_soup(c, ri.document_html())
@@ -281,12 +268,28 @@ def main(
 
     commit_soup = number_tags(c, remove_inline_semantics(c, commit_soup))
 
-    redline_soup = format_redline_html(c, past_version, current_version, commit_list, docx_current_version_list, commit_soup)
+    return format_redline_html(c, past_version, current_version, commit_list, docx_current_version_list, commit_soup)
+
+
+def main(
+        c: SCCSConstants,
+        commit_hash: str,
+        rd: RepositoryData,
+        rs: RepositoryStatus,
+        ri: RepositoryIO
+    ) -> None:
+    """Run functions for the <sccs diff> command."""
+    rs.target.set(rd.current_branch())
+
+    rs.check_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+    
 
     ri.write_diff_output(
         utils.wrap_html(
             c,
-            str(strip_number_attribute(c, redline_soup)),
+            str(strip_number_attribute(c, generate_diff_output(c, commit_hash, ri, rd))),
             c.DEFAULT_HTML_STYLES
         ),
     )
