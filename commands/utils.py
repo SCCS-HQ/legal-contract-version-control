@@ -18,7 +18,7 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     )
 
 
-def entered_argument(argument: int) -> str:
+def entered_argument(argument: int) -> Any:
 
     arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
 
