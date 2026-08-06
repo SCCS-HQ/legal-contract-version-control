@@ -4,7 +4,7 @@
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Self
+from typing import Any
 
 import mammoth
 import exceptions

@@ -6,9 +6,7 @@ from pathlib import Path
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
-    RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
 )

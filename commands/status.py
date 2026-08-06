@@ -5,9 +5,7 @@ from pathlib import Path
 
 import utils
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
-    RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
 )
