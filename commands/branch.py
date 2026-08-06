@@ -81,11 +81,9 @@ def branch_delete_subcommand(c: SCCSConstants, branch_name: str, rp: RepositoryP
     Delete an existing branch.
     """
 
-    branch_path = rp.branch_path(branch_name)
-
     try:
         rw.remove_from_branches_list(branch_name)
-        shutil.rmtree(branch_path)
+        shutil.rmtree(rp.branch_path(branch_name))
     except Exception as e:
         rollback_changes_after_failure(c, branch_name, c.DELETE_SUBCOMMAND, rp, rw)
         raise exceptions.FileDeleteError(c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(action=c.DELETE_SUBCOMMAND)) from e
@@ -100,13 +98,11 @@ def rollback_changes_after_failure(c: SCCSConstants, branch_name: str, subcomman
     to include the deleted branch again.
     """
 
-    branch_path = rp.branch_path(branch_name)
-
     try:
         if subcommand == c.CREATE_SUBCOMMAND:
             rw.remove_from_branches_list(branch_name)
             rw.set_current_branch(c.MAIN_BRANCH_NAME)
-            shutil.rmtree(branch_path)
+            shutil.rmtree(rp.branch_path(branch_name))
         if subcommand == c.DELETE_SUBCOMMAND:
             rw.add_to_branches_list(branch_name)
     except Exception as e:

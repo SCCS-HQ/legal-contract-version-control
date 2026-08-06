@@ -38,9 +38,7 @@ def main(c: SCCSConstants, commit_message: str, rd: RepositoryData, rs: Reposito
 
     validate_commit_message(c, commit_message)
 
-    sha_hash = rw.commit_changes(commit_message)
-
-    print_commit_confirmation_message(c, sha_hash)
+    print_commit_confirmation_message(c, rw.commit_changes(commit_message))
 
     rw.target.reset()
 

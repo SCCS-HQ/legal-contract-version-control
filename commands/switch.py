@@ -37,9 +37,8 @@ def check_commit(branch_to_switch: str, rd: RepositoryData) -> None:
 
     rd.target.set(branch_to_switch)
 
-    commit = rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)
 
-    if not (commit).is_file():
+    if not (rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)).is_file():
         raise exceptions.CommitNotFoundError
 
     rd.target.reset()

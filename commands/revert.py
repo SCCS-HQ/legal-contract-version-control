@@ -49,13 +49,9 @@ def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryS
 
     revert(c, commit_hash, rd, rp)
 
-    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
-
-    new_commit_hash = rw.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_path)
-    )
-
-    print_revert_confirmation_message(c, commit_hash, new_commit_hash)
+    print_revert_confirmation_message(c, commit_hash, rw.commit_changes(
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=rd.hash_to_full_path(commit_hash, c.DOCX_DIR))
+    ))
 
     rw.target.reset()
 

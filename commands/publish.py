@@ -111,8 +111,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
 
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
-    repo_zip = zip_cwd(c)
-    response = post_repo(c, repo_zip, url, rp)
+    response = post_repo(c, zip_cwd(c), url, rp)
 
     response.raise_for_status()
 

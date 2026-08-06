@@ -57,14 +57,12 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
 
     rs.raise_for_uncommitted_changes()
 
-    remote = rd.config_data(c.REMOTE_KEY)
-
     response = pull(c, rd)
     response.raise_for_status()
 
     update_repo_files(c, response)
 
-    print_pull_success_message(c, response, remote)
+    print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
 
     rs.target.reset()
 

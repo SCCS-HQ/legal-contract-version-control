@@ -33,8 +33,7 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict:
 
         for i, value in enumerate(values):
             config_key = data[i]
-            config_value = value
-            config[config_key] = config_value
+            config[config_key] = value
 
         f.seek(0)
         json.dump(config, f, indent=4)

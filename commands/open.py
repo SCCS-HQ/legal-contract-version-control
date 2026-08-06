@@ -64,9 +64,7 @@ def main(c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryS
 
     validate_commit_hash(c, commit_hash)
 
-    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
-
-    copy_file_commit(commit_path, output_file_name)
+    copy_file_commit(rd.hash_to_full_path(commit_hash, c.DOCX_DIR), output_file_name)
 
     print_rewrite_confirmation_message(c, commit_hash, output_file_name)
 
