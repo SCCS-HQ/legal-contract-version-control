@@ -200,7 +200,7 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         utils.entered_argument(2),
-        utils.entered_argument(3),
+        utils.entered_argument(3, raise_on_not_provided=False),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),

@@ -18,13 +18,13 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     )
 
 
-def entered_argument(argument: int) -> Any:
+def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
 
     arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
 
     if arg_value:
         return arg_value
-    else:
+    elif raise_on_not_provided:
         raise exceptions.InvalidArgumentError()
 
 
