@@ -302,6 +302,7 @@ class RepositoryIO:
             result = mammoth.convert_to_html(f)
             return result.value
 
+
     def copy_document_to_commit(self, commit_hash: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
         shutil.copy2(self.paths.document_path(), self.paths.docx_objects_path() / name)
