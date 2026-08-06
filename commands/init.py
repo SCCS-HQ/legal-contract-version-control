@@ -253,8 +253,6 @@ def main(
 
         sha_hash = create_commit_sha_hash(c, name, email)
 
-        move_document_to_repo_directory(rp.root, docx_path)
-
         copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
 
         write_history_data(c, name, email, sha_hash, rs, ri)
@@ -264,6 +262,8 @@ def main(
         write_hashed_file_commit_data(c, docx_path, sha_hash, rs, ri)
 
         write_branch_data(c, rp)
+
+        move_document_to_repo_directory(rp.root, docx_path)
 
         print_init_success_message(c)
 
@@ -275,16 +275,17 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    document_path = Path(utils.entered_argument(2))
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        document_path,
         RepositoryStatus(
-            Path(utils.entered_argument(2)), c, target
+            document_path, c, target
         ),
         RepositoryPaths(
-            Path(utils.entered_argument(2)), c, target
+            document_path.with_suffix(c.EMPTY_STRING), c, target
         ),
         RepositoryIO(
-            Path(utils.entered_argument(2)), c, target
+            document_path.with_suffix(c.EMPTY_STRING), c, target
         ),
     )
