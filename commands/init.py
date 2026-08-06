@@ -124,7 +124,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         with open(docx_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
-        raise exceptions.ConvertingDocumentToHTMLError from e
+        raise exceptions.ConvertingDocumentToHTMLError() from e
 
     try:
         shutil.copy2(
@@ -132,7 +132,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
             (rp.docx_objects_path() / sha_hash).with_suffix(c.DOCX_EXTENSION),
         )
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
     try:
         with open(
@@ -143,7 +143,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         ) as f:
             f.write(c.DEFAULT_HTML_STYLES + result)
     except Exception as e:
-        raise exceptions.FileWriteError from e
+        raise exceptions.FileWriteError() from e
 
     try:
         with open(
@@ -154,7 +154,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         ) as f:
             f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
-        raise exceptions.FileWriteError from e
+        raise exceptions.FileWriteError() from e
 
 
 def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
@@ -217,7 +217,7 @@ def write_hashed_file_commit_data(
                 hasher.update(i)
             hashed_file = hasher.hexdigest()
     except Exception as e:
-        raise exceptions.DocumentHashingError from e
+        raise exceptions.DocumentHashingError() from e
 
     
 
@@ -240,7 +240,7 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         ) as f:
             json.dump(c.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+        raise exceptions.UpdatingMetadataError() from e
 
 
 def delete_repository_after_error(repo_path: Path) -> None:

@@ -184,7 +184,7 @@ def clear_updated_branches(c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPat
     if data is None:
         data = {}
     if not isinstance(data, dict):
-        raise ValueError
+        raise ValueError()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:

@@ -36,7 +36,7 @@ def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
             output_file_name
         )
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
 
 def print_rewrite_confirmation_message(c: SCCSConstants, commit_hash: str, output_file_name: Path) -> None:

@@ -27,7 +27,7 @@ def revert(c: SCCSConstants, commit_hash: Path, rp: RepositoryPaths) -> None:
     try:
         shutil.copy2(commit_hash, rp.document_path())
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
 
 def print_revert_confirmation_message(c: SCCSConstants, commit_hash: str, new_commit_hash: str) -> None:

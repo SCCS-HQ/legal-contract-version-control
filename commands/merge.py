@@ -37,7 +37,7 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
     try:
         shutil.copytree(rp.branch_path(branch), rp.branch_path(rd.current_branch()), dirs_exist_ok=True)
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
 
 def copy_repo_document(branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths) -> None:
@@ -51,7 +51,7 @@ def copy_repo_document(branch: str, rd: RepositoryData, rs: RepositoryStatus, rp
             rp.document_path()
         )
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
     rs.target.reset()
 
