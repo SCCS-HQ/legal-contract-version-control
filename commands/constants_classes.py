@@ -277,7 +277,7 @@ class SCCSConstants:
     # The 2 following constants are not alphabetized because they would be dependencies of earlier constants.
     ## strings - error messages
     REPOS_PATH_SEGMENT = "repos"
-    
+
     ## strings - success messages
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOS_PATH_SEGMENT}/{{repo_name}}"
 

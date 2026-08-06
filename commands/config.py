@@ -15,6 +15,7 @@ from repository_layout import (
 from constants_classes import SCCSConstants
 from urllib.parse import urlsplit, urljoin
 
+
 def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: str) -> None:
     """
     Resolve the entered remote URL to the correct format for storing in the config file
@@ -26,10 +27,10 @@ def validate_entered_value(c: SCCSConstants, repo_name: str, key: str, value: st
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
-    
+
     if not value:
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
-    
+
     if not repo_name:
         raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
 
@@ -46,7 +47,7 @@ def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) ->
 
     if not value:
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key))
-    
+
     if key == c.REMOTE_KEY:
         url = value.rstrip(c.PATH_SEPARATOR)
         url_parsed = urlsplit(url)
@@ -60,9 +61,9 @@ def resolve_key_value(c: SCCSConstants, repo_name: str, key: str, value: str) ->
             raise exceptions.InvalidArgumentError(
                 c.INVALID_URL_ERROR_MESSAGE
             )
-        
+
         return urljoin(url, c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name)
-    
+
     return value
 
 

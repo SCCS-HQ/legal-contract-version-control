@@ -41,6 +41,7 @@ def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
     except Exception as e:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
+
 def print_pull_success_message(c: SCCSConstants, response: requests.Response, url: str) -> None:
     """Print a success message after pulling the repository."""
 
@@ -55,15 +56,13 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     rs.check_for_uncommitted_changes()
 
     remote = rd.config_data(c.REMOTE_KEY)
-    
+
     response = pull(c, rd)
     response.raise_for_status()
 
     update_repo_files(c, response)
-    
-    print_pull_success_message(c, response, remote)
 
-    
+    print_pull_success_message(c, response, remote)
 
 
 if __name__ == "__main__":

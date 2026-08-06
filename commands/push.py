@@ -214,7 +214,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
     GET_response.raise_for_status()
 
     remote_objects = GET_response.json()[c.HTTP_OBJECTS_DICT_KEY]
-    
+
     buffer = zip_files_to_upload(c, remote_objects, rp, ri, rd)
 
     POST_response = push_POST(c, buffer, rd, rp)
@@ -223,6 +223,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
 
     clear_updated_branches(c, ri, rp)
     print_push_success_message(c, POST_response, remote)
+
 
 if __name__ == "__main__":
     c = SCCSConstants()
@@ -234,4 +235,3 @@ if __name__ == "__main__":
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
     )
-      

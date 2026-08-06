@@ -59,7 +59,7 @@ def check_file_requirements(c: SCCSConstants, file: Path) -> None:
 
     if file.suffix.lower() != c.DOCX_EXTENSION:
         raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
-    
+
     if not file.is_file():
         raise exceptions.FileDoesNotExistError(c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file))
 
@@ -96,7 +96,7 @@ def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
         rp.config_dir_path(),
         rp.current_branch_dir_path()
     ]
-    
+
     try:
         rp.root.mkdir(parents=True, exist_ok=True)
 
@@ -108,7 +108,7 @@ def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
 def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
     """Move the source document into the repo directory."""
-    
+
     shutil.move(docx_path, repo_path)
 
 
@@ -248,7 +248,7 @@ def main(c: SCCSConstants, docx_path, rp: RepositoryPaths, ri: RepositoryIO) -> 
         check_file_requirements(c, docx_path)
 
         create_sccs_directory_layout(c, rp)
-        
+
         config = config_inputs(c, rp, c.NAME_KEY, c.EMAIL_KEY)
 
         name = config[c.NAME_KEY]

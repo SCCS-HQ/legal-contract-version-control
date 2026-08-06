@@ -10,6 +10,7 @@ import utils
 from urllib.parse import urlsplit
 from constants_classes import SCCSConstants
 
+
 def resolve_entered_url(c: SCCSConstants, url: str) -> str:
     """
     Resolve the entered URL by adding 'https://' if missing and appending '/clone'
@@ -44,7 +45,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
         raise exceptions.HTTPGetRequestError(
             c.HTTP_REQUEST_ERROR_MESSAGE
         ) from e
-    
+
     return response
 
 
@@ -55,10 +56,10 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
 
     if not path_parts or path_parts[-1] != c.CLONE_ENDPOINT:
         raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
-    
+
     if len(path_parts) < 2:
         raise exceptions.InvalidArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.REPOSITORY_NAME_FIELD_NAME))
-    
+
     repo_name = path_parts[-2]
 
     try:

@@ -37,13 +37,13 @@ def validate_subcommand(c: SCCSConstants, subcommand: str, branch_name: str, rs:
             raise exceptions.InvalidArgumentError(
                 c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
             )
-        
+
     if subcommand == c.CREATE_SUBCOMMAND:
         if rs.branch_exists(branch_name):
             raise exceptions.BranchAlreadyExistsError(
                 c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
             )
-        
+
     if subcommand == c.DELETE_SUBCOMMAND:
         if rs.is_current_branch(branch_name):
             raise exceptions.BranchDeletionError(
@@ -63,8 +63,8 @@ def branch_create_subcommand(c: SCCSConstants, branch_name: str, current_branch_
     """
 
     try:
-        
-        
+
+
         shutil.copytree(
             rp.branch_path(current_branch_name),
             rp.branch_path(branch_name),
@@ -115,7 +115,7 @@ def rollback_changes_after_failure(c: SCCSConstants, branch_name: str, subcomman
         raise exceptions.UpdatingMetadataError(
             c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
         ) from e
-    
+
 
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
     """
@@ -176,7 +176,7 @@ def main(
     rs.check_repository_layout()
 
     rs.check_for_uncommitted_changes()
-    
+
     validate_subcommand(c, subcommand, branch_name, rs)
 
     run_specified_subcommand(c, subcommand, branch_name, rd.current_branch(), rd, rp, rw)

@@ -25,7 +25,7 @@ def reset(c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths) -> None:
         )
     except Exception as e:
         raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
-        
+
 
 def print_success_message(c: SCCSConstants) -> None:
     """Print a success message after resetting the document."""

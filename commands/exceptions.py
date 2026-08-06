@@ -93,12 +93,14 @@ class FileCreateError(SCCSException):
     """Raised when there is an error creating a file."""
 
     default_message = "Could not create file."
-    
+
 
 class FileDoesNotExistError(SCCSException):
     """Raised when a file does not exist."""
 
     default_message = "File does not exist."
+
+
 # Metadata Exceptions
 
 

@@ -15,6 +15,7 @@ from repository_layout import (
     TargetBranch,
 )
 
+
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Add a data-number attribute to all tags in the  HTML, excluding style tags, with a
@@ -23,7 +24,7 @@ def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
 
     Return the modified BeautifulSoup object with numbered tags.
     """
-    
+
     for i in enumerate(soup.find_all()):
         if i[1].name == c.STYLE_TAG_NAME:
             continue

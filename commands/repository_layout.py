@@ -51,79 +51,79 @@ class RepositoryPaths:
     def document_path(self) -> Path:
         """Return the path to the current document."""
         path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
-        
+
         return path
 
     def sccs_path(self) -> Path:
         """Return the path to the '.sccs' folder."""
         path = self.root / self.c.SCCS_DIR
-        
+
         return path
 
     def branches_path(self) -> Path:
         """Return the path to the 'branches' folder."""
         path = self.sccs_path() / self.c.BRANCHES_DIR
-        
+
         return path
 
     def commit_messages_dir_path(self) -> Path:
         """Return the path to the 'commit_messages' folder."""
         path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
-        
+
         return path
 
     def commit_messages_path(self) -> Path:
         """Return the path to the 'commit_messages.json' file."""
         path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
-        
+
         return path
 
     def config_dir_path(self) -> Path:
         """Return the path to the 'config' folder."""
         path = self.sccs_path() / self.c.CONFIG_DIR
-        
+
         return path
 
     def config_path(self) -> Path:
         """Return the path to the 'config.json' file."""
         path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
-        
+
         return path
 
     def current_branch_dir_path(self) -> Path:
         """Return the path to the 'current_branch' folder."""
         path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
-        
+
         return path
 
     def current_branch_data_file_path(self) -> Path:
         """Return the path to the 'current_branch.json' file."""
         path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
-        
+
         return path
 
     def objects_path(self) -> Path:
         """Return the path to the 'objects' folder."""
         path = self.sccs_path() / self.c.OBJECTS_DIR
-        
+
         return path
 
     def docx_objects_path(self) -> Path:
         """Return the path to the 'docx' objects folder."""
         path = self.objects_path() / self.c.DOCX_DIR
-        
+
         return path
 
     def view_html_objects_path(self) -> Path:
         """Return the path to the 'view_html' objects folder."""
         path = self.objects_path() / self.c.VIEW_HTML_DIR
-        
+
         return path
 
     def html_objects_path(self) -> Path:
         """Return the path to the 'html' objects folder."""
         path = self.objects_path() / self.c.HTML_DIR
-        
+
         return path
 
     def history_dir_path(self) -> Path:
@@ -141,7 +141,7 @@ class RepositoryPaths:
         """
 
         path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
-        
+
     def byte_hashes_dir_path(self) -> Path:
         """
         Return the path to the 'commit_file_hash' folder for the current branch.
@@ -150,20 +150,20 @@ class RepositoryPaths:
         branch = self.target.require()
 
         path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
-        
+
     def byte_hashes_path(self) -> Path:
         """
         Return the path to the 'commit_file_hash.json' file for the current branch.
         Chaining this method with a branch method is required.
         """
         path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
-        
+
         return path
 
     def branch_path(self, branch_name: str) -> Path:
         """Return the path to the specified branch folder."""
         path = self.branches_path() / branch_name
-        
+
         return path
 
     def branch(self, branch_name: str | None) -> Self:
@@ -312,7 +312,7 @@ class RepositoryData:
         if len(commit) != self.c.FULL_COMMIT_HASH_LENGTH and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH:
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
-            )   
+            )
 
     def hash_to_full_path(self, commit: str) -> Path:
         if commit is None:
@@ -467,6 +467,7 @@ class RepositoryWrite:
             self.paths.docx_objects_path()
         ]
 
+
     def check_for_uncommitted_changes(self) -> bool:
         """
         Check for uncommitted changes by hashing the current document bytes and comparing
@@ -478,6 +479,7 @@ class RepositoryWrite:
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_binary_hash()
 
+
     def raise_for_uncommitted_changes(self) -> None:
         """Raise UncommittedChangesError if uncommitted changes exist."""
 
@@ -485,6 +487,7 @@ class RepositoryWrite:
             raise exceptions.UncommittedChangesError(
                 self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
+
 
     def branch_exists(self, branch_name: str) -> bool:
         """Return true if 'branch_name' exists in the repository, false if not."""

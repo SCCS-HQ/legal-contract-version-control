@@ -32,9 +32,10 @@ def entered_argument(argument: int) -> str:
     arg_value = sys.argv[argument].strip() if len(sys.argv) > argument else None
 
     if arg_value:
-        return arg_value 
+        return arg_value
     else:
         raise exceptions.InvalidArgumentError()
+
 
 def run_command(main, *args) -> None:
     error_wrappers = ErrorWrappers()
