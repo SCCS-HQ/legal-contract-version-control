@@ -26,8 +26,9 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     
     rs.check_repository_layout()
 
-
     print_status_message(c, rs.check_for_uncommitted_changes())
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

@@ -27,6 +27,8 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
 
     print_help(c)
 
+    rs.target.reset()
+
 
 if __name__ == "__main__":
     c = SCCSConstants()
