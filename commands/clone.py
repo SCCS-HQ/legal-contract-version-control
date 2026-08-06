@@ -43,7 +43,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
 
 def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
 
-    path_parts = [p for p in urlsplit(url).path.split(c.PATH_SEPARATOR) if p]
+    path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
     if not path_parts or path_parts[-1] != c.CLONE_ENDPOINT:
         raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)

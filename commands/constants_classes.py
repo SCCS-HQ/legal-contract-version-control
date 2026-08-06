@@ -599,8 +599,8 @@ SCCSConstants.HELP_MESSAGES = (
 )
 
 _missing_commands = [
-    cmd for cmd in SCCSConstants.COMMANDS_LIST
-    if cmd not in SCCSConstants.COMMAND_DESCRIPTIONS
+    i for i in SCCSConstants.COMMANDS_LIST
+    if i not in SCCSConstants.COMMAND_DESCRIPTIONS
 ]
 if _missing_commands:
     raise ValueError(

@@ -292,8 +292,8 @@ class RepositoryIO:
     def document_binary_hash(self) -> str:
         with open(self.paths.document_path(), "rb") as f:
             hasher = hashlib.sha256()
-            for chunk in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
-                hasher.update(chunk)
+            for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
+                hasher.update(i)
         return hasher.hexdigest()
 
 
@@ -309,12 +309,12 @@ class RepositoryIO:
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
-        for d in (
+        for i in (
             self.paths.html_objects_path(),
             self.paths.view_html_objects_path(),
         ):
             with open(
-                d / name,
+                i / name,
                 "w",
                 encoding=self.c.UTF_8,
                 newline=self.c.NEWLINE,

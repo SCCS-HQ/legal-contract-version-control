@@ -90,8 +90,8 @@ def create_sccs_directory_layout(
     try:
         rp.root.mkdir(parents=True, exist_ok=True)
 
-        for path in paths:
-            (path).mkdir(parents=True, exist_ok=True)
+        for i in paths:
+            (i).mkdir(parents=True, exist_ok=True)
     except Exception as e:
         raise exceptions.FileCreateError() from e
 

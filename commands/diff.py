@@ -17,10 +17,10 @@ from repository_layout import (
 
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     
-    for index, tag in enumerate(soup.find_all()):
+    for i, tag in enumerate(soup.find_all()):
         if tag.name == c.STYLE_TAG_NAME:
             continue
-        tag[c.DATA_NUMBER_HTML_ATTRIBUTE] = str(index)
+        tag[c.DATA_NUMBER_HTML_ATTRIBUTE] = str(i)
     return soup
 
 
