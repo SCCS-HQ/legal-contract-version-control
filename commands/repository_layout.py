@@ -343,7 +343,7 @@ class RepositoryData:
             )
 
 
-    def hash_to_full_path(self, commit: str) -> Path:
+    def hash_to_full_path(self, commit: str, folder: str) -> Path:
         if commit is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=self.c.COMMIT_FILE_FIELD_NAME)
@@ -356,7 +356,7 @@ class RepositoryData:
 
         matching_files = []
 
-        for i in Path(self.paths.objects_path() / self.c.DOCX_DIR).iterdir():
+        for i in Path(self.paths.objects_path() / folder).iterdir():
             if str(i.stem).startswith(commit):
                 matching_files.append(i)
 
