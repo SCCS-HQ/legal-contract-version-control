@@ -205,6 +205,8 @@ def print_push_success_message(c: SCCSConstants, response: requests.Response, ur
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Run functions for the <sccs push> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
     remote = rd.base_repo_url()
@@ -223,6 +225,8 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
 
     clear_updated_branches(c, ri, rp)
     print_push_success_message(c, POST_response, remote)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

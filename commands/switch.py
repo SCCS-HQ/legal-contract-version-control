@@ -35,22 +35,30 @@ def check_commit(branch_to_switch: str, rd: RepositoryData) -> None:
     Check if the commit object exists in the document history.
     """
 
-    commit = rd.hash_to_full_path(rd.latest_commit(branch_to_switch))
+    rd.target.set(branch_to_switch)
+
+    commit = rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)
 
     if not (commit).is_file():
         raise exceptions.CommitNotFoundError
 
+    rd.target.reset()
+
 
 def copy_commit_to_main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
     """Copy the commit file to the main document."""
+    
+    rd.target.set(branch_to_switch)
+
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(branch_to_switch)),
+            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
             (rp.document_path()),
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
 
+    rd.target.reset()
 
 def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
     """Print a confirmation message for successful branch switch."""
@@ -60,9 +68,11 @@ def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
 
 def main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs switch> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     check_branch_to_switch(c, branch_to_switch, rs)
 
@@ -73,6 +83,8 @@ def main(c: SCCSConstants, branch_to_switch: str, rd: RepositoryData, rs: Reposi
     rw.set_current_branch(branch_to_switch)
 
     print_confirmation(c, branch_to_switch)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

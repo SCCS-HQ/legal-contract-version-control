@@ -6,6 +6,9 @@ from pathlib import Path
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    RepositoryPaths,
+    RepositoryData,
+    RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
 )
@@ -18,8 +21,10 @@ def print_help(c: SCCSConstants) -> None:
         print(i)
 
 
-def main(c: SCCSConstants, rs: RepositoryStatus) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs help> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
     print_help(c)

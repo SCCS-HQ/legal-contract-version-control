@@ -5,6 +5,9 @@ from pathlib import Path
 
 import utils
 from repository_layout import (
+    RepositoryPaths,
+    RepositoryData,
+    RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
 )
@@ -19,8 +22,10 @@ def print_status_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
         print(c.NO_UNCOMMITTED_CHANGES)
 
 
-def main(c: SCCSConstants, rs: RepositoryStatus) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs status> command."""
+    rs.target.set(rd.current_branch())
+    
     rs.check_repository_layout()
 
     uncommitted_changes = rs.check_for_uncommitted_changes()

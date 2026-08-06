@@ -82,6 +82,8 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
 def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
     """Create the full SCCS directory structure inside the repo path."""
 
+    rp.target.set(c.MAIN_BRANCH_NAME)
+
     paths = [
         rp.sccs_path(),
         rp.objects_path(),
@@ -90,8 +92,8 @@ def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
         rp.view_html_objects_path(),
         rp.branches_path(),
         rp.branch_path(c.MAIN_BRANCH_NAME),
-        rp.branch(c.MAIN_BRANCH_NAME).history_dir_path(),
-        rp.branch(c.MAIN_BRANCH_NAME).byte_hashes_dir_path(),
+        rp.history_dir_path(),
+        rp.byte_hashes_dir_path(),
         rp.commit_messages_dir_path(),
         rp.config_dir_path(),
         rp.current_branch_dir_path()
@@ -105,6 +107,7 @@ def create_sccs_directory_layout(c: SCCSConstants, rp: RepositoryPaths) -> None:
     except Exception as e:
         raise exceptions.FileCreateError() from e
 
+    rp.target.reset()
 
 def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
     """Move the source document into the repo directory."""
@@ -158,6 +161,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
 def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rp: RepositoryPaths, ri: RepositoryIO) -> None:
     """Write the initial commit history JSON file to the main branch history folder."""
 
+    ri.target.set(c.MAIN_BRANCH_NAME)
 
     history_data = {
         c.HISTORY_DICT_KEY: {
@@ -174,7 +178,10 @@ def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, r
             }
         },
     }
+
     ri.write_history(history_data)
+
+    ri.target.reset()
 
 
 def write_commit_message_data(c: SCCSConstants, sha_hash: str, rp: RepositoryPaths, ri: RepositoryIO) -> None:
@@ -201,6 +208,8 @@ def write_hashed_file_commit_data(
     hash folder.
     """
 
+    ri.target.set(c.MAIN_BRANCH_NAME)
+
     try:
         with open(docx_path, "rb") as f:
             hasher = hashlib.sha256()
@@ -210,8 +219,13 @@ def write_hashed_file_commit_data(
     except Exception as e:
         raise exceptions.DocumentHashingError from e
 
+    
+
     commit_file_hash_data = {sha_hash: hashed_file}
+
     ri.write_byte_hashes(commit_file_hash_data)
+
+    ri.target.reset()
 
 
 def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:

@@ -101,9 +101,11 @@ def print_publish_success_message(c: SCCSConstants, response: requests.Response,
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs publish> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     reset_current_branch(c, rw)
 
@@ -115,6 +117,8 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: Reposit
     response.raise_for_status()
 
     print_publish_success_message(c, response, url)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

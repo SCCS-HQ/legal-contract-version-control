@@ -171,14 +171,17 @@ def main(
     ) -> None:
 
     """Run functions for the <sccs branch> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     validate_subcommand(c, subcommand, branch_name, rs)
 
     run_specified_subcommand(c, subcommand, branch_name, rd.current_branch(), rd, rp, rw)
 
+    rs.target.reset()
 
 if __name__ == "__main__":
     c = SCCSConstants()

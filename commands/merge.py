@@ -43,13 +43,17 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
 def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
     """Copy the repo document from the source branch to the target branch."""
 
+    rd.target.set(branch)
+
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit()),
+            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
             rp.document_path()
         )
     except Exception as e:
         raise exceptions.FileCopyError from e
+
+    rd.target.reset()
 
 
 def print_merge_success_message(c: SCCSConstants, branch: str, rd: RepositoryData) -> None:
@@ -62,9 +66,11 @@ def print_merge_success_message(c: SCCSConstants, branch: str, rd: RepositoryDat
 def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths, rw: RepositoryWrite) -> None:
     """Merge the entered branch into the current branch."""
 
+    rw.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     validate_branch(c, branch, rd)
     copy_repo_document(branch, rd, rp)
@@ -76,6 +82,7 @@ def main(c: SCCSConstants, branch: str, rd: RepositoryData, rs: RepositoryStatus
 
     print_merge_success_message(c, branch, rd)
 
+    rw.target.reset()
 
 if __name__ == "__main__":
     c = SCCSConstants()

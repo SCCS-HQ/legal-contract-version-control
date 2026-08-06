@@ -51,9 +51,11 @@ def print_pull_success_message(c: SCCSConstants, response: requests.Response, ur
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """Run functions for the <sccs pull> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     remote = rd.config_data(c.REMOTE_KEY)
 
@@ -63,6 +65,8 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     update_repo_files(c, response)
 
     print_pull_success_message(c, response, remote)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

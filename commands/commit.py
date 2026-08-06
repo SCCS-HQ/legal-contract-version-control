@@ -6,6 +6,7 @@ from pathlib import Path
 import exceptions
 import utils
 from repository_layout import (
+    RepositoryData,
     RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
@@ -28,8 +29,11 @@ def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
         raise exceptions.EmptyArgumentError(c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_MESSAGE_FIELD_NAME))
 
 
-def main(c: SCCSConstants, commit_message: str, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
+def main(c: SCCSConstants, commit_message: str, rd: RepositoryData, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs commit> command."""
+
+    rw.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
     validate_commit_message(c, commit_message)
@@ -37,6 +41,8 @@ def main(c: SCCSConstants, commit_message: str, rs: RepositoryStatus, rw: Reposi
     sha_hash = rw.commit_changes(commit_message)
 
     print_commit_confirmation_message(c, sha_hash)
+
+    rw.target.reset()
 
 
 if __name__ == "__main__":

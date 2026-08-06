@@ -39,6 +39,9 @@ class TargetBranch:
             )
         return self._branch
 
+    def reset(self) -> None:
+        self._branch = None
+
 
 class RepositoryPaths:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
@@ -192,12 +195,6 @@ class RepositoryPaths:
         return path
 
 
-    def branch(self, branch_name: str | None) -> Self:
-        """Branch method to set the target branch to the specified branch name."""
-        self.target.set(branch_name)
-        return self
-
-
 class RepositoryIO:
     """Owns all filesystem I/O. Depends only on RepositoryPaths for paths."""
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
@@ -252,22 +249,22 @@ class RepositoryIO:
 
 
     def read_history(self) -> dict:
-        with open(self.paths.branch(self.target.require()).history_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.history_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             return json.load(f)
 
 
     def write_history(self, data: dict) -> None:
-        with open(self.paths.branch(self.target.require()).history_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.history_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             json.dump(data, f, indent=4)
 
 
     def read_byte_hashes(self) -> dict:
-        with open(self.paths.branch(self.target.require()).byte_hashes_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.byte_hashes_path(), "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             return json.load(f)
 
 
     def write_byte_hashes(self, data: dict) -> None:
-        with open(self.paths.branch(self.target.require()).byte_hashes_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+        with open(self.paths.byte_hashes_path(), "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
             json.dump(data, f, indent=4)
 
 

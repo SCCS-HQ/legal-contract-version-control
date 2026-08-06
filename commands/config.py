@@ -8,6 +8,7 @@ import exceptions
 import utils
 from repository_layout import (
     RepositoryPaths,
+    RepositoryData,
     RepositoryWrite,
     RepositoryStatus,
     TargetBranch,
@@ -73,8 +74,10 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main(c: SCCSConstants, key: str, value: str, rp: RepositoryPaths, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
+def main(c: SCCSConstants, key: str, value: str, rp: RepositoryPaths, rd: RepositoryData, rs: RepositoryStatus, rw: RepositoryWrite) -> None:
     """Run functions for the <sccs config> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
     repo_name = rp.repo_name
@@ -86,6 +89,8 @@ def main(c: SCCSConstants, key: str, value: str, rp: RepositoryPaths, rs: Reposi
     rw.write_key_to_config(key, value)
 
     print_config_confirmation_message(c, key, value)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

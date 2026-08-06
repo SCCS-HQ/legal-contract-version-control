@@ -261,9 +261,11 @@ def main(
         ri: RepositoryIO
     ) -> None:
     """Run functions for the <sccs diff> command."""
+    rs.target.set(rd.current_branch())
+
     rs.check_repository_layout()
 
-    rs.check_for_uncommitted_changes()
+    rs.raise_for_uncommitted_changes()
 
     commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
@@ -291,6 +293,7 @@ def main(
 
     print_diff_success_message(c)
 
+    rs.target.reset()
 
 if __name__ == "__main__":
     c = SCCSConstants()
