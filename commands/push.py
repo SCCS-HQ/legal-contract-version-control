@@ -119,7 +119,7 @@ def zip_files_to_upload(c: SCCSConstants, remote_objects: list, rp: RepositoryPa
 
         try:
             with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, dirs, files in os.walk(temp_dir):
+                for root, _, files in os.walk(temp_dir):
                     for i in files:
                         full_path = Path(root) / i
                         zf.write(

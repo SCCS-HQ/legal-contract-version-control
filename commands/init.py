@@ -3,7 +3,6 @@
 
 import hashlib
 import json
-from pydoc import doc
 import shutil
 from pathlib import Path
 import mammoth
@@ -157,7 +156,7 @@ def copy_document_to_objects_as_docx_and_html(c: SCCSConstants, docx_path: Path,
         raise exceptions.FileWriteError() from e
 
 
-def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rs: RepositoryStatus, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, rs: RepositoryStatus, ri: RepositoryIO) -> None:
     """Write the initial commit history JSON file to the main branch history folder."""
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -183,7 +182,7 @@ def write_history_data(c: SCCSConstants, name: str, email: str, sha_hash: str, r
     rs.target.reset()
 
 
-def write_commit_message_data(c: SCCSConstants, sha_hash: str, rp: RepositoryPaths, ri: RepositoryIO) -> None:
+def write_commit_message_data(c: SCCSConstants, sha_hash: str, ri: RepositoryIO) -> None:
     """
     Write the initial commit message JSON file to the main branch commit messages
     folder.
@@ -200,7 +199,6 @@ def write_hashed_file_commit_data(
         docx_path: Path,
         sha_hash: str,
         rs: RepositoryStatus,
-        rp: RepositoryPaths,
         ri: RepositoryIO
     ) -> None:
     """
@@ -274,11 +272,11 @@ def main(c: SCCSConstants, docx_path, rs: RepositoryStatus, rp: RepositoryPaths,
 
         copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
 
-        write_history_data(c, name, email, sha_hash, rs, rp, ri)
+        write_history_data(c, name, email, sha_hash, rs, ri)
 
-        write_commit_message_data(c, sha_hash, rp, ri)
+        write_commit_message_data(c, sha_hash, ri)
 
-        write_hashed_file_commit_data(c, docx_path, sha_hash, rs, rp, ri)
+        write_hashed_file_commit_data(c, docx_path, sha_hash, rs, ri)
 
         write_branch_data(c, rp)
 

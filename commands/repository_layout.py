@@ -620,7 +620,6 @@ class RepositoryStatus:
         that to the latest commit bytes hash from the SCCS metadata.
         """
 
-        current_branch = self.io.read_current_branch_data()[self.c.CURRENT_BRANCH_DICT_KEY]
         latest_commit = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_binary_hash()

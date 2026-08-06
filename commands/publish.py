@@ -41,7 +41,7 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
 
     try:
         with zipfile.ZipFile(buffer, "w", ) as zf:
-            for root, dirs, files in os.walk(c.WALK_ROOT):
+            for root, _, files in os.walk(c.WALK_ROOT):
                 for i in files:
                     zf.write(Path(root) / i)
     except Exception as e:
