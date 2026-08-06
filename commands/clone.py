@@ -79,8 +79,6 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
     unzip_repo_file(c, buffer, url)
 
-    response.raise_for_status()
-
     print_clone_success_message(c, response)
 
 
