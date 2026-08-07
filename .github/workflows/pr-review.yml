@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: AI PR Review
-        uses: jonit-dev/diffguard@v1.0.0
+        uses: jonit-dev/diffguard@88f63615c769f8db6031973503c2c40a9a3f4feb
         with:
           # Required inputs
           github_token: ${{ secrets.GITHUB_TOKEN }} # Automatically provided
