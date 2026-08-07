@@ -349,10 +349,16 @@ class SCCSConstants:
 
     #region help.py
 
-    ## HELP_MESSAGES is assigned at module level after the class (see bottom of file),
-    ## because it depends on COMMANDS_LIST and COMMAND_DESCRIPTIONS which are not yet
-    ## bound to the class name during class-body execution.
-    HELP_MESSAGES: tuple
+    @property
+    def HELP_MESSAGES(cls) -> tuple[str, ...]:
+        return (
+            "SCCS Help",
+            "Available commands:",
+        ) + tuple(
+            f"  {cls.SCCS_COMMAND_PREFIX} {i}"
+            f" - {cls.COMMAND_DESCRIPTIONS[i]}"
+            for i in cls.COMMANDS_LIST
+        )
 
     #endregion
 
@@ -583,19 +589,6 @@ class SCCSConstants:
 
     #endregion
 
-
-# --- Module-level post-class setup ---
-# These depend on COMMANDS_LIST / COMMAND_DESCRIPTIONS, which are not bound to the
-# class name during class-body execution, so they are assigned here once at import.
-
-SCCSConstants.HELP_MESSAGES = (
-    "SCCS Help",
-    "Available commands:",
-) + tuple(
-    f"  {SCCSConstants.SCCS_COMMAND_PREFIX} {i}"
-    f" - {SCCSConstants.COMMAND_DESCRIPTIONS[i]}"
-    for i in SCCSConstants.COMMANDS_LIST
-)
 
 _missing_commands = [
     i for i in SCCSConstants.COMMANDS_LIST
