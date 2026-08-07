@@ -32,7 +32,7 @@ jobs:
           open_router_key: ${{ secrets.OPEN_ROUTER_KEY }} # Must be set in repository secrets
 
           # Optional inputs with defaults
-          model_id: openrouter/free # Default model
+          model_id: ${{ secrets.PR_REVIEW_MODEL }} # Default model
           max_tokens: 10000 # Default max tokens
 
           # Optional custom prompt
