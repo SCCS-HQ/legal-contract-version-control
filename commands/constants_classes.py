@@ -381,7 +381,7 @@ class SCCSConstants:
 
     ## strings - error / status messages
     INITIAL_COMMIT_MESSAGE = (
-        "initial commit (This is a default commit message"
+        "Initial commit (This is a default commit message"
         " for initial version)"
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
