@@ -2,6 +2,7 @@
 
 import shutil
 from pathlib import Path
+from typing import Any
 
 import exceptions
 import utils
@@ -37,12 +38,25 @@ def validate_branch(
 
 def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
 
+    source = rp.branch_path(branch)
+    dest = rp.branch_path(rd.current_branch())
+    c = rd.c
+
+    def ignore_metadata(dir, names) -> set[Any]:
+        ignored = set()
+        for name in names:
+            if name in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
+                ignored.add(name)
+        return ignored
+
     try:
-        shutil.copytree(
-            rp.branch_path(branch),
-            rp.branch_path(rd.current_branch()),
-            dirs_exist_ok=True,
-        )
+        if source.exists():
+            shutil.copytree(
+                source,
+                dest,
+                dirs_exist_ok=True,
+                ignore=ignore_metadata,
+            )
     except Exception as e:
         raise exceptions.FileCopyError() from e
 
@@ -51,7 +65,8 @@ def copy_repo_document(
     branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
 ) -> None:
 
-    rs.target.set(branch)
+    original_target = rd.target.get()
+    rd.target.set(branch)
 
     try:
         shutil.copy2(
@@ -60,8 +75,8 @@ def copy_repo_document(
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
-
-    rs.target.reset()
+    finally:
+        rd.target.set(original_target)
 
 
 def print_merge_success_message(
@@ -92,13 +107,17 @@ def main(
     assert branch is not None
 
     validate_branch(c, branch, rd)
+
     copy_repo_document(branch, rd, rs, rp)
+
     copy_branch_data(branch, rd, rp)
+
 
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
             branch=branch, current_branch=rd.current_branch()
-        )
+        ),
+        ignore_no_uncommitted_changes=True
     )
 
     print_merge_success_message(c, branch, rd)

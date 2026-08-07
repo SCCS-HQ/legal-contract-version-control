@@ -578,7 +578,9 @@ class RepositoryWrite:
             ) from e
 
 
-    def commit_changes(self, commit_msg: str) -> str:
+    def commit_changes(
+        self, commit_msg: str, ignore_no_uncommitted_changes: bool = False
+    ) -> str:
 
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
@@ -591,10 +593,11 @@ class RepositoryWrite:
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_binary_hash()
 
-        if latest_bytes_hash == document_hash:
-            raise exceptions.NoUncommittedChangesError(
-                self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-            )
+        if not ignore_no_uncommitted_changes:
+            if latest_bytes_hash == document_hash:
+                raise exceptions.NoUncommittedChangesError(
+                    self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+                )
 
         config = self.io.read_config()
         name = config[self.c.NAME_KEY]
