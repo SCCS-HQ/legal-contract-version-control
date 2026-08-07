@@ -5,8 +5,6 @@ from pathlib import Path
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryData,
-    RepositoryStatus,
     TargetBranch,
 )
 
@@ -17,14 +15,8 @@ def print_help(c: SCCSConstants) -> None:
         print(i)
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
-    rs.target.set(rd.current_branch())
-
-    rs.check_repository_layout()
-
+def main(c: SCCSConstants) -> None:
     print_help(c)
-
-    rs.target.reset()
 
 
 if __name__ == "__main__":
@@ -32,6 +24,4 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
     )
