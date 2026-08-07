@@ -33,7 +33,7 @@ jobs:
 
           # Optional inputs with defaults
           model_id: ${{ secrets.PR_REVIEW_MODEL }} # Default model
-          max_tokens: 10000 # Default max tokens
+          max_tokens: ${{ secrets.MAX_TOKENS }} # Default max tokens
 
           # Optional custom prompt
           custom_prompt: |
