@@ -2,9 +2,11 @@
 
 import copy
 import difflib
+import filecmp
 from pathlib import Path
 
 import utils
+import exceptions
 from bs4 import BeautifulSoup
 from constants_classes import SCCSConstants
 from repository_layout import (
@@ -202,12 +204,22 @@ def generate_diff_output(
         remove_inline_semantics(c, number_tags(c, current_version_soup))
     )
 
-    commit_soup = number_tags(c, remove_inline_semantics(c, commit_soup))
+    commit_soup = remove_inline_semantics(c, number_tags(c, commit_soup))
 
     return format_redline_html(
         c, past_version, current_version, commit_list,
         docx_current_version_list, commit_soup
     )
+
+
+def check_for_changes_to_diff(
+    c: SCCSConstants, rd: RepositoryData, commit_hash: str
+) -> None:
+    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
+
+    if filecmp.cmp(commit_path, rd.paths.document_path()):
+        raise exceptions.InvalidArgumentError()
+
 
 
 def main(
@@ -220,6 +232,8 @@ def main(
     rs.target.set(rd.current_branch())
     rs.check_repository_layout()
     rs.raise_for_uncommitted_changes()
+
+    check_for_changes_to_diff(c, rd, commit_hash)
 
     full_commit_hash = rd.resolve_full_hash(commit_hash)
 
