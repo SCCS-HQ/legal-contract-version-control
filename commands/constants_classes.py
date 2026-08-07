@@ -228,7 +228,7 @@ class SCCSConstants:
     )
     BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = (
         "Branch '{branch_name}' created from '{current_branch_name}'"
-        " successfully."
+        " successfully and is set to the current branch."
     )
 
     ## strings - validation / argument errors
@@ -516,9 +516,8 @@ class SCCSConstants:
 
     ## strings - resource errors
     TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
-        "Target branch not set. Please chain this method call with a branch "
-        "method before calling history_path(). For example,"
-        "'repo_layout.main_branch().foo()'."
+        "Target branch not set. Ensure the branch is set by using "
+        "Repository*.target.set(foo)"
     )
 
     ## strings - branch name attribute / extensions
