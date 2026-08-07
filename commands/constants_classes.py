@@ -593,7 +593,7 @@ SCCSConstants.HELP_MESSAGES = (
     "SCCS Help",
     "Available commands:",
 ) + tuple(
-    f"  {SCCSConstants.SCCS_COMMAND_PREFIX}{i}"
+    f"  {SCCSConstants.SCCS_COMMAND_PREFIX} {i}"
     f" - {SCCSConstants.COMMAND_DESCRIPTIONS[i]}"
     for i in SCCSConstants.COMMANDS_LIST
 )
