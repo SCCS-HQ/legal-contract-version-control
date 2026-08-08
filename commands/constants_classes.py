@@ -268,7 +268,7 @@ class SCCSConstants:
     #region clone.py
 
     ## strings - endpoints and timeouts
-    CLONE_ENDPOINT = "/clone/"
+    CLONE_ENDPOINT = "/clone"
 
     ## strings - error messages
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
