@@ -61,7 +61,11 @@ def resolve_key_value(
                 c.INVALID_URL_ERROR_MESSAGE
             )
 
-        return urljoin(url, c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name)
+        required_path_ending = (
+            c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
+        )
+
+        return urljoin(url, required_path_ending) if not url.endswith(required_path_ending) else url
 
     return value
 
