@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import io
+import json
 import os
 import zipfile
 from pathlib import Path
@@ -49,15 +50,9 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
 
 
 def post_repo(
-    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths
+    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths, rd: RepositoryData
 ) -> requests.Response:
 
-    if not urlsplit(url).path.endswith(
-        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
-    ):
-        raise exceptions.InvalidAPIURLError(
-            c.INVALID_PATH_ENDING_ERROR_MESSAGE
-        )
 
     try:
         response = requests.post(
@@ -72,6 +67,7 @@ def post_repo(
                     ),
                 ),
             ],
+            data={"data": json.dumps({"remote": rd.base_repo_url()})},
             timeout=c.HTTP_TIMEOUT_SECONDS,
             )
     except Exception as e:
@@ -107,7 +103,7 @@ def main(
 
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
-    response = post_repo(c, zip_cwd(c), url, rp)
+    response = post_repo(c, zip_cwd(c), url, rp, rd)
 
     response.raise_for_status()
 
