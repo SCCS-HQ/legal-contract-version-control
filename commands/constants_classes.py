@@ -27,15 +27,15 @@ class SCCSConstants:
         "{field} cannot be empty. Please provide a valid {field}."
     )
     ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
-        "The entered file '{file_path}' does not exist. Please provide"
-        " a valid file path to an existing file."
+        "The entered file '{file_path}' does not exist. Please provide "
+        "a valid file path to an existing file."
     )
     HISTORY_DICT_KEY = "history"
     INVALID_URL_ERROR_MESSAGE = (
-        f"Invalid remote URL provided. The URL must start with one of"
-        f" the following schemes: "
-        f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)},"
-        " and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+        f"Invalid remote URL provided. The URL must start with one of "
+        f"the following schemes: "
+        f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)}, "
+        "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
     )
 
     MAIN_BRANCH_NAME = "main"
@@ -108,8 +108,8 @@ class SCCSConstants:
     HEX_DIGITS = "0123456789abcdef"
     HTTP_OBJECTS_DICT_KEY = "objects"
     INVALID_KEY_ERROR_MESSAGE = (
-        f"Invalid configuration key provided. Accepted keys are:"
-        f" {COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
+        f"Invalid configuration key provided. Accepted keys are: "
+        f"{COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
     )
     LATEST_COMMIT_DICT_KEY = "latest_commit"
     LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
@@ -188,8 +188,8 @@ class SCCSConstants:
         "merge": "Merge the entered branch into the current branch.",
         "open": "Open a commit file and update the current document.",
         "publish": "Publish a local repository to a hosting service.",
-        "pull": "Pull changes from a remote repository and merge them"
-        " into the local repository.",
+        "pull": "Pull changes from a remote repository and merge them "
+        "into the local repository.",
         "push": "Push changes from the local repository to a remote repository.",
         "revert": "Revert the current document to the specified commit.",
         "reset": "Delete all uncommitted changes.",
@@ -227,8 +227,8 @@ class SCCSConstants:
         "Branch '{branch_name}' already exists."
     )
     BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = (
-        "Branch '{branch_name}' created from '{current_branch_name}'"
-        " successfully and is set to the current branch."
+        "Branch '{branch_name}' created from '{current_branch_name}' "
+        "successfully and is set to the current branch."
     )
 
     ## strings - validation / argument errors
@@ -245,8 +245,8 @@ class SCCSConstants:
     ## strings - success messages
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
-        "Invalid subcommand provided. Accepted subcommands are:"
-        " create, delete, list."
+        "Invalid subcommand provided. Accepted subcommands are: "
+        "create, delete, list."
     )
 
     ## strings - rollback / update errors
@@ -255,8 +255,8 @@ class SCCSConstants:
     ## strings - listing messages
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = (
-        "Failed to rollback metadata after failure for branch"
-        " '{branch_name}'."
+        "Failed to rollback metadata after failure for branch "
+        "'{branch_name}'."
     )
     SUBCOMMAND_FIELD_NAME = "subcommand"
 
@@ -276,8 +276,8 @@ class SCCSConstants:
 
     ## strings - status / success messages
     INVALID_ENDING_ERROR_MESSAGE = (
-        f"Invalid remote URL provided. Please provide a valid URL"
-        f" ending with '{CLONE_ENDPOINT}'."
+        f"Invalid remote URL provided. Please provide a valid URL "
+        f"ending with '{CLONE_ENDPOINT}'."
     )
 
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
@@ -387,8 +387,8 @@ class SCCSConstants:
 
     ## strings - error / status messages
     INITIAL_COMMIT_MESSAGE = (
-        "Initial commit (This is a default commit message"
-        " for initial version)"
+        "Initial commit (This is a default commit message "
+        "for initial version)"
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
@@ -423,8 +423,8 @@ class SCCSConstants:
     ## strings - success / template messages
     MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = (
-        "Successfully merged branch '{branch}' into branch"
-        " '{current_branch}'."
+        "Successfully merged branch '{branch}' into branch "
+        "'{current_branch}'."
     )
 
     #endregion
@@ -436,10 +436,10 @@ class SCCSConstants:
 
     ## strings - success messages
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit '{commit_hash}' has been successfully opened"
-        " in {output_file}. It is safe to delete this file."
-        " No changes will be lost unless {output_file} is"
-        " modified after this point."
+        "Commit '{commit_hash}' has been successfully opened "
+        "in {output_file}. It is safe to delete this file. "
+        "No changes will be lost unless {output_file} is "
+        "modified after this point."
     )
 
     #endregion
@@ -448,8 +448,8 @@ class SCCSConstants:
 
     ## strings - error messages
     BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
-        "Failed to create a buffer for the zipped repository."
-        " Please try again."
+        "Failed to create a buffer for the zipped repository. "
+        "Please try again."
     )
 
     ## strings - endpoints
@@ -472,8 +472,8 @@ class SCCSConstants:
 
     ## strings - extensions / dir templates
     CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = (
-        "Push successful, but failed to clear updated branches"
-        " list in current branch file."
+        "Push successful, but failed to clear updated branches "
+        "list in current branch file."
     )
 
     ## strings - endpoints
@@ -505,16 +505,16 @@ class SCCSConstants:
         "been manually modified."
     )
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = (
-        "Resource '{resource_name}' is missing from the"
-        " repository directory."
+        "Resource '{resource_name}' is missing from the "
+        "repository directory."
     )
     MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
         "Multiple commit files found matching '{commit}'. Please provide a full, "
         "64 character commit hash."
     )
     NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
-        "No uncommitted changes detected. Uncommitted changes are required"
-        " before committing."
+        "No uncommitted changes detected. Uncommitted changes are required "
+        "before committing."
     )
 
     ## strings - diff output filename
@@ -538,8 +538,8 @@ class SCCSConstants:
     ## strings - success / error messages
     RESET_ERROR_MESSAGE = "Failed to reset the document."
     RESET_SUCCESS_MESSAGE = (
-        "All uncommitted changes have been deleted. The document"
-        " has been reset to the latest commit."
+        "All uncommitted changes have been deleted. The document "
+        "has been reset to the latest commit."
     )
 
     #endregion
@@ -551,8 +551,8 @@ class SCCSConstants:
 
     ## strings - success / template messages
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
-        "Document successfully reverted to commit"
-        " '{commit_hash}' on commit '{new_commit_hash}'."
+        "Document successfully reverted to commit "
+        "'{commit_hash}' on commit '{new_commit_hash}'."
     )
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
         "Source file '{file_name}' does not exist."
@@ -567,9 +567,9 @@ class SCCSConstants:
 
     ## strings - error messages
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
-        f"Unknown command: {{entered_command}}."
-        f" Please use {COMMA_SPACE.join(COMMANDS_LIST)}"
-        f" along with required arguments."
+        f"Unknown command: {{entered_command}}. "
+        f"Please use {COMMA_SPACE.join(COMMANDS_LIST)} "
+        f"along with required arguments."
     )
 
     #endregion
@@ -596,8 +596,8 @@ _missing_commands = [
 ]
 if _missing_commands:
     raise ValueError(
-        f"COMMAND_DESCRIPTIONS is missing entries for:"
-        f" {SCCSConstants.COMMA_SPACE.join(_missing_commands)}"
+        f"COMMAND_DESCRIPTIONS is missing entries for: "
+        f"{SCCSConstants.COMMA_SPACE.join(_missing_commands)}"
     )
 
 
