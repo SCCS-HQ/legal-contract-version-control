@@ -289,6 +289,11 @@ class RepositoryIO:
             json.dump(data, f, indent=4)
 
 
+    def document_html_hash(self) -> str:
+        html = self.document_html()
+        return hashlib.sha256(html.encode(self.c.UTF_8)).hexdigest()
+
+
     def document_binary_hash(self) -> str:
         with open(self.paths.document_path(), "rb") as f:
             hasher = hashlib.sha256()
@@ -591,7 +596,7 @@ class RepositoryWrite:
             ]
         )
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
-        document_hash = self.io.document_binary_hash()
+        document_hash = self.io.document_html_hash()
 
         if not ignore_no_uncommitted_changes:
             if latest_bytes_hash == document_hash:
@@ -614,7 +619,7 @@ class RepositoryWrite:
         self.io.write_html_commit(commit_hash, document_as_html)
 
         commit_file_hash = self.io.read_byte_hashes()
-        commit_file_hash[commit_hash] = self.io.document_binary_hash()
+        commit_file_hash[commit_hash] = document_hash
 
         messages = self.io.read_commit_messages()
         messages[commit_hash] = commit_msg
@@ -707,7 +712,7 @@ class RepositoryStatus:
 
         latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
-        document_hash = self.io.document_binary_hash()
+        document_hash = self.io.document_html_hash()
 
         return latest_bytes_hash != document_hash
 
