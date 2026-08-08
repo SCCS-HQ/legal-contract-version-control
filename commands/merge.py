@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
+import shutil
 from typing import Any
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
-    RepositoryWrite,
+    RepositoryPaths,
     RepositoryStatus,
+    RepositoryWrite,
     TargetBranch,
 )
 

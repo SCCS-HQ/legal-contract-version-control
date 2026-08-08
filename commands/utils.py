@@ -2,10 +2,10 @@
 
 import re
 import sys
+from typing import Any, Callable
 
 import exceptions
-from constants_classes import SCCSConstants, ErrorWrappers
-from typing import Any, Callable
+from constants_classes import ErrorWrappers, SCCSConstants
 
 
 def clean_directory_name(name: str) -> str:

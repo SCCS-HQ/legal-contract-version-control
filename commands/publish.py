@@ -3,19 +3,20 @@
 import io
 import json
 import os
-import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
+import zipfile
+
+import requests
 
 import exceptions
-import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
-    RepositoryWrite,
+    RepositoryPaths,
     RepositoryStatus,
+    RepositoryWrite,
     TargetBranch,
 )
 

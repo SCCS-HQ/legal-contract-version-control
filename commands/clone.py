@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import io
+from urllib.parse import urlsplit
 import zipfile
 
-import exceptions
 import requests
+
+import exceptions
 import utils
-from urllib.parse import urlsplit
 from constants_classes import SCCSConstants
 
 

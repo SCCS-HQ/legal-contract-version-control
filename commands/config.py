@@ -2,18 +2,18 @@
 
 
 from pathlib import Path
+from urllib.parse import urljoin, urlsplit
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
-    RepositoryWrite,
+    RepositoryPaths,
     RepositoryStatus,
+    RepositoryWrite,
     TargetBranch,
 )
-from constants_classes import SCCSConstants
-from urllib.parse import urlsplit, urljoin
 
 
 def validate_entered_value(

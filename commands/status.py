@@ -3,12 +3,12 @@
 from pathlib import Path
 
 import utils
+from constants_classes import SCCSConstants
 from repository_layout import (
     RepositoryData,
     RepositoryStatus,
     TargetBranch,
 )
-from constants_classes import SCCSConstants
 
 
 def print_status_message(c: SCCSConstants, uncommitted_changes: bool) -> None:

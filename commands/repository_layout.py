@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Any
 
 import mammoth
+
+from constants_classes import SCCSConstants
 import exceptions
 import shutil
 import utils
-from constants_classes import SCCSConstants
 
 
 class TargetBranch:

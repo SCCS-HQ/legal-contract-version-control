@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
+import shutil
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryPaths,
     RepositoryData,
+    RepositoryPaths,
     RepositoryStatus,
     TargetBranch,
 )

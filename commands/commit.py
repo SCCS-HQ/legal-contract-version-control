@@ -4,13 +4,13 @@ from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
 from repository_layout import (
     RepositoryData,
-    RepositoryWrite,
     RepositoryStatus,
+    RepositoryWrite,
     TargetBranch,
 )
-from constants_classes import SCCSConstants
 
 
 def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
