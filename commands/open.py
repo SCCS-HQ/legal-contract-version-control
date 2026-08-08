@@ -51,7 +51,7 @@ def print_rewrite_confirmation_message(
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash,
+            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH],
             output_file=output_file_name
         )
     )
@@ -73,7 +73,7 @@ def main(
     full_commit_hash = rd.resolve_full_hash(commit_hash)
 
     output_file_name = Path(
-        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=full_commit_hash)
+        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=full_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH])
     ).with_suffix(c.DOCX_EXTENSION)
 
     copy_file_commit(commit_path, output_file_name)

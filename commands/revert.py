@@ -36,13 +36,13 @@ def print_revert_confirmation_message(
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash, new_commit_hash=new_commit_hash
+            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH], new_commit_hash=new_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
         )
     )
 
 def main(
     c: SCCSConstants,
-    commit_hash: str | None,
+    commit_hash: str,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rp: RepositoryPaths,
@@ -53,14 +53,12 @@ def main(
 
     rs.check_repository_layout()
 
-    assert commit_hash is not None
-
     commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 
     revert(c, commit_path, rp)
 
     new_commit_hash = rw.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_path.stem)
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH])
     )
 
     full_commit_hash = rd.resolve_full_hash(commit_hash)
