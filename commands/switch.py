@@ -51,8 +51,8 @@ def copy_commit_to_main(
     c: SCCSConstants,
     branch_to_switch: str,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
 ) -> None:
     
     rs.target.set(branch_to_switch)
@@ -76,8 +76,8 @@ def main(
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
     rs.target.set(rd.current_branch())
@@ -92,7 +92,7 @@ def main(
 
     check_commit(c, branch_to_switch, rd, rs)
 
-    copy_commit_to_main(c, branch_to_switch, rd, rs, rp)
+    copy_commit_to_main(c, branch_to_switch, rd, rp, rs)
 
     rw.set_current_branch(branch_to_switch)
 
@@ -108,8 +108,8 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )
 

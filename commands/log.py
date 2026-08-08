@@ -30,8 +30,8 @@ def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     ri: RepositoryIO,
+    rs: RepositoryStatus,
 ) -> None:
 
     rs.target.set(rd.current_branch())
@@ -49,6 +49,6 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
     )

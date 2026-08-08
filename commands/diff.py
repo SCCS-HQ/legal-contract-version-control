@@ -189,7 +189,7 @@ def print_diff_success_message(c: SCCSConstants) -> None:
 
 
 def generate_diff_output(
-    c: SCCSConstants, commit_hash: str, ri: RepositoryIO, rd: RepositoryData
+    c: SCCSConstants, commit_hash: str, rd: RepositoryData, ri: RepositoryIO
 ) -> BeautifulSoup:
     commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_hash, c.HTML_DIR))
 
@@ -227,8 +227,8 @@ def main(
         c: SCCSConstants,
         commit_hash: str,
         rd: RepositoryData,
+        ri: RepositoryIO,
         rs: RepositoryStatus,
-        ri: RepositoryIO
     ) -> None:
     rs.target.set(rd.current_branch())
     rs.check_repository_layout()
@@ -243,7 +243,7 @@ def main(
             c,
             str(
                 strip_number_attribute(
-                    c, generate_diff_output(c, full_commit_hash, ri, rd)
+                    c, generate_diff_output(c, full_commit_hash, rd, ri)
                 )
             ),
             c.DEFAULT_HTML_STYLES,
@@ -259,6 +259,6 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
     )

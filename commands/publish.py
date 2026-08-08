@@ -51,7 +51,7 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
 
 
 def post_repo(
-    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rp: RepositoryPaths, rd: RepositoryData
+    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
 
 
@@ -90,8 +90,8 @@ def print_publish_success_message(
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
     rs.target.set(rd.current_branch())
@@ -104,7 +104,7 @@ def main(
 
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
-    response = post_repo(c, zip_cwd(c), url, rp, rd)
+    response = post_repo(c, zip_cwd(c), url, rd, rp)
 
     response.raise_for_status()
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )

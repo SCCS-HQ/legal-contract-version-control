@@ -64,9 +64,9 @@ def compare_hash_lists(remote_objects: list[str], rd: RepositoryData) -> list[st
 def zip_files_to_upload(
     c: SCCSConstants,
     remote_objects: list[str],
-    rp: RepositoryPaths,
-    ri: RepositoryIO,
     rd: RepositoryData,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
 ) -> io.BytesIO:
 
     document_path = [rp.document_path()]
@@ -199,9 +199,9 @@ def print_push_success_message(
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
-    rs: RepositoryStatus,
-    rp: RepositoryPaths,
     ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
 ) -> None:
     rs.target.set(rd.current_branch())
 
@@ -215,7 +215,7 @@ def main(
 
     remote_objects = GET_response.json()[c.HTTP_OBJECTS_DICT_KEY]
 
-    buffer = zip_files_to_upload(c, remote_objects, rp, ri, rd)
+    buffer = zip_files_to_upload(c, remote_objects, rd, ri, rp)
 
     POST_response = push_POST(c, buffer, rd, rp)
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
     )

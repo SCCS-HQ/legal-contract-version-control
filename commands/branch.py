@@ -175,8 +175,8 @@ def main(
         subcommand: str | None,
         branch_name: str | None,
         rd: RepositoryData,
-        rs: RepositoryStatus,
         rp: RepositoryPaths,
+        rs: RepositoryStatus,
         rw: RepositoryWrite
     ) -> None:
 
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         utils.entered_argument(2),
         utils.entered_argument(3, raise_on_not_provided=False),
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )

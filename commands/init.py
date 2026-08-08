@@ -71,7 +71,7 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
 
 
 def create_sccs_directory_layout(
-    c: SCCSConstants, rs: RepositoryStatus, rp: RepositoryPaths
+    c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -149,7 +149,7 @@ def copy_document_to_objects_as_docx_and_html(
 
 def write_history_data(
     c: SCCSConstants, name: str, email: str, sha_hash: str,
-    rs: RepositoryStatus, ri: RepositoryIO,
+    ri: RepositoryIO, rs: RepositoryStatus,
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -191,8 +191,8 @@ def write_hashed_file_commit_data(
         c: SCCSConstants,
         docx_path: Path,
         sha_hash: str,
-        rs: RepositoryStatus,
-        ri: RepositoryIO
+        ri: RepositoryIO,
+        rs: RepositoryStatus
     ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -234,8 +234,8 @@ def print_init_success_message(c: SCCSConstants) -> None:
 
 
 def main(
-    c: SCCSConstants, docx_path: Path, rs: RepositoryStatus, rp: RepositoryPaths,
-    ri: RepositoryIO,
+    c: SCCSConstants, docx_path: Path, ri: RepositoryIO, rp: RepositoryPaths,
+    rs: RepositoryStatus,
 ) -> None:
 
     try:
@@ -243,7 +243,7 @@ def main(
 
         check_file_requirements(c, docx_path)
 
-        create_sccs_directory_layout(c, rs, rp)
+        create_sccs_directory_layout(c, rp, rs)
 
         config = config_inputs(c, rp, c.NAME_KEY, c.EMAIL_KEY)
 
@@ -254,11 +254,11 @@ def main(
 
         copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
 
-        write_history_data(c, name, email, sha_hash, rs, ri)
+        write_history_data(c, name, email, sha_hash, ri, rs)
 
         write_commit_message_data(c, sha_hash, ri)
 
-        write_hashed_file_commit_data(c, docx_path, sha_hash, rs, ri)
+        write_hashed_file_commit_data(c, docx_path, sha_hash, ri, rs)
 
         write_branch_data(c, rp)
 
@@ -278,13 +278,13 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         document_path,
-        RepositoryStatus(
-            document_path, c, target
+        RepositoryIO(
+            document_path.with_suffix(c.EMPTY_STRING), c, target
         ),
         RepositoryPaths(
             document_path.with_suffix(c.EMPTY_STRING), c, target
         ),
-        RepositoryIO(
-            document_path.with_suffix(c.EMPTY_STRING), c, target
+        RepositoryStatus(
+            document_path, c, target
         ),
     )

@@ -39,126 +39,169 @@ class TargetBranch:
         self._branch = None
 
 
-class RepositoryPaths:
+class RepositoryData:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
         self.repo_name = root.stem
         self.c = c
         self.target = target
+        self.paths = RepositoryPaths(root, c, self.target)
+        self.io = RepositoryIO(root, c, self.target)
 
 
-    def document_path(self) -> Path:
-        path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
-
-        return path
-
-
-    def sccs_path(self) -> Path:
-        path = self.root / self.c.SCCS_DIR
-
-        return path
+    def config_data(self, key: str) -> str:
+        if key not in self.c.ACCEPTED_CONFIG_KEYS:
+            raise exceptions.InvalidArgumentError(
+                self.c.INVALID_KEY_ERROR_MESSAGE
+            )
+        value = self.io.read_config()[key]
+        return value
 
 
-    def branches_path(self) -> Path:
-        path = self.sccs_path() / self.c.BRANCHES_DIR
+    def raise_for_commit_length(self, commit: str) -> None:
+        if commit is None:
+            raise exceptions.InvalidArgumentError(
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
+            )
 
-        return path
-
-
-    def commit_messages_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
-
-        return path
-
-
-    def commit_messages_path(self) -> Path:
-        path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
-
-        return path
-
-
-    def config_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.CONFIG_DIR
-
-        return path
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
+            raise exceptions.InvalidArgumentError(
+                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+            )
 
 
-    def config_path(self) -> Path:
-        path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
+    def hash_to_full_path(self, commit: str, folder: str) -> Path:
+        if commit is None:
+            raise exceptions.InvalidArgumentError(
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
+            )
 
-        return path
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
+            raise exceptions.InvalidArgumentError(
+                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+            )
 
+        matching_files = []
 
-    def current_branch_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
+        for i in Path(
+            self.paths.objects_path() / folder
+        ).iterdir():
+            if str(i.stem).startswith(commit):
+                matching_files.append(i)
 
-        return path
+        if not matching_files:
+            raise exceptions.InvalidArgumentError(
+                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                    file_path=commit
+                )
+            )
 
+        if len(matching_files) > 1:
+            raise exceptions.InvalidArgumentError(
+                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    commit=commit
+                )
+            )
 
-    def current_branch_data_file_path(self) -> Path:
-        path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
-
-        return path
-
-
-    def objects_path(self) -> Path:
-        path = self.sccs_path() / self.c.OBJECTS_DIR
-
-        return path
-
-
-    def docx_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.DOCX_DIR
-
-        return path
-
-
-    def view_html_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.VIEW_HTML_DIR
-
-        return path
-
-
-    def html_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.HTML_DIR
-
-        return path
-
-
-    def history_dir_path(self) -> Path:
-
-        branch = self.target.require()
-
-        path = (self.branch_path(branch) / self.c.HISTORY_DIR)
-        
-        return path
+        return Path(matching_files[0])
 
 
-    def history_path(self) -> Path:
+    def commit_file_bytes(self, commit: str, folder: str) -> bytes:
+        if commit is None:
+            raise exceptions.InvalidArgumentError(
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_FILE_FIELD_NAME
+                )
+            )
 
-        path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
-        
-        return path
+        if (
+            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
+            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+        ):
+            raise exceptions.InvalidArgumentError(
+                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+            )
+
+        matching_files = []
+
+        for i in Path(
+            self.paths.objects_path() / folder
+        ).iterdir():
+            if str(i.stem).startswith(commit):
+                matching_files.append(i)
+
+        if not matching_files:
+            raise exceptions.InvalidArgumentError(
+                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                    file_path=commit
+                )
+            )
+
+        if len(matching_files) > 1:
+            raise exceptions.InvalidArgumentError(
+                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    commit=commit
+                )
+            )
+
+        return self.io.file_bytes(matching_files[0])
 
 
-    def byte_hashes_dir_path(self) -> Path:
-        branch = self.target.require()
-
-        path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
-        
-        return path
+    def resolve_full_hash(self, commit: str) -> str:
+        path = self.hash_to_full_path(commit, self.c.DOCX_DIR)
+        return path.stem
 
 
-    def byte_hashes_path(self) -> Path:
-        path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
+    def latest_commit(self) -> str:
+        hash = self.io.read_history()[
+            self.c.HISTORY_DICT_KEY
+        ][self.c.LATEST_COMMIT_DICT_KEY]
+        if not hash:
+            raise exceptions.InvalidMetadataError(
+                self.c.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
+            )
 
-        return path
+        return hash
 
 
-    def branch_path(self, branch_name: str) -> Path:
-        path = self.branches_path() / branch_name
+    def create_commit_sha_hash(self, hash_parts: list[str]) -> str:
+        return hashlib.sha256(
+            self.c.PATH_SEPARATOR.join(hash_parts).encode(self.c.UTF_8)
+        ).hexdigest()
 
-        return path
+
+    def repo_objects(self) -> list[str]:
+        return list(
+            set(
+                i.stem
+                for i in self.paths.objects_path().rglob(
+                    self.c.RGLOB_ALL_FILES_PATTERN
+                )
+                if i.is_file()
+            )
+        )
+
+
+    def base_repo_url(self) -> str:
+        return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
+
+
+    def current_branch(self) -> str:
+        return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
+
+
+    def branches(self) -> list[str]:
+        return self.io.read_current_branch_data_key(self.c.BRANCHES_DICT_KEY)
 
 
 class RepositoryIO:
@@ -343,7 +386,129 @@ class RepositoryIO:
             f.write(diff)
 
 
-class RepositoryData:
+class RepositoryPaths:
+    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+        self.root = root
+        self.repo_name = root.stem
+        self.c = c
+        self.target = target
+
+
+    def document_path(self) -> Path:
+        path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
+
+        return path
+
+
+    def sccs_path(self) -> Path:
+        path = self.root / self.c.SCCS_DIR
+
+        return path
+
+
+    def branches_path(self) -> Path:
+        path = self.sccs_path() / self.c.BRANCHES_DIR
+
+        return path
+
+
+    def commit_messages_dir_path(self) -> Path:
+        path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
+
+        return path
+
+
+    def commit_messages_path(self) -> Path:
+        path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
+
+        return path
+
+
+    def config_dir_path(self) -> Path:
+        path = self.sccs_path() / self.c.CONFIG_DIR
+
+        return path
+
+
+    def config_path(self) -> Path:
+        path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
+
+        return path
+
+
+    def current_branch_dir_path(self) -> Path:
+        path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
+
+        return path
+
+
+    def current_branch_data_file_path(self) -> Path:
+        path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
+
+        return path
+
+
+    def objects_path(self) -> Path:
+        path = self.sccs_path() / self.c.OBJECTS_DIR
+
+        return path
+
+
+    def docx_objects_path(self) -> Path:
+        path = self.objects_path() / self.c.DOCX_DIR
+
+        return path
+
+
+    def view_html_objects_path(self) -> Path:
+        path = self.objects_path() / self.c.VIEW_HTML_DIR
+
+        return path
+
+
+    def html_objects_path(self) -> Path:
+        path = self.objects_path() / self.c.HTML_DIR
+
+        return path
+
+
+    def history_dir_path(self) -> Path:
+
+        branch = self.target.require()
+
+        path = (self.branch_path(branch) / self.c.HISTORY_DIR)
+        
+        return path
+
+
+    def history_path(self) -> Path:
+
+        path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
+        
+        return path
+
+
+    def byte_hashes_dir_path(self) -> Path:
+        branch = self.target.require()
+
+        path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
+        
+        return path
+
+
+    def byte_hashes_path(self) -> Path:
+        path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
+
+        return path
+
+
+    def branch_path(self, branch_name: str) -> Path:
+        path = self.branches_path() / branch_name
+
+        return path
+
+
+class RepositoryStatus:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
         self.repo_name = root.stem
@@ -353,159 +518,71 @@ class RepositoryData:
         self.io = RepositoryIO(root, c, self.target)
 
 
-    def config_data(self, key: str) -> str:
-        if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(
-                self.c.INVALID_KEY_ERROR_MESSAGE
-            )
-        value = self.io.read_config()[key]
-        return value
+    def check_repository_layout(self) -> None:
 
+        dirs = [
+            self.paths.view_html_objects_path(),
+            self.paths.html_objects_path(),
+            self.paths.sccs_path(),
+            self.paths.docx_objects_path()
+        ]
 
-    def raise_for_commit_length(self, commit: str) -> None:
-        if commit is None:
-            raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
+        files = [
+            self.paths.current_branch_data_file_path(),
+            self.paths.commit_messages_path(),
+            self.paths.config_path(),
+            self.paths.document_path(),
+            self.paths.history_path(),
+            self.paths.byte_hashes_path()
+        ]
+
+        for i in dirs:
+            if not i.is_dir():
+                raise exceptions.InvalidMetadataError(
+                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+                        resource_name=i
+                    )
                 )
-            )
-
-        if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
-        ):
-            raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
-            )
-
-
-    def hash_to_full_path(self, commit: str, folder: str) -> Path:
-        if commit is None:
-            raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
+        for i in files:
+            if not i.is_file():
+                raise exceptions.InvalidMetadataError(
+                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+                        resource_name=i
+                    )
                 )
+
+
+    def check_for_uncommitted_changes(self) -> bool:
+
+        latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
+        latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
+        document_hash = self.io.document_html_hash()
+
+        return latest_bytes_hash != document_hash
+
+
+    def raise_for_uncommitted_changes(self) -> None:
+
+        if self.check_for_uncommitted_changes():
+            raise exceptions.UncommittedChangesError(
+                self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
 
-        if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
-        ):
-            raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
-            )
 
-        matching_files = []
-
-        for i in Path(
-            self.paths.objects_path() / folder
-        ).iterdir():
-            if str(i.stem).startswith(commit):
-                matching_files.append(i)
-
-        if not matching_files:
-            raise exceptions.InvalidArgumentError(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit
-                )
-            )
-
-        if len(matching_files) > 1:
-            raise exceptions.InvalidArgumentError(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit
-                )
-            )
-
-        return Path(matching_files[0])
+    def branch_exists(self, branch_name: str | None) -> bool:
+        if branch_name is None:
+            return False
+        branches = self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
+        return branch_name in branches
 
 
-    def commit_file_bytes(self, commit: str, folder: str) -> bytes:
-        if commit is None:
-            raise exceptions.InvalidArgumentError(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
-                )
-            )
-
-        if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
-        ):
-            raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
-            )
-
-        matching_files = []
-
-        for i in Path(
-            self.paths.objects_path() / folder
-        ).iterdir():
-            if str(i.stem).startswith(commit):
-                matching_files.append(i)
-
-        if not matching_files:
-            raise exceptions.InvalidArgumentError(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit
-                )
-            )
-
-        if len(matching_files) > 1:
-            raise exceptions.InvalidArgumentError(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit
-                )
-            )
-
-        return self.io.file_bytes(matching_files[0])
-
-
-    def resolve_full_hash(self, commit: str) -> str:
-        path = self.hash_to_full_path(commit, self.c.DOCX_DIR)
-        return path.stem
-
-
-    def latest_commit(self) -> str:
-        hash = self.io.read_history()[
-            self.c.HISTORY_DICT_KEY
-        ][self.c.LATEST_COMMIT_DICT_KEY]
-        if not hash:
-            raise exceptions.InvalidMetadataError(
-                self.c.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
-            )
-
-        return hash
-
-
-    def create_commit_sha_hash(self, hash_parts: list[str]) -> str:
-        return hashlib.sha256(
-            self.c.PATH_SEPARATOR.join(hash_parts).encode(self.c.UTF_8)
-        ).hexdigest()
-
-
-    def repo_objects(self) -> list[str]:
-        return list(
-            set(
-                i.stem
-                for i in self.paths.objects_path().rglob(
-                    self.c.RGLOB_ALL_FILES_PATTERN
-                )
-                if i.is_file()
-            )
-        )
-
-
-    def base_repo_url(self) -> str:
-        return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
-
-
-    def current_branch(self) -> str:
-        return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
-
-
-    def branches(self) -> list[str]:
-        return self.io.read_current_branch_data_key(self.c.BRANCHES_DICT_KEY)
+    def is_current_branch(self, branch_name: str | None) -> bool:
+        if branch_name is None:
+            return False
+        current_branch = self.io.read_current_branch_data()[
+            self.c.CURRENT_BRANCH_DICT_KEY
+        ]
+        return branch_name == current_branch
 
 
 class RepositoryWrite:
@@ -664,79 +741,3 @@ class RepositoryWrite:
 
         return commit_hash
 
-
-class RepositoryStatus:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
-        self.root = root
-        self.repo_name = root.stem
-        self.c = c
-        self.target = target
-        self.paths = RepositoryPaths(root, c, self.target)
-        self.io = RepositoryIO(root, c, self.target)
-
-
-    def check_repository_layout(self) -> None:
-
-        dirs = [
-            self.paths.view_html_objects_path(),
-            self.paths.html_objects_path(),
-            self.paths.sccs_path(),
-            self.paths.docx_objects_path()
-        ]
-
-        files = [
-            self.paths.current_branch_data_file_path(),
-            self.paths.commit_messages_path(),
-            self.paths.config_path(),
-            self.paths.document_path(),
-            self.paths.history_path(),
-            self.paths.byte_hashes_path()
-        ]
-
-        for i in dirs:
-            if not i.is_dir():
-                raise exceptions.InvalidMetadataError(
-                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
-                        resource_name=i
-                    )
-                )
-        for i in files:
-            if not i.is_file():
-                raise exceptions.InvalidMetadataError(
-                    self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
-                        resource_name=i
-                    )
-                )
-
-
-    def check_for_uncommitted_changes(self) -> bool:
-
-        latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
-        latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
-        document_hash = self.io.document_html_hash()
-
-        return latest_bytes_hash != document_hash
-
-
-    def raise_for_uncommitted_changes(self) -> None:
-
-        if self.check_for_uncommitted_changes():
-            raise exceptions.UncommittedChangesError(
-                self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-            )
-
-
-    def branch_exists(self, branch_name: str | None) -> bool:
-        if branch_name is None:
-            return False
-        branches = self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
-        return branch_name in branches
-
-
-    def is_current_branch(self, branch_name: str | None) -> bool:
-        if branch_name is None:
-            return False
-        current_branch = self.io.read_current_branch_data()[
-            self.c.CURRENT_BRANCH_DICT_KEY
-        ]
-        return branch_name == current_branch

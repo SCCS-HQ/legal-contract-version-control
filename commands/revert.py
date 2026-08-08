@@ -44,8 +44,8 @@ def main(
     c: SCCSConstants,
     commit_hash: str,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )

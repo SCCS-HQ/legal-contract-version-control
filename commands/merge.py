@@ -62,7 +62,7 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
 
 
 def copy_repo_document(
-    branch: str, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
+    branch: str, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     original_target = rd.target.get()
@@ -93,8 +93,8 @@ def main(
     c: SCCSConstants,
     branch: str | None,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
 
@@ -108,7 +108,7 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    copy_repo_document(branch, rd, rs, rp)
+    copy_repo_document(branch, rd, rp, rs)
 
     copy_branch_data(branch, rd, rp)
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         main,
         utils.entered_argument(2),
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )

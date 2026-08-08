@@ -15,7 +15,7 @@ from repository_layout import (
 
 
 def reset(
-    c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus, rp: RepositoryPaths
+    c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(rd.current_branch())
@@ -37,14 +37,14 @@ def print_success_message(c: SCCSConstants) -> None:
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
-    rs: RepositoryStatus,
     rp: RepositoryPaths,
+    rs: RepositoryStatus,
 ) -> None:
     rs.target.set(rd.current_branch())
 
     rs.check_repository_layout()
 
-    reset(c, rd, rs, rp)
+    reset(c, rd, rp, rs)
     print_success_message(c)
 
     rs.target.reset()
@@ -56,6 +56,6 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
     )
