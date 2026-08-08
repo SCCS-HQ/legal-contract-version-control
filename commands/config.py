@@ -61,12 +61,6 @@ def resolve_key_value(
                 c.INVALID_URL_ERROR_MESSAGE
             )
 
-        print(value)
-        print(url)
-        print(c.REPOS_PATH_SEGMENT)
-        print(c.PATH_SEPARATOR)
-        print(repo_name)
-
         return urljoin(url, c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name)
 
     return value
