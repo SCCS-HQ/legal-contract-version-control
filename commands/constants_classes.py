@@ -27,15 +27,14 @@ class SCCSConstants:
         "{field} cannot be empty. Please provide a valid {field}."
     )
     ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
-        "The entered file '{file_path}' does not exist. Please provide "
-        "a valid file path to an existing file."
+        "The entered file '{file_path}' does not exist. Please provide a valid file "
+        "path to an existing file."
     )
     HISTORY_DICT_KEY = "history"
     INVALID_URL_ERROR_MESSAGE = (
-        f"Invalid remote URL provided. The URL must start with one of "
-        f"the following schemes: "
-        f"{COMMA_SPACE.join(ACCEPTED_SCHEMES)}, "
-        "and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+        f"Invalid remote URL provided. The URL must start with one of the following "
+        f"schemes: {COMMA_SPACE.join(ACCEPTED_SCHEMES)}, and use the format "
+        f"'http(s)://<host>/<base-path>'. Base path is optional."
     )
 
     MAIN_BRANCH_NAME = "main"
@@ -227,8 +226,8 @@ class SCCSConstants:
         "Branch '{branch_name}' already exists."
     )
     BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = (
-        "Branch '{branch_name}' created from '{current_branch_name}' "
-        "successfully and is set to the current branch."
+        "Branch '{branch_name}' created from '{current_branch_name}' successfully and "
+        "is set to the current branch."
     )
 
     ## strings - validation / argument errors
@@ -245,8 +244,7 @@ class SCCSConstants:
     ## strings - success messages
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
-        "Invalid subcommand provided. Accepted subcommands are: "
-        "create, delete, list."
+        "Invalid subcommand provided. Accepted subcommands are: create, delete, list."
     )
 
     ## strings - rollback / update errors
@@ -255,8 +253,7 @@ class SCCSConstants:
     ## strings - listing messages
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = (
-        "Failed to rollback metadata after failure for branch "
-        "'{branch_name}'."
+        "Failed to rollback metadata after failure for branch '{branch_name}'."
     )
     SUBCOMMAND_FIELD_NAME = "subcommand"
 
@@ -276,8 +273,8 @@ class SCCSConstants:
 
     ## strings - status / success messages
     INVALID_ENDING_ERROR_MESSAGE = (
-        f"Invalid remote URL provided. Please provide a valid URL "
-        f"ending with '{CLONE_ENDPOINT}'."
+        f"Invalid remote URL provided. Please provide a valid URL ending with "
+        f"'{CLONE_ENDPOINT}'."
     )
 
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
@@ -314,8 +311,8 @@ class SCCSConstants:
         f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
     INVALID_REPO_NAME_ERROR_MESSAGE = (
-        "Invalid repository name. Please ensure the repository is properly "
-        "initialized with a valid name."
+        "Invalid repository name. Please ensure the repository is properly initialized "
+        "with a valid name."
     )
 
 
@@ -374,9 +371,8 @@ class SCCSConstants:
     }
     FULL_COMMIT_HASH_LENGTH = 64
     HTML_BOILERPLATE_TEMPLATE = (
-        "<!DOCTYPE html><html><head><meta charset='UTF-8'>"
-        "{styles}</head><body><div class='center'>"
-        "<div id='target'>{html}</div></div></body></html>"
+        "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
+        "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
 
     ## strings - runtime defaults
@@ -423,8 +419,7 @@ class SCCSConstants:
     ## strings - success / template messages
     MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = (
-        "Successfully merged branch '{branch}' into branch "
-        "'{current_branch}'."
+        "Successfully merged branch '{branch}' into branch '{current_branch}'."
     )
 
     #endregion
@@ -436,9 +431,8 @@ class SCCSConstants:
 
     ## strings - success messages
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit '{commit_hash}' has been successfully opened "
-        "in {output_file}. It is safe to delete this file. "
-        "No changes will be lost unless {output_file} is "
+        "Commit '{commit_hash}' has been successfully opened in {output_file}. It is "
+        "safe to delete this file. No changes will be lost unless {output_file} is "
         "modified after this point."
     )
 
@@ -448,8 +442,7 @@ class SCCSConstants:
 
     ## strings - error messages
     BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
-        "Failed to create a buffer for the zipped repository. "
-        "Please try again."
+        "Failed to create a buffer for the zipped repository. Please try again."
     )
 
     ## strings - endpoints
@@ -472,8 +465,8 @@ class SCCSConstants:
 
     ## strings - extensions / dir templates
     CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = (
-        "Push successful, but failed to clear updated branches "
-        "list in current branch file."
+        "Push successful, but failed to clear updated branches list in current branch "
+        "file."
     )
 
     ## strings - endpoints
@@ -493,7 +486,7 @@ class SCCSConstants:
     ## strings - error / status messages
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     INVALID_BRANCH_DATA_ERROR_MESSAGE = (
-        "Invalid branch data. Please ensure that the branch data has not been manually"
+        "Invalid branch data. Please ensure that the branch data has not been manually "
         "modified and the targeted branch exists."
     )
     INVALID_COMMIT_HASH_ERROR_MESSAGE = (
@@ -501,20 +494,19 @@ class SCCSConstants:
         "hash or the full 64 character commit hash as the commit identifier."
     )
     INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE = (
-        "Invalid commit history data. Please ensure that the commit data has not"
-        "been manually modified."
+        "Invalid commit history data. Please ensure that the commit data has not been "
+        "manually modified."
     )
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = (
-        "Resource '{resource_name}' is missing from the "
-        "repository directory."
+        "Resource '{resource_name}' is missing from the repository directory."
     )
     MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Multiple commit files found matching '{commit}'. Please provide a full, "
-        "64 character commit hash."
+        "Multiple commit files found matching '{commit}'. Please provide a full, 64 "
+        "character commit hash."
     )
     NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
-        "No uncommitted changes detected. Uncommitted changes are required "
-        "before committing."
+        "No uncommitted changes detected. Uncommitted changes are required before "
+        "committing."
     )
 
     ## strings - diff output filename
@@ -538,8 +530,8 @@ class SCCSConstants:
     ## strings - success / error messages
     RESET_ERROR_MESSAGE = "Failed to reset the document."
     RESET_SUCCESS_MESSAGE = (
-        "All uncommitted changes have been deleted. The document "
-        "has been reset to the latest commit."
+        "All uncommitted changes have been deleted. The document has been reset to the "
+        "latest commit."
     )
 
     #endregion
@@ -551,8 +543,8 @@ class SCCSConstants:
 
     ## strings - success / template messages
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
-        "Document successfully reverted to commit "
-        "'{commit_hash}' on commit '{new_commit_hash}'."
+        "Document successfully reverted to commit '{commit_hash}' on commit "
+        "'{new_commit_hash}'."
     )
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
         "Source file '{file_name}' does not exist."
