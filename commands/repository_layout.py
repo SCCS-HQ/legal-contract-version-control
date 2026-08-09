@@ -662,7 +662,7 @@ class RepositoryWrite:
 
 
     def commit_changes(
-        self, commit_msg: str, ignore_no_uncommitted_changes: bool = False
+        self, commit_msg: str, allow_empty_commit: bool = False
     ) -> str:
 
         current_branch = self.io.read_current_branch_data()[
@@ -676,7 +676,7 @@ class RepositoryWrite:
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_html_hash()
 
-        if not ignore_no_uncommitted_changes:
+        if not allow_empty_commit:
             if latest_bytes_hash == document_hash:
                 raise exceptions.NoUncommittedChangesError(
                     self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE

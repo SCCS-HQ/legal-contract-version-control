@@ -117,7 +117,7 @@ def main(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
             branch=branch, current_branch=rd.current_branch()
         ),
-        ignore_no_uncommitted_changes=True
+        allow_empty_commit=True
     )
 
     print_merge_success_message(c, branch, rd)
