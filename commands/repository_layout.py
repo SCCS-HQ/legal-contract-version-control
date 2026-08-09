@@ -535,7 +535,10 @@ class RepositoryStatus:
 
     def check_for_uncommitted_changes(self) -> bool:
 
-        latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY]
+        latest_commit = (
+            self.io.read_history()[self.c.HISTORY_DICT_KEY]
+            [self.c.LATEST_COMMIT_DICT_KEY]
+        )
         latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
         document_hash = self.io.document_html_hash()
 

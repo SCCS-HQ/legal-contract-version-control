@@ -16,7 +16,10 @@ from repository_layout import (
 
 
 def validate_subcommand(
-    c: SCCSConstants, subcommand: str | None, branch_name: str | None, rs: RepositoryStatus
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rs: RepositoryStatus
 ) -> None:
 
     if not subcommand:

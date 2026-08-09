@@ -195,7 +195,9 @@ def write_hashed_file_commit_data(
 
     try:
         with open(docx_path, "rb") as f:
-            hashed_file = hashlib.sha256(mammoth.convert_to_html(f).value.encode(c.UTF_8)).hexdigest()
+            hashed_file = hashlib.sha256(
+                mammoth.convert_to_html(f).value.encode(c.UTF_8)
+            ).hexdigest()
     except Exception as e:
         raise exceptions.DocumentHashingError() from e
 

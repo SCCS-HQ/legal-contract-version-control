@@ -50,7 +50,11 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
 
 
 def post_repo(
-    c: SCCSConstants, repo_zip: io.BytesIO, url: str, rd: RepositoryData, rp: RepositoryPaths
+    c: SCCSConstants,
+    repo_zip: io.BytesIO,
+    url: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths
 ) -> requests.Response:
 
 

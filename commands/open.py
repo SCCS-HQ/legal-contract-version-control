@@ -73,7 +73,9 @@ def main(
     full_commit_hash = rd.resolve_full_hash(commit_hash)
 
     output_file_name = Path(
-        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_hash=full_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH])
+        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
+            commit_hash=full_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+        )
     ).with_suffix(c.DOCX_EXTENSION)
 
     copy_file_commit(commit_path, output_file_name)

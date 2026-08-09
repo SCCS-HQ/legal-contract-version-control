@@ -48,7 +48,9 @@ def resolve_key_value(
         )
 
     if key == c.REMOTE_KEY:
-        url = value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
+        url = (
+            value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
+        )
         url_parsed = urlsplit(url)
 
         if (
@@ -65,7 +67,10 @@ def resolve_key_value(
             c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
         )
 
-        return urljoin(url, required_path_ending) if not url.endswith(required_path_ending) else url
+        if not url.endswith(required_path_ending):
+            return urljoin(url, required_path_ending)
+        else:
+            return url
 
     return value
 

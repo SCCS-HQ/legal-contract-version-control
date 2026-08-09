@@ -36,7 +36,8 @@ def print_revert_confirmation_message(
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH], new_commit_hash=new_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH],
+            new_commit_hash=new_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
         )
     )
 
@@ -58,7 +59,9 @@ def main(
     revert(c, commit_path, rp)
 
     new_commit_hash = rw.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH])
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+        )
     )
 
     full_commit_hash = rd.resolve_full_hash(commit_hash)

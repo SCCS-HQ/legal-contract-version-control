@@ -19,9 +19,21 @@ def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
         print(
             c.LOG_SEPARATOR + c.NEWLINE,
             c.LOG_COMMIT_FILE_LABEL + i[:c.COMMIT_HASH_DISPLAY_LENGTH] + c.NEWLINE,
-            c.LOG_AUTHOR_LABEL + history_data[c.LOG_DICT_KEY][i][c.AUTHOR_DICT_KEY] + c.NEWLINE,
-            c.LOG_DATE_LABEL + history_data[c.LOG_DICT_KEY][i][c.TIMESTAMP_DICT_KEY] + c.NEWLINE,
-            c.LOG_MESSAGE_LABEL + history_data[c.LOG_DICT_KEY][i][c.MESSAGE_DICT_KEY] + c.NEWLINE,
+            (
+                c.LOG_AUTHOR_LABEL
+                + history_data[c.LOG_DICT_KEY][i][c.AUTHOR_DICT_KEY]
+                + c.NEWLINE
+            ),
+            (
+                c.LOG_DATE_LABEL
+                + history_data[c.LOG_DICT_KEY][i][c.TIMESTAMP_DICT_KEY] +
+                c.NEWLINE
+            ),
+            (
+                c.LOG_MESSAGE_LABEL +
+                history_data[c.LOG_DICT_KEY][i][c.MESSAGE_DICT_KEY] +
+                c.NEWLINE
+            ),
             c.LOG_SEPARATOR,
             sep=""
         )

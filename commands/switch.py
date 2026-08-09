@@ -33,7 +33,10 @@ def check_branch_to_switch(
 
 
 def check_commit(
-    c: SCCSConstants, branch_to_switch: str | None, rd: RepositoryData, rs: RepositoryStatus
+    c: SCCSConstants,
+    branch_to_switch: str | None,
+    rd: RepositoryData,
+    rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(branch_to_switch)
