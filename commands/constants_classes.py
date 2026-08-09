@@ -280,6 +280,9 @@ class SCCSConstants:
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
     URL_FIELD_NAME = "URL"
 
+    ## required minimum # of path parts
+    MINIMUM_PATH_PARTS = 2
+
     #endregion
 
     #region commit.py

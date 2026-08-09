@@ -54,8 +54,7 @@ class RepositoryData:
             raise exceptions.InvalidArgumentError(
                 self.c.INVALID_KEY_ERROR_MESSAGE
             )
-        value = self.io.read_config()[key]
-        return value
+        return self.io.read_config()[key]
 
 
     def raise_for_commit_length(self, commit: str) -> None:
@@ -395,117 +394,99 @@ class RepositoryPaths:
 
 
     def document_path(self) -> Path:
-        path = (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
+        return (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
 
-        return path
 
 
     def sccs_path(self) -> Path:
-        path = self.root / self.c.SCCS_DIR
+        return self.root / self.c.SCCS_DIR
 
-        return path
 
 
     def branches_path(self) -> Path:
-        path = self.sccs_path() / self.c.BRANCHES_DIR
+        return self.sccs_path() / self.c.BRANCHES_DIR
 
-        return path
 
 
     def commit_messages_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
+        return self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
 
-        return path
 
 
     def commit_messages_path(self) -> Path:
-        path = self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
+        return self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
 
-        return path
 
 
     def config_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.CONFIG_DIR
+        return self.sccs_path() / self.c.CONFIG_DIR
 
-        return path
 
 
     def config_path(self) -> Path:
-        path = self.config_dir_path() / self.c.CONFIG_JSON_FILE
+        return self.config_dir_path() / self.c.CONFIG_JSON_FILE
 
-        return path
 
 
     def current_branch_dir_path(self) -> Path:
-        path = self.sccs_path() / self.c.CURRENT_BRANCH_DIR
+        return self.sccs_path() / self.c.CURRENT_BRANCH_DIR
 
-        return path
 
 
     def current_branch_data_file_path(self) -> Path:
-        path = self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
+        return self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
 
-        return path
 
 
     def objects_path(self) -> Path:
-        path = self.sccs_path() / self.c.OBJECTS_DIR
+        return self.sccs_path() / self.c.OBJECTS_DIR
 
-        return path
 
 
     def docx_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.DOCX_DIR
+        return self.objects_path() / self.c.DOCX_DIR
 
-        return path
 
 
     def view_html_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.VIEW_HTML_DIR
+        return self.objects_path() / self.c.VIEW_HTML_DIR
 
-        return path
 
 
     def html_objects_path(self) -> Path:
-        path = self.objects_path() / self.c.HTML_DIR
+        return self.objects_path() / self.c.HTML_DIR
 
-        return path
 
 
     def history_dir_path(self) -> Path:
 
         branch = self.target.require()
 
-        path = (self.branch_path(branch) / self.c.HISTORY_DIR)
+        return (self.branch_path(branch) / self.c.HISTORY_DIR)
         
-        return path
 
 
     def history_path(self) -> Path:
 
-        path = self.history_dir_path() / self.c.HISTORY_JSON_FILE
+        return self.history_dir_path() / self.c.HISTORY_JSON_FILE
         
-        return path
 
 
     def byte_hashes_dir_path(self) -> Path:
         branch = self.target.require()
 
-        path = (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
+        return (self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR)
         
-        return path
 
 
     def byte_hashes_path(self) -> Path:
-        path = self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
+        return self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
 
-        return path
 
 
     def branch_path(self, branch_name: str) -> Path:
-        path = self.branches_path() / branch_name
+        return self.branches_path() / branch_name
 
-        return path
 
 
 class RepositoryStatus:

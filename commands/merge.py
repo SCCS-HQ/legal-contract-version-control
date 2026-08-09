@@ -42,7 +42,7 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
     dest = rp.branch_path(rd.current_branch())
     c = rd.c
 
-    def ignore_metadata(dir, names) -> set[Any]:
+    def ignore_metadata(_dir, names) -> set[Any]:
         ignored = set()
         for name in names:
             if name in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
@@ -62,7 +62,7 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
 
 
 def copy_repo_document(
-    branch: str, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
+    branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
     original_target = rd.target.get()
@@ -108,7 +108,7 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    copy_repo_document(branch, rd, rp, rs)
+    copy_repo_document(branch, rd, rp)
 
     copy_branch_data(branch, rd, rp)
 

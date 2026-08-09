@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (

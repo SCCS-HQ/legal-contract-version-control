@@ -4,7 +4,6 @@ import io
 import json
 import os
 from pathlib import Path
-from urllib.parse import urlsplit
 import zipfile
 
 import requests

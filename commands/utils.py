@@ -24,8 +24,9 @@ def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
 
     if arg_value:
         return arg_value
-    elif raise_on_not_provided:
+    if raise_on_not_provided:
         raise exceptions.InvalidArgumentError()
+    return None
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
