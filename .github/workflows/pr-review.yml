@@ -1,0 +1,62 @@
+name: PR Review
+on:
+  pull_request:
+    types: [opened]
+
+  issue_comment:
+    types: [created]
+
+# Required permissions
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: |
+      github.event_name == 'pull_request' ||
+      (
+        github.event.issue.pull_request &&
+        github.event.comment.body == '/review'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Echo review started
+        run: echo "Running PR review"
+      
+      - name: Load custom review prompt
+        run: |
+          {
+            echo 'PROMPT<<EOF'
+            cat PR_REVIEWER.md
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
+      - name: Comment review started
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.issue.number;
+      
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: "🔍 AI PR review started. This may take a few minutes..."
+            });
+
+      - name: AI PR Review
+        uses: jonit-dev/diffguard@88f63615c769f8db6031973503c2c40a9a3f4feb
+        with:
+          # Required inputs
+          github_token: ${{ secrets.GITHUB_TOKEN }} # Automatically provided
+          open_router_key: ${{ secrets.OPEN_ROUTER_KEY }} # Must be set in repository secrets
+
+          # Optional inputs with defaults
+          model_id: ${{ secrets.PR_REVIEW_MODEL }} # Default model
+          max_tokens: ${{ secrets.MAX_TOKENS }} # Default max tokens
+
+          # Optional custom prompt
+          custom_prompt: ${{ env.PROMPT }}
