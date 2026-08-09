@@ -2,12 +2,11 @@
 
 import hashlib
 import json
-from pathlib import Path
 import shutil
-
-import mammoth
+from pathlib import Path
 
 import exceptions
+import mammoth
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
@@ -31,9 +30,7 @@ def check_file_requirements(c: SCCSConstants, file: Path) -> None:
 
     if not file.is_file():
         raise exceptions.FileDoesNotExistError(
-            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                file_path=file
-            )
+            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
 
 
@@ -55,7 +52,7 @@ def create_sccs_directory_layout(
         rp.byte_hashes_dir_path(),
         rp.commit_messages_dir_path(),
         rp.config_dir_path(),
-        rp.current_branch_dir_path()
+        rp.current_branch_dir_path(),
     ]
 
     try:
@@ -97,9 +94,7 @@ def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
 
     hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
 
-    return hashlib.sha256(
-            c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)
-        ).hexdigest()
+    return hashlib.sha256(c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)).hexdigest()
 
 
 def copy_document_to_objects_as_docx_and_html(
@@ -144,8 +139,12 @@ def copy_document_to_objects_as_docx_and_html(
 
 
 def write_history_data(
-    c: SCCSConstants, name: str, email: str, sha_hash: str,
-    ri: RepositoryIO, rs: RepositoryStatus,
+    c: SCCSConstants,
+    name: str,
+    email: str,
+    sha_hash: str,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -177,19 +176,17 @@ def write_commit_message_data(
     c: SCCSConstants, sha_hash: str, ri: RepositoryIO
 ) -> None:
 
-    commit_message_data = {
-        sha_hash: c.INITIAL_COMMIT_MESSAGE
-    }
+    commit_message_data = {sha_hash: c.INITIAL_COMMIT_MESSAGE}
     ri.write_commit_messages(commit_message_data)
 
 
 def write_hashed_file_commit_data(
-        c: SCCSConstants,
-        docx_path: Path,
-        sha_hash: str,
-        ri: RepositoryIO,
-        rs: RepositoryStatus
-    ) -> None:
+    c: SCCSConstants,
+    docx_path: Path,
+    sha_hash: str,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
 
@@ -237,7 +234,10 @@ def delete_repository_after_error(repo_path: Path) -> None:
 
 
 def main(
-    c: SCCSConstants, docx_path: Path, ri: RepositoryIO, rp: RepositoryPaths,
+    c: SCCSConstants,
+    docx_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
 
@@ -281,13 +281,7 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         document_path,
-        RepositoryIO(
-            document_path.with_suffix(c.EMPTY_STRING), c, target
-        ),
-        RepositoryPaths(
-            document_path.with_suffix(c.EMPTY_STRING), c, target
-        ),
-        RepositoryStatus(
-            document_path, c, target
-        ),
+        RepositoryIO(document_path.with_suffix(c.EMPTY_STRING), c, target),
+        RepositoryPaths(document_path.with_suffix(c.EMPTY_STRING), c, target),
+        RepositoryStatus(document_path, c, target),
     )

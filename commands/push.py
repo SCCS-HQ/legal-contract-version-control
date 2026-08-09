@@ -3,15 +3,14 @@
 import io
 import json
 import os
-from pathlib import Path
 import shutil
 import tempfile
-from urllib.parse import urlsplit
 import zipfile
-
-import requests
+from pathlib import Path
+from urllib.parse import urlsplit
 
 import exceptions
+import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
@@ -40,7 +39,8 @@ def get_matching_file_paths(
 
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
-    if updated_branches is None: raise exceptions.InvalidMetadataError()
+    if updated_branches is None:
+        raise exceptions.InvalidMetadataError()
     for i in updated_branches:
         branch_dir = rp.branches_path() / i
         if branch_dir.is_dir():
@@ -109,13 +109,9 @@ def zip_files_to_upload(
                 for root, _, files in os.walk(temp_dir):
                     for i in files:
                         full_path = Path(root) / i
-                        zf.write(
-                            full_path, arcname=full_path.relative_to(temp_dir)
-                        )
+                        zf.write(full_path, arcname=full_path.relative_to(temp_dir))
         except Exception as e:
-            raise exceptions.ZippingFileError(
-                c.ZIPPING_FILE_ERROR_MESSAGE
-            ) from e
+            raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
         try:
             buffer.seek(0)
@@ -135,9 +131,7 @@ def push_POST(
     if not remote_path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
     ):
-        raise exceptions.InvalidAPIURLError(
-            c.INVALID_PATH_ENDING_ERROR_MESSAGE
-        )
+        raise exceptions.InvalidAPIURLError(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
     try:
         response = requests.post(
@@ -166,7 +160,6 @@ def clear_updated_branches(
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
 ) -> None:
 
-
     data = ri.read_current_branch_data()
     if data is None:
         data = {}
@@ -183,9 +176,7 @@ def clear_updated_branches(
         ) as f:
             json.dump(data, f, indent=4)
     except Exception as e:
-        raise exceptions.FileWriteError(
-            c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE
-    ) from e
+        raise exceptions.FileWriteError(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
 
 
 def print_push_success_message(

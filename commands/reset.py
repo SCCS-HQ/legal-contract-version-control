@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
@@ -29,6 +29,7 @@ def reset(
         raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
 
     rs.target.reset()
+
 
 def print_success_message(c: SCCSConstants) -> None:
     print(c.RESET_SUCCESS_MESSAGE)

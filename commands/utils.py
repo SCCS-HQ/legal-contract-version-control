@@ -13,9 +13,7 @@ def clean_directory_name(name: str) -> str:
 
 
 def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
-    return (
-        c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
-    )
+    return c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
 
 
 def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
@@ -26,9 +24,8 @@ def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
         else:
             return None
 
-
-
     return sys.argv[argument].strip()
+
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
     error_wrappers = ErrorWrappers()

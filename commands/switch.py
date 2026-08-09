@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
@@ -36,15 +36,12 @@ def check_commit(
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
-    rs: RepositoryStatus
+    rs: RepositoryStatus,
 ) -> None:
 
     rs.target.set(branch_to_switch)
 
-
-    if not (
-        rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)
-    ).is_file():
+    if not (rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)).is_file():
         raise exceptions.CommitNotFoundError()
 
     rs.target.reset()
@@ -57,7 +54,7 @@ def copy_commit_to_main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
-    
+
     rs.target.set(branch_to_switch)
 
     try:
@@ -69,6 +66,7 @@ def copy_commit_to_main(
         raise exceptions.FileCopyError() from e
 
     rs.target.reset()
+
 
 def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
 
@@ -115,4 +113,3 @@ if __name__ == "__main__":
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),
     )
-

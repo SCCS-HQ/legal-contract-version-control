@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
@@ -36,10 +36,11 @@ def print_revert_confirmation_message(
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH],
-            new_commit_hash=new_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            new_commit_hash=new_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
         )
     )
+
 
 def main(
     c: SCCSConstants,
@@ -60,7 +61,7 @@ def main(
 
     new_commit_hash = rw.commit_changes(
         c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
         )
     )
 
@@ -69,6 +70,7 @@ def main(
     print_revert_confirmation_message(c, full_commit_hash, new_commit_hash)
 
     rs.target.reset()
+
 
 if __name__ == "__main__":
     c = SCCSConstants()

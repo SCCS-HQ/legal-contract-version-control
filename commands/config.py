@@ -21,7 +21,7 @@ def validate_entered_value(
 ) -> None:
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
+        raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
 
     if not value:
         raise exceptions.InvalidArgumentError(
@@ -59,9 +59,7 @@ def resolve_key_value(
             or url_parsed.query
             or url_parsed.fragment
         ):
-            raise exceptions.InvalidArgumentError(
-                c.INVALID_URL_ERROR_MESSAGE
-            )
+            raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
             c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
@@ -120,5 +118,5 @@ if __name__ == "__main__":
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target)
+        RepositoryWrite(Path.cwd(), c, target),
     )

@@ -5,10 +5,9 @@ import difflib
 import filecmp
 from pathlib import Path
 
-from bs4 import BeautifulSoup
-
 import exceptions
 import utils
+from bs4 import BeautifulSoup
 from constants_classes import SCCSConstants
 from repository_layout import (
     RepositoryData,
@@ -26,9 +25,7 @@ def convert_html_to_soup(c: SCCSConstants, html: str | bytes) -> BeautifulSoup:
 def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
 
     soup = copy.copy(html)
-    for i in soup.find_all(
-        c.TAGS_TO_UNWRAP
-    ):
+    for i in soup.find_all(c.TAGS_TO_UNWRAP):
         if i.name == c.STYLE_TAG_NAME:
             i.decompose()
         else:
@@ -42,7 +39,7 @@ def tags_to_list(soup: BeautifulSoup) -> list[str]:
 
 
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
-    
+
     for i, tag in enumerate(soup.find_all()):
         if tag.name == c.STYLE_TAG_NAME:
             continue
@@ -54,7 +51,7 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
 
     data_number = set()
     for i in tag_list:
-        parsed_tag = (BeautifulSoup(i, c.HTML_PARSER).find())
+        parsed_tag = BeautifulSoup(i, c.HTML_PARSER).find()
         if parsed_tag is not None:
             if parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
                 data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
@@ -72,11 +69,13 @@ def delete_tag(
 
         if i[c.DATA_NUMBER_HTML_ATTRIBUTE] in get_data_number(c, old_changed_strings):
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
+                i[
+                    c.CLASS_HTML_ATTRIBUTE
+                ].append(  # pyright: ignore [reportAttributeAccessIssue]
                     c.DELETED_HTML_ATTRIBUTE_VALUE
                 )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [  # pyright: ignore [reportArgumentType]
                     c.DELETED_HTML_ATTRIBUTE_VALUE
                 ]
     return soup
@@ -101,11 +100,13 @@ def replace_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
+                i[
+                    c.CLASS_HTML_ATTRIBUTE
+                ].append(  # pyright: ignore [reportAttributeAccessIssue]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [  # pyright: ignore [reportArgumentType]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 ]
     if match:
@@ -131,11 +132,13 @@ def insert_tag(
     for i in frag.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
-                i[c.CLASS_HTML_ATTRIBUTE].append( # pyright: ignore [reportAttributeAccessIssue]
+                i[
+                    c.CLASS_HTML_ATTRIBUTE
+                ].append(  # pyright: ignore [reportAttributeAccessIssue]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 )
             else:
-                i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
+                i[c.CLASS_HTML_ATTRIBUTE] = [  # pyright: ignore [reportArgumentType]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 ]
 
@@ -145,13 +148,13 @@ def insert_tag(
 
 
 def format_redline_html(
-        c: SCCSConstants,
-        past_version: list[str],
-        current_version: list[str],
-        commit_list: list[str],
-        docx_current_version_list: list[str],
-        soup: BeautifulSoup
-    ) -> BeautifulSoup:
+    c: SCCSConstants,
+    past_version: list[str],
+    current_version: list[str],
+    commit_list: list[str],
+    docx_current_version_list: list[str],
+    soup: BeautifulSoup,
+) -> BeautifulSoup:
 
     opcodes = difflib.SequenceMatcher(None, past_version, current_version).get_opcodes()
 
@@ -172,10 +175,7 @@ def format_redline_html(
     return redline
 
 
-def strip_number_attribute(
-        c: SCCSConstants,
-        soup: BeautifulSoup
-    ) -> BeautifulSoup:
+def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
 
     for i in soup.find_all():
         if c.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
@@ -203,8 +203,12 @@ def generate_diff_output(
     commit_soup = remove_inline_semantics(c, number_tags(c, commit_soup))
 
     return format_redline_html(
-        c, past_version, current_version, commit_list,
-        docx_current_version_list, commit_soup
+        c,
+        past_version,
+        current_version,
+        commit_list,
+        docx_current_version_list,
+        commit_soup,
     )
 
 
@@ -222,12 +226,12 @@ def print_diff_success_message(c: SCCSConstants) -> None:
 
 
 def main(
-        c: SCCSConstants,
-        commit_hash: str,
-        rd: RepositoryData,
-        ri: RepositoryIO,
-        rs: RepositoryStatus,
-    ) -> None:
+    c: SCCSConstants,
+    commit_hash: str,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
     rs.target.set(rd.current_branch())
     rs.check_repository_layout()
     rs.raise_for_uncommitted_changes()
@@ -249,6 +253,7 @@ def main(
     )
     print_diff_success_message(c)
     rs.target.reset()
+
 
 if __name__ == "__main__":
     c = SCCSConstants()

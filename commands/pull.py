@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import io
-from pathlib import Path
 import zipfile
-
-import requests
+from pathlib import Path
 
 import exceptions
+import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (

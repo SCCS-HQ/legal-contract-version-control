@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
@@ -19,7 +19,7 @@ def validate_subcommand(
     c: SCCSConstants,
     subcommand: str | None,
     branch_name: str | None,
-    rs: RepositoryStatus
+    rs: RepositoryStatus,
 ) -> None:
 
     if not subcommand:
@@ -28,9 +28,7 @@ def validate_subcommand(
         )
 
     if subcommand not in c.ACCEPTED_SUBCOMMANDS:
-        raise exceptions.InvalidSubcommandError(
-            c.INVALID_SUBCOMMAND_ERROR_MESSAGE
-        )
+        raise exceptions.InvalidSubcommandError(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         if not branch_name:
@@ -175,14 +173,14 @@ def run_specified_subcommand(
 
 
 def main(
-        c: SCCSConstants,
-        subcommand: str | None,
-        branch_name: str | None,
-        rd: RepositoryData,
-        rp: RepositoryPaths,
-        rs: RepositoryStatus,
-        rw: RepositoryWrite
-    ) -> None:
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
 
     rs.target.set(rd.current_branch())
 
@@ -197,6 +195,7 @@ def main(
     )
 
     rs.target.reset()
+
 
 if __name__ == "__main__":
     c = SCCSConstants()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Any
 
 import exceptions
@@ -16,23 +16,17 @@ from repository_layout import (
 )
 
 
-def validate_branch(
-    c: SCCSConstants, branch: str | None, rd: RepositoryData
-) -> None:
+def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
 
     if not branch:
         raise exceptions.InvalidArgumentError(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
     if branch == rd.current_branch():
-        raise exceptions.InvalidArgumentError(
-            c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE
-        )
+        raise exceptions.InvalidArgumentError(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
     if branch not in rd.branches():
         raise exceptions.BranchNotFoundError(
-            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch
-            )
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
 
 
@@ -61,17 +55,14 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
         raise exceptions.FileCopyError() from e
 
 
-def copy_repo_document(
-    branch: str, rd: RepositoryData, rp: RepositoryPaths
-) -> None:
+def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
 
     original_target = rd.target.get()
     rd.target.set(branch)
 
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
-            rp.document_path()
+            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR), rp.document_path()
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
@@ -112,17 +103,17 @@ def main(
 
     copy_branch_data(branch, rd, rp)
 
-
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
             branch=branch, current_branch=rd.current_branch()
         ),
-        allow_empty_commit=True
+        allow_empty_commit=True,
     )
 
     print_merge_success_message(c, branch, rd)
 
     rs.target.reset()
+
 
 if __name__ == "__main__":
     c = SCCSConstants()

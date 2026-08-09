@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import io
-from urllib.parse import urlsplit
 import zipfile
-
-import requests
+from urllib.parse import urlsplit
 
 import exceptions
+import requests
 import utils
 from constants_classes import SCCSConstants
 
@@ -35,9 +34,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
         response = requests.get(url, timeout=timeout)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise exceptions.HTTPGetRequestError(
-            c.HTTP_REQUEST_ERROR_MESSAGE
-        ) from e
+        raise exceptions.HTTPGetRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 

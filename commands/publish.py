@@ -3,12 +3,11 @@
 import io
 import json
 import os
-from pathlib import Path
 import zipfile
-
-import requests
+from pathlib import Path
 
 import exceptions
+import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
@@ -32,14 +31,15 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
         raise exceptions.BufferError(c.BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
-        with zipfile.ZipFile(buffer, "w", ) as zf:
+        with zipfile.ZipFile(
+            buffer,
+            "w",
+        ) as zf:
             for root, _, files in os.walk(c.WALK_ROOT):
                 for i in files:
                     zf.write(Path(root) / i)
     except Exception as e:
-        raise exceptions.ZippingFileError(
-            c.ZIPPING_FILE_ERROR_MESSAGE
-        ) from e
+        raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
         buffer.seek(0)
@@ -54,9 +54,8 @@ def post_repo(
     repo_zip: io.BytesIO,
     url: str,
     rd: RepositoryData,
-    rp: RepositoryPaths
+    rp: RepositoryPaths,
 ) -> requests.Response:
-
 
     try:
         response = requests.post(
@@ -73,20 +72,16 @@ def post_repo(
             ],
             data={"data": json.dumps({"remote": rd.base_repo_url()})},
             timeout=c.HTTP_TIMEOUT_SECONDS,
-            )
+        )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(
-            c.HTTP_REQUEST_ERROR_MESSAGE
-        ) from e
+        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     return response
 
 
 def print_publish_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
-    print(
-        c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code)
-    )
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 

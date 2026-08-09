@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
@@ -17,30 +17,21 @@ def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
 
     if not commit_hash:
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_FILE_FIELD_NAME
-            )
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
         )
 
     valid_len = len(commit_hash) == (c.FULL_COMMIT_HASH_LENGTH)
 
-    if not valid_len or not all(
-        i in c.HEX_DIGITS for i in commit_hash
-    ):
+    if not valid_len or not all(i in c.HEX_DIGITS for i in commit_hash):
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_FILE_FIELD_NAME
-            )
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
         )
 
 
 def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
 
     try:
-        shutil.copy2(
-            commit_path,
-            output_file_name
-        )
+        shutil.copy2(commit_path, output_file_name)
     except Exception as e:
         raise exceptions.FileCopyError() from e
 
@@ -51,8 +42,8 @@ def print_rewrite_confirmation_message(
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH],
-            output_file=output_file_name
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            output_file=output_file_name,
         )
     )
 
@@ -74,7 +65,7 @@ def main(
 
     output_file_name = Path(
         c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_hash=full_commit_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_hash=full_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
         )
     ).with_suffix(c.DOCX_EXTENSION)
 

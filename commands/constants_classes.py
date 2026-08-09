@@ -5,9 +5,9 @@ from functools import cached_property
 
 
 class SCCSConstants:
-    #region Shared (constants used in multiple command modules)
+    # region Shared (constants used in multiple command modules)
 
-    #region Shared - Strings (messages, templates, field names, values,
+    # region Shared - Strings (messages, templates, field names, values,
     # separators, attributes, resources, endpoints)
 
     ACCEPTED_SCHEMES = ("http", "https")
@@ -52,17 +52,17 @@ class SCCSConstants:
     ## cross-file constants (referenced by 2+ command modules)
     ZIP_EXTENSION = ".zip"
 
-    #endregion
+    # endregion
 
-    #region Shared - Numbers
+    # region Shared - Numbers
 
     COMMIT_HASH_DISPLAY_LENGTH = 10
     HTTP_TIMEOUT_SECONDS = 60
     MAX_FILE_READ_SIZE = 64 * 1024
 
-    #endregion
+    # endregion
 
-    #region Shared - Paths (directories)
+    # region Shared - Paths (directories)
 
     BRANCHES_DIR = "branches"
     COMMIT_FILE_HASH_DIR = "commit_file_hash"
@@ -76,9 +76,9 @@ class SCCSConstants:
     SCCS_DIR = ".sccs"
     VIEW_HTML_DIR = "view_html"
 
-    #endregion
+    # endregion
 
-    #region Shared - Paths (files)
+    # region Shared - Paths (files)
 
     COMMIT_FILE_HASH_JSON_FILE = "commit_file_hash.json"
     COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
@@ -86,9 +86,9 @@ class SCCSConstants:
     CURRENT_BRANCH_JSON_FILE = "current_branch.json"
     HISTORY_JSON_FILE = "history.json"
 
-    #endregion
+    # endregion
 
-    #region Shared - Configuration Values (keys, schemes, dict keys)
+    # region Shared - Configuration Values (keys, schemes, dict keys)
 
     # The 3 following constants are not alphabetized because they would
     # be dependencies of earlier constants.
@@ -102,7 +102,6 @@ class SCCSConstants:
     COMMIT_ORDER_DICT_KEY = "commit_order"
 
     CURRENT_BRANCH_DICT_KEY = "current_branch"
-
 
     HEX_DIGITS = "0123456789abcdef"
     HTTP_OBJECTS_DICT_KEY = "objects"
@@ -118,9 +117,9 @@ class SCCSConstants:
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
 
-    #endregion
+    # endregion
 
-    #region Shared - HTML
+    # region Shared - HTML
 
     DEFAULT_HTML_STYLES = """
     <style>
@@ -147,9 +146,9 @@ class SCCSConstants:
     </style>
     """
 
-    #endregion
+    # endregion
 
-    #region Shared - Lists
+    # region Shared - Lists
 
     COMMANDS_LIST = (
         "branch",
@@ -171,9 +170,9 @@ class SCCSConstants:
         "switch",
     )
 
-    #endregion
+    # endregion
 
-    #region Shared - Dicts
+    # region Shared - Dicts
 
     COMMAND_DESCRIPTIONS = {
         "branch": "Create a new branch, delete, or list branches.",
@@ -196,28 +195,28 @@ class SCCSConstants:
         "status": "Check the status of the current document for uncommitted changes.",
     }
 
-    #endregion
+    # endregion
 
-    #region Shared - File I/O
+    # region Shared - File I/O
 
     EMPTY_STRING = ""
     JSON_EXTENSION = ".json"
     NEWLINE = "\n"
     UTF_8 = "utf-8"
 
-    #endregion
+    # endregion
 
-    #region Shared - Runtime
+    # region Shared - Runtime
 
     @cached_property
     def PROGRAM_START_TIME(self) -> str:
         return datetime.datetime.now().isoformat()
 
-    #endregion
+    # endregion
 
-    #endregion
+    # endregion
 
-    #region branch.py
+    # region branch.py
 
     ## strings - subcommands / templates / values
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -260,9 +259,9 @@ class SCCSConstants:
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
     WALK_ROOT = "."
 
-    #endregion
+    # endregion
 
-    #region clone.py
+    # region clone.py
 
     ## strings - endpoints and timeouts
     CLONE_ENDPOINT = "/clone"
@@ -283,9 +282,9 @@ class SCCSConstants:
     ## required minimum # of path parts
     MINIMUM_PATH_PARTS = 2
 
-    #endregion
+    # endregion
 
-    #region commit.py
+    # region commit.py
 
     ## strings - success / error messages
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully."
@@ -294,9 +293,9 @@ class SCCSConstants:
     ## strings - format field names (for EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE)
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
 
-    #endregion
+    # endregion
 
-    #region config.py
+    # region config.py
 
     # The 2 following constants are not alphabetized because they would
     # be dependencies of earlier constants.
@@ -318,10 +317,9 @@ class SCCSConstants:
         "with a valid name."
     )
 
+    # endregion
 
-    #endregion
-
-    #region diff.py
+    # region diff.py
 
     ## strings - HTML attributes
     CLASS_HTML_ATTRIBUTE = "class"
@@ -341,13 +339,22 @@ class SCCSConstants:
 
     ## strings - success messages
     TAGS_TO_UNWRAP = (
-        "b", "i", "u", "strong", "em", "style", "table", "tr",
-        "td", "ol", "ul",
+        "b",
+        "i",
+        "u",
+        "strong",
+        "em",
+        "style",
+        "table",
+        "tr",
+        "td",
+        "ol",
+        "ul",
     )
 
-    #endregion
+    # endregion
 
-    #region help.py
+    # region help.py
 
     @property
     def HELP_MESSAGES(cls) -> tuple[str, ...]:
@@ -355,14 +362,13 @@ class SCCSConstants:
             "SCCS Help",
             "Available commands:",
         ) + tuple(
-            f"  {cls.SCCS_COMMAND_PREFIX} {i}"
-            f" - {cls.COMMAND_DESCRIPTIONS[i]}"
+            f"  {cls.SCCS_COMMAND_PREFIX} {i}" f" - {cls.COMMAND_DESCRIPTIONS[i]}"
             for i in cls.COMMANDS_LIST
         )
 
-    #endregion
+    # endregion
 
-    #region init.py
+    # region init.py
 
     ## strings - hash segments
     ALREADY_INITIALIZED_ERROR_MESSAGE = (
@@ -386,8 +392,7 @@ class SCCSConstants:
 
     ## strings - error / status messages
     INITIAL_COMMIT_MESSAGE = (
-        "Initial commit (This is a default commit message "
-        "for initial version)"
+        "Initial commit (This is a default commit message " "for initial version)"
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
@@ -401,9 +406,9 @@ class SCCSConstants:
         "File is not a .docx file. Please provide a valid .docx file."
     )
 
-    #endregion
+    # endregion
 
-    #region log.py
+    # region log.py
 
     ## strings - display format constants
     LOG_AUTHOR_LABEL = "Author: "
@@ -412,9 +417,9 @@ class SCCSConstants:
     LOG_MESSAGE_LABEL = "Message: "
     LOG_SEPARATOR = "-" * 30
 
-    #endregion
+    # endregion
 
-    #region merge.py
+    # region merge.py
 
     ## strings - error messages
     CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
@@ -425,9 +430,9 @@ class SCCSConstants:
         "Successfully merged branch '{branch}' into branch '{current_branch}'."
     )
 
-    #endregion
+    # endregion
 
-    #region open.py
+    # region open.py
 
     ## strings - output filename template
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_hash}"
@@ -439,9 +444,9 @@ class SCCSConstants:
         "modified after this point."
     )
 
-    #endregion
+    # endregion
 
-    #region publish.py
+    # region publish.py
 
     ## strings - error messages
     BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
@@ -454,17 +459,17 @@ class SCCSConstants:
     ## strings - success messages
     PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
 
-    #endregion
+    # endregion
 
-    #region pull.py
+    # region pull.py
 
     ## strings - endpoints / success messages
     PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
     PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}."
 
-    #endregion
+    # endregion
 
-    #region push.py
+    # region push.py
 
     ## strings - extensions / dir templates
     CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = (
@@ -482,9 +487,9 @@ class SCCSConstants:
     ## strings - success messages
     TMP_DIR_TEMPLATE = "tmp_{repo_name}"
 
-    #endregion
+    # endregion
 
-    #region repository_layout.py
+    # region repository_layout.py
 
     ## strings - error / status messages
     DIFF_OUTPUT_HTML_FILE = "diff.html"
@@ -526,9 +531,9 @@ class SCCSConstants:
         "Uncommitted changes detected. Please clean the working tree before proceeding."
     )
 
-    #endregion
+    # endregion
 
-    #region reset.py
+    # region reset.py
 
     ## strings - success / error messages
     RESET_ERROR_MESSAGE = "Failed to reset the document."
@@ -537,9 +542,9 @@ class SCCSConstants:
         "latest commit."
     )
 
-    #endregion
+    # endregion
 
-    #region revert.py
+    # region revert.py
 
     ## strings - error messages
     REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_hash}'."
@@ -553,9 +558,9 @@ class SCCSConstants:
         "Source file '{file_name}' does not exist."
     )
 
-    #endregion
+    # endregion
 
-    #region sccs(sh)
+    # region sccs(sh)
 
     ## strings - extensions
     PYTHON_EXTENSION = ".py"
@@ -567,26 +572,27 @@ class SCCSConstants:
         f"along with required arguments."
     )
 
-    #endregion
+    # endregion
 
-    #region status.py
+    # region status.py
 
     ## strings - status messages
     NO_UNCOMMITTED_CHANGES = "Status Report: No uncommitted changes detected."
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
 
-    #endregion
+    # endregion
 
-    #region switch.py
+    # region switch.py
 
     ## strings - success messages
     SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
 
-    #endregion
+    # endregion
 
 
 _missing_commands = [
-    i for i in SCCSConstants.COMMANDS_LIST
+    i
+    for i in SCCSConstants.COMMANDS_LIST
     if i not in SCCSConstants.COMMAND_DESCRIPTIONS
 ]
 if _missing_commands:

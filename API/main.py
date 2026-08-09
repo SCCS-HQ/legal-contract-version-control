@@ -87,13 +87,13 @@ async def publish(
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
-        
+
         for i in zf.infolist():
             if i.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
                     status_code=400, detail=f"File {i.filename} is too large"
                 )
-        
+
             path = Path(repo_path / i.filename).resolve()
             try:
                 path.relative_to(Path(repo_path))
