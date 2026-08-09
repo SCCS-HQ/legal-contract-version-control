@@ -18,6 +18,29 @@ from repository_layout import (
 )
 
 
+def convert_html_to_soup(c: SCCSConstants, html: str | bytes) -> BeautifulSoup:
+
+    return BeautifulSoup(html, c.HTML_PARSER)
+
+
+def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
+
+    soup = copy.copy(html)
+    for i in soup.find_all(
+        c.TAGS_TO_UNWRAP
+    ):
+        if i.name == c.STYLE_TAG_NAME:
+            i.decompose()
+        else:
+            i.unwrap()
+    return soup
+
+
+def tags_to_list(soup: BeautifulSoup) -> list[str]:
+
+    return [str(i) for i in soup.find_all()]
+
+
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     
     for i, tag in enumerate(soup.find_all()):
@@ -25,22 +48,6 @@ def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
             continue
         tag[c.DATA_NUMBER_HTML_ATTRIBUTE] = str(i)
     return soup
-
-
-def strip_number_attribute(
-        c: SCCSConstants,
-        soup: BeautifulSoup
-    ) -> BeautifulSoup:
-
-    for i in soup.find_all():
-        if c.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
-            del i[c.DATA_NUMBER_HTML_ATTRIBUTE]
-    return soup
-
-
-def tags_to_list(soup: BeautifulSoup) -> list[str]:
-
-    return [str(i) for i in soup.find_all()]
 
 
 def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
@@ -138,24 +145,6 @@ def insert_tag(
     return soup
 
 
-def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
-
-    soup = copy.copy(html)
-    for i in soup.find_all(
-        c.TAGS_TO_UNWRAP
-    ):
-        if i.name == c.STYLE_TAG_NAME:
-            i.decompose()
-        else:
-            i.unwrap()
-    return soup
-
-
-def convert_html_to_soup(c: SCCSConstants, html: str | bytes) -> BeautifulSoup:
-
-    return BeautifulSoup(html, c.HTML_PARSER)
-
-
 def format_redline_html(
         c: SCCSConstants,
         past_version: list[str],
@@ -184,8 +173,15 @@ def format_redline_html(
     return redline
 
 
-def print_diff_success_message(c: SCCSConstants) -> None:
-    print(c.DIFF_SUCCESS_MESSAGE)
+def strip_number_attribute(
+        c: SCCSConstants,
+        soup: BeautifulSoup
+    ) -> BeautifulSoup:
+
+    for i in soup.find_all():
+        if c.DATA_NUMBER_HTML_ATTRIBUTE in i.attrs:
+            del i[c.DATA_NUMBER_HTML_ATTRIBUTE]
+    return soup
 
 
 def generate_diff_output(
@@ -221,6 +217,9 @@ def check_for_changes_to_diff(
     if filecmp.cmp(commit_path, rd.paths.document_path()):
         raise exceptions.InvalidArgumentError()
 
+
+def print_diff_success_message(c: SCCSConstants) -> None:
+    print(c.DIFF_SUCCESS_MESSAGE)
 
 
 def main(

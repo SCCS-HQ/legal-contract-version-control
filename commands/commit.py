@@ -13,14 +13,6 @@ from repository_layout import (
 )
 
 
-def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
-
-    try:
-        print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]))
-    except Exception as e:
-        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
-
-
 def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> None:
 
     if commit_message is None or not commit_message:
@@ -29,6 +21,14 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
                 field=c.COMMIT_MESSAGE_FIELD_NAME
             )
         )
+
+
+def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
+
+    try:
+        print(c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(sha_hash=sha_hash[:c.COMMIT_HASH_DISPLAY_LENGTH]))
+    except Exception as e:
+        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
 
 def main(

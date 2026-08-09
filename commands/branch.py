@@ -59,6 +59,29 @@ def validate_subcommand(
             )
 
 
+def rollback_changes_after_failure(
+    c: SCCSConstants,
+    branch_name: str,
+    subcommand: str,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
+
+    try:
+        if subcommand == c.CREATE_SUBCOMMAND:
+            rw.remove_from_branches_list(branch_name)
+            rw.set_current_branch(c.MAIN_BRANCH_NAME)
+            shutil.rmtree(rp.branch_path(branch_name))
+        if subcommand == c.DELETE_SUBCOMMAND:
+            rw.add_to_branches_list(branch_name)
+    except Exception as e:
+        raise exceptions.UpdatingMetadataError(
+            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_name
+            )
+        ) from e
+
+
 def branch_create_subcommand(
     c: SCCSConstants,
     branch_name: str,
@@ -85,6 +108,16 @@ def branch_create_subcommand(
     print_branch_create_success_message(c, branch_name, current_branch_name)
 
 
+def print_branch_create_success_message(
+    c: SCCSConstants, branch_name: str, current_branch_name: str
+) -> None:
+    print(
+        c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name, current_branch_name=current_branch_name
+        )
+    )
+
+
 def branch_delete_subcommand(
     c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
 ) -> None:
@@ -103,27 +136,8 @@ def branch_delete_subcommand(
     print_branch_delete_success_message(c, branch_name)
 
 
-def rollback_changes_after_failure(
-    c: SCCSConstants,
-    branch_name: str,
-    subcommand: str,
-    rp: RepositoryPaths,
-    rw: RepositoryWrite,
-) -> None:
-
-    try:
-        if subcommand == c.CREATE_SUBCOMMAND:
-            rw.remove_from_branches_list(branch_name)
-            rw.set_current_branch(c.MAIN_BRANCH_NAME)
-            shutil.rmtree(rp.branch_path(branch_name))
-        if subcommand == c.DELETE_SUBCOMMAND:
-            rw.add_to_branches_list(branch_name)
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError(
-            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch_name
-            )
-        ) from e
+def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
+    print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
@@ -154,20 +168,6 @@ def run_specified_subcommand(
         branch_delete_subcommand(c, branch_name, rp, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
-
-
-def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
-    print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
-
-
-def print_branch_create_success_message(
-    c: SCCSConstants, branch_name: str, current_branch_name: str
-) -> None:
-    print(
-        c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch_name=branch_name, current_branch_name=current_branch_name
-        )
-    )
 
 
 def main(

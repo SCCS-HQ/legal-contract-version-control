@@ -18,30 +18,6 @@ from repository_layout import (
 )
 
 
-def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
-
-    values = []
-
-    for i in data:
-        data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
-        if not data_value:
-            raise exceptions.InvalidInputError(
-                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
-            )
-        values.append(data_value)
-
-    with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
-        config = {}
-
-        for i, value in enumerate(values):
-            config_key = data[i]
-            config[config_key] = value
-
-        f.seek(0)
-        json.dump(config, f, indent=4)
-    return config
-
-
 def check_for_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
     if (rp.sccs_path()).is_dir():
@@ -59,15 +35,6 @@ def check_file_requirements(c: SCCSConstants, file: Path) -> None:
                 file_path=file
             )
         )
-
-
-def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
-
-    hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
-
-    return hashlib.sha256(
-            c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)
-        ).hexdigest()
 
 
 def create_sccs_directory_layout(
@@ -101,9 +68,38 @@ def create_sccs_directory_layout(
 
     rs.target.reset()
 
-def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
 
-    shutil.move(docx_path, repo_path)
+def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
+
+    values = []
+
+    for i in data:
+        data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
+        if not data_value:
+            raise exceptions.InvalidInputError(
+                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
+            )
+        values.append(data_value)
+
+    with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
+        config = {}
+
+        for i, value in enumerate(values):
+            config_key = data[i]
+            config[config_key] = value
+
+        f.seek(0)
+        json.dump(config, f, indent=4)
+    return config
+
+
+def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
+
+    hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
+
+    return hashlib.sha256(
+            c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)
+        ).hexdigest()
 
 
 def copy_document_to_objects_as_docx_and_html(
@@ -224,13 +220,18 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         raise exceptions.UpdatingMetadataError() from e
 
 
-def delete_repository_after_error(repo_path: Path) -> None:
-    shutil.rmtree(repo_path, ignore_errors=True)
+def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
+
+    shutil.move(docx_path, repo_path)
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
 
     print(c.INIT_SUCCESS_MESSAGE)
+
+
+def delete_repository_after_error(repo_path: Path) -> None:
+    shutil.rmtree(repo_path, ignore_errors=True)
 
 
 def main(

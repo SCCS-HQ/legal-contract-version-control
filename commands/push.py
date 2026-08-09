@@ -23,6 +23,17 @@ from repository_layout import (
 )
 
 
+def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+
+    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
+    try:
+        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
+    except Exception as e:
+        raise exceptions.HTTPGetRequestError() from e
+
+    return response
+
+
 def get_matching_file_paths(
     c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
 ) -> list[Path]:
@@ -37,17 +48,6 @@ def get_matching_file_paths(
             if f.is_file():
                 paths.append(f.resolve())
     return paths
-
-
-def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
-
-    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
-    try:
-        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
-    except Exception as e:
-        raise exceptions.HTTPGetRequestError() from e
-
-    return response
 
 
 def compare_hash_lists(remote_objects: list[str], rd: RepositoryData) -> list[str]:
