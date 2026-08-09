@@ -67,10 +67,11 @@ def resolve_key_value(
             c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
         )
 
-        if not url.endswith(required_path_ending):
-            return urljoin(url, required_path_ending)
-        else:
-            return url
+        return (
+            urljoin(url, required_path_ending)
+            if not url.endswith(required_path_ending)
+            else url
+        )
 
     return value
 

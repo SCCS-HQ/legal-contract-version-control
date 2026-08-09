@@ -147,10 +147,11 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
 
     print(c.BRANCHES_DIR_LIST_HEADER)
     for i in rd.branches():
-        if i == rd.current_branch():
+        (
             print(c.CURRENT_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
-        else:
-            print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
+            if i == rd.current_branch()
+            else print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
+        )
 
 
 def run_specified_subcommand(

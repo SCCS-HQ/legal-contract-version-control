@@ -138,10 +138,9 @@ def insert_tag(
                 i[c.CLASS_HTML_ATTRIBUTE] = [ # pyright: ignore [reportArgumentType]
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 ]
-    if i1 < len(tags):
-        tags[i1].insert_before(frag)
-    else:
-        soup.append(frag)
+
+    tags[i1].insert_before(frag) if i1 < len(tags) else soup.append(frag)
+
     return soup
 
 
