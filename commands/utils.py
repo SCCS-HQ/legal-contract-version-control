@@ -9,7 +9,7 @@ from constants_classes import ErrorWrappers, SCCSConstants
 
 
 def clean_directory_name(name: str) -> str:
-    return re.sub(r'^[. ]+|[\\/:*?"<>|]|[. ]+$', "-", name)
+    return re.sub(r"^[. ]+|[\\\/:*?\"\'<>|]|[. ]+$", "-", name)
 
 
 def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
