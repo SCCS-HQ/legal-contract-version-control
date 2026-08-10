@@ -357,13 +357,13 @@ class SCCSConstants:
     # region help.py
 
     @property
-    def HELP_MESSAGES(cls) -> tuple[str, ...]:
+    def HELP_MESSAGES(self) -> tuple[str, ...]:
         return (
             "SCCS Help",
             "Available commands:",
         ) + tuple(
-            f"  {cls.SCCS_COMMAND_PREFIX} {i}" f" - {cls.COMMAND_DESCRIPTIONS[i]}"
-            for i in cls.COMMANDS_LIST
+            f"  {self.SCCS_COMMAND_PREFIX} {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
+            for i in self.COMMANDS_LIST
         )
 
     # endregion
