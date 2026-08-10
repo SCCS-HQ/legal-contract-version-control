@@ -159,6 +159,12 @@ async def push(repo_name: str) -> dict:
     ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name / ".sccs").resolve()
+
+    try:
+        repo_path.relative_to(base_dir)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
     objects_dir = repo_path / "objects"
 
     if not objects_dir.exists() or not objects_dir.is_dir():
