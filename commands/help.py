@@ -18,8 +18,6 @@ def main(c: SCCSConstants) -> None:
 
 
 if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
     utils.run_command(
         main,
     )
