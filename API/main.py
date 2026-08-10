@@ -94,9 +94,13 @@ async def publish(
                     status_code=400, detail=f"File {i.filename} is too large"
                 )
 
-            path = Path(repo_path / i.filename).resolve()
+            entry_path = Path(i.filename)
+            if entry_path.is_absolute() or ".." in entry_path.parts:
+                raise HTTPException(status_code=400, detail="Invalid file path in zip")
+
+            path = (repo_path / entry_path).resolve()
             try:
-                path.relative_to(Path(repo_path))
+                path.relative_to(repo_path)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
 
