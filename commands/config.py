@@ -17,25 +17,16 @@ from repository_layout import (
 
 
 def validate_entered_value(
-    c: SCCSConstants, repo_name: str | None, key: str | None, value: str | None
+    c: SCCSConstants, key: str, value: str
 ) -> None:
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
         raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
 
-    if not value:
+    if not value.strip():
         raise exceptions.InvalidArgumentError(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
-
-    if not repo_name:
-        raise exceptions.EmptyArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.REPOSITORY_NAME_FIELD_NAME
-            )
-        )
-
-    repo_name = utils.clean_directory_name(repo_name)
 
 
 def resolve_key_value(
@@ -97,7 +88,7 @@ def main(
     assert key is not None
     assert value is not None
 
-    validate_entered_value(c, repo_name, key, value)
+    value = validate_entered_value(c, key, value)
 
     value = resolve_key_value(c, repo_name, key, value)
 
