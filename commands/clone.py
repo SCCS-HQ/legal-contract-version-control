@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 import io
-from re import I
+import os
 import zipfile
+from pathlib import Path
+from re import I
 from urllib.parse import urlsplit
 
 import exceptions
 import requests
 import utils
-import os
 from constants_classes import SCCSConstants
-from pathlib import Path
 
 
 def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
@@ -67,7 +67,6 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
                 zf.extract(i, destination)
     except Exception as e:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
-
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
