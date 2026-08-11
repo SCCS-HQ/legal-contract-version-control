@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import io
+import os
 import zipfile
 from pathlib import Path
 
@@ -30,9 +31,17 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
 def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
 
+    destination = Path.cwd()
     try:
         with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-            zf.extractall(Path.cwd())
+            for i in zf.namelist():
+                member_path = os.path.abspath(destination / i)
+                if (
+                    not member_path.startswith(str(destination) + c.PATH_SEPARATOR)
+                    and member_path != destination
+                ):
+                    raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE)
+                zf.extract(i)
     except Exception as e:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
 import io
+from re import I
 import zipfile
 from urllib.parse import urlsplit
 
 import exceptions
 import requests
 import utils
+import os
 from constants_classes import SCCSConstants
+from pathlib import Path
 
 
 def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
@@ -51,12 +54,20 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
             )
         )
 
-    repo_name = path_parts[-2]
-
+    destination = Path(os.path.abspath(path_parts[-2]))
     try:
-        zipfile.ZipFile(buffer, "r").extractall(repo_name)
+        with zipfile.ZipFile(buffer, "r") as zf:
+            for i in zf.namelist():
+                member_path = os.path.abspath(destination / i)
+                if (
+                    not member_path.startswith(str(destination) + c.PATH_SEPARATOR)
+                    and member_path != destination
+                ):
+                    raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE)
+                zf.extract(i, destination)
     except Exception as e:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
+
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
