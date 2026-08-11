@@ -279,7 +279,7 @@ def main(
     rs: RepositoryStatus,
 ) -> None:
 
-    initialize_repository(c, docx_path, ri ,rp, rs)
+    initialize_repository(c, docx_path, ri, rp, rs)
 
     print_init_success_message(c)
 

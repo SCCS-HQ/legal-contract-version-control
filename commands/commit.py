@@ -23,9 +23,6 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
         )
 
 
-
-
-
 def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
 
     try:
@@ -36,7 +33,6 @@ def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
         )
     except Exception as e:
         raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
-
 
 
 def main(

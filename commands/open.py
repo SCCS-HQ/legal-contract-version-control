@@ -57,7 +57,6 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-
     commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 
     full_commit_hash = rd.resolve_full_hash(commit_hash)
