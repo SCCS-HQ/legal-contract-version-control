@@ -276,6 +276,11 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     objects_paths = Path(os.path.normpath(repo_path / ".sccs" / "objects"))
 
+    try:
+        objects_paths.relative_to(repo_path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
     remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
 
     obj_to_upload = remote_objects - local_objects
@@ -304,6 +309,11 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     ]
 
     branches_path = Path(os.path.normpath(repo_path / ".sccs" / "branches"))
+
+    try:
+        branches_path.relative_to(repo_path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
 
     history_paths = [
         i.resolve()
