@@ -1,49 +1,66 @@
 #!/usr/bin/env python3
-"""Commit latest changes to the current branch."""
 
-import sys
+from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
 
 
-def get_commit_message() -> str:
-    """
-    Return the entered commit message from the user if a message is provided, otherwise
-    raise an exception.
-    """
+def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> None:
 
-    if len(sys.argv) <= 2 or not sys.argv[2].strip():
-        raise exceptions.EmptyCommitMessageError(
-            "Commit message cannot be empty. Please provide a commit message with <sccs"
-            ' commit "commit message">.'
+    if commit_message is None or not commit_message:
+        raise exceptions.EmptyArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_MESSAGE_FIELD_NAME
+            )
         )
 
-    return " ".join(sys.argv[2:]).strip()
+
+def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
+
+    try:
+        print(
+            c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+                sha_hash=sha_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+            )
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
 
-def print_commit_confirmation_message(sha_hash: str) -> None:
-    """Print a confirmation message for the commit using 'sha_hash'."""
+def main(
+    c: SCCSConstants,
+    commit_message: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
 
-    print(f"Commit {sha_hash[:10]} created successfully.\n")
+    rw.target.set(rd.current_branch())
 
+    rs.check_repository_layout()
 
-def main() -> None:
-    """Run functions for the <sccs commit> command."""
-    utils.check_sccs_layout()
+    validate_commit_message(c, commit_message)
 
-    sha_hash = utils.commit_changes(get_commit_message())
-    print_commit_confirmation_message(sha_hash)
+    print_commit_confirmation_message(c, rw.commit_changes(commit_message))
+
+    rw.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

@@ -1,75 +1,81 @@
+#!/usr/bin/env python3
+
 import io
-import sys
+import os
 import zipfile
 from pathlib import Path
 
 import exceptions
 import requests
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def get_repo_objects(cwd: None | Path = None) -> list:
-    """
-    Return of list of every commit hash by iterating through the objects folder's file
-    stems, and removing duplicates with a set.
-    """
+def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    if cwd is None:
-        cwd = utils.working_directory_path
-
-    objects_dir = cwd / ".sccs" / "objects"
-    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
-    return objects
-
-
-def pull(remote: str, data: dict) -> requests.Response:
-    """Make a POST request to 'remote'/pull, returning the response."""
+    data = {c.HTTP_OBJECTS_DICT_KEY: rd.repo_objects()}
+    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
 
     try:
-        response = requests.post(f"{remote}/pull", json=data, timeout=60)
+        response = requests.post(url, json=data, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPPostRequestError() from e
+        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
 
-def update_repo_files(response: requests.Response, cwd: None | Path = None) -> None:
-    """
-    Unzip the file in 'response' to 'destination'.
-    """
+def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
 
-    if cwd is None:
-        cwd = utils.working_directory_path
+    destination = Path.cwd()
+    try:
+        with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
+            for i in zf.namelist():
+                member_path = os.path.abspath(destination / i)
+                if (
+                    not member_path.startswith(str(destination) + c.PATH_SEPARATOR)
+                    and member_path != destination
+                ):
+                    raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE)
+                zf.extract(i)
+    except Exception as e:
+        raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
-    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-        zf.extractall(cwd)
+
+def print_pull_success_message(
+    c: SCCSConstants, response: requests.Response, url: str
+) -> None:
+
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main():
-    """Run functions for the <sccs pull> command."""
-    utils.check_sccs_layout()
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+    rs.target.set(rd.current_branch())
 
-    remote = utils.get_key_from_config("remote")
-    print(f"Pulling repository from {remote}...\n")
+    rs.check_repository_layout()
 
-    response = pull(remote, {"objects": get_repo_objects()})
+    rs.raise_for_uncommitted_changes()
 
-    print(f"Status Code: {response.status_code}\n")
-
+    response = pull(c, rd)
     response.raise_for_status()
-    print(f"Repository pulled successfully from {remote}\n")
 
-    update_repo_files(response)
+    update_repo_files(c, response)
+
+    print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

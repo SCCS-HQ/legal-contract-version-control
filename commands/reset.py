@@ -1,65 +1,62 @@
 #!/usr/bin/env python3
-"""Delete all uncommitted changes."""
 
-import json
 import shutil
-import sys
 from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def reset(cwd: Path | None = None) -> None:
-    """Delete all uncommitted changes."""
+def reset(
+    c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
 
-    if cwd is None:
-        cwd = utils.working_directory_path
+    rs.target.set(rd.current_branch())
 
-    if not utils.check_for_uncommitted_changes("reset", exit=False, cwd=cwd):
-        raise exceptions.NoUncommittedChangesError()
-
-    with open(
-        cwd
-        / ".sccs"
-        / "branches"
-        / utils.get_current_branch(
-            cwd / ".sccs" / "current_branch" / "current_branch.json"
+    try:
+        shutil.copy2(
+            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
+            rp.document_path(),
         )
-        / "history"
-        / "history.json"
-    ) as f:
-        data = json.load(f)
-        latest_commit = data["history"]["latest_commit"]
+    except Exception as e:
+        raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
 
-    shutil.copy2(
-        utils.validate_commit("docx", cwd, latest_commit),
-        cwd / cwd.with_suffix(".docx").name,
-    )
+    rs.target.reset()
 
 
-def print_success_message() -> None:
-    """Print a success message after resetting the document."""
-    print(
-        "All uncommitted changes have been deleted. The document has been reset to the "
-        "latest commit.\n"
-    )
+def print_success_message(c: SCCSConstants) -> None:
+    print(c.RESET_SUCCESS_MESSAGE)
 
 
-def main() -> None:
-    """Main function to handle the <reset> command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+) -> None:
+    rs.target.set(rd.current_branch())
 
-    reset()
-    print_success_message()
+    rs.check_repository_layout()
+
+    reset(c, rd, rp, rs)
+    print_success_message(c)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except exceptions.SCCSException as e:
-        print(f"Error: {e}\n")
-        sys.exit(1)
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{e}\n")
-        sys.exit(1)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

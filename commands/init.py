@@ -1,372 +1,297 @@
 #!/usr/bin/env python3
-"""Initialize a document with SCCS."""
 
 import hashlib
 import json
 import shutil
-import sys
-from datetime import datetime
 from pathlib import Path
 
 import exceptions
+import mammoth
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryIO,
+    RepositoryPaths,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def get_entered_document_path() -> Path | None:
-    """
-    Return the document path entered by the user  as a Path object if provided, else
-    None.
-    """
+def check_for_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
+    if (rp.sccs_path()).is_dir():
+        raise exceptions.AlreadyInitializedError(c.ALREADY_INITIALIZED_ERROR_MESSAGE)
 
 
-def get_document_repo_path() -> Path | None:
-    """
-    Return the repo directory path derived from the entered document path, which is the
-    document path without a suffix.
-    """
+def check_file_requirements(c: SCCSConstants, file: Path) -> None:
 
-    path = get_entered_document_path()
-    if not path:
-        return None
-    return Path(path).with_suffix("")
+    if file.suffix.lower() != c.DOCX_EXTENSION:
+        raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
-
-def check_if_arg_entered(arg: Path) -> None:
-    """Check that a file path argument was provided."""
-
-    if not arg:
-        raise exceptions.InvalidArgumentError("No file path provided.")
-
-
-def ask_config_input(data: str) -> str:
-    """
-    Prompt the user for a config value and return it if provided, otherwise raise an
-    exception.
-    """
-
-    data_value = input(f"Enter your {data}: ").strip()
-    if data_value == "":
-        raise exceptions.InvalidInputError(f"{data} cannot be empty.")
-    else:
-        return data_value
-
-
-def check_for_prev_init() -> None:
-    """
-    Exit if the document has already been initialized with SCCS by checking if the a
-    '.sccs' folder exists for the repository.
-    """
-
-    if (get_document_repo_path() / ".sccs").is_dir():
-        raise exceptions.AlreadyInitializedError(
-            "This file has already been initialized with SCCS."
+    if not file.is_file():
+        raise exceptions.FileDoesNotExistError(
+            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
 
 
-def check_file_requirements() -> None:
-    """
-    Validate that the entered path points to an existing .docx file by checking the file
-    extension and if the file exists.
-    """
+def create_sccs_directory_layout(
+    c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
 
-    entered_path = get_entered_document_path()
-    if not entered_path:
-        raise exceptions.InvalidArgumentError("No file path provided.")
+    rs.target.set(c.MAIN_BRANCH_NAME)
 
-    if Path(entered_path).suffix.lower() != ".docx":
-        raise exceptions.InvalidFileTypeError(
-            "File is not a .docx file. Please provide a valid .docx file."
-        )
-    if not Path(entered_path).is_file():
-        raise FileNotFoundError("File does not exist.")
+    paths = [
+        rp.sccs_path(),
+        rp.objects_path(),
+        rp.docx_objects_path(),
+        rp.html_objects_path(),
+        rp.view_html_objects_path(),
+        rp.branches_path(),
+        rp.branch_path(c.MAIN_BRANCH_NAME),
+        rp.history_dir_path(),
+        rp.byte_hashes_dir_path(),
+        rp.commit_messages_dir_path(),
+        rp.config_dir_path(),
+        rp.current_branch_dir_path(),
+    ]
 
+    try:
+        rp.root.mkdir(parents=True, exist_ok=True)
 
-def create_commit_sha_hash(timestamp: str, user_name: str, user_email: str) -> str:
-    """
-    Create a SHA-256 hash for the initial commit using the timestamp, user name, and
-    user email.
+        for i in paths:
+            (i).mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        raise exceptions.FileCreateError() from e
 
-    Return the created SHA-256 hash as a hexadecimal string.
-    """
-
-    return hashlib.sha256(
-        f"{timestamp}/initial_version/{user_name}/{user_email}".encode()
-    ).hexdigest()
-
-
-def create_sccs_directory_layout() -> None:
-    """Create the full SCCS directory structure inside the repo path."""
-
-    repo_path = get_document_repo_path()
-    if not repo_path:
-        raise exceptions.InvalidArgumentError("No file path provided.")
-
-    repo_path.mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "objects").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "objects" / "docx").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "objects" / "html").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "objects" / "view_html").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "branches").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "branches" / "main").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "branches" / "main" / "history").mkdir(
-        parents=True, exist_ok=True
-    )
-    (repo_path / ".sccs" / "commit_messages").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "config").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "current_branch").mkdir(parents=True, exist_ok=True)
-    (repo_path / ".sccs" / "branches" / "main" / "commit_file_hash").mkdir(
-        parents=True, exist_ok=True
-    )
+    rs.target.reset()
 
 
-def move_document_to_repo_directory() -> None:
-    """Move the source document into the repo directory."""
+def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
 
-    shutil.move(get_entered_document_path(), get_document_repo_path())
+    values = []
+
+    for i in data:
+        data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
+        if not data_value:
+            raise exceptions.InvalidInputError(
+                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
+            )
+        values.append(data_value)
+
+    with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
+        config = {}
+
+        for i, value in enumerate(values):
+            config_key = data[i]
+            config[config_key] = value
+
+        f.seek(0)
+        json.dump(config, f, indent=4)
+    return config
+
+
+def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
+
+    hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
+
+    return hashlib.sha256(c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)).hexdigest()
 
 
 def copy_document_to_objects_as_docx_and_html(
-    sha_hash: str, html: str, styles: str | None = None
+    c: SCCSConstants, docx_path: Path, sha_hash: str, rp: RepositoryPaths
 ) -> None:
-    """
-    Copy the document into objects as both .docx and .html. to their corresponding
-    folders.
-    """
 
-    if styles is None:
-        styles = utils.default_html_styles
-
-    repo_path = get_document_repo_path()
-    doc_name = Path(get_entered_document_path()).name
+    try:
+        with open(docx_path, "rb") as f:
+            result = mammoth.convert_to_html(f).value
+    except Exception as e:
+        raise exceptions.ConvertingDocumentToHTMLError() from e
 
     try:
         shutil.copy2(
-            (repo_path / doc_name),
-            (repo_path / ".sccs" / "objects" / "docx" / f"{sha_hash}.docx"),
+            docx_path,
+            (rp.docx_objects_path() / sha_hash).with_suffix(c.DOCX_EXTENSION),
         )
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
     try:
         with open(
-            (repo_path / ".sccs" / "objects" / "html" / f"{sha_hash}.html"),
+            (rp.html_objects_path() / sha_hash).with_suffix(c.HTML_EXTENSION),
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
         ) as f:
-            f.write(styles + html)
+            f.write(c.DEFAULT_HTML_STYLES + result)
     except Exception as e:
-        raise exceptions.FileWriteError from e
+        raise exceptions.FileWriteError() from e
 
     try:
         with open(
-            (repo_path / ".sccs" / "objects" / "view_html" / f"{sha_hash}.html"),
+            (rp.view_html_objects_path() / sha_hash).with_suffix(c.HTML_EXTENSION),
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
         ) as f:
-            f.write(utils.wrap_html(html))
+            f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
-        raise exceptions.FileWriteError from e
-
-
-def get_current_iso_time() -> str:
-    """Return the current time as an ISO 8601 string."""
-
-    return datetime.now().isoformat()
+        raise exceptions.FileWriteError() from e
 
 
 def write_history_data(
-    sha_hash: str, config_user_name: str, config_user_email: str
+    c: SCCSConstants,
+    name: str,
+    email: str,
+    sha_hash: str,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
 ) -> None:
-    """Write the initial commit history JSON file to the main branch history folder."""
+
+    rs.target.set(c.MAIN_BRANCH_NAME)
 
     history_data = {
-        "history": {
-            "initial_commit": f"{sha_hash}",
-            "latest_commit": f"{sha_hash}",
-            "latest_commit_number": 1,
-            "commit_order": {"1": f"{sha_hash}"},
+        c.HISTORY_DICT_KEY: {
+            c.INITIAL_COMMIT_DICT_KEY: sha_hash,
+            c.LATEST_COMMIT_DICT_KEY: sha_hash,
+            c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
+            c.COMMIT_ORDER_DICT_KEY: {c.INITIAL_COMMIT_NUMBER_DICT_KEY: sha_hash},
         },
-        "log": {
-            f"{sha_hash}": {
-                "timestamp": get_current_iso_time(),
-                "author": f"{config_user_name} <{config_user_email}>",
-                "message": "initial commit (This is a default commit message for "
-                "initial version)",
+        c.LOG_DICT_KEY: {
+            sha_hash: {
+                c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
+                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                    name=name, email=email
+                ),
+                c.MESSAGE_DICT_KEY: c.INITIAL_COMMIT_MESSAGE,
             }
         },
     }
+
+    ri.write_history(history_data)
+
+    rs.target.reset()
+
+
+def write_commit_message_data(
+    c: SCCSConstants, sha_hash: str, ri: RepositoryIO
+) -> None:
+
+    commit_message_data = {sha_hash: c.INITIAL_COMMIT_MESSAGE}
+    ri.write_commit_messages(commit_message_data)
+
+
+def write_hashed_file_commit_data(
+    c: SCCSConstants,
+    docx_path: Path,
+    sha_hash: str,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
+
+    rs.target.set(c.MAIN_BRANCH_NAME)
+
+    try:
+        with open(docx_path, "rb") as f:
+            hashed_file = hashlib.sha256(
+                mammoth.convert_to_html(f).value.encode(c.UTF_8)
+            ).hexdigest()
+    except Exception as e:
+        raise exceptions.DocumentHashingError() from e
+
+    commit_file_hash_data = {sha_hash: hashed_file}
+
+    ri.write_byte_hashes(commit_file_hash_data)
+
+    rs.target.reset()
+
+
+def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
+
     try:
         with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "branches"
-                / "main"
-                / "history"
-                / "history.json"
-            ),
+            rp.current_branch_data_file_path(),
             "w",
-            encoding="utf-8",
-            newline="\n",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
         ) as f:
-            json.dump(history_data, f, indent=4)
+            json.dump(c.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:
-        raise exceptions.FileOpenError from e
+        raise exceptions.UpdatingMetadataError() from e
 
 
-def write_commit_message_data(sha_hash: str) -> None:
-    """
-    Write the initial commit message JSON file to the main branch commit messages
-    folder.
-    """
+def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
 
-    commit_message_data = {
-        f"{sha_hash}": "initial commit (This is a default commit message for initial "
-        "version)"
-    }
+    shutil.move(docx_path, repo_path)
+
+
+def print_init_success_message(c: SCCSConstants) -> None:
+
+    print(c.INIT_SUCCESS_MESSAGE)
+
+
+def initialize_repository(
+    c: SCCSConstants,
+    docx_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+) -> None:
     try:
-        with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "commit_messages"
-                / "commit_messages.json"
-            ),
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as f:
-            json.dump(commit_message_data, f, indent=4)
-    except Exception as e:
-        raise exceptions.FileOpenError from e
+        check_for_prev_init(c, rp)
+
+        check_file_requirements(c, docx_path)
+
+        create_sccs_directory_layout(c, rp, rs)
+
+        config = config_inputs(c, rp, c.NAME_KEY, c.EMAIL_KEY)
+
+        name = config[c.NAME_KEY]
+        email = config[c.EMAIL_KEY]
+
+        sha_hash = create_commit_sha_hash(c, name, email)
+
+        copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
+
+        write_history_data(c, name, email, sha_hash, ri, rs)
+
+        write_commit_message_data(c, sha_hash, ri)
+
+        write_hashed_file_commit_data(c, docx_path, sha_hash, ri, rs)
+
+        write_branch_data(c, rp)
+
+        move_document_to_repo_directory(rp.root, docx_path)
+
+    except Exception:
+        delete_repository_after_error(rp.root)
+        raise RuntimeError
 
 
-def write_config_data(config_user_name: str, config_user_email: str) -> None:
-    """Write the user config JSON file to the config folder."""
-
-    config_data = {"name": f"{config_user_name}", "email": f"{config_user_email}"}
-    try:
-        with open(
-            (get_document_repo_path() / ".sccs" / "config" / "config.json"),
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as f:
-            json.dump(config_data, f, indent=4)
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+def delete_repository_after_error(repo_path: Path) -> None:
+    shutil.rmtree(repo_path, ignore_errors=True)
 
 
-def write_hashed_file_commit_data(sha_hash: str, hashed_file: str) -> None:
-    """
-    Write the initial commit file binary hash JSON file to the main branch commit file
-    hash folder.
-    """
+def main(
+    c: SCCSConstants,
+    docx_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+) -> None:
 
-    commit_file_hash_data = {f"{sha_hash}": hashed_file}
-    try:
-        with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "branches"
-                / "main"
-                / "commit_file_hash"
-                / "commit_file_hash.json"
-            ),
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as f:
-            json.dump(commit_file_hash_data, f, indent=4)
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+    initialize_repository(c, docx_path, ri, rp, rs)
 
-
-def write_branch_data() -> None:
-    """Write the initial branch tracking JSON file."""
-
-    branches_data = {"current_branch": "main", "branches": ["main"]}
-    try:
-        with open(
-            (
-                get_document_repo_path()
-                / ".sccs"
-                / "current_branch"
-                / "current_branch.json"
-            ),
-            "w",
-            encoding="utf-8",
-            newline="\n",
-        ) as f:
-            json.dump(branches_data, f, indent=4)
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
-
-
-def confirmation_message() -> None:
-    """Print a confirmation message for successful SCCS initialization."""
-
-    print("SCCS initialization complete.\n")
-
-
-def main() -> None:
-    """Run functions for the <sccs init> command."""
-
-    check_if_arg_entered(get_entered_document_path())
-
-    check_for_prev_init()
-
-    check_file_requirements()
-
-    config_user_name = ask_config_input("name")
-
-    config_user_email = ask_config_input("email")
-
-    current_iso_time = get_current_iso_time()
-
-    sha_hash = create_commit_sha_hash(
-        current_iso_time, config_user_name, config_user_email
-    )
-
-    create_sccs_directory_layout()
-
-    document_as_html = utils.convert_docx_to_html(get_entered_document_path())
-
-    move_document_to_repo_directory()
-
-    copy_document_to_objects_as_docx_and_html(sha_hash, document_as_html)
-
-    write_history_data(sha_hash, config_user_name, config_user_email)
-
-    write_commit_message_data(sha_hash)
-
-    write_config_data(config_user_name, config_user_email)
-
-    current_branch_binary_hash = utils.hash_current_docx_binary(
-        docx_path=get_document_repo_path() / Path(get_entered_document_path()).name
-    )
-
-    write_hashed_file_commit_data(sha_hash, current_branch_binary_hash)
-
-    write_branch_data()
-
-    confirmation_message()
+    print_init_success_message(c)
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    document_path = Path(utils.entered_argument(2))
+    utils.run_command(
+        main,
+        document_path,
+        RepositoryIO(document_path.with_suffix(c.EMPTY_STRING), c, target),
+        RepositoryPaths(document_path.with_suffix(c.EMPTY_STRING), c, target),
+        RepositoryStatus(document_path, c, target),
+    )

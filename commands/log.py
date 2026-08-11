@@ -1,76 +1,66 @@
 #!/usr/bin/env python3
-"""Print a list of past commits for the current branch."""
 
-import json
-import sys
 from pathlib import Path
+from typing import Any
 
-import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryIO,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def get_log_data(cwd: Path | None = None, current_branch: str | None = None) -> dict:
-    """
-    Retrieve the commit log data from the history JSON file by opening
-    'history.json' and reading its JSON
+def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
 
-    Return the commit history JSON data.
-    """
-
-    if cwd is None:
-        cwd = utils.working_directory_path
-    if current_branch is None:
-        current_branch = utils.get_current_branch()
-
-    # Get JSON log data
-    log_path = cwd / ".sccs" / "branches" / current_branch / "history" / "history.json"
-
-    if not Path(log_path).is_file():
-        raise FileNotFoundError(
-            "History file not found. Please run 'sccs init <file_path>' to initialize "
-            "SCCS for this file."
-        )
-
-    with open(log_path, "r", encoding="utf-8", newline="\n") as log_file:
-        log_data = json.load(log_file)
-    return log_data
-
-
-def print_log() -> None:
-    """
-    Read the commit log data by calling 'get_log_data'.
-
-    Print the first 10 characters of the commit SHA hash, along with the commit author,
-    timestamp, and commit message.
-    """
-
-    log_data = get_log_data()
-    for entry in log_data["log"]:
+    for i in history_data[c.LOG_DICT_KEY]:
         print(
-            "------------------------------\n"
-            f"Commit File: {entry[:10]}\n"
-            f"Author: {log_data['log'][entry]['author']}\n"
-            f"Date: {log_data['log'][entry]['timestamp']}\n"
-            f"Message: {log_data['log'][entry]['message']}\n"
-            "------------------------------"
+            c.LOG_SEPARATOR + c.NEWLINE,
+            c.LOG_COMMIT_FILE_LABEL + i[: c.COMMIT_HASH_DISPLAY_LENGTH] + c.NEWLINE,
+            (
+                c.LOG_AUTHOR_LABEL
+                + history_data[c.LOG_DICT_KEY][i][c.AUTHOR_DICT_KEY]
+                + c.NEWLINE
+            ),
+            (
+                c.LOG_DATE_LABEL
+                + history_data[c.LOG_DICT_KEY][i][c.TIMESTAMP_DICT_KEY]
+                + c.NEWLINE
+            ),
+            (
+                c.LOG_MESSAGE_LABEL
+                + history_data[c.LOG_DICT_KEY][i][c.MESSAGE_DICT_KEY]
+                + c.NEWLINE
+            ),
+            c.LOG_SEPARATOR,
+            sep="",
         )
 
 
-def main() -> None:
-    """Run functions for the <sccs log> command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
 
-    print_log()
+    rs.target.set(rd.current_branch())
+
+    rs.check_repository_layout()
+
+    print_log(c, ri.read_history())
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryIO(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

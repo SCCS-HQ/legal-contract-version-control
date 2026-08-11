@@ -106,6 +106,8 @@ if "%command%"=="merge" (
 )
 
 echo Unknown command: %command%
-echo Invalid command. Please use "init", "commit", "open", "log", "status", "diff", "help", "branch", "switch", "publish", "clone", "config", "revert", "reset", or "push", along with required arguments
+echo Invalid command. Please use "init", "commit", "open", "log", "status",
+echo "diff", "help", "branch", "switch", "publish", "clone", "config",
+echo "revert", "reset", or "push", along with required arguments
 echo For help, use the 'sccs help' command
 exit /b 1

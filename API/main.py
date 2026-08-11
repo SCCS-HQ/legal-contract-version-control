@@ -78,40 +78,43 @@ async def publish(
     if repo_path.exists():
         raise HTTPException(status_code=400, detail="Repository already exists")
 
-    with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(finfo.file_size for finfo in f.infolist())
+    with zipfile.ZipFile(file.file, "r") as zf:
+        total_size = sum(i.file_size for i in zf.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
-        total_num_files = len(f.infolist())
-        for finfo in f.infolist():
-            if finfo.file_size > 10 * 1024 * 1024:
-                raise HTTPException(
-                    status_code=400, detail=f"File {finfo.filename} is too large"
-                )
+        total_num_files = len(zf.infolist())
         if total_num_files > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for finfo in f.infolist():
-            path = Path(repo_path / finfo.filename).resolve()
+        for i in zf.infolist():
+            if i.file_size > 10 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=400, detail=f"File {i.filename} is too large"
+                )
+
+            entry_path = Path(i.filename)
+            if entry_path.is_absolute() or ".." in entry_path.parts:
+                raise HTTPException(status_code=400, detail="Invalid file path in zip")
+
+            path = Path(os.path.normpath(repo_path / entry_path))
             try:
-                path.relative_to(Path(repo_path))
+                path.relative_to(repo_path)
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
 
-            if finfo.is_dir():
+            if i.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, "wb") as f_out:
-
-                    with f.open(finfo) as f_in:
+                with open(path, "wb") as f:
+                    with zf.open(i) as f_in:
                         while True:
                             chunk = f_in.read(1024 * 1024)
                             if not chunk:
                                 break
-                            f_out.write(chunk)
+                            f.write(chunk)
 
     return {"message": "File published successfully", "repository_url": remote}
 
@@ -133,8 +136,8 @@ async def clone(repo_name: str) -> StreamingResponse:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(repo_path):
-            for f in files:
-                file_path = Path(root) / f
+            for i in files:
+                file_path = Path(root) / i
                 zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
 
     buffer.seek(0)
@@ -156,12 +159,18 @@ async def push(repo_name: str) -> dict:
     ensure_repository_exists(repo_name)
     base_dir = Path("API/repos").resolve()
     repo_path = (base_dir / repo_name / ".sccs").resolve()
+
+    try:
+        repo_path.relative_to(base_dir)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
     objects_dir = repo_path / "objects"
 
     if not objects_dir.exists() or not objects_dir.is_dir():
         raise HTTPException(status_code=404, detail="Repository objects not found")
 
-    objects = list(set(f.stem for f in objects_dir.rglob("*") if f.is_file()))
+    objects = list(set(i.stem for i in objects_dir.rglob("*") if i.is_file()))
 
     return {"objects": objects}
 
@@ -189,39 +198,39 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
             status_code=400, detail="Repository name does not match file name"
         )
 
-    with zipfile.ZipFile(file.file, "r") as f:
-        total_size = sum(finfo.file_size for finfo in f.infolist())
+    with zipfile.ZipFile(file.file, "r") as zf:
+        total_size = sum(i.file_size for i in zf.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
-        total_num_files = len(f.infolist())
-        for finfo in f.infolist():
-            if finfo.file_size > 10 * 1024 * 1024:
+        total_num_files = len(zf.infolist())
+        for i in zf.infolist():
+            if i.file_size > 10 * 1024 * 1024:
                 raise HTTPException(
-                    status_code=400, detail=f"File {finfo.filename} is too large"
+                    status_code=400, detail=f"File {i.filename} is too large"
                 )
         if total_num_files > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
 
-        for finfo in f.infolist():
+        for i in zf.infolist():
             try:
-                relative_path = Path(finfo.filename).relative_to(f"tmp_{repo_name}")
+                relative_path = Path(i.filename).relative_to(f"tmp_{repo_name}")
                 path = Path(repo_path / relative_path).resolve()
                 path.relative_to(Path(repo_path))
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
-            if finfo.is_dir():
+            if i.is_dir():
                 path.mkdir(parents=True, exist_ok=True)
             else:
                 path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, "wb") as f_out:
-                    with f.open(finfo) as f_in:
+                with open(path, "wb") as f:
+                    with zf.open(i) as f_in:
                         while True:
                             chunk = f_in.read(1024 * 1024)
                             if not chunk:
                                 break
-                            f_out.write(chunk)
+                            f.write(chunk)
 
     with open(
         repo_path / ".sccs" / "current_branch" / "current_branch.json",
@@ -265,9 +274,14 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     local_objects = set(data["objects"])
 
-    remote_objects = set(
-        f.stem for f in (repo_path / ".sccs" / "objects").rglob("*") if f.is_file()
-    )
+    objects_paths = Path(os.path.normpath(repo_path / ".sccs" / "objects"))
+
+    try:
+        objects_paths.relative_to(repo_path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
+    remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
 
     obj_to_upload = remote_objects - local_objects
 
@@ -288,38 +302,45 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         repo_path / ".sccs" / "commit_messages" / "commit_messages.json"
     ]
 
-    objects_paths = [
-        f.resolve()
-        for f in (repo_path / ".sccs" / "objects").rglob("*")
-        if f.is_file() and f.stem in obj_to_upload
+    individual_objects_paths = [
+        i.resolve()
+        for i in (objects_paths).rglob("*")
+        if i.is_file() and i.stem in obj_to_upload
     ]
 
+    branches_path = Path(os.path.normpath(repo_path / ".sccs" / "branches"))
+
+    try:
+        branches_path.relative_to(repo_path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid repository name")
+
     history_paths = [
-        f.resolve()
-        for f in (repo_path / ".sccs" / "branches").rglob("*")
-        if f.is_file() and f.stem == "history"
+        i.resolve()
+        for i in (branches_path).rglob("*")
+        if i.is_file() and i.stem == "history"
     ]
     byte_hash_paths = [
-        f.resolve()
-        for f in (repo_path / ".sccs" / "branches").rglob("*")
-        if f.is_file() and f.stem == "commit_file_hash"
+        i.resolve()
+        for i in (branches_path).rglob("*")
+        if i.is_file() and i.stem == "commit_file_hash"
     ]
 
     files_to_upload = (
-        f
-        for f in objects_paths
+        i
+        for i in individual_objects_paths
         + history_paths
         + byte_hash_paths
         + document_path
         + current_branch_path
         + commit_msgs_path
-        if f.is_file()
+        if i.is_file()
     )
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        for file_path in files_to_upload:
-            zf.write(filename=file_path, arcname=file_path.relative_to(repo_path))
+        for i in files_to_upload:
+            zf.write(filename=i, arcname=i.relative_to(repo_path))
     buffer.seek(0)
     return StreamingResponse(
         buffer,

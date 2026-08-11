@@ -1,66 +1,85 @@
+#!/usr/bin/env python3
+
 import shutil
-import sys
 from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
 
 
-def get_entered_commit() -> Path | None:
-    """Return the commit file path entered by the user if provided, else None."""
+def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
 
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
-
-
-def revert(src: Path, dst: Path | None = None) -> None:
-    """Revert the current document to the specified commit by copying 'src' to 'dst'."""
-
-    if not src.is_file():
+    if not commit_path.is_file():
         raise exceptions.InvalidArgumentError(
-            f"Source file '{src.stem}' does not exist."
+            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                file_name=commit_path.stem
+            )
         )
 
-    if dst is None:
-        dst = utils.current_file_docx_path
+    try:
+        shutil.copy2(commit_path, rp.document_path())
+    except Exception as e:
+        raise exceptions.FileCopyError() from e
 
-    shutil.copy2(src, dst)
 
-
-def print_revert_confirmation_message(commit: Path, new_commit_hash: str) -> None:
-    """Print a confirmation message for the revert."""
+def print_revert_confirmation_message(
+    c: SCCSConstants, commit_hash: str, new_commit_hash: str
+) -> None:
 
     print(
-        f"Document successfully reverted to commit '{commit.stem[:10]}' on commit "
-        f"'{new_commit_hash[:10]}'.\n"
+        c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            new_commit_hash=new_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+        )
     )
 
 
-def main() -> None:
-    """Main function to handle the revert command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    commit_hash: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
 
-    utils.check_for_uncommitted_changes("revert")
+    rs.target.set(rd.current_branch())
 
-    cwd = utils.working_directory_path
-    commit = get_entered_commit()
-    validated_commit = utils.validate_commit("docx", cwd, commit)
-    revert(validated_commit)
+    rs.check_repository_layout()
 
-    new_commit_hash = utils.commit_changes(
-        f"Revert to commit '{validated_commit.stem}'"
+    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
+
+    revert(c, commit_path, rp)
+
+    new_commit_hash = rw.commit_changes(
+        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+        )
     )
 
-    print_revert_confirmation_message(validated_commit, new_commit_hash)
+    full_commit_hash = rd.resolve_full_hash(commit_hash)
+
+    print_revert_confirmation_message(c, full_commit_hash, new_commit_hash)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

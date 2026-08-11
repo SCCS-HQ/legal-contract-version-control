@@ -1,108 +1,109 @@
 #!/usr/bin/env python3
-"""Command to configure a SCCS repository's settings"""
 
-import sys
+
+from pathlib import Path
+from urllib.parse import urljoin, urlsplit
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
 
 
-def get_entered_config_key() -> str | None:
-    """
-    Retrieve the entered configuration key and ensure it isn't None and that it is any
-    of the valid configuration keys:
+def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
+    if key not in c.ACCEPTED_CONFIG_KEYS:
+        raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
 
-    'remote'
-
-    'name'
-
-    'email'
-
-    Return the validated key entered by the user.
-    """
-    key = sys.argv[2] if len(sys.argv) > 2 else None
-    if key is None:
+    if not value.strip():
         raise exceptions.InvalidArgumentError(
-            "No key provided. Please provide a key to configure: 'remote', 'name', or "
-            "'email'."
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
 
-    if key not in ["remote", "name", "email"]:
-        raise exceptions.InvalidArgumentError(
-            "Invalid key provided. Please provide a valid key to configure: 'remote', "
-            "'name', or 'email'."
-        )
-    return key
+    return value.strip()
 
 
-def get_entered_config_value() -> str | None:
-    """
-    Return the value entered by the user if it is provided, else raise an exception.
-    """
-    value = sys.argv[3] if len(sys.argv) > 3 else None
-    if value is None:
+def resolve_key_value(
+    c: SCCSConstants, repo_name: str, key: str | None, value: str | None
+) -> str:
+
+    if not value:
         raise exceptions.InvalidArgumentError(
-            "No value provided. Please provide a value to configure."
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
+
+    if key == c.REMOTE_KEY:
+        url = (
+            value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
+        )
+        url_parsed = urlsplit(url)
+
+        if (
+            url_parsed.scheme.lower() not in c.ACCEPTED_SCHEMES
+            or not url_parsed.netloc
+            or url_parsed.query
+            or url_parsed.fragment
+        ):
+            raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
+
+        required_path_ending = (
+            c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
+        )
+
+        return (
+            urljoin(url, required_path_ending)
+            if not url.endswith(required_path_ending)
+            else url
+        )
+
     return value
 
 
-def resolve_entered_remote(remote: str) -> str:
-    """
-    Resolve the entered remote URL to the correct format for storing in the config file
-    by ensuring it starts with 'http://' or 'https://', does not end with a '/', and
-    ends with '/repos/<repo-name>'.
+def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) -> None:
 
-    Return the resolved 'remote'.
-    """
-
-    if not remote.startswith("http://") and not remote.startswith("https://"):
-        raise exceptions.InvalidArgumentError(
-            "Invalid remote URL provided. Please provide a valid URL starting with "
-            "'http://' or 'https://'."
-        )
-
-    if remote.endswith("/"):
-        remote = remote[:-1]
-
-    for i in ["publish", "clone"]:
-        if remote.endswith(i):
-            raise exceptions.InvalidArgumentError(
-                "Invalid remote URL provided. Please provide a valid URL. It cannot end"
-                f" with '/{i}'."
-            )
-
-    if not remote.endswith("/repos"):
-        remote += "/repos"
-
-    remote += "/" + utils.working_directory_path.name
-
-    return remote
+    print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 
-def main() -> None:
-    """Run functions for the <sccs config> command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    key: str,
+    value: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    rs.target.set(rd.current_branch())
 
-    key = get_entered_config_key()
-    value = get_entered_config_value()
+    rs.check_repository_layout()
 
-    if key == "remote":
-        value = resolve_entered_remote(value)
+    repo_name = rp.repo_name
 
-    utils.write_key_to_config(key, value)
+    value = validate_entered_value(c, key, value)
 
-    print(f"Configuration '{key}' set to '{value}' successfully.\n")
+    value = resolve_key_value(c, repo_name, key, value)
+
+    rw.write_key_to_config(key, value)
+
+    print_config_confirmation_message(c, key, value)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        utils.entered_argument(3),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

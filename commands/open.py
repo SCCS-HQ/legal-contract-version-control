@@ -1,96 +1,85 @@
 #!/usr/bin/env python3
-"""Open a commit file and update the current document."""
 
 import shutil
-import sys
 from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+    TargetBranch,
+)
 
 
-def get_commit_path_input() -> Path | None:
-    """
-    Get the absolute path of the commit file from the command-line arguments if
-    provided, otherwise return None.
-    """
-    return Path(sys.argv[2]) if len(sys.argv) > 2 else None
+def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
 
-
-def confirm_before_proceeding(
-    commit_path: Path, docx_path: Path | None = None, cwd: Path | None = None
-) -> None:
-    """Confirm with the user before proceeding with overwriting the current document."""
-    if docx_path is None:
-        docx_path = utils.current_file_docx_path
-    if cwd is None:
-        cwd = utils.working_directory_path
-    confirm = (
-        input(
-            f"Are you sure you want to overwrite '{cwd}/{docx_path.name}' "
-            f"with the contents of '{cwd}/{commit_path.name}'?\nThis "
-            f"action will replace the current content of the .docx file. (Y/N): "
+    if not commit_hash:
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
         )
-        .strip()
-        .lower()
-    )
-    if confirm != "y":
-        print("Update canceled.\n")
-        sys.exit(0)
+
+    valid_len = len(commit_hash) == (c.FULL_COMMIT_HASH_LENGTH)
+
+    if not valid_len or not all(i in c.HEX_DIGITS for i in commit_hash):
+        raise exceptions.InvalidArgumentError(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
+        )
 
 
-def copy_file_commit(commit_path: Path, docx_path: Path | None = None) -> None:
-    """
-    Copy the commit file to the current document, effectively opening the older commit.
-    """
-    if docx_path is None:
-        docx_path = utils.current_file_docx_path
+def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
 
     try:
-        shutil.copy2(commit_path, docx_path)
+        shutil.copy2(commit_path, output_file_name)
     except Exception as e:
-        raise exceptions.FileCopyError from e
+        raise exceptions.FileCopyError() from e
 
 
 def print_rewrite_confirmation_message(
-    commit_path: Path, docx_path: Path | None = None
+    c: SCCSConstants, commit_hash: str, output_file_name: Path
 ) -> None:
-    """
-    Print the confirmation message after rewriting the file using the document name.
-    """
-    if docx_path is None:
-        docx_path = utils.current_file_docx_path
+
     print(
-        f"File '{docx_path.name}' has been updated with the contents of "
-        f"'{commit_path.name[:10]}'.\n"
+        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            output_file=output_file_name,
+        )
     )
 
 
-def main() -> None:
-    """Run functions for the <sccs open> command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus
+) -> None:
+    rs.target.set(rd.current_branch())
 
-    commit_path = utils.validate_commit(
-        "docx", utils.working_directory_path, get_commit_path_input()
-    )
+    rs.check_repository_layout()
 
-    utils.check_for_uncommitted_changes("open")
+    rs.raise_for_uncommitted_changes()
 
-    confirm_before_proceeding(commit_path)
+    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 
-    copy_file_commit(commit_path)
+    full_commit_hash = rd.resolve_full_hash(commit_hash)
 
-    print_rewrite_confirmation_message(commit_path)
+    output_file_name = Path(
+        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
+            commit_hash=full_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+        )
+    ).with_suffix(c.DOCX_EXTENSION)
+
+    copy_file_commit(commit_path, output_file_name)
+
+    print_rewrite_confirmation_message(c, full_commit_hash, output_file_name)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+    )

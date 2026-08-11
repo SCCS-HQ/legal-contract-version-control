@@ -1,94 +1,126 @@
+#!/usr/bin/env python3
+
 import shutil
-import sys
 from pathlib import Path
+from typing import Any
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
 
 
-def get_entered_branch() -> str | None:
-    """Return the entered branch if provided, else None."""
-    return sys.argv[2] if len(sys.argv) > 2 else None
+def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
 
-
-def validate_branch(branch: str | None, current_branch: str, branches: list) -> str:
-    """Validate that the entered branch is valid, exists, and is not the current branch."""
-    if branch is None:
+    if not branch:
         raise exceptions.InvalidArgumentError(
-            "No branch provided. Please provide a branch to merge."
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
-    if branch == current_branch:
-        raise exceptions.InvalidArgumentError(
-            "Cannot merge the current branch into itself."
+    if branch == rd.current_branch():
+        raise exceptions.InvalidArgumentError(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+    if branch not in rd.branches():
+        raise exceptions.BranchNotFoundError(
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
-    if branch not in branches:
-        raise exceptions.BranchNotFoundError(f"Branch '{branch}' does not exist.")
-    return branch
 
 
-def copy_branch_data(
-    current_branch: str, target_branch: str, cwd: Path | None = None
+def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+
+    source = rp.branch_path(branch)
+    dest = rp.branch_path(rd.current_branch())
+    c = rd.c
+
+    def ignore_metadata(_dir, names) -> set[Any]:
+        ignored = set()
+        for name in names:
+            if name in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
+                ignored.add(name)
+        return ignored
+
+    try:
+        if source.exists():
+            shutil.copytree(
+                source,
+                dest,
+                dirs_exist_ok=True,
+                ignore=ignore_metadata,
+            )
+    except Exception as e:
+        raise exceptions.FileCopyError() from e
+
+
+def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+
+    original_target = rd.target.get()
+    rd.target.set(branch)
+
+    try:
+        shutil.copy2(
+            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR), rp.document_path()
+        )
+    except Exception as e:
+        raise exceptions.FileCopyError() from e
+    finally:
+        rd.target.set(original_target)
+
+
+def print_merge_success_message(
+    c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
-    """Copy the data from the source branch to the target branch."""
-    if cwd is None:
-        cwd = utils.working_directory_path
-
-    current_branch_path = cwd / ".sccs" / "branches" / current_branch
-    target_branch_path = cwd / ".sccs" / "branches" / target_branch
-
-    shutil.copytree(target_branch_path, current_branch_path, dirs_exist_ok=True)
-
-
-def copy_repo_document(target_branch: str, cwd: Path | None = None) -> None:
-    """Copy the repo document from the source branch to the target branch."""
-    if cwd is None:
-        cwd = utils.working_directory_path
-
-    target_repo_doc_path = (
-        cwd
-        / ".sccs"
-        / "objects"
-        / "docx"
-        / f"{utils.get_latest_commit(target_branch)}.docx"
-    )
-    current_repo_doc_path = utils.current_file_docx_path
-
-    shutil.copy2(target_repo_doc_path, current_repo_doc_path)
-
-
-def print_merge_success_message(source_branch: str, target_branch: str) -> None:
-    """Print a success message after merging the branches."""
     print(
-        f"Successfully merged branch '{source_branch}' into branch '{target_branch}'."
+        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch=branch, current_branch=rd.current_branch()
+        )
     )
 
 
-def main() -> None:
-    """Merge the entered branch into the current branch."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    branch: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
 
-    utils.check_for_uncommitted_changes("merge")
+    rs.target.set(rd.current_branch())
 
-    current_branch = utils.get_current_branch()
-    entered_branch = get_entered_branch()
-    branches = utils.get_branch_data(key="branches")
-    branch_to_merge = validate_branch(entered_branch, current_branch, branches)
-    copy_repo_document(branch_to_merge)
-    copy_branch_data(current_branch, branch_to_merge)
+    rs.check_repository_layout()
 
-    utils.commit_changes(f'Merged branch "{branch_to_merge}" into "{current_branch}".')
+    rs.raise_for_uncommitted_changes()
 
-    print_merge_success_message(branch_to_merge, current_branch)
+    validate_branch(c, branch, rd)
+
+    copy_repo_document(branch, rd, rp)
+
+    copy_branch_data(branch, rd, rp)
+
+    rw.commit_changes(
+        c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
+            branch=branch, current_branch=rd.current_branch()
+        ),
+        allow_empty_commit=True,
+    )
+
+    print_merge_success_message(c, branch, rd)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )

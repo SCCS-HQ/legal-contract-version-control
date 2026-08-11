@@ -6,31 +6,8 @@ import sys
 from pathlib import Path
 
 import exceptions
-
-COMMANDS = [
-    "init",
-    "commit",
-    "open",
-    "log",
-    "diff",
-    "status",
-    "help",
-    "branch",
-    "switch",
-    "publish",
-    "clone",
-    "config",
-    "revert",
-    "reset",
-    "push",
-    "pull",
-    "merge",
-]
-
-
-def get_entered_command() -> str | None:
-    """Return the entered command if provided, else None."""
-    return sys.argv[1] if len(sys.argv) > 1 else None
+import utils
+from constants_classes import SCCSConstants
 
 
 def get_script_directory() -> Path:
@@ -38,55 +15,45 @@ def get_script_directory() -> Path:
     return Path(__file__).parent.resolve()
 
 
-def run_command(command: str, script_directory: Path) -> None:
+def run_command(c: SCCSConstants, entered_command: str) -> None:
     """
     Run the entered command by running a subprocess of the command and exiting with the
     exit code of the subprocess.
     """
     sys.exit(
-        subprocess.run([
-            sys.executable,
-            script_directory / f"{command}.py"]
-             + sys.argv[1:]
+        subprocess.run(
+            [
+                sys.executable,
+                Path(
+                    get_script_directory() / entered_command
+                ).with_suffix(c.PYTHON_EXTENSION),
+            ]
+            + sys.argv[1:]
         ).returncode
     )
 
 
-def execute_command(command: str, script_directory: Path, COMMANDS: list) -> None:
+def validate_command(c: SCCSConstants, entered_command: str) -> None:
     """
     Ensure 'command' is valid by checking if it is included in 'COMMANDS'. If command'
     is valid, run it with 'run_command()'.
     """
-    if command not in COMMANDS:
+
+    if entered_command not in c.COMMANDS_LIST:
         raise exceptions.UnknownCommandError(
-            f"Unknown command: {command}. Please use 'init', 'commit', 'open', 'log', "
-            f"'diff', 'status', 'help', 'branch', 'switch', 'clone', 'config', 'revert'"
-            f",'reset', 'push', 'pull', or 'merge', along with required arguments. For help, use the 'sccs help' "
-            f"command."
+            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(
+                entered_command=entered_command
+            )
         )
-    run_command(command, script_directory)
 
 
-def main() -> None:
-    command = get_entered_command()
-
-    script_directory = get_script_directory()
-
-    execute_command(command, script_directory, COMMANDS)
+def main(c: SCCSConstants, entered_command: str) -> None:
+    validate_command(c, entered_command)
+    run_command(c, entered_command)
 
 
 if __name__ == "__main__":
-    try:
-        main()
+    utils.run_command(main, utils.entered_argument(1))
 
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
-
-# If on MacOS / Linux, move this file, commit.py, init.py, open.py, log.py, diff.py,
-# status.py, help.py, branch.py , and switch.py to /usr/local/bin and make it executable
-#  with `chmod +x /usr/local/bin/sccs`.
+# If on MacOS / Linux, move all files in commands/, and make this file executable
+# with 'chmod +x /usr/local/bin/sccs'.

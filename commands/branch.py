@@ -1,280 +1,213 @@
 #!/usr/bin/env python3
-"""Create, Delete, and List Branches"""
 
-import json
 import shutil
-import sys
 from pathlib import Path
 
 import exceptions
 import utils
+from constants_classes import SCCSConstants
+from repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
 
 
-def get_entered_subcommand() -> str | None:
-    """
-    Retrieve the subcommand entered by the user.
-
-    Return the subcommand if provided, otherwise return None.
-    """
-
-    return sys.argv[2] if len(sys.argv) > 2 else None
-
-
-def get_entered_branch_name() -> str | None:
-    """
-    Retrieve the branch name entered by the user.
-
-    Return the branch name if provided, otherwise return None.
-    """
-
-    return sys.argv[3] if len(sys.argv) > 3 else None
-
-
-def validate_subcommand(subcommand: str | None, branch_name: str | None) -> None:
-    """
-    Validate the subcommand entered by the user.
-
-    Raise an exception if the subcommand is invalid or if required arguments are
-    missing.
-    """
+def validate_subcommand(
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rs: RepositoryStatus,
+) -> None:
 
     if not subcommand:
         raise exceptions.InvalidSubcommandError(
-            "No subcommand provided. Please use 'create', 'delete', or 'list' along "
-            "with required arguments."
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.SUBCOMMAND_FIELD_NAME)
         )
 
-    if subcommand not in ["create", "delete", "list"]:
-        raise exceptions.InvalidSubcommandError(
-            f"Invalid subcommand: {subcommand}. Please use 'create', 'delete', or "
-            f"'list' along with required arguments."
-        )
+    if subcommand not in c.ACCEPTED_SUBCOMMANDS:
+        raise exceptions.InvalidSubcommandError(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
-    if subcommand in ["create", "delete"]:
+    if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         if not branch_name:
             raise exceptions.InvalidArgumentError(
-                "No branch name provided. Please specify a branch name."
+                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=c.BRANCH_NAME_FIELD_NAME
+                )
+            )
+
+    if subcommand == c.CREATE_SUBCOMMAND:
+        if rs.branch_exists(branch_name):
+            raise exceptions.BranchAlreadyExistsError(
+                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
+            )
+
+    if subcommand == c.DELETE_SUBCOMMAND:
+        if rs.is_current_branch(branch_name):
+            raise exceptions.BranchDeletionError(
+                c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE
+            )
+
+        if not rs.branch_exists(branch_name):
+            raise exceptions.BranchMissingFromMetadataError(
+                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
             )
 
 
-def branch_create_subcommand(
-    current_branch: str,
-    branch_data: dict,
-    cwd: Path | None = None,
-    current_branch_path: Path | None = None,
+def rollback_changes_after_failure(
+    c: SCCSConstants,
+    branch_name: str,
+    subcommand: str,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
 ) -> None:
-    """
-    Create a new branch from the current branch. The new branch will have the same
-    commit history and metadata as the current branch.
-    """
 
-    if cwd is None:
-        cwd = utils.working_directory_path
+    try:
+        if subcommand == c.CREATE_SUBCOMMAND:
+            rw.remove_from_branches_list(branch_name)
+            rw.set_current_branch(c.MAIN_BRANCH_NAME)
+            shutil.rmtree(rp.branch_path(branch_name))
+        if subcommand == c.DELETE_SUBCOMMAND:
+            rw.add_to_branches_list(branch_name)
+    except Exception as e:
+        raise exceptions.UpdatingMetadataError(
+            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_name
+            )
+        ) from e
 
-    if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
 
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
-
-    if not sanitized_branch_name:
-        raise exceptions.InvalidArgumentError(
-            "Invalid branch name. Please provide a valid branch name."
-        )
-
-    if sanitized_branch_name in branch_data["branches"]:
-        raise exceptions.BranchAlreadyExistsError(
-            f"Branch '{sanitized_branch_name}' already exists."
-        )
-
-    if (cwd / ".sccs" / "branches" / sanitized_branch_name).is_dir():
-        raise exceptions.BranchAlreadyExistsError(
-            f"Branch '{sanitized_branch_name}' already exists."
-        )
+def branch_create_subcommand(
+    c: SCCSConstants,
+    branch_name: str,
+    current_branch_name: str,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
 
     try:
         shutil.copytree(
-            cwd / ".sccs" / "branches" / current_branch,
-            cwd / ".sccs" / "branches" / sanitized_branch_name,
+            rp.branch_path(current_branch_name),
+            rp.branch_path(branch_name),
         )
+        rw.add_to_branches_list(branch_name)
+        rw.set_current_branch(branch_name)
     except Exception as e:
-        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
-        raise exceptions.FileCopyError from e
+        rollback_changes_after_failure(c, branch_name, c.CREATE_SUBCOMMAND, rp, rw)
+        raise exceptions.FileCopyError(
+            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                action=c.CREATE_SUBCOMMAND
+            )
+        ) from e
 
-    try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
-            branch_data["branches"].append(sanitized_branch_name)
-            branch_data["current_branch"] = sanitized_branch_name
-            json.dump(branch_data, current_branch_file, indent=4)
+    print_branch_create_success_message(c, branch_name, current_branch_name)
 
-    # Clean up the created directory before raising
-    except Exception as e:
-        delete_branch_after_error(sanitized_branch_name, cwd=cwd)
-        raise exceptions.BranchCreationError from e
 
+def print_branch_create_success_message(
+    c: SCCSConstants, branch_name: str, current_branch_name: str
+) -> None:
     print(
-        f"Branch '{sanitized_branch_name}' was created from branch '{current_branch}', "
-        f"and is now the current branch.\n"
+        c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name, current_branch_name=current_branch_name
+        )
     )
-
-
-def delete_branch_after_error(branch_name: str, cwd: Path | None = None) -> None:
-    """
-    Delete a branch after an error has occurred during branch creation by deleting the
-    branch directory.
-    """
-
-    if cwd is None:
-        cwd = utils.working_directory_path
-
-    branch_path = cwd / ".sccs" / "branches" / branch_name
-    if branch_path.is_dir():
-        shutil.rmtree(branch_path)
 
 
 def branch_delete_subcommand(
-    current_branch: str,
-    branch_data: dict,
-    cwd: Path | None = None,
-    current_branch_path: Path | None = None,
+    c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
 ) -> None:
-    """
-    Delete an existing branch using the branch name provided by the user. The branch
-    directory will be deleted, and the branch will be removed from the branch metadata.
-    If the deleted branch is the current branch, an exception will be raised and the
-    branch will not be deleted. If an error occurs during deletion, any changes made
-    to the branch metadata will be rolled back.
-    """
-
-    if cwd is None:
-        cwd = utils.working_directory_path
-    if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
-
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
-
-    branch_path = cwd / ".sccs" / "branches" / sanitized_branch_name
-
-    if sanitized_branch_name == current_branch:
-        raise exceptions.BranchDeletionError(
-            "Cannot delete the current branch. Please switch to another branch first."
-        )
-
-    if not branch_path.exists():
-        raise exceptions.BranchNotFoundError(
-            f"Branch '{sanitized_branch_name}' does not exist."
-        )
-
-    if not sanitized_branch_name in branch_data["branches"]:
-        raise exceptions.BranchMissingFromMetadataError(
-            f"Branch '{sanitized_branch_name}' does not exist in branch data."
-        )
 
     try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
-            branch_data["branches"].remove(sanitized_branch_name)
-            json.dump(branch_data, current_branch_file, indent=4)
-
+        rw.remove_from_branches_list(branch_name)
+        shutil.rmtree(rp.branch_path(branch_name))
     except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+        rollback_changes_after_failure(c, branch_name, c.DELETE_SUBCOMMAND, rp, rw)
+        raise exceptions.FileDeleteError(
+            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
+                action=c.DELETE_SUBCOMMAND
+            )
+        ) from e
 
-    try:
-        shutil.rmtree(branch_path)
-
-    except Exception as e:
-        rollback_changes_after_failure(current_branch_path, branch_data=branch_data)
-        raise exceptions.BranchDeletionError from e
-
-    print(f"Branch '{sanitized_branch_name}' was deleted.\n")
+    print_branch_delete_success_message(c, branch_name)
 
 
-def rollback_changes_after_failure(
-    current_branch_path: Path | None = None, branch_data: dict | None = None
-) -> None:
-    """
-    Rollback changes after a failed branch deletion.
-    If an error occurs during branch deletion, the branch metadata will be rolled back
-    to include the deleted branch again."""
-
-    if current_branch_path is None:
-        current_branch_path = utils.current_branch_path
-
-    if branch_data is None:
-        branch_data = utils.get_branch_data()
-
-    sanitized_branch_name = utils.clean_directory_name(get_entered_branch_name())
-    try:
-        with open(
-            current_branch_path, "w", encoding="utf-8", newline="\n"
-        ) as current_branch_file:
-            branch_data["branches"].append(sanitized_branch_name)
-            json.dump(branch_data, current_branch_file, indent=4)
-
-    except Exception as e:
-        raise exceptions.UpdatingMetadataError from e
+def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
+    print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
-def branch_list_subcommand(current_branch: str, branch_data: dict) -> None:
-    """
-    Print a list of all branches, indicating the current branch found in the repository
-    metadata.
-    """
+def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
 
-    print("Branches:\n")
-    for branch in branch_data.get("branches", []):
-        if branch == current_branch:
-            print(f"* {branch} (current)")
-        else:
-            print(f"  {branch}")
+    print(c.BRANCHES_DIR_LIST_HEADER)
+    for i in rd.branches():
+        (
+            print(c.CURRENT_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
+            if i == rd.current_branch()
+            else print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
+        )
 
 
 def run_specified_subcommand(
-    subcommand: str, current_branch: str, branch_data: dict
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    current_branch_name: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
 ) -> None:
-    """
-    Run the specified subcommand by reading the subcommand entered:
 
-    create: branch_create_subcommand
-
-    delete: branch_delete_subcommand
-
-    list: branch_list_subcommand
-    """
-
-    if subcommand == "create":
-        branch_create_subcommand(current_branch, branch_data)
-    elif subcommand == "delete":
-        branch_delete_subcommand(current_branch, branch_data)
-    elif subcommand == "list":
-        branch_list_subcommand(current_branch, branch_data)
+    if subcommand == c.CREATE_SUBCOMMAND:
+        if branch_name is None:
+            raise ValueError()
+        branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
+    elif subcommand == c.DELETE_SUBCOMMAND:
+        if branch_name is None:
+            raise ValueError()
+        branch_delete_subcommand(c, branch_name, rp, rw)
+    elif subcommand == c.LIST_SUBCOMMAND:
+        branch_list_subcommand(c, rd)
 
 
-def main() -> None:
-    """Run functions for the <sccs branch> command."""
-    utils.check_sccs_layout()
+def main(
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
 
-    validate_subcommand(get_entered_subcommand(), get_entered_branch_name())
+    rs.target.set(rd.current_branch())
 
-    utils.check_for_uncommitted_changes("branch")
+    rs.check_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    validate_subcommand(c, subcommand, branch_name, rs)
 
     run_specified_subcommand(
-        get_entered_subcommand(),
-        utils.get_current_branch(),
-        utils.get_branch_data(),
+        c, subcommand, branch_name, rd.current_branch(), rd, rp, rw
     )
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-
-    except exceptions.SCCSException as e:
-        print(f"An error occurred:\n{e}\n")
-        sys.exit(1)
-
-    except Exception as e:
-        print(f"An unexpected error occurred:\n{type(e).__name__}: {e}\n")
-        sys.exit(2)
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    utils.run_command(
+        main,
+        utils.entered_argument(2),
+        utils.entered_argument(3, raise_on_not_provided=False),
+        RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
+        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryWrite(Path.cwd(), c, target),
+    )
