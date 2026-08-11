@@ -17,8 +17,6 @@ def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
         )
 
-    assert url is not None
-
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
         raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 

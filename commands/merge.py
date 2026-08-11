@@ -82,7 +82,7 @@ def print_merge_success_message(
 
 def main(
     c: SCCSConstants,
-    branch: str | None,
+    branch: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
@@ -94,8 +94,6 @@ def main(
     rs.check_repository_layout()
 
     rs.raise_for_uncommitted_changes()
-
-    assert branch is not None
 
     validate_branch(c, branch, rd)
 

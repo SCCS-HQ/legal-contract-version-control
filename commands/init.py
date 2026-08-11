@@ -229,18 +229,13 @@ def print_init_success_message(c: SCCSConstants) -> None:
     print(c.INIT_SUCCESS_MESSAGE)
 
 
-def delete_repository_after_error(repo_path: Path) -> None:
-    shutil.rmtree(repo_path, ignore_errors=True)
-
-
-def main(
+def initialize_repository(
     c: SCCSConstants,
     docx_path: Path,
     ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
-
     try:
         check_for_prev_init(c, rp)
 
@@ -267,11 +262,26 @@ def main(
 
         move_document_to_repo_directory(rp.root, docx_path)
 
-        print_init_success_message(c)
-
     except Exception:
         delete_repository_after_error(rp.root)
-        raise
+        raise RuntimeError
+
+
+def delete_repository_after_error(repo_path: Path) -> None:
+    shutil.rmtree(repo_path, ignore_errors=True)
+
+
+def main(
+    c: SCCSConstants,
+    docx_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+) -> None:
+
+    initialize_repository(c, docx_path, ri ,rp, rs)
+
+    print_init_success_message(c)
 
 
 if __name__ == "__main__":

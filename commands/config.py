@@ -70,8 +70,8 @@ def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) ->
 
 def main(
     c: SCCSConstants,
-    key: str | None,
-    value: str | None,
+    key: str,
+    value: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
@@ -82,9 +82,6 @@ def main(
     rs.check_repository_layout()
 
     repo_name = rp.repo_name
-
-    assert key is not None
-    assert value is not None
 
     value = validate_entered_value(c, key, value)
 

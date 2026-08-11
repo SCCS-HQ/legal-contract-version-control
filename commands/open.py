@@ -49,7 +49,7 @@ def print_rewrite_confirmation_message(
 
 
 def main(
-    c: SCCSConstants, commit_hash: str | None, rd: RepositoryData, rs: RepositoryStatus
+    c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
     rs.target.set(rd.current_branch())
 
@@ -57,7 +57,6 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    assert commit_hash is not None
 
     commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
 

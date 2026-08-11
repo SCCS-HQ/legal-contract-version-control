@@ -89,7 +89,8 @@ def main(
 
     check_branch_to_switch(c, branch_to_switch, rs)
 
-    assert branch_to_switch is not None
+    if branch_to_switch is None:
+        raise ValueError()
 
     check_commit(c, branch_to_switch, rd, rs)
 

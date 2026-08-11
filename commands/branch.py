@@ -163,10 +163,12 @@ def run_specified_subcommand(
 ) -> None:
 
     if subcommand == c.CREATE_SUBCOMMAND:
-        assert branch_name is not None
+        if branch_name is None:
+            raise ValueError()
         branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
-        assert branch_name is not None
+        if branch_name is None:
+            raise ValueError()
         branch_delete_subcommand(c, branch_name, rp, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)

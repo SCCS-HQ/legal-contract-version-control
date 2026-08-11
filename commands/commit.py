@@ -23,6 +23,9 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
         )
 
 
+
+
+
 def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
 
     try:
@@ -35,9 +38,10 @@ def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
         raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
 
 
+
 def main(
     c: SCCSConstants,
-    commit_message: str | None,
+    commit_message: str,
     rd: RepositoryData,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -48,8 +52,6 @@ def main(
     rs.check_repository_layout()
 
     validate_commit_message(c, commit_message)
-
-    assert commit_message is not None
 
     print_commit_confirmation_message(c, rw.commit_changes(commit_message))
 
