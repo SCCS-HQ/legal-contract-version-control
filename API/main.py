@@ -98,7 +98,7 @@ async def publish(
             if entry_path.is_absolute() or ".." in entry_path.parts:
                 raise HTTPException(status_code=400, detail="Invalid file path in zip")
 
-            path = (repo_path / entry_path).resolve()
+            path = Path(os.path.normpath(repo_path / entry_path))
             try:
                 path.relative_to(repo_path)
             except ValueError:
@@ -274,8 +274,10 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     local_objects = set(data["objects"])
 
+    objects_paths = Path(os.path.normpath(repo_path / ".sccs" / "objects"))
+
     remote_objects = set(
-        i.stem for i in (repo_path / ".sccs" / "objects").rglob("*") if i.is_file()
+        i.stem for i in (objects_paths).rglob("*") if i.is_file()
     )
 
     obj_to_upload = remote_objects - local_objects
@@ -297,26 +299,28 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         repo_path / ".sccs" / "commit_messages" / "commit_messages.json"
     ]
 
-    objects_paths = [
+    individual_objects_paths = [
         i.resolve()
-        for i in (repo_path / ".sccs" / "objects").rglob("*")
+        for i in (objects_paths).rglob("*")
         if i.is_file() and i.stem in obj_to_upload
     ]
 
+    branches_path = Path(os.path.normpath(repo_path / ".sccs" / "branches"))
+
     history_paths = [
         i.resolve()
-        for i in (repo_path / ".sccs" / "branches").rglob("*")
+        for i in (branches_path).rglob("*")
         if i.is_file() and i.stem == "history"
     ]
     byte_hash_paths = [
         i.resolve()
-        for i in (repo_path / ".sccs" / "branches").rglob("*")
+        for i in (branches_path).rglob("*")
         if i.is_file() and i.stem == "commit_file_hash"
     ]
 
     files_to_upload = (
         i
-        for i in objects_paths
+        for i in individual_objects_paths
         + history_paths
         + byte_hash_paths
         + document_path
