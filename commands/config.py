@@ -16,8 +16,7 @@ from repository_layout import (
 )
 
 
-def validate_entered_value(c: SCCSConstants, key: str, value: str) -> None:
-
+def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     if key not in c.ACCEPTED_CONFIG_KEYS:
         raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
 
@@ -25,6 +24,8 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> None:
         raise exceptions.InvalidArgumentError(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
+
+    return value.strip()
 
 
 def resolve_key_value(
