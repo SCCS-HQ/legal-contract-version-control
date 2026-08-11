@@ -2,9 +2,6 @@
 
 import utils
 from constants_classes import SCCSConstants
-from repository_layout import (
-    TargetBranch,
-)
 
 
 def print_help(c: SCCSConstants) -> None:
