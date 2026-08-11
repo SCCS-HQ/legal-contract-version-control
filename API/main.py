@@ -276,9 +276,7 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
 
     objects_paths = Path(os.path.normpath(repo_path / ".sccs" / "objects"))
 
-    remote_objects = set(
-        i.stem for i in (objects_paths).rglob("*") if i.is_file()
-    )
+    remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
 
     obj_to_upload = remote_objects - local_objects
 
