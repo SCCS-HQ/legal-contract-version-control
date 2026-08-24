@@ -5,6 +5,7 @@ import io
 import json
 import os
 import re
+import shutil
 import tempfile
 import zipfile
 from pathlib import Path
@@ -93,7 +94,7 @@ def safe_extract_zip(zf: zipfile.ZipFile, member: str, dest: Path) -> None:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
     target_path = Path(os.path.normpath(dest / entry_path))
     try:
-        target_path.relative_to(Path(dest).resolve())
+        (target_path.resolve()).relative_to(Path(dest).resolve())
     except ValueError:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
     if zf.getinfo(member).is_dir():
@@ -135,7 +136,7 @@ async def publish(
     if not remote:
         raise HTTPException(status_code=400, detail=ERROR_REMOTE_URL_REQUIRED)
 
-    if not file.filename or Path(Path(file.filename).stem) != repo_name:
+    if not file.filename or Path(file.filename).stem != repo_name:
         raise HTTPException(
             status_code=400, detail=ERROR_REPO_NAME_MISMATCH
         )
@@ -246,7 +247,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
     except ValueError:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_REPO_NAME)
 
-    if not file.filename or Path(Path(file.filename).stem) != repo_name:
+    if not file.filename or Path(file.filename).stem != repo_name:
         raise HTTPException(
             status_code=400, detail=ERROR_REPO_NAME_MISMATCH
         )
@@ -255,37 +256,44 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         buffer_dir = Path(
             os.path.join(tempfile.gettempdir(), f"{TEMP_DIR_PREFIX}{repo_name}")
         )
-        buffer_dir.mkdir(parents=True, exist_ok=True)
+        
+        print(zf.infolist())
+
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+            shutil.rmtree(buffer_dir, ignore_errors=True)
             raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
+            shutil.rmtree(buffer_dir, ignore_errors=True)
             raise HTTPException(
                 status_code=400, detail=ERROR_TOO_MANY_FILES
             )
+        buffer_dir.mkdir(parents=True, exist_ok=True)
         for info in zf.infolist():
             if info.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                shutil.rmtree(buffer_dir, ignore_errors=True)
                 raise HTTPException(
                     status_code=400,
                     detail=ERROR_FILE_TOO_LARGE.format(filename=info.filename)
                 )
-
             safe_extract_zip(zf, info.filename, buffer_dir)
 
-        # Copy extracted files from temp buffer into repository
-        for root, dirs, files in os.walk(buffer_dir):
-            for i in files:
-                src_file = Path(root) / i
-                dest_file = repo_path / src_file.relative_to(buffer_dir)
-                dest_file.parent.mkdir(parents=True, exist_ok=True)
-                import shutil
-                shutil.copy2(str(src_file), str(dest_file))
-        # Preserve directory structures from zip
-        for root, dirs, files in os.walk(buffer_dir):
-            for i in dirs:
-                (
-                    repo_path / (Path(root) / i).relative_to(buffer_dir)).mkdir(
-                        parents=True, exist_ok=True
-                )
+        try:
+            for root, dirs, files in os.walk(buffer_dir):
+                for i in files:
+                    src_file = Path(root) / i
+                    dest_file = Path(
+                        *[
+                            i
+                            for i in Path(
+                                repo_path / src_file.relative_to(buffer_dir)
+                            ).parts
+                            if not i.startswith(TEMP_DIR_PREFIX)
+                        ]
+                    )
+                    dest_file.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(str(src_file), str(dest_file))
+        finally:
+            shutil.rmtree(buffer_dir, ignore_errors=True)
 
     with open(
         repo_path / SCCS_DIR / CURRENT_BRANCH_DIR / CURRENT_BRANCH_FILE,
