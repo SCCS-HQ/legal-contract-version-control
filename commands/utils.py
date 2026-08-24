@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import sys
+from pathlib import Path
 from typing import Any, Callable
 
 import exceptions
@@ -25,6 +27,22 @@ def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
             return None
 
     return sys.argv[argument].strip()
+
+
+def safe_extract_zip(zf, member, dest):
+    entry_path = Path(member)
+    if entry_path.is_absolute() or ".." in entry_path.parts:
+        raise exceptions.ZippingFileError("Invalid file path in zip")
+    target_path = Path(os.path.normpath(dest / entry_path))
+    try:
+        target_path.relative_to(Path(dest).resolve())
+    except ValueError:
+        raise exceptions.ZippingFileError("Invalid file path in zip")
+    if zf.getinfo(member).is_dir():
+        target_path.mkdir(parents=True, exist_ok=True)
+    else:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    zf.extract(member, path=dest)
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:

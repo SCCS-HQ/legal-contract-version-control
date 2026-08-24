@@ -38,9 +38,9 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
 
     def ignore_metadata(_dir, names) -> set[Any]:
         ignored = set()
-        for name in names:
-            if name in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
-                ignored.add(name)
+        for i in names:
+            if i in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
+                ignored.add(i)
         return ignored
 
     try:

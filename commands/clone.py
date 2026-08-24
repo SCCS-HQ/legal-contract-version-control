@@ -58,13 +58,9 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
     try:
         with zipfile.ZipFile(buffer, "r") as zf:
             for i in zf.namelist():
-                member_path = os.path.abspath(destination / i)
-                if (
-                    not member_path.startswith(str(destination) + c.PATH_SEPARATOR)
-                    and member_path != destination
-                ):
-                    raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE)
-                zf.extract(i, destination)
+                utils.safe_extract_zip(zf, i, destination)
+    except exceptions.ZippingFileError:
+        raise
     except Exception as e:
         raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
