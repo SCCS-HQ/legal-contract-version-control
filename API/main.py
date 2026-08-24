@@ -249,7 +249,7 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
 
     with zipfile.ZipFile(file.file, "r") as zf:
         buffer_dir = Path(
-            os.path.join(tempfile.gettempdir(), f"{TEMP_DIR_PREFIX}{repo_name}")
+            os.path.join(tempfile.gettempdir(), TEMP_DIR_PREFIX + repo_name)
         )
 
         print(zf.infolist())
