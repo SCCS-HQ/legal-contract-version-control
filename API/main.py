@@ -5,6 +5,7 @@ import io
 import json
 import os
 import re
+import tempfile
 import zipfile
 from pathlib import Path
 
@@ -36,6 +37,22 @@ def ensure_repository_exists(repo_name: Path) -> None:
         raise HTTPException(
             status_code=404, detail=f"Repository not found: {repo_name}"
         )
+
+
+def safe_extract_zip(zf, member, dest):
+    entry_path = Path(member)
+    if entry_path.is_absolute() or ".." in entry_path.parts:
+        raise HTTPException(status_code=400, detail="Invalid file path in zip")
+    target_path = Path(os.path.normpath(dest / entry_path))
+    try:
+        target_path.relative_to(Path(dest).resolve())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid file path in zip")
+    if zf.getinfo(member).is_dir():
+        target_path.mkdir(parents=True, exist_ok=True)
+    else:
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+    zf.extract(member, path=dest)
 
 
 app = FastAPI()
@@ -80,13 +97,12 @@ async def publish(
 
     with zipfile.ZipFile(file.file, "r") as zf:
         total_size = sum(i.file_size for i in zf.infolist())
-        if total_size > 100 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="Uploaded file is too large")
-        total_num_files = len(zf.infolist())
-        if total_num_files > 1000:
+        if len(zf.infolist()) > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
+        if total_size > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Uploaded file is too large")
 
         for i in zf.infolist():
             if i.file_size > 10 * 1024 * 1024:
@@ -94,27 +110,7 @@ async def publish(
                     status_code=400, detail=f"File {i.filename} is too large"
                 )
 
-            entry_path = Path(i.filename)
-            if entry_path.is_absolute() or ".." in entry_path.parts:
-                raise HTTPException(status_code=400, detail="Invalid file path in zip")
-
-            path = Path(os.path.normpath(repo_path / entry_path))
-            try:
-                path.relative_to(repo_path)
-            except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid file path in zip")
-
-            if i.is_dir():
-                path.mkdir(parents=True, exist_ok=True)
-            else:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, "wb") as f:
-                    with zf.open(i) as f_in:
-                        while True:
-                            chunk = f_in.read(1024 * 1024)
-                            if not chunk:
-                                break
-                            f.write(chunk)
+            safe_extract_zip(zf, i.filename, repo_path)
 
     return {"message": "File published successfully", "repository_url": remote}
 
@@ -199,38 +195,38 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         )
 
     with zipfile.ZipFile(file.file, "r") as zf:
+        buffer_dir = Path(os.path.join(tempfile.gettempdir(), f"tmp_{repo_name}"))
+        buffer_dir.mkdir(parents=True, exist_ok=True)
         total_size = sum(i.file_size for i in zf.infolist())
         if total_size > 100 * 1024 * 1024:
             raise HTTPException(status_code=400, detail="Uploaded file is too large")
-        total_num_files = len(zf.infolist())
-        for i in zf.infolist():
-            if i.file_size > 10 * 1024 * 1024:
-                raise HTTPException(
-                    status_code=400, detail=f"File {i.filename} is too large"
-                )
-        if total_num_files > 1000:
+        if len(zf.infolist()) > 1000:
             raise HTTPException(
                 status_code=400, detail="Too many files in the uploaded zip"
             )
+        for info in zf.infolist():
+            if info.file_size > 10 * 1024 * 1024:
+                raise HTTPException(
+                    status_code=400, detail=f"File {info.filename} is too large"
+                )
 
-        for i in zf.infolist():
-            try:
-                relative_path = Path(i.filename).relative_to(f"tmp_{repo_name}")
-                path = Path(repo_path / relative_path).resolve()
-                path.relative_to(Path(repo_path))
-            except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid file path in zip")
-            if i.is_dir():
-                path.mkdir(parents=True, exist_ok=True)
-            else:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                with open(path, "wb") as f:
-                    with zf.open(i) as f_in:
-                        while True:
-                            chunk = f_in.read(1024 * 1024)
-                            if not chunk:
-                                break
-                            f.write(chunk)
+            safe_extract_zip(zf, info.filename, buffer_dir)
+
+        # Copy extracted files from temp buffer into repository
+        for root, dirs, files in os.walk(buffer_dir):
+            for file_name in files:
+                src_file = Path(root) / file_name
+                rel_path = src_file.relative_to(buffer_dir)
+                dest_file = repo_path / rel_path
+                dest_file.parent.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copy2(str(src_file), str(dest_file))
+        # Preserve directory structures from zip
+        for root, dirs, files in os.walk(buffer_dir):
+            for d in dirs:
+                dir_path = Path(root) / d
+                rel_dir = dir_path.relative_to(buffer_dir)
+                (repo_path / rel_dir).mkdir(parents=True, exist_ok=True)
 
     with open(
         repo_path / ".sccs" / "current_branch" / "current_branch.json",
