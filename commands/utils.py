@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import sys
-from typing import Any, Callable
-
-import os
 from pathlib import Path
+from typing import Any, Callable
 
 import exceptions
 from constants_classes import ErrorWrappers, SCCSConstants

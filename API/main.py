@@ -119,7 +119,7 @@ async def publish(
     repo_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
     """Publish a repository to the hosted API"""
-    
+
     base_dir = Path(REPOS_BASE_DIR).resolve()
     repo_path = Path(base_dir / resolve_path(Path(repo_name))).resolve()
 
@@ -137,18 +137,14 @@ async def publish(
         raise HTTPException(status_code=400, detail=ERROR_REMOTE_URL_REQUIRED)
 
     if not file.filename or Path(file.filename).stem != repo_name:
-        raise HTTPException(
-            status_code=400, detail=ERROR_REPO_NAME_MISMATCH
-        )
+        raise HTTPException(status_code=400, detail=ERROR_REPO_NAME_MISMATCH)
 
     if repo_path.exists():
         raise HTTPException(status_code=400, detail=ERROR_REPO_EXISTS)
 
     with zipfile.ZipFile(file.file, "r") as zf:
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(
-                status_code=400, detail=ERROR_TOO_MANY_FILES
-            )
+            raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
 
@@ -156,7 +152,7 @@ async def publish(
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
                     status_code=400,
-                    detail=ERROR_FILE_TOO_LARGE.format(filename=i.filename)
+                    detail=ERROR_FILE_TOO_LARGE.format(filename=i.filename),
                 )
 
             safe_extract_zip(zf, i.filename, repo_path)
@@ -193,8 +189,9 @@ async def clone(repo_name: str) -> StreamingResponse:
         buffer,
         media_type="application/zip",
         headers={
-            "Content-Disposition": 
-            CONTENT_DISPOSITION_HEADER.format(repo_name=resolved_repo_name)
+            "Content-Disposition": CONTENT_DISPOSITION_HEADER.format(
+                repo_name=resolved_repo_name
+            )
         },
     )
 
@@ -248,15 +245,13 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_REPO_NAME)
 
     if not file.filename or Path(file.filename).stem != repo_name:
-        raise HTTPException(
-            status_code=400, detail=ERROR_REPO_NAME_MISMATCH
-        )
+        raise HTTPException(status_code=400, detail=ERROR_REPO_NAME_MISMATCH)
 
     with zipfile.ZipFile(file.file, "r") as zf:
         buffer_dir = Path(
             os.path.join(tempfile.gettempdir(), f"{TEMP_DIR_PREFIX}{repo_name}")
         )
-        
+
         print(zf.infolist())
 
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
@@ -264,16 +259,14 @@ async def push_upload(repo_name: str, file: UploadFile = File(...)) -> dict:
             raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
             shutil.rmtree(buffer_dir, ignore_errors=True)
-            raise HTTPException(
-                status_code=400, detail=ERROR_TOO_MANY_FILES
-            )
+            raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
         buffer_dir.mkdir(parents=True, exist_ok=True)
         for info in zf.infolist():
             if info.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 shutil.rmtree(buffer_dir, ignore_errors=True)
                 raise HTTPException(
                     status_code=400,
-                    detail=ERROR_FILE_TOO_LARGE.format(filename=info.filename)
+                    detail=ERROR_FILE_TOO_LARGE.format(filename=info.filename),
                 )
             safe_extract_zip(zf, info.filename, buffer_dir)
 
@@ -359,25 +352,22 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
     except ValueError:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_REPO_NAME)
 
-
     files_to_upload = (
-        i for i in [
+        i
+        for i in [
             i.resolve()
             for i in objects_paths.rglob("*")
-            if i.is_file()
-            and i.stem in remote_objects - local_objects
+            if i.is_file() and i.stem in remote_objects - local_objects
         ]
         + [
             i.resolve()
             for i in (branches_path).rglob("*")
-            if i.is_file()
-            and i.stem == HISTORY_FILE_STEM
+            if i.is_file() and i.stem == HISTORY_FILE_STEM
         ]
         + [
             i.resolve()
             for i in (branches_path).rglob("*")
-            if i.is_file()
-            and i.stem == COMMIT_FILE_HASH_STEM
+            if i.is_file() and i.stem == COMMIT_FILE_HASH_STEM
         ]
         + [repo_path / DOCUMENT_FILE_TEMPLATE.format(repo_name=repo_path.name)]
         + [repo_path / SCCS_DIR / CURRENT_BRANCH_DIR / CURRENT_BRANCH_FILE]
@@ -394,8 +384,9 @@ async def pull(repo_name: str, data: dict) -> StreamingResponse:
         buffer,
         media_type="application/zip",
         headers={
-            "Content-Disposition":
-            CONTENT_DISPOSITION_HEADER_SPACED.format(repo_name=repo_name)
+            "Content-Disposition": CONTENT_DISPOSITION_HEADER_SPACED.format(
+                repo_name=repo_name
+            )
         },
     )
 
