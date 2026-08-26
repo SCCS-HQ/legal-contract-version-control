@@ -8,6 +8,7 @@ import re
 import shutil
 import tempfile
 import zipfile
+from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -63,16 +64,33 @@ CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
 CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 
 
-def validate_repository_name(repository_name: str) -> str:
+@dataclass(frozen=True, slots=True)
+class ValidatedRepositoryName:
+    """A repository name validated against the allowed pattern."""
+
+    value: str
+
+    def __post_init__(self) -> None:
+        if (
+            not self.value
+            or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
+            or self.value in (".", "..")
+        ):
+            raise HTTPException(
+                status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+            )
+
+    def __str__(self) -> str:
+        return self.value
+
+
+REPOSITORY_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+
+
+def validate_repository_name(repository_name: str) -> ValidatedRepositoryName:
     """Validate a user-provided repository name against the allowed pattern."""
 
-    if (
-        not repository_name
-        or not re.fullmatch(r"^[A-Za-z0-9._-]+$", repository_name)
-        or repository_name in (".", "..")
-    ):
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
-    return repository_name
+    return ValidatedRepositoryName(repository_name)
 
 
 def repository_base_directory() -> Path:
