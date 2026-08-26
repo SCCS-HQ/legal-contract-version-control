@@ -45,7 +45,7 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: github.event.pull_request.number,
+              issue_number: context.payload.pull_request.number,
               body: "🔍 AI PR review started. This may take a few minutes..."
             });
             
