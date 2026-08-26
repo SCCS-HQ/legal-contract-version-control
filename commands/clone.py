@@ -56,13 +56,10 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
 
     destination = Path(os.path.abspath(path_parts[-2]))
 
-    if (
-        not c.REPOSITORY_NAME_PATTERN.fullmatch(destination.name)
-        or destination.name in (".", "..")
-    ):
-        raise exceptions.InvalidArgumentError(
-            c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
-        )
+    if not c.REPOSITORY_NAME_PATTERN.fullmatch(
+        destination.name
+    ) or destination.name in (".", ".."):
+        raise exceptions.InvalidArgumentError(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
     try:
         with zipfile.ZipFile(zip_buffer, "r") as zf:

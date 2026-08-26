@@ -223,9 +223,7 @@ async def push(repository_name: str) -> dict:
     upload changed files and new files.
     """
 
-    repository_path = (
-        repository_directory(repository_name) / SCCS_DIRECTORY
-    ).resolve()
+    repository_path = (repository_directory(repository_name) / SCCS_DIRECTORY).resolve()
 
     objects_directory = repository_path / OBJECTS_DIRECTORY
 

@@ -35,9 +35,7 @@ def safe_extract_zip(zip_archive, member_path, destination_directory):
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
         raise exceptions.ZippingFileError("Invalid file path in zip")
-    target_path = Path(
-        os.path.normpath(destination_directory / entry_path)
-    ).resolve()
+    target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
