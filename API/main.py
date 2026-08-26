@@ -247,9 +247,9 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(status_code=400, detail=ERROR_REPOSITORY_NAME_MISMATCH)
 
-    with zipfile.ZipFile(file.file, "r") as zip_archive:
-        zip_buffer_directory = Path(
-            os.path.join(tempfile.gettempdir(), f"{TEMPORARY_DIRECTORY_PREFIX}{repository_name}")
+    with zipfile.ZipFile(file.file, "r") as zf:
+        buffer_dir = Path(
+            os.path.join(tempfile.gettempdir(), TEMP_DIR_PREFIX + repo_name)
         )
 
         print(zip_archive.infolist())
