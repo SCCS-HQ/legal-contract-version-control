@@ -103,9 +103,9 @@ def repository_directory(repository_name: str) -> Path:
     guarantee it stays inside the repositories base directory.
     """
 
-    validate_repository_name(repository_name)
+    safe = validate_repository_name(repository_name)  # returns ValidatedRepositoryName
     base_directory = repository_base_directory()
-    repository_path = (base_directory / repository_name).resolve()
+    repository_path = (base_directory / str(safe)).resolve()  #
 
     try:
         repository_path.relative_to(base_directory)
