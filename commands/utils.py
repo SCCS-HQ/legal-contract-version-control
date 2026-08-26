@@ -29,20 +29,20 @@ def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
     return sys.argv[argument].strip()
 
 
-def safe_extract_zip(zf, member, dest):
-    entry_path = Path(member)
+def safe_extract_zip(zip_archive, member_path, destination_directory):
+    entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
         raise exceptions.ZippingFileError("Invalid file path in zip")
-    target_path = Path(os.path.normpath(dest / entry_path))
+    target_path = Path(os.path.normpath(destination_directory / entry_path))
     try:
-        target_path.relative_to(Path(dest).resolve())
+        target_path.relative_to(Path(destination_directory).resolve())
     except ValueError:
         raise exceptions.ZippingFileError("Invalid file path in zip")
-    if zf.getinfo(member).is_dir():
+    if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
         target_path.parent.mkdir(parents=True, exist_ok=True)
-    zf.extract(member, path=dest)
+    zip_archive.extract(member_path, path=destination_directory)
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:

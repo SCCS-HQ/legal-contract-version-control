@@ -17,15 +17,15 @@ from repository_layout import (
 )
 
 
-def check_for_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
+def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
     if (rp.sccs_path()).is_dir():
         raise exceptions.AlreadyInitializedError(c.ALREADY_INITIALIZED_ERROR_MESSAGE)
 
 
-def check_file_requirements(c: SCCSConstants, file: Path) -> None:
+def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
-    if file.suffix.lower() != c.DOCX_EXTENSION:
+    if file.suffix.lower() != c.DOCUMENT_EXTENSION:
         raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
     if not file.is_file():
@@ -43,16 +43,16 @@ def create_sccs_directory_layout(
     paths = [
         rp.sccs_path(),
         rp.objects_path(),
-        rp.docx_objects_path(),
+        rp.document_objects_path(),
         rp.html_objects_path(),
         rp.view_html_objects_path(),
         rp.branches_path(),
         rp.branch_path(c.MAIN_BRANCH_NAME),
-        rp.history_dir_path(),
-        rp.byte_hashes_dir_path(),
-        rp.commit_messages_dir_path(),
-        rp.config_dir_path(),
-        rp.current_branch_dir_path(),
+        rp.history_directory_path(),
+        rp.byte_hash_directory_path(),
+        rp.commit_messages_directory_path(),
+        rp.config_directory_path(),
+        rp.current_branch_directory_path(),
     ]
 
     try:
@@ -90,34 +90,34 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str
     return config
 
 
-def create_commit_sha_hash(c: SCCSConstants, name: str, email: str) -> str:
+def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 
-    hash_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
+    commit_identifier_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
 
-    return hashlib.sha256(c.PATH_SEPARATOR.join(hash_parts).encode(c.UTF_8)).hexdigest()
+    return hashlib.sha256(c.PATH_SEPARATOR.join(commit_identifier_parts).encode(c.UTF_8)).hexdigest()
 
 
-def copy_document_to_objects_as_docx_and_html(
-    c: SCCSConstants, docx_path: Path, sha_hash: str, rp: RepositoryPaths
+def copy_document_to_objects_as_document_and_html(
+    c: SCCSConstants, document_path: Path, commit_identifier: str, rp: RepositoryPaths
 ) -> None:
 
     try:
-        with open(docx_path, "rb") as f:
+        with open(document_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
         raise exceptions.ConvertingDocumentToHTMLError() from e
 
     try:
         shutil.copy2(
-            docx_path,
-            (rp.docx_objects_path() / sha_hash).with_suffix(c.DOCX_EXTENSION),
+            document_path,
+            (rp.document_objects_path() / commit_identifier).with_suffix(c.DOCUMENT_EXTENSION),
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
 
     try:
         with open(
-            (rp.html_objects_path() / sha_hash).with_suffix(c.HTML_EXTENSION),
+            (rp.html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
             "w",
             encoding=c.UTF_8,
             newline=c.NEWLINE,
@@ -128,7 +128,7 @@ def copy_document_to_objects_as_docx_and_html(
 
     try:
         with open(
-            (rp.view_html_objects_path() / sha_hash).with_suffix(c.HTML_EXTENSION),
+            (rp.view_html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
             "w",
             encoding=c.UTF_8,
             newline=c.NEWLINE,
@@ -142,7 +142,7 @@ def write_history_data(
     c: SCCSConstants,
     name: str,
     email: str,
-    sha_hash: str,
+    commit_identifier: str,
     ri: RepositoryIO,
     rs: RepositoryStatus,
 ) -> None:
@@ -151,13 +151,13 @@ def write_history_data(
 
     history_data = {
         c.HISTORY_DICT_KEY: {
-            c.INITIAL_COMMIT_DICT_KEY: sha_hash,
-            c.LATEST_COMMIT_DICT_KEY: sha_hash,
+            c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
+            c.LATEST_COMMIT_DICT_KEY: commit_identifier,
             c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
-            c.COMMIT_ORDER_DICT_KEY: {c.INITIAL_COMMIT_NUMBER_DICT_KEY: sha_hash},
+            c.COMMIT_ORDER_DICT_KEY: {c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier},
         },
         c.LOG_DICT_KEY: {
-            sha_hash: {
+            commit_identifier: {
                 c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
                 c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=name, email=email
@@ -173,17 +173,17 @@ def write_history_data(
 
 
 def write_commit_message_data(
-    c: SCCSConstants, sha_hash: str, ri: RepositoryIO
+    c: SCCSConstants, commit_identifier: str, ri: RepositoryIO
 ) -> None:
 
-    commit_message_data = {sha_hash: c.INITIAL_COMMIT_MESSAGE}
+    commit_message_data = {commit_identifier: c.INITIAL_COMMIT_MESSAGE}
     ri.write_commit_messages(commit_message_data)
 
 
-def write_hashed_file_commit_data(
+def write_byte_hash(
     c: SCCSConstants,
-    docx_path: Path,
-    sha_hash: str,
+    document_path: Path,
+    commit_identifier: str,
     ri: RepositoryIO,
     rs: RepositoryStatus,
 ) -> None:
@@ -191,16 +191,16 @@ def write_hashed_file_commit_data(
     rs.target.set(c.MAIN_BRANCH_NAME)
 
     try:
-        with open(docx_path, "rb") as f:
-            hashed_file = hashlib.sha256(
+        with open(document_path, "rb") as f:
+            byte_hash_file = hashlib.sha256(
                 mammoth.convert_to_html(f).value.encode(c.UTF_8)
             ).hexdigest()
     except Exception as e:
         raise exceptions.DocumentHashingError() from e
 
-    commit_file_hash_data = {sha_hash: hashed_file}
+    byte_hash = {commit_identifier: byte_hash_file}
 
-    ri.write_byte_hashes(commit_file_hash_data)
+    ri.write_byte_hash(byte_hash)
 
     rs.target.reset()
 
@@ -219,9 +219,9 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         raise exceptions.UpdatingMetadataError() from e
 
 
-def move_document_to_repo_directory(repo_path: Path, docx_path: Path) -> None:
+def move_document_to_repository_directory(repository_path: Path, document_path: Path) -> None:
 
-    shutil.move(docx_path, repo_path)
+    shutil.move(document_path, repository_path)
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
@@ -231,15 +231,15 @@ def print_init_success_message(c: SCCSConstants) -> None:
 
 def initialize_repository(
     c: SCCSConstants,
-    docx_path: Path,
+    document_path: Path,
     ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
     try:
-        check_for_prev_init(c, rp)
+        validate_no_prev_init(c, rp)
 
-        check_file_requirements(c, docx_path)
+        validate_file_requirements(c, document_path)
 
         create_sccs_directory_layout(c, rp, rs)
 
@@ -248,38 +248,38 @@ def initialize_repository(
         name = config[c.NAME_KEY]
         email = config[c.EMAIL_KEY]
 
-        sha_hash = create_commit_sha_hash(c, name, email)
+        commit_identifier = create_commit_identifier(c, name, email)
 
-        copy_document_to_objects_as_docx_and_html(c, docx_path, sha_hash, rp)
+        copy_document_to_objects_as_document_and_html(c, document_path, commit_identifier, rp)
 
-        write_history_data(c, name, email, sha_hash, ri, rs)
+        write_history_data(c, name, email, commit_identifier, ri, rs)
 
-        write_commit_message_data(c, sha_hash, ri)
+        write_commit_message_data(c, commit_identifier, ri)
 
-        write_hashed_file_commit_data(c, docx_path, sha_hash, ri, rs)
+        write_byte_hash(c, document_path, commit_identifier, ri, rs)
 
         write_branch_data(c, rp)
 
-        move_document_to_repo_directory(rp.root, docx_path)
+        move_document_to_repository_directory(rp.root, document_path)
 
     except Exception:
         delete_repository_after_error(rp.root)
         raise RuntimeError
 
 
-def delete_repository_after_error(repo_path: Path) -> None:
-    shutil.rmtree(repo_path, ignore_errors=True)
+def delete_repository_after_error(repository_path: Path) -> None:
+    shutil.rmtree(repository_path, ignore_errors=True)
 
 
 def main(
     c: SCCSConstants,
-    docx_path: Path,
+    document_path: Path,
     ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
 
-    initialize_repository(c, docx_path, ri, rp, rs)
+    initialize_repository(c, document_path, ri, rp, rs)
 
     print_init_success_message(c)
 

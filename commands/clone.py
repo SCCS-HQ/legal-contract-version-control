@@ -29,7 +29,7 @@ def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
     return url
 
 
-def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
 
     try:
         response = requests.get(url, timeout=timeout)
@@ -40,7 +40,7 @@ def request_repo(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
     return response
 
 
-def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
+def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) -> None:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -56,7 +56,7 @@ def unzip_repo_file(c: SCCSConstants, buffer: io.BytesIO, url: str) -> None:
 
     destination = Path(os.path.abspath(path_parts[-2]))
     try:
-        with zipfile.ZipFile(buffer, "r") as zf:
+        with zipfile.ZipFile(zip_buffer, "r") as zf:
             for i in zf.namelist():
                 utils.safe_extract_zip(zf, i, destination)
     except exceptions.ZippingFileError:
@@ -75,11 +75,11 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
     url = resolve_entered_url(c, url)
 
-    response = request_repo(c, url, c.HTTP_TIMEOUT_SECONDS)
+    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
 
-    buffer = io.BytesIO(response.content)
+    zip_buffer = io.BytesIO(response.content)
 
-    unzip_repo_file(c, buffer, url)
+    unzip_repository_file(c, zip_buffer, url)
 
     print_clone_success_message(c, response)
 

@@ -16,13 +16,13 @@ class SCCSConstants:
         "Branch '{branch_name}' is missing from repository metadata."
     )
     BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
-    BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position."
+    ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position."
     COMMA_SPACE = ", "
-    COMMIT_FILE_FIELD_NAME = "commit file hash"
+    COMMIT_IDENTIFIER_FIELD_NAME = "commit file hash"
     CONTENT_TYPE_ZIP = "application/zip"
     CREATE_SUBCOMMAND = "create"
     DELETE_SUBCOMMAND = "delete"
-    DOCX_EXTENSION = ".docx"
+    DOCUMENT_EXTENSION = ".docx"
     EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = (
         "{field} cannot be empty. Please provide a valid {field}."
     )
@@ -56,7 +56,7 @@ class SCCSConstants:
 
     # region Shared - Numbers
 
-    COMMIT_HASH_DISPLAY_LENGTH = 10
+    COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
     HTTP_TIMEOUT_SECONDS = 60
     MAX_FILE_READ_SIZE = 64 * 1024
 
@@ -64,23 +64,23 @@ class SCCSConstants:
 
     # region Shared - Paths (directories)
 
-    BRANCHES_DIR = "branches"
-    COMMIT_FILE_HASH_DIR = "commit_file_hash"
-    COMMIT_MESSAGES_DIR = "commit_messages"
-    CONFIG_DIR = "config"
-    CURRENT_BRANCH_DIR = "current_branch"
-    DOCX_DIR = "docx"
-    HISTORY_DIR = "history"
-    HTML_DIR = "html"
-    OBJECTS_DIR = "objects"
-    SCCS_DIR = ".sccs"
-    VIEW_HTML_DIR = "view_html"
+    BRANCHES_DIRECTORY = "branches"
+    COMMIT_BYTE_HASH_DIRECTORY = "commit_file_hash"
+    COMMIT_MESSAGES_DIRECTORY = "commit_messages"
+    CONFIG_DIRECTORY = "config"
+    CURRENT_BRANCH_DIRECTORY = "current_branch"
+    DOCUMENT_DIRECTORY = "docx"
+    HISTORY_DIRECTORY = "history"
+    HTML_DIRECTORY = "html"
+    OBJECTS_DIRECTORY = "objects"
+    SCCS_DIRECTORY = ".sccs"
+    VIEW_HTML_DIRECTORY = "view_html"
 
     # endregion
 
     # region Shared - Paths (files)
 
-    COMMIT_FILE_HASH_JSON_FILE = "commit_file_hash.json"
+    COMMIT_BYTE_HASH_JSON_FILE = "commit_file_hash.json"
     COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
     CONFIG_JSON_FILE = "config.json"
     CURRENT_BRANCH_JSON_FILE = "current_branch.json"
@@ -220,7 +220,7 @@ class SCCSConstants:
 
     ## strings - subcommands / templates / values
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
-    BRANCHES_DIR_LIST_HEADER = "Branches:"
+    BRANCHES_DIRECTORY_LIST_HEADER = "Branches:"
     BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE = (
         "Branch '{branch_name}' already exists."
     )
@@ -300,10 +300,10 @@ class SCCSConstants:
     # The 2 following constants are not alphabetized because they would
     # be dependencies of earlier constants.
     ## strings - error messages
-    REPOS_PATH_SEGMENT = "repos"
+    REPOSITORIES_PATH_SEGMENT = "repos"
 
     ## strings - success messages
-    REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOS_PATH_SEGMENT}/{{repo_name}}"
+    REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
 
     ## strings - repos url part
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
@@ -312,7 +312,7 @@ class SCCSConstants:
     INVALID_PATH_ENDING_ERROR_MESSAGE = (
         f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
-    INVALID_REPO_NAME_ERROR_MESSAGE = (
+    INVALID_REPOSITORY_NAME_ERROR_MESSAGE = (
         "Invalid repository name. Please ensure the repository is properly initialized "
         "with a valid name."
     )
@@ -378,7 +378,7 @@ class SCCSConstants:
         CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
         BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
     }
-    FULL_COMMIT_HASH_LENGTH = 64
+    FULL_COMMIT_IDENTIFIER_LENGTH = 64
     HTML_BOILERPLATE_TEMPLATE = (
         "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
@@ -449,7 +449,7 @@ class SCCSConstants:
     # region publish.py
 
     ## strings - error messages
-    BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
+    ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
         "Failed to create a buffer for the zipped repository. Please try again."
     )
 
@@ -485,7 +485,7 @@ class SCCSConstants:
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
 
     ## strings - success messages
-    TMP_DIR_TEMPLATE = "tmp_{repo_name}"
+    TEMPORARY_DIRECTORY_TEMPLATE = "tmp_{repo_name}"
 
     # endregion
 
@@ -497,11 +497,11 @@ class SCCSConstants:
         "Invalid branch data. Please ensure that the branch data has not been manually "
         "modified and the targeted branch exists."
     )
-    INVALID_COMMIT_HASH_ERROR_MESSAGE = (
+    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = (
         "Invalid commit file name. Please provide a shortened, 10 character commit "
         "hash or the full 64 character commit hash as the commit identifier."
     )
-    INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE = (
+    INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE = (
         "Invalid commit history data. Please ensure that the commit data has not been "
         "manually modified."
     )

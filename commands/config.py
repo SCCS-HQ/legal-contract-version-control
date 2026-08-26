@@ -29,7 +29,7 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
 
 
 def resolve_key_value(
-    c: SCCSConstants, repo_name: str, key: str | None, value: str | None
+    c: SCCSConstants, repository_name: str, key: str | None, value: str | None
 ) -> str:
 
     if not value:
@@ -41,18 +41,18 @@ def resolve_key_value(
         url = (
             value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
         )
-        url_parsed = urlsplit(url)
+        parsed_url = urlsplit(url)
 
         if (
-            url_parsed.scheme.lower() not in c.ACCEPTED_SCHEMES
-            or not url_parsed.netloc
-            or url_parsed.query
-            or url_parsed.fragment
+            parsed_url.scheme.lower() not in c.ACCEPTED_SCHEMES
+            or not parsed_url.netloc
+            or parsed_url.query
+            or parsed_url.fragment
         ):
             raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
-            c.REPOS_PATH_SEGMENT + c.PATH_SEPARATOR + repo_name + c.PATH_SEPARATOR
+            c.REPOSITORIES_PATH_SEGMENT + c.PATH_SEPARATOR + repository_name + c.PATH_SEPARATOR
         )
 
         return (
@@ -64,7 +64,7 @@ def resolve_key_value(
     return value
 
 
-def print_config_confirmation_message(c: SCCSConstants, key: str, value: str) -> None:
+def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
@@ -80,17 +80,17 @@ def main(
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
-    repo_name = rp.repo_name
+    repository_name = rp.repository_name
 
     value = validate_entered_value(c, key, value)
 
-    value = resolve_key_value(c, repo_name, key, value)
+    value = resolve_key_value(c, repository_name, key, value)
 
     rw.write_key_to_config(key, value)
 
-    print_config_confirmation_message(c, key, value)
+    print_config_success_message(c, key, value)
 
     rs.target.reset()
 

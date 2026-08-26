@@ -18,7 +18,7 @@ def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
     for i in history_data[c.LOG_DICT_KEY]:
         print(
             c.LOG_SEPARATOR + c.NEWLINE,
-            c.LOG_COMMIT_FILE_LABEL + i[: c.COMMIT_HASH_DISPLAY_LENGTH] + c.NEWLINE,
+            c.LOG_COMMIT_FILE_LABEL + i[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH] + c.NEWLINE,
             (
                 c.LOG_AUTHOR_LABEL
                 + history_data[c.LOG_DICT_KEY][i][c.AUTHOR_DICT_KEY]
@@ -48,7 +48,7 @@ def main(
 
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     print_log(c, ri.read_history())
 

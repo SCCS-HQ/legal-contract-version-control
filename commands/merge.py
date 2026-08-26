@@ -30,16 +30,15 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
         )
 
 
-def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def copy_branch_data(c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
 
     source = rp.branch_path(branch)
-    dest = rp.branch_path(rd.current_branch())
-    c = rd.c
+    destination = rp.branch_path(rd.current_branch())
 
-    def ignore_metadata(_dir, names) -> set[Any]:
+    def ignore_metadata(_directory, names) -> set[Any]:
         ignored = set()
         for i in names:
-            if i in (c.HISTORY_DIR, c.COMMIT_FILE_HASH_DIR):
+            if i in (c.HISTORY_DIRECTORY, c.COMMIT_BYTE_HASH_DIRECTORY):
                 ignored.add(i)
         return ignored
 
@@ -47,7 +46,7 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
         if source.exists():
             shutil.copytree(
                 source,
-                dest,
+                destination,
                 dirs_exist_ok=True,
                 ignore=ignore_metadata,
             )
@@ -55,20 +54,20 @@ def copy_branch_data(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> No
         raise exceptions.FileCopyError() from e
 
 
-def copy_repo_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def copy_repository_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
 
     original_target = rd.target.get()
     rd.target.set(branch)
 
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR), rp.document_path()
+            rd.commit_identifier_to_full_path(rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY), rp.document_path()
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
     finally:
         rd.target.set(original_target)
-
+        
 
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
@@ -91,15 +90,15 @@ def main(
 
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
     validate_branch(c, branch, rd)
 
-    copy_repo_document(branch, rd, rp)
+    copy_repository_document(branch, rd, rp)
 
-    copy_branch_data(branch, rd, rp)
+    copy_branch_data(c, branch, rd, rp)
 
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(

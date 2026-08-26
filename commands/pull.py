@@ -18,18 +18,18 @@ from repository_layout import (
 
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    data = {c.HTTP_OBJECTS_DICT_KEY: rd.repo_objects()}
-    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
+    remote_data = {c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()}
+    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
     try:
-        response = requests.post(url, json=data, timeout=c.HTTP_TIMEOUT_SECONDS)
+        response = requests.post(url, json=remote_data, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
         raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
 
-def update_repo_files(c: SCCSConstants, response: requests.Response) -> None:
+def update_repository_files(c: SCCSConstants, response: requests.Response) -> None:
 
     destination = Path.cwd()
     try:
@@ -53,14 +53,14 @@ def print_pull_success_message(
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
     response = pull(c, rd)
     response.raise_for_status()
 
-    update_repo_files(c, response)
+    update_repository_files(c, response)
 
     print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
 

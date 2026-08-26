@@ -24,15 +24,15 @@ def reset_current_branch(c: SCCSConstants, rw: RepositoryWrite) -> None:
     rw.set_current_branch(c.MAIN_BRANCH_NAME)
 
 
-def zip_cwd(c: SCCSConstants) -> io.BytesIO:
+def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
     try:
-        buffer = io.BytesIO()
+        zip_buffer = io.BytesIO()
     except Exception as e:
-        raise exceptions.BufferError(c.BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.BufferError(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
         with zipfile.ZipFile(
-            buffer,
+            zip_buffer,
             "w",
         ) as zf:
             for root, _, files in os.walk(c.WALK_ROOT):
@@ -42,16 +42,16 @@ def zip_cwd(c: SCCSConstants) -> io.BytesIO:
         raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
-        buffer.seek(0)
+        zip_buffer.seek(0)
     except Exception as e:
-        raise exceptions.BufferError(c.BUFFER_SEEK_ERROR_MESSAGE) from e
+        raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
-    return buffer
+    return zip_buffer
 
 
-def post_repo(
+def post_repository(
     c: SCCSConstants,
-    repo_zip: io.BytesIO,
+    repository_zip: io.BytesIO,
     url: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
@@ -64,13 +64,13 @@ def post_repo(
                 (
                     c.POST_FILE_FIELD_NAME,
                     (
-                        str(Path(rp.repo_name).with_suffix(c.ZIP_EXTENSION)),
-                        repo_zip,
+                        str(Path(rp.repository_name).with_suffix(c.ZIP_EXTENSION)),
+                        repository_zip,
                         c.CONTENT_TYPE_ZIP,
                     ),
                 ),
             ],
-            data={"data": json.dumps({"remote": rd.base_repo_url()})},
+            data={"data": json.dumps({"remote": rd.base_repository_url()})},
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
@@ -94,15 +94,15 @@ def main(
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
     reset_current_branch(c, rw)
 
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
+    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
-    response = post_repo(c, zip_cwd(c), url, rd, rp)
+    response = post_repository(c, zip_current_directory(c), url, rd, rp)
 
     response.raise_for_status()
 
