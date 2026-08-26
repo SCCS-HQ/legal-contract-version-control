@@ -13,22 +13,26 @@ from repository_layout import (
 )
 
 
-def validate_commit_hash(c: SCCSConstants, commit_hash: str | None) -> None:
+def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
 
-    if not commit_hash:
+    if not commit_identifier:
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_IDENTIFIER_FIELD_NAME
+            )
         )
 
-    valid_len = len(commit_hash) == (c.FULL_COMMIT_HASH_LENGTH)
+    is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
 
-    if not valid_len or not all(i in c.HEX_DIGITS for i in commit_hash):
+    if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_FILE_FIELD_NAME)
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_IDENTIFIER_FIELD_NAME
+            )
         )
 
 
-def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
+def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
 
     try:
         shutil.copy2(commit_path, output_file_name)
@@ -36,40 +40,44 @@ def copy_file_commit(commit_path: Path, output_file_name: Path) -> None:
         raise exceptions.FileCopyError() from e
 
 
-def print_rewrite_confirmation_message(
-    c: SCCSConstants, commit_hash: str, output_file_name: Path
+def print_open_success_message(
+    c: SCCSConstants, commit_identifier: str, output_file_name: Path
 ) -> None:
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
             output_file=output_file_name,
         )
     )
 
 
 def main(
-    c: SCCSConstants, commit_hash: str, rd: RepositoryData, rs: RepositoryStatus
+    c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
-    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
 
-    full_commit_hash = rd.resolve_full_hash(commit_hash)
+    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
     output_file_name = Path(
         c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_hash=full_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_identifier=full_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ]
         )
-    ).with_suffix(c.DOCX_EXTENSION)
+    ).with_suffix(c.DOCUMENT_EXTENSION)
 
-    copy_file_commit(commit_path, output_file_name)
+    copy_commit_file(commit_path, output_file_name)
 
-    print_rewrite_confirmation_message(c, full_commit_hash, output_file_name)
+    print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
 

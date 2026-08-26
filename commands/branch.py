@@ -143,7 +143,7 @@ def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> N
 
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
 
-    print(c.BRANCHES_DIR_LIST_HEADER)
+    print(c.BRANCHES_DIRECTORY_LIST_HEADER)
     for i in rd.branches():
         (
             print(c.CURRENT_BRANCH_MESSAGE_TEMPLATE.format(branch_name=i))
@@ -186,7 +186,7 @@ def main(
 
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 

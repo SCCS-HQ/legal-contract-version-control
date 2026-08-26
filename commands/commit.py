@@ -23,12 +23,14 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
         )
 
 
-def print_commit_confirmation_message(c: SCCSConstants, sha_hash: str) -> None:
+def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
 
     try:
         print(
             c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-                sha_hash=sha_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+                commit_identifier=commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
             )
         )
     except Exception as e:
@@ -45,11 +47,11 @@ def main(
 
     rw.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     validate_commit_message(c, commit_message)
 
-    print_commit_confirmation_message(c, rw.commit_changes(commit_message))
+    print_commit_success_message(c, rw.commit_changes(commit_message))
 
     rw.target.reset()
 

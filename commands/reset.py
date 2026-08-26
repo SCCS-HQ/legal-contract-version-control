@@ -22,7 +22,9 @@ def reset(
 
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+            ),
             rp.document_path(),
         )
     except Exception as e:
@@ -31,7 +33,7 @@ def reset(
     rs.target.reset()
 
 
-def print_success_message(c: SCCSConstants) -> None:
+def print_reset_success_message(c: SCCSConstants) -> None:
     print(c.RESET_SUCCESS_MESSAGE)
 
 
@@ -43,10 +45,10 @@ def main(
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     reset(c, rd, rp, rs)
-    print_success_message(c)
+    print_reset_success_message(c)
 
     rs.target.reset()
 

@@ -30,21 +30,23 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
         raise exceptions.FileCopyError() from e
 
 
-def print_revert_confirmation_message(
-    c: SCCSConstants, commit_hash: str, new_commit_hash: str
+def print_revert_success_message(
+    c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
 ) -> None:
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
-            new_commit_hash=new_commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH],
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            new_commit_identifier=new_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ],
         )
     )
 
 
 def main(
     c: SCCSConstants,
-    commit_hash: str,
+    commit_identifier: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
@@ -53,21 +55,23 @@ def main(
 
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
-    commit_path = rd.hash_to_full_path(commit_hash, c.DOCX_DIR)
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
 
     revert(c, commit_path, rp)
 
-    new_commit_hash = rw.commit_changes(
+    new_commit_identifier = rw.commit_changes(
         c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-            commit_hash=commit_hash[: c.COMMIT_HASH_DISPLAY_LENGTH]
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
     )
 
-    full_commit_hash = rd.resolve_full_hash(commit_hash)
+    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
-    print_revert_confirmation_message(c, full_commit_hash, new_commit_hash)
+    print_revert_success_message(c, full_commit_identifier, new_commit_identifier)
 
     rs.target.reset()
 

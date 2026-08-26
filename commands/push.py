@@ -22,9 +22,9 @@ from repository_layout import (
 )
 
 
-def push_GET(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repo_url())
+    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
     try:
         response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
@@ -42,23 +42,25 @@ def get_matching_file_paths(
     if updated_branches is None:
         raise exceptions.InvalidMetadataError()
     for i in updated_branches:
-        branch_dir = rp.branches_path() / i
-        if branch_dir.is_dir():
-            f = (branch_dir / filename / filename).with_suffix(c.JSON_EXTENSION)
+        branch_directory = rp.branches_path() / i
+        if branch_directory.is_dir():
+            f = (branch_directory / filename / filename).with_suffix(c.JSON_EXTENSION)
             if f.is_file():
                 paths.append(f.resolve())
     return paths
 
 
-def compare_hash_lists(remote_objects: list[str], rd: RepositoryData) -> list[str]:
+def compare_commit_identifier_lists(
+    remote_objects: list[str], rd: RepositoryData
+) -> list[str]:
 
-    local_objects = rd.repo_objects()
+    local_objects = rd.repository_objects()
 
-    obj_to_upload = list(set(local_objects) - set(remote_objects))
+    object_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
         raise exceptions.MissingCommitObjectsError()
 
-    return obj_to_upload
+    return object_to_upload
 
 
 def zip_files_to_upload(
@@ -73,15 +75,15 @@ def zip_files_to_upload(
 
     current_branch_path = [rp.current_branch_data_file_path()]
     commit_messages_path = [rp.commit_messages_path()]
-    obj_to_upload_set = set(compare_hash_lists(remote_objects, rd))
+    object_to_upload_set = set(compare_commit_identifier_lists(remote_objects, rd))
     objects_paths = [
         i.resolve()
         for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
-        if i.is_file() and i.stem in obj_to_upload_set
+        if i.is_file() and i.stem in object_to_upload_set
     ]
 
-    history_paths = get_matching_file_paths(c, c.HISTORY_DIR, ri, rp)
-    byte_hash_paths = get_matching_file_paths(c, c.COMMIT_FILE_HASH_DIR, ri, rp)
+    history_paths = get_matching_file_paths(c, c.HISTORY_DIRECTORY, ri, rp)
+    byte_hash_paths = get_matching_file_paths(c, c.COMMIT_BYTE_HASH_DIRECTORY, ri, rp)
 
     files_to_upload = (
         objects_paths
@@ -93,14 +95,14 @@ def zip_files_to_upload(
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        tmp_folder_path = Path(temp_dir) / c.TMP_DIR_TEMPLATE.format(
-            repo_name=rp.repo_name
+        temporary_folder_path = Path(temp_dir) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
+            repository_name=rp.repository_name
         )
         for i in files_to_upload:
-            (tmp_folder_path / i.relative_to(rp.root).parent).mkdir(
+            (temporary_folder_path / i.relative_to(rp.root).parent).mkdir(
                 parents=True, exist_ok=True
             )
-            shutil.copy2(i, tmp_folder_path / i.relative_to(rp.root))
+            shutil.copy2(i, temporary_folder_path / i.relative_to(rp.root))
 
         buffer = io.BytesIO()
 
@@ -116,20 +118,20 @@ def zip_files_to_upload(
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError(c.BUFFER_SEEK_ERROR_MESSAGE) from e
+            raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 
 
-def push_POST(
+def upload_objects(
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
 
-    remote = rd.base_repo_url()
+    remote = rd.base_repository_url()
 
     remote_path = urlsplit(remote).path.rstrip(c.PATH_SEPARATOR)
     if not remote_path.endswith(
-        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repo_name)
+        c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repository_name)
     ):
         raise exceptions.InvalidAPIURLError(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
@@ -140,7 +142,7 @@ def push_POST(
                 (
                     c.POST_FILE_FIELD_NAME,
                     (
-                        str(Path(rp.repo_name).with_suffix(c.ZIP_EXTENSION)),
+                        str(Path(rp.repository_name).with_suffix(c.ZIP_EXTENSION)),
                         buffer,
                         c.CONTENT_TYPE_ZIP,
                     ),
@@ -196,24 +198,24 @@ def main(
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
-    remote = rd.base_repo_url()
+    remote = rd.base_repository_url()
 
-    GET_response = push_GET(c, rd)
+    remote_objects_response = fetch_remote_objects(c, rd)
 
-    GET_response.raise_for_status()
+    remote_objects_response.raise_for_status()
 
-    remote_objects = GET_response.json()[c.HTTP_OBJECTS_DICT_KEY]
+    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
 
     buffer = zip_files_to_upload(c, remote_objects, rd, ri, rp)
 
-    POST_response = push_POST(c, buffer, rd, rp)
+    upload_response = upload_objects(c, buffer, rd, rp)
 
-    POST_response.raise_for_status()
+    upload_response.raise_for_status()
 
     clear_updated_branches(c, ri, rp)
-    print_push_success_message(c, POST_response, remote)
+    print_push_success_message(c, upload_response, remote)
 
     rs.target.reset()
 

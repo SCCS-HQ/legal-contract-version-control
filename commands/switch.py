@@ -15,7 +15,7 @@ from repository_layout import (
 )
 
 
-def check_branch_to_switch(
+def validate_branch_to_switch(
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
 
@@ -32,7 +32,7 @@ def check_branch_to_switch(
         )
 
 
-def check_commit(
+def validate_commit_identifier(
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
@@ -41,7 +41,9 @@ def check_commit(
 
     rs.target.set(branch_to_switch)
 
-    if not (rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR)).is_file():
+    if not rd.commit_identifier_to_full_path(
+        rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+    ).is_file():
         raise exceptions.CommitNotFoundError()
 
     rs.target.reset()
@@ -59,7 +61,9 @@ def copy_commit_to_main(
 
     try:
         shutil.copy2(
-            rd.hash_to_full_path(rd.latest_commit(), c.DOCX_DIR),
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+            ),
             rp.document_path(),
         )
     except Exception as e:
@@ -68,7 +72,7 @@ def copy_commit_to_main(
     rs.target.reset()
 
 
-def print_confirmation(c: SCCSConstants, branch_to_switch: str) -> None:
+def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
 
     print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
@@ -83,22 +87,22 @@ def main(
 ) -> None:
     rs.target.set(rd.current_branch())
 
-    rs.check_repository_layout()
+    rs.validate_repository_layout()
 
     rs.raise_for_uncommitted_changes()
 
-    check_branch_to_switch(c, branch_to_switch, rs)
+    validate_branch_to_switch(c, branch_to_switch, rs)
 
     if branch_to_switch is None:
         raise ValueError()
 
-    check_commit(c, branch_to_switch, rd, rs)
+    validate_commit_identifier(c, branch_to_switch, rd, rs)
 
     copy_commit_to_main(c, branch_to_switch, rd, rp, rs)
 
     rw.set_current_branch(branch_to_switch)
 
-    print_confirmation(c, branch_to_switch)
+    print_switch_success_message(c, branch_to_switch)
 
     rs.target.reset()
 

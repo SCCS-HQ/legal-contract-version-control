@@ -38,7 +38,7 @@ class TargetBranch:
 class RepositoryData:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
-        self.repo_name = root.stem
+        self.repository_name = root.stem
         self.c = c
         self.target = target
         self.paths = RepositoryPaths(root, c, self.target)
@@ -49,119 +49,123 @@ class RepositoryData:
             raise exceptions.InvalidArgumentError(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
-    def raise_for_commit_length(self, commit: str) -> None:
-        if commit is None:
+    def raise_for_commit_identifier_length(self, commit_identifier: str) -> None:
+        if commit_identifier is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
+                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
             )
 
         if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
+            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
             raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
-    def hash_to_full_path(self, commit: str, folder: str) -> Path:
-        if commit is None:
+    def commit_identifier_to_full_path(
+        self, commit_identifier: str, folder: str
+    ) -> Path:
+        if commit_identifier is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
+                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
             )
 
         if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
+            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
             raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
         matching_files = []
 
         for i in Path(self.paths.objects_path() / folder).iterdir():
-            if str(i.stem).startswith(commit):
+            if str(i.stem).startswith(commit_identifier):
                 matching_files.append(i)
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
                 self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit
+                    file_path=commit_identifier
                 )
             )
 
         if len(matching_files) > 1:
             raise exceptions.InvalidArgumentError(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit
+                    commit=commit_identifier
                 )
             )
 
         return Path(matching_files[0])
 
-    def commit_file_bytes(self, commit: str, folder: str) -> bytes:
-        if commit is None:
+    def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
+        if commit_identifier is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_FILE_FIELD_NAME
+                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
             )
 
         if (
-            len(commit) != self.c.FULL_COMMIT_HASH_LENGTH
-            and len(commit) != self.c.COMMIT_HASH_DISPLAY_LENGTH
+            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
+            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
             raise exceptions.InvalidArgumentError(
-                self.c.INVALID_COMMIT_HASH_ERROR_MESSAGE
+                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
         matching_files = []
 
         for i in Path(self.paths.objects_path() / folder).iterdir():
-            if str(i.stem).startswith(commit):
+            if str(i.stem).startswith(commit_identifier):
                 matching_files.append(i)
 
         if not matching_files:
             raise exceptions.InvalidArgumentError(
                 self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit
+                    file_path=commit_identifier
                 )
             )
 
         if len(matching_files) > 1:
             raise exceptions.InvalidArgumentError(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit
+                    commit=commit_identifier
                 )
             )
 
         return self.io.file_bytes(matching_files[0])
 
-    def resolve_full_hash(self, commit: str) -> str:
-        path = self.hash_to_full_path(commit, self.c.DOCX_DIR)
+    def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
+        path = self.commit_identifier_to_full_path(
+            commit_identifier, self.c.DOCUMENT_DIRECTORY
+        )
         return path.stem
 
-    def latest_commit(self) -> str:
-        hash = self.io.read_history()[self.c.HISTORY_DICT_KEY][
+    def latest_commit_identifier(self) -> str:
+        commit_identifier = self.io.read_history()[self.c.HISTORY_DICT_KEY][
             self.c.LATEST_COMMIT_DICT_KEY
         ]
-        if not hash:
+        if not commit_identifier:
             raise exceptions.InvalidMetadataError(
-                self.c.INVALID_COMMIT_HISTORY_DIR_DATA_ERROR_MESSAGE
+                self.c.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
             )
 
-        return hash
+        return commit_identifier
 
-    def create_commit_sha_hash(self, hash_parts: list[str]) -> str:
+    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
         return hashlib.sha256(
-            self.c.PATH_SEPARATOR.join(hash_parts).encode(self.c.UTF_8)
+            self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
         ).hexdigest()
 
-    def repo_objects(self) -> list[str]:
+    def repository_objects(self) -> list[str]:
         return list(
             set(
                 i.stem
@@ -170,7 +174,7 @@ class RepositoryData:
             )
         )
 
-    def base_repo_url(self) -> str:
+    def base_repository_url(self) -> str:
         return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
 
     def current_branch(self) -> str:
@@ -183,7 +187,7 @@ class RepositoryData:
 class RepositoryIO:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
-        self.repo_name = root.stem
+        self.repository_name = root.stem
         self.c = c
         self.target = target
         self.paths = RepositoryPaths(root, c, self.target)
@@ -258,18 +262,18 @@ class RepositoryIO:
         ) as f:
             json.dump(data, f, indent=4)
 
-    def read_byte_hashes(self) -> dict[str, str]:
+    def read_byte_hash(self) -> dict[str, str]:
         with open(
-            self.paths.byte_hashes_path(),
+            self.paths.byte_hash_path(),
             "r",
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)
 
-    def write_byte_hashes(self, data: dict[str, str]) -> None:
+    def write_byte_hash(self, data: dict[str, str]) -> None:
         with open(
-            self.paths.byte_hashes_path(),
+            self.paths.byte_hash_path(),
             "w",
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
@@ -294,11 +298,11 @@ class RepositoryIO:
         ) as f:
             json.dump(data, f, indent=4)
 
-    def document_html_hash(self) -> str:
+    def document_html_byte_hash(self) -> str:
         html = self.document_html()
         return hashlib.sha256(html.encode(self.c.UTF_8)).hexdigest()
 
-    def document_binary_hash(self) -> str:
+    def document_byte_hash(self) -> str:
         with open(self.paths.document_path(), "rb") as f:
             hasher = hashlib.sha256()
             for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
@@ -310,9 +314,11 @@ class RepositoryIO:
             result = mammoth.convert_to_html(f)
             return result.value
 
-    def copy_document_to_commit(self, commit_hash: str) -> None:
-        name = Path(commit_hash).with_suffix(self.c.DOCX_EXTENSION)
-        shutil.copy2(self.paths.document_path(), self.paths.docx_objects_path() / name)
+    def create_document_commit(self, commit_identifier: str) -> None:
+        name = Path(commit_identifier).with_suffix(self.c.DOCUMENT_EXTENSION)
+        shutil.copy2(
+            self.paths.document_path(), self.paths.document_objects_path() / name
+        )
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
@@ -341,66 +347,66 @@ class RepositoryIO:
 class RepositoryPaths:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
-        self.repo_name = root.stem
+        self.repository_name = root.stem
         self.c = c
         self.target = target
 
     def document_path(self) -> Path:
-        return (self.root / self.repo_name).with_suffix(self.c.DOCX_EXTENSION)
+        return (self.root / self.repository_name).with_suffix(self.c.DOCUMENT_EXTENSION)
 
     def sccs_path(self) -> Path:
-        return self.root / self.c.SCCS_DIR
+        return self.root / self.c.SCCS_DIRECTORY
 
     def branches_path(self) -> Path:
-        return self.sccs_path() / self.c.BRANCHES_DIR
+        return self.sccs_path() / self.c.BRANCHES_DIRECTORY
 
-    def commit_messages_dir_path(self) -> Path:
-        return self.sccs_path() / self.c.COMMIT_MESSAGES_DIR
+    def commit_messages_directory_path(self) -> Path:
+        return self.sccs_path() / self.c.COMMIT_MESSAGES_DIRECTORY
 
     def commit_messages_path(self) -> Path:
-        return self.commit_messages_dir_path() / self.c.COMMIT_MESSAGES_JSON_FILE
+        return self.commit_messages_directory_path() / self.c.COMMIT_MESSAGES_JSON_FILE
 
-    def config_dir_path(self) -> Path:
-        return self.sccs_path() / self.c.CONFIG_DIR
+    def config_directory_path(self) -> Path:
+        return self.sccs_path() / self.c.CONFIG_DIRECTORY
 
     def config_path(self) -> Path:
-        return self.config_dir_path() / self.c.CONFIG_JSON_FILE
+        return self.config_directory_path() / self.c.CONFIG_JSON_FILE
 
-    def current_branch_dir_path(self) -> Path:
-        return self.sccs_path() / self.c.CURRENT_BRANCH_DIR
+    def current_branch_directory_path(self) -> Path:
+        return self.sccs_path() / self.c.CURRENT_BRANCH_DIRECTORY
 
     def current_branch_data_file_path(self) -> Path:
-        return self.current_branch_dir_path() / self.c.CURRENT_BRANCH_JSON_FILE
+        return self.current_branch_directory_path() / self.c.CURRENT_BRANCH_JSON_FILE
 
     def objects_path(self) -> Path:
-        return self.sccs_path() / self.c.OBJECTS_DIR
+        return self.sccs_path() / self.c.OBJECTS_DIRECTORY
 
-    def docx_objects_path(self) -> Path:
-        return self.objects_path() / self.c.DOCX_DIR
+    def document_objects_path(self) -> Path:
+        return self.objects_path() / self.c.DOCUMENT_DIRECTORY
 
     def view_html_objects_path(self) -> Path:
-        return self.objects_path() / self.c.VIEW_HTML_DIR
+        return self.objects_path() / self.c.VIEW_HTML_DIRECTORY
 
     def html_objects_path(self) -> Path:
-        return self.objects_path() / self.c.HTML_DIR
+        return self.objects_path() / self.c.HTML_DIRECTORY
 
-    def history_dir_path(self) -> Path:
+    def history_directory_path(self) -> Path:
 
         branch = self.target.require()
 
-        return self.branch_path(branch) / self.c.HISTORY_DIR
+        return self.branch_path(branch) / self.c.HISTORY_DIRECTORY
 
     def history_path(self) -> Path:
 
-        return self.history_dir_path() / self.c.HISTORY_JSON_FILE
+        return self.history_directory_path() / self.c.HISTORY_JSON_FILE
 
-    def byte_hashes_dir_path(self) -> Path:
+    def byte_hash_directory_path(self) -> Path:
         branch = self.target.require()
 
-        return self.branch_path(branch) / self.c.COMMIT_FILE_HASH_DIR
+        return self.branch_path(branch) / self.c.COMMIT_BYTE_HASH_DIRECTORY
 
-    def byte_hashes_path(self) -> Path:
-        return self.byte_hashes_dir_path() / self.c.COMMIT_FILE_HASH_JSON_FILE
+    def byte_hash_path(self) -> Path:
+        return self.byte_hash_directory_path() / self.c.COMMIT_BYTE_HASH_JSON_FILE
 
     def branch_path(self, branch_name: str) -> Path:
         return self.branches_path() / branch_name
@@ -409,19 +415,19 @@ class RepositoryPaths:
 class RepositoryStatus:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
-        self.repo_name = root.stem
+        self.repository_name = root.stem
         self.c = c
         self.target = target
         self.paths = RepositoryPaths(root, c, self.target)
         self.io = RepositoryIO(root, c, self.target)
 
-    def check_repository_layout(self) -> None:
+    def validate_repository_layout(self) -> None:
 
         dirs = [
             self.paths.view_html_objects_path(),
             self.paths.html_objects_path(),
             self.paths.sccs_path(),
-            self.paths.docx_objects_path(),
+            self.paths.document_objects_path(),
         ]
 
         files = [
@@ -430,7 +436,7 @@ class RepositoryStatus:
             self.paths.config_path(),
             self.paths.document_path(),
             self.paths.history_path(),
-            self.paths.byte_hashes_path(),
+            self.paths.byte_hash_path(),
         ]
 
         for i in dirs:
@@ -448,19 +454,19 @@ class RepositoryStatus:
                     )
                 )
 
-    def check_for_uncommitted_changes(self) -> bool:
+    def validate_uncommitted_changes(self) -> bool:
 
-        latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][
+        latest_commit_identifier = self.io.read_history()[self.c.HISTORY_DICT_KEY][
             self.c.LATEST_COMMIT_DICT_KEY
         ]
-        latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
-        document_hash = self.io.document_html_hash()
+        latest_byte_hash = self.io.read_byte_hash()[latest_commit_identifier]
+        document_byte_hash = self.io.document_html_byte_hash()
 
-        return latest_bytes_hash != document_hash
+        return latest_byte_hash != document_byte_hash
 
     def raise_for_uncommitted_changes(self) -> None:
 
-        if self.check_for_uncommitted_changes():
+        if self.validate_uncommitted_changes():
             raise exceptions.UncommittedChangesError(
                 self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
@@ -483,7 +489,7 @@ class RepositoryStatus:
 class RepositoryWrite:
     def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
         self.root = root
-        self.repo_name = root.stem
+        self.repository_name = root.stem
         self.c = c
         self.target = target
         self.paths = RepositoryPaths(root, c, self.target)
@@ -543,19 +549,21 @@ class RepositoryWrite:
                 )
             ) from e
 
-    def commit_changes(self, commit_msg: str, allow_empty_commit: bool = False) -> str:
+    def commit_changes(
+        self, commit_message: str, allow_empty_commit: bool = False
+    ) -> str:
 
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]
-        latest_commit = self.io.read_history()[self.c.HISTORY_DICT_KEY][
+        latest_commit_identifier = self.io.read_history()[self.c.HISTORY_DICT_KEY][
             self.c.LATEST_COMMIT_DICT_KEY
         ]
-        latest_bytes_hash = self.io.read_byte_hashes()[latest_commit]
-        document_hash = self.io.document_html_hash()
+        latest_byte_hash = self.io.read_byte_hash()[latest_commit_identifier]
+        document_byte_hash = self.io.document_html_byte_hash()
 
         if not allow_empty_commit:
-            if latest_bytes_hash == document_hash:
+            if latest_byte_hash == document_byte_hash:
                 raise exceptions.NoUncommittedChangesError(
                     self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
                 )
@@ -564,24 +572,31 @@ class RepositoryWrite:
         name = config[self.c.NAME_KEY]
         email = config[self.c.EMAIL_KEY]
 
-        hash_parts = [self.c.PROGRAM_START_TIME, commit_msg, name, email]
-        commit_hash = hashlib.sha256(
-            self.c.PATH_SEPARATOR.join(hash_parts).encode(self.c.UTF_8)
+        commit_identifier_parts = [
+            self.c.PROGRAM_START_TIME,
+            commit_message,
+            name,
+            email,
+        ]
+        commit_identifier = hashlib.sha256(
+            self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
         ).hexdigest()
 
         document_as_html = self.io.document_html()
 
-        self.io.copy_document_to_commit(commit_hash)
-        self.io.write_html_commit(commit_hash, document_as_html)
+        self.io.create_document_commit(commit_identifier)
+        self.io.write_html_commit(commit_identifier, document_as_html)
 
-        commit_file_hash = self.io.read_byte_hashes()
-        commit_file_hash[commit_hash] = document_hash
+        commit_byte_hash = self.io.read_byte_hash()
+        commit_byte_hash[commit_identifier] = document_byte_hash
 
         messages = self.io.read_commit_messages()
-        messages[commit_hash] = commit_msg
+        messages[commit_identifier] = commit_message
 
         history = self.io.read_history()
-        history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY] = commit_hash
+        history[self.c.HISTORY_DICT_KEY][
+            self.c.LATEST_COMMIT_DICT_KEY
+        ] = commit_identifier
         history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
             history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
         )
@@ -591,14 +606,14 @@ class RepositoryWrite:
         ]
         history[self.c.HISTORY_DICT_KEY][self.c.COMMIT_ORDER_DICT_KEY][
             latest_commit_number
-        ] = commit_hash
+        ] = commit_identifier
 
-        history[self.c.LOG_DICT_KEY][commit_hash] = {
+        history[self.c.LOG_DICT_KEY][commit_identifier] = {
             self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
             self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
                 name=name, email=email
             ),
-            self.c.MESSAGE_DICT_KEY: commit_msg,
+            self.c.MESSAGE_DICT_KEY: commit_message,
         }
 
         branch_data = self.io.read_current_branch_data()
@@ -612,9 +627,9 @@ class RepositoryWrite:
         else:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated_branch
 
-        self.io.write_byte_hashes(commit_file_hash)
+        self.io.write_byte_hash(commit_byte_hash)
         self.io.write_commit_messages(messages)
         self.io.write_history(history)
         self.io.write_current_branch_data(branch_data)
 
-        return commit_hash
+        return commit_identifier
