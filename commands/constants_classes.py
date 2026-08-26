@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import re
 from functools import cached_property
 
 
@@ -105,6 +106,7 @@ class SCCSConstants:
 
     HEX_DIGITS = "0123456789abcdef"
     HTTP_OBJECTS_DICT_KEY = "objects"
+    REPOSITORY_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
     INVALID_KEY_ERROR_MESSAGE = (
         f"Invalid configuration key provided. Accepted keys are: "
         f"{COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."

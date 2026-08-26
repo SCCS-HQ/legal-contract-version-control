@@ -65,46 +65,74 @@ CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
 CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 
 
-def resolve_path(path: Path) -> Path:
-    """Resolve a path and ensure it is not attempting directory traversal."""
+def validate_repository_name(repository_name: str) -> str:
+    """Validate a user-provided repository name against the allowed pattern."""
 
-    if ".." in path.parts or path.is_absolute():
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_FILE_PATH)
-
-    if not REPOSITORY_NAME_PATTERN.fullmatch(path.name):
+    if (
+        not repository_name
+        or not REPOSITORY_NAME_PATTERN.fullmatch(repository_name)
+        or repository_name in (".", "..")
+    ):
         raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    return repository_name
 
-    return path
+
+def repository_base_directory() -> Path:
+    """Return the fully-resolved base directory that holds all repositories."""
+
+    return Path(REPOSITORIES_BASE_DIRECTORY).resolve()
 
 
-def ensure_repository_exists(repository_name: Path) -> None:
+def repository_directory(repository_name: str) -> Path:
+    """
+    Build the fully-resolved directory for a validated repository name and
+    guarantee it stays inside the repositories base directory.
+    """
+
+    validate_repository_name(repository_name)
+    base_directory = repository_base_directory()
+    repository_path = (base_directory / repository_name).resolve()
+
+    try:
+        repository_path.relative_to(base_directory)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+        ) from e
+
+    return repository_path
+
+
+def ensure_repository_exists(repository_path: Path) -> None:
     """Ensure that the specified repository exists and is a directory."""
-
-    repository_path = Path(REPOSITORIES_BASE_DIRECTORY).resolve() / repository_name
 
     if not repository_path.exists() or not repository_path.is_dir():
         raise HTTPException(
             status_code=404,
-            detail=ERROR_REPOSITORY_NOT_FOUND.format(repository_name=repository_name),
+            detail=ERROR_REPOSITORY_NOT_FOUND.format(
+                repository_name=repository_path.name
+            ),
         )
 
 
 def safe_extract_zip(
     zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
 ) -> None:
+    destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
-    target_path = Path(os.path.normpath(destination_directory / entry_path))
+    target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
-        (target_path.resolve()).relative_to(Path(destination_directory).resolve())
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
+        target_path.relative_to(destination_resolved)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH) from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
         target_path.parent.mkdir(parents=True, exist_ok=True)
-    zip_archive.extract(member_path, path=destination_directory)
+        with zip_archive.open(member_path) as source, open(target_path, "wb") as f:
+            shutil.copyfileobj(source, f)
 
 
 app = FastAPI()
@@ -123,15 +151,7 @@ async def publish(
 ) -> dict:
     """Publish a repository to the hosted API"""
 
-    base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
-    repository_path = Path(
-        base_directory / resolve_path(Path(repository_name))
-    ).resolve()
-
-    try:
-        repository_path.relative_to(base_directory)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    repository_path = repository_directory(repository_name)
 
     try:
         remote = json.loads(data)["remote"]
@@ -172,15 +192,8 @@ async def publish(
 async def clone(repository_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
-    resolved_repository_name = resolve_path(Path(repository_name))
-    ensure_repository_exists(resolved_repository_name)
-    base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
-    repository_path = (base_directory / resolved_repository_name).resolve()
-
-    try:
-        repository_path.relative_to(base_directory)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    repository_path = repository_directory(repository_name)
+    ensure_repository_exists(repository_path)
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
@@ -197,7 +210,7 @@ async def clone(repository_name: str) -> StreamingResponse:
         media_type="application/zip",
         headers={
             "Content-Disposition": CONTENT_DISPOSITION_HEADER.format(
-                repository_name=resolved_repository_name
+                repository_name=repository_name
             )
         },
     )
@@ -210,18 +223,9 @@ async def push(repository_name: str) -> dict:
     upload changed files and new files.
     """
 
-    resolved_repository_name = resolve_path(Path(repository_name))
-
-    ensure_repository_exists(resolved_repository_name)
-    base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
     repository_path = (
-        base_directory / resolved_repository_name / SCCS_DIRECTORY
+        repository_directory(repository_name) / SCCS_DIRECTORY
     ).resolve()
-
-    try:
-        repository_path.relative_to(base_directory)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
 
     objects_directory = repository_path / OBJECTS_DIRECTORY
 
@@ -243,26 +247,17 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     against zip slip attacks, and copy the files to the repository atomically.
     """
 
-    resolved_repository_name = resolve_path(Path(repository_name))
-    ensure_repository_exists(resolved_repository_name)
-    base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
-    repository_path = (base_directory / resolved_repository_name).resolve()
-
-    try:
-        repository_path.relative_to(base_directory)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    repository_path = repository_directory(repository_name)
 
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(status_code=400, detail=ERROR_REPOSITORY_NAME_MISMATCH)
 
-    with zipfile.ZipFile(file.file, "r") as zf:
-        buffer_dir = Path(
-            os.path.join(tempfile.gettempdir(), TEMP_DIR_PREFIX + repo_name)
-        )
+    zip_buffer_directory = Path(
+        tempfile.gettempdir(),
+        f"{TEMPORARY_DIRECTORY_PREFIX}{repository_name}",
+    )
 
-        print(zip_archive.infolist())
-
+    with zipfile.ZipFile(file.file, "r") as zip_archive:
         if sum(i.file_size for i in zip_archive.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
             raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
@@ -292,7 +287,13 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
                             ).parts
                             if not i.startswith(TEMPORARY_DIRECTORY_PREFIX)
                         ]
-                    )
+                    ).resolve()
+                    try:
+                        destination_file.relative_to(repository_path)
+                    except ValueError as e:
+                        raise HTTPException(
+                            status_code=400, detail=ERROR_INVALID_ZIP_PATH
+                        ) from e
                     destination_file.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(str(source_file), str(destination_file))
         finally:
@@ -339,12 +340,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     have.
     """
 
-    resolved_repository_name = resolve_path(Path(repository_name))
-    ensure_repository_exists(resolved_repository_name)
-
-    repository_path = (
-        Path(REPOSITORIES_BASE_DIRECTORY).resolve() / resolved_repository_name
-    ).resolve()
+    repository_path = repository_directory(repository_name)
+    ensure_repository_exists(repository_path)
 
     if (
         not isinstance(data, dict)
@@ -355,14 +352,14 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
     local_objects = set(data[JSON_KEY_OBJECTS])
 
-    objects_paths = Path(
-        os.path.normpath(repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY)
-    )
+    objects_paths = (repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
     try:
         objects_paths.relative_to(repository_path)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+        ) from e
 
     remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
 
@@ -372,14 +369,14 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             detail=ERROR_LOCAL_UNKNOWN_OBJECTS,
         )
 
-    branches_path = Path(
-        os.path.normpath(repository_path / SCCS_DIRECTORY / BRANCHES_DIRECTORY)
-    )
+    branches_path = (repository_path / SCCS_DIRECTORY / BRANCHES_DIRECTORY).resolve()
 
     try:
         branches_path.relative_to(repository_path)
-    except ValueError:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+        ) from e
 
     files_to_upload = (
         i

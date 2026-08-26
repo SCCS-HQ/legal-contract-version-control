@@ -2,6 +2,7 @@
 
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Any, Callable
@@ -30,19 +31,23 @@ def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
 
 
 def safe_extract_zip(zip_archive, member_path, destination_directory):
+    destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
         raise exceptions.ZippingFileError("Invalid file path in zip")
-    target_path = Path(os.path.normpath(destination_directory / entry_path))
+    target_path = Path(
+        os.path.normpath(destination_directory / entry_path)
+    ).resolve()
     try:
-        target_path.relative_to(Path(destination_directory).resolve())
-    except ValueError:
-        raise exceptions.ZippingFileError("Invalid file path in zip")
+        target_path.relative_to(destination_resolved)
+    except ValueError as e:
+        raise exceptions.ZippingFileError("Invalid file path in zip") from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
         target_path.parent.mkdir(parents=True, exist_ok=True)
-    zip_archive.extract(member_path, path=destination_directory)
+        with zip_archive.open(member_path) as source, open(target_path, "wb") as f:
+            shutil.copyfileobj(source, f)
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
