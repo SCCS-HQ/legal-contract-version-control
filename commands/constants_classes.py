@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import datetime
-import re
 from functools import cached_property
 
 
