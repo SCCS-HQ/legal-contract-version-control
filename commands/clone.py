@@ -4,7 +4,7 @@ import io
 import os
 import zipfile
 from pathlib import Path
-from re import I
+import re
 from urllib.parse import urlsplit
 
 import exceptions
@@ -56,7 +56,8 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
 
     destination = Path(os.path.abspath(path_parts[-2]))
 
-    if not c.REPOSITORY_NAME_PATTERN.fullmatch(
+    if not re.fullmatch(
+        r"^[A-Za-z0-9._-]+$",
         destination.name
     ) or destination.name in (".", ".."):
         raise exceptions.InvalidArgumentError(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)

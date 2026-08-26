@@ -14,8 +14,6 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-REPOSITORY_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
-
 REPOSITORIES_BASE_DIRECTORY = "API/repos"
 SCCS_DIRECTORY = ".sccs"
 OBJECTS_DIRECTORY = "objects"
@@ -70,7 +68,7 @@ def validate_repository_name(repository_name: str) -> str:
 
     if (
         not repository_name
-        or not REPOSITORY_NAME_PATTERN.fullmatch(repository_name)
+        or not re.fullmatch(r"^[A-Za-z0-9._-]+$", repository_name)
         or repository_name in (".", "..")
     ):
         raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
