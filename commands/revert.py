@@ -37,7 +37,9 @@ def print_revert_success_message(
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
             commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            new_commit_identifier=new_commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            new_commit_identifier=new_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ],
         )
     )
 
@@ -55,7 +57,9 @@ def main(
 
     rs.validate_repository_layout()
 
-    commit_path = rd.commit_identifier_to_full_path(commit_identifier, c.DOCUMENT_DIRECTORY)
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
 
     revert(c, commit_path, rp)
 

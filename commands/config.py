@@ -52,7 +52,10 @@ def resolve_key_value(
             raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
-            c.REPOSITORIES_PATH_SEGMENT + c.PATH_SEPARATOR + repository_name + c.PATH_SEPARATOR
+            c.REPOSITORIES_PATH_SEGMENT
+            + c.PATH_SEPARATOR
+            + repository_name
+            + c.PATH_SEPARATOR
         )
 
         return (

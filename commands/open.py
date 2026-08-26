@@ -17,14 +17,18 @@ def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) 
 
     if not commit_identifier:
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_IDENTIFIER_FIELD_NAME)
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_IDENTIFIER_FIELD_NAME
+            )
         )
 
     is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
 
     if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
         raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.COMMIT_IDENTIFIER_FIELD_NAME)
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_IDENTIFIER_FIELD_NAME
+            )
         )
 
 
@@ -57,13 +61,17 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    commit_path = rd.commit_identifier_to_full_path(commit_identifier, c.DOCUMENT_DIRECTORY)
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
 
     full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
     output_file_name = Path(
         c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_identifier=full_commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            commit_identifier=full_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ]
         )
     ).with_suffix(c.DOCUMENT_EXTENSION)
 

@@ -92,9 +92,16 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str
 
 def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 
-    commit_identifier_parts = [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email]
+    commit_identifier_parts = [
+        c.PROGRAM_START_TIME,
+        c.INITIAL_VERSION_COMMIT_MESSAGE,
+        name,
+        email,
+    ]
 
-    return hashlib.sha256(c.PATH_SEPARATOR.join(commit_identifier_parts).encode(c.UTF_8)).hexdigest()
+    return hashlib.sha256(
+        c.PATH_SEPARATOR.join(commit_identifier_parts).encode(c.UTF_8)
+    ).hexdigest()
 
 
 def copy_document_to_objects_as_document_and_html(
@@ -110,7 +117,9 @@ def copy_document_to_objects_as_document_and_html(
     try:
         shutil.copy2(
             document_path,
-            (rp.document_objects_path() / commit_identifier).with_suffix(c.DOCUMENT_EXTENSION),
+            (rp.document_objects_path() / commit_identifier).with_suffix(
+                c.DOCUMENT_EXTENSION
+            ),
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
@@ -128,7 +137,9 @@ def copy_document_to_objects_as_document_and_html(
 
     try:
         with open(
-            (rp.view_html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
+            (rp.view_html_objects_path() / commit_identifier).with_suffix(
+                c.HTML_EXTENSION
+            ),
             "w",
             encoding=c.UTF_8,
             newline=c.NEWLINE,
@@ -154,7 +165,9 @@ def write_history_data(
             c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
             c.LATEST_COMMIT_DICT_KEY: commit_identifier,
             c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
-            c.COMMIT_ORDER_DICT_KEY: {c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier},
+            c.COMMIT_ORDER_DICT_KEY: {
+                c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+            },
         },
         c.LOG_DICT_KEY: {
             commit_identifier: {
@@ -219,7 +232,9 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         raise exceptions.UpdatingMetadataError() from e
 
 
-def move_document_to_repository_directory(repository_path: Path, document_path: Path) -> None:
+def move_document_to_repository_directory(
+    repository_path: Path, document_path: Path
+) -> None:
 
     shutil.move(document_path, repository_path)
 
@@ -250,7 +265,9 @@ def initialize_repository(
 
         commit_identifier = create_commit_identifier(c, name, email)
 
-        copy_document_to_objects_as_document_and_html(c, document_path, commit_identifier, rp)
+        copy_document_to_objects_as_document_and_html(
+            c, document_path, commit_identifier, rp
+        )
 
         write_history_data(c, name, email, commit_identifier, ri, rs)
 

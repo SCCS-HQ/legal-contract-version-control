@@ -41,7 +41,9 @@ def validate_commit_identifier(
 
     rs.target.set(branch_to_switch)
 
-    if not rd.commit_identifier_to_full_path(rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY).is_file():
+    if not rd.commit_identifier_to_full_path(
+        rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+    ).is_file():
         raise exceptions.CommitNotFoundError()
 
     rs.target.reset()
@@ -59,7 +61,9 @@ def copy_commit_to_main(
 
     try:
         shutil.copy2(
-            rd.commit_identifier_to_full_path(rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY),
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+            ),
             rp.document_path(),
         )
     except Exception as e:

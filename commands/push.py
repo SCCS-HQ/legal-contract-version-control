@@ -50,7 +50,9 @@ def get_matching_file_paths(
     return paths
 
 
-def compare_commit_identifier_lists(remote_objects: list[str], rd: RepositoryData) -> list[str]:
+def compare_commit_identifier_lists(
+    remote_objects: list[str], rd: RepositoryData
+) -> list[str]:
 
     local_objects = rd.repository_objects()
 

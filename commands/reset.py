@@ -22,7 +22,9 @@ def reset(
 
     try:
         shutil.copy2(
-            rd.commit_identifier_to_full_path(rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY),
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+            ),
             rp.document_path(),
         )
     except Exception as e:

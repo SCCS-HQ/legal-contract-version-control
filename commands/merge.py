@@ -30,7 +30,9 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
         )
 
 
-def copy_branch_data(c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def copy_branch_data(
+    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
+) -> None:
 
     source = rp.branch_path(branch)
     destination = rp.branch_path(rd.current_branch())
@@ -54,20 +56,25 @@ def copy_branch_data(c: SCCSConstants, branch: str, rd: RepositoryData, rp: Repo
         raise exceptions.FileCopyError() from e
 
 
-def copy_repository_document(branch: str, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def copy_repository_document(
+    branch: str, rd: RepositoryData, rp: RepositoryPaths
+) -> None:
 
     original_target = rd.target.get()
     rd.target.set(branch)
 
     try:
         shutil.copy2(
-            rd.commit_identifier_to_full_path(rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY), rp.document_path()
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+            ),
+            rp.document_path(),
         )
     except Exception as e:
         raise exceptions.FileCopyError() from e
     finally:
         rd.target.set(original_target)
-        
+
 
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData

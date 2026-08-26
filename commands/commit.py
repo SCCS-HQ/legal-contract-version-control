@@ -28,7 +28,9 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     try:
         print(
             c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+                commit_identifier=commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
             )
         )
     except Exception as e:

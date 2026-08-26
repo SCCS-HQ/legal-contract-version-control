@@ -88,7 +88,9 @@ def replace_tag(
     soup: BeautifulSoup,
 ) -> BeautifulSoup:
 
-    html_fragment = BeautifulSoup(c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER)
+    html_fragment = BeautifulSoup(
+        c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER
+    )
     match = []
     for i in soup.find_all():
         if i.name == c.STYLE_TAG_NAME:
@@ -120,7 +122,10 @@ def replace_tag(
 
 
 def insert_tag(
-    c: SCCSConstants, new_changed_strings: list[str], insert_index: int, soup: BeautifulSoup
+    c: SCCSConstants,
+    new_changed_strings: list[str],
+    insert_index: int,
+    soup: BeautifulSoup,
 ) -> BeautifulSoup:
 
     for i in soup.find_all():
@@ -128,7 +133,9 @@ def insert_tag(
             i.decompose()
             continue
     tags = soup.find_all()
-    html_fragment = BeautifulSoup(c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER)
+    html_fragment = BeautifulSoup(
+        c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER
+    )
     for i in html_fragment.find_all():
         if i.name:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
@@ -142,7 +149,11 @@ def insert_tag(
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 ]
 
-    tags[insert_index].insert_before(html_fragment) if insert_index < len(tags) else soup.append(html_fragment)
+    (
+        tags[insert_index].insert_before(html_fragment)
+        if insert_index < len(tags)
+        else soup.append(html_fragment)
+    )
 
     return soup
 
@@ -186,7 +197,9 @@ def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSo
 def generate_diff_output(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, ri: RepositoryIO
 ) -> BeautifulSoup:
-    commit_soup = convert_html_to_soup(c, rd.commit_file_bytes(commit_identifier, c.HTML_DIRECTORY))
+    commit_soup = convert_html_to_soup(
+        c, rd.commit_file_bytes(commit_identifier, c.HTML_DIRECTORY)
+    )
 
     current_version_soup = convert_html_to_soup(c, ri.document_html())
 
@@ -194,7 +207,9 @@ def generate_diff_output(
 
     current_version = tags_to_list(remove_inline_semantics(c, current_version_soup))
 
-    commit_identifier_list = tags_to_list(remove_inline_semantics(c, number_tags(c, commit_soup)))
+    commit_identifier_list = tags_to_list(
+        remove_inline_semantics(c, number_tags(c, commit_soup))
+    )
 
     document_current_version_list = tags_to_list(
         remove_inline_semantics(c, number_tags(c, current_version_soup))
@@ -212,10 +227,10 @@ def generate_diff_output(
     )
 
 
-def validate_diff(
-    c: SCCSConstants, rd: RepositoryData, commit_identifier: str
-) -> None:
-    commit_path = rd.commit_identifier_to_full_path(commit_identifier, c.DOCUMENT_DIRECTORY)
+def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) -> None:
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
         raise exceptions.InvalidArgumentError()

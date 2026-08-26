@@ -65,7 +65,9 @@ class RepositoryData:
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
-    def commit_identifier_to_full_path(self, commit_identifier: str, folder: str) -> Path:
+    def commit_identifier_to_full_path(
+        self, commit_identifier: str, folder: str
+    ) -> Path:
         if commit_identifier is None:
             raise exceptions.InvalidArgumentError(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
@@ -142,7 +144,9 @@ class RepositoryData:
         return self.io.file_bytes(matching_files[0])
 
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
-        path = self.commit_identifier_to_full_path(commit_identifier, self.c.DOCUMENT_DIRECTORY)
+        path = self.commit_identifier_to_full_path(
+            commit_identifier, self.c.DOCUMENT_DIRECTORY
+        )
         return path.stem
 
     def latest_commit_identifier(self) -> str:
@@ -312,7 +316,9 @@ class RepositoryIO:
 
     def create_document_commit(self, commit_identifier: str) -> None:
         name = Path(commit_identifier).with_suffix(self.c.DOCUMENT_EXTENSION)
-        shutil.copy2(self.paths.document_path(), self.paths.document_objects_path() / name)
+        shutil.copy2(
+            self.paths.document_path(), self.paths.document_objects_path() / name
+        )
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
@@ -543,7 +549,9 @@ class RepositoryWrite:
                 )
             ) from e
 
-    def commit_changes(self, commit_message: str, allow_empty_commit: bool = False) -> str:
+    def commit_changes(
+        self, commit_message: str, allow_empty_commit: bool = False
+    ) -> str:
 
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
@@ -564,7 +572,12 @@ class RepositoryWrite:
         name = config[self.c.NAME_KEY]
         email = config[self.c.EMAIL_KEY]
 
-        commit_identifier_parts = [self.c.PROGRAM_START_TIME, commit_message, name, email]
+        commit_identifier_parts = [
+            self.c.PROGRAM_START_TIME,
+            commit_message,
+            name,
+            email,
+        ]
         commit_identifier = hashlib.sha256(
             self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
         ).hexdigest()
@@ -581,7 +594,9 @@ class RepositoryWrite:
         messages[commit_identifier] = commit_message
 
         history = self.io.read_history()
-        history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_DICT_KEY] = commit_identifier
+        history[self.c.HISTORY_DICT_KEY][
+            self.c.LATEST_COMMIT_DICT_KEY
+        ] = commit_identifier
         history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
             history[self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
         )

@@ -84,11 +84,14 @@ def ensure_repository_exists(repository_name: Path) -> None:
 
     if not repository_path.exists() or not repository_path.is_dir():
         raise HTTPException(
-            status_code=404, detail=ERROR_REPOSITORY_NOT_FOUND.format(repository_name=repository_name)
+            status_code=404,
+            detail=ERROR_REPOSITORY_NOT_FOUND.format(repository_name=repository_name),
         )
 
 
-def safe_extract_zip(zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path) -> None:
+def safe_extract_zip(
+    zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
+) -> None:
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
@@ -121,7 +124,9 @@ async def publish(
     """Publish a repository to the hosted API"""
 
     base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
-    repository_path = Path(base_directory / resolve_path(Path(repository_name))).resolve()
+    repository_path = Path(
+        base_directory / resolve_path(Path(repository_name))
+    ).resolve()
 
     try:
         repository_path.relative_to(base_directory)
@@ -182,7 +187,9 @@ async def clone(repository_name: str) -> StreamingResponse:
         for root, dirs, files in os.walk(repository_path):
             for i in files:
                 file_path = Path(root) / i
-                zip_archive.write(filename=file_path, arcname=file_path.relative_to(repository_path))
+                zip_archive.write(
+                    filename=file_path, arcname=file_path.relative_to(repository_path)
+                )
 
     zip_buffer.seek(0)
     return StreamingResponse(
@@ -207,7 +214,9 @@ async def push(repository_name: str) -> dict:
 
     ensure_repository_exists(resolved_repository_name)
     base_directory = Path(REPOSITORIES_BASE_DIRECTORY).resolve()
-    repository_path = (base_directory / resolved_repository_name / SCCS_DIRECTORY).resolve()
+    repository_path = (
+        base_directory / resolved_repository_name / SCCS_DIRECTORY
+    ).resolve()
 
     try:
         repository_path.relative_to(base_directory)
@@ -278,7 +287,8 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
                         *[
                             i
                             for i in Path(
-                                repository_path / source_file.relative_to(zip_buffer_directory)
+                                repository_path
+                                / source_file.relative_to(zip_buffer_directory)
                             ).parts
                             if not i.startswith(TEMPORARY_DIRECTORY_PREFIX)
                         ]
@@ -289,13 +299,21 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
 
     with open(
-        repository_path / SCCS_DIRECTORY / CURRENT_BRANCH_DIRECTORY / CURRENT_BRANCH_FILE,
+        repository_path
+        / SCCS_DIRECTORY
+        / CURRENT_BRANCH_DIRECTORY
+        / CURRENT_BRANCH_FILE,
         "r",
         encoding="utf-8",
     ) as f:
         data = json.load(f)
 
-    temporary_file = repository_path / SCCS_DIRECTORY / CURRENT_BRANCH_DIRECTORY / CURRENT_BRANCH_TEMPORARY_FILE
+    temporary_file = (
+        repository_path
+        / SCCS_DIRECTORY
+        / CURRENT_BRANCH_DIRECTORY
+        / CURRENT_BRANCH_TEMPORARY_FILE
+    )
     with open(
         temporary_file,
         "w",
@@ -303,7 +321,12 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     ) as f:
         data[JSON_KEY_UPDATED_BRANCHES] = []
         json.dump(data, f, indent=JSON_DUMP_INDENT)
-    temporary_file.replace(repository_path / SCCS_DIRECTORY / CURRENT_BRANCH_DIRECTORY / CURRENT_BRANCH_FILE)
+    temporary_file.replace(
+        repository_path
+        / SCCS_DIRECTORY
+        / CURRENT_BRANCH_DIRECTORY
+        / CURRENT_BRANCH_FILE
+    )
 
     return {JSON_KEY_MESSAGE: MESSAGE_PUSH_SUCCESS}
 
@@ -319,7 +342,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     resolved_repository_name = resolve_path(Path(repository_name))
     ensure_repository_exists(resolved_repository_name)
 
-    repository_path = (Path(REPOSITORIES_BASE_DIRECTORY).resolve() / resolved_repository_name).resolve()
+    repository_path = (
+        Path(REPOSITORIES_BASE_DIRECTORY).resolve() / resolved_repository_name
+    ).resolve()
 
     if (
         not isinstance(data, dict)
@@ -330,7 +355,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
     local_objects = set(data[JSON_KEY_OBJECTS])
 
-    objects_paths = Path(os.path.normpath(repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY))
+    objects_paths = Path(
+        os.path.normpath(repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY)
+    )
 
     try:
         objects_paths.relative_to(repository_path)
@@ -345,7 +372,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             detail=ERROR_LOCAL_UNKNOWN_OBJECTS,
         )
 
-    branches_path = Path(os.path.normpath(repository_path / SCCS_DIRECTORY / BRANCHES_DIRECTORY))
+    branches_path = Path(
+        os.path.normpath(repository_path / SCCS_DIRECTORY / BRANCHES_DIRECTORY)
+    )
 
     try:
         branches_path.relative_to(repository_path)
@@ -369,9 +398,22 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             for i in (branches_path).rglob("*")
             if i.is_file() and i.stem == COMMIT_BYTE_HASH_STEM
         ]
-        + [repository_path / DOCUMENT_FILE_TEMPLATE.format(repository_name=repository_path.name)]
-        + [repository_path / SCCS_DIRECTORY / CURRENT_BRANCH_DIRECTORY / CURRENT_BRANCH_FILE]
-        + [repository_path / SCCS_DIRECTORY / COMMIT_MESSAGES_DIRECTORY / COMMIT_MESSAGES_FILE]
+        + [
+            repository_path
+            / DOCUMENT_FILE_TEMPLATE.format(repository_name=repository_path.name)
+        ]
+        + [
+            repository_path
+            / SCCS_DIRECTORY
+            / CURRENT_BRANCH_DIRECTORY
+            / CURRENT_BRANCH_FILE
+        ]
+        + [
+            repository_path
+            / SCCS_DIRECTORY
+            / COMMIT_MESSAGES_DIRECTORY
+            / COMMIT_MESSAGES_FILE
+        ]
         if i.is_file()
     )
 
@@ -391,5 +433,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     )
 
 
-app.mount("/repos", StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY), name=STATIC_FILES_NAME)
+app.mount(
+    "/repos", StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY), name=STATIC_FILES_NAME
+)
 """Mount all repositories as static files on the /repos endpoint."""
