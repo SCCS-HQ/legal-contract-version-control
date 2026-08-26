@@ -76,9 +76,7 @@ class ValidatedRepositoryName:
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
             or self.value in (".", "..")
         ):
-            raise HTTPException(
-                status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
-            )
+            raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
 
     def __str__(self) -> str:
         return self.value
