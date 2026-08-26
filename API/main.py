@@ -254,7 +254,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
     zip_buffer_directory = Path(
         tempfile.gettempdir(),
-        f"{TEMPORARY_DIRECTORY_PREFIX}{repository_name}",
+        TEMPORARY_DIRECTORY_PREFIX + repository_name,
     )
 
     with zipfile.ZipFile(file.file, "r") as zip_archive:
