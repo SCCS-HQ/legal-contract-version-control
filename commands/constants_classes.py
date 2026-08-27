@@ -483,6 +483,18 @@ class SCCSConstants:
     ## strings - error messages
     PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}."
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
+    PUSH_HTTP_REQUEST_ERROR_MESSAGE = (
+        "The HTTP request failed while attempting the push the new changes. Please try "
+        "again later or check you internet connection."
+    )
+    NO_UPDATED_BRANCHES_ERROR_MESSAGE = (
+        "No updated branches were found. Please update at least one branch before "
+        "pushing changes."
+    )
+    MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = (
+        "The remote repository has extra commits that the local is missing. Please "
+        "pull the latest changes before pushing."
+    )
 
     ## strings - success messages
     TEMPORARY_DIRECTORY_TEMPLATE = "tmp_{repo_name}"

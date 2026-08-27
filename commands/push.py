@@ -28,7 +28,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
     try:
         response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
@@ -40,7 +40,7 @@ def get_matching_file_paths(
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
     if updated_branches is None:
-        raise exceptions.SCCSException()
+        raise exceptions.SCCSException(c.NO_UPDATED_BRANCHES_ERROR_MESSAGE)
     for i in updated_branches:
         branch_directory = rp.branches_path() / i
         if branch_directory.is_dir():
@@ -58,7 +58,7 @@ def compare_commit_identifier_lists(
 
     object_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
-        raise exceptions.SCCSException()
+        raise exceptions.SCCSException(c.MISSING_REMOTE_OBJECTS_ERROR_MESSAGE)
 
     return object_to_upload
 
