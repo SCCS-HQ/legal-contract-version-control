@@ -24,7 +24,7 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     try:
         response = requests.post(url, json=remote_data, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
@@ -36,10 +36,8 @@ def update_repository_files(c: SCCSConstants, response: requests.Response) -> No
         with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
             for i in zf.namelist():
                 utils.safe_extract_zip(zf, i, destination)
-    except exceptions.ZippingFileError:
-        raise
     except Exception as e:
-        raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 
 def print_pull_success_message(

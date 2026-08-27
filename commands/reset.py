@@ -28,7 +28,7 @@ def reset(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.RESET_ERROR_MESSAGE) from e
 
     rs.target.reset()
 

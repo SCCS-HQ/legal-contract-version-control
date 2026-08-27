@@ -233,7 +233,7 @@ def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) 
     )
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
-        raise exceptions.InvalidArgumentError()
+        raise exceptions.SCCSException()
 
 
 def print_diff_success_message(c: SCCSConstants) -> None:

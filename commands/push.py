@@ -28,7 +28,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
     try:
         response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPGetRequestError() from e
+        raise exceptions.SCCSException() from e
 
     return response
 
@@ -40,7 +40,7 @@ def get_matching_file_paths(
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
     if updated_branches is None:
-        raise exceptions.InvalidMetadataError()
+        raise exceptions.SCCSException()
     for i in updated_branches:
         branch_directory = rp.branches_path() / i
         if branch_directory.is_dir():
@@ -58,7 +58,7 @@ def compare_commit_identifier_lists(
 
     object_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
-        raise exceptions.MissingCommitObjectsError()
+        raise exceptions.SCCSException()
 
     return object_to_upload
 
@@ -113,12 +113,12 @@ def zip_files_to_upload(
                         full_path = Path(root) / i
                         zf.write(full_path, arcname=full_path.relative_to(temp_dir))
         except Exception as e:
-            raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 
@@ -133,7 +133,7 @@ def upload_objects(
     if not remote_path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repository_name)
     ):
-        raise exceptions.InvalidAPIURLError(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
     try:
         response = requests.post(
@@ -151,7 +151,7 @@ def upload_objects(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(
+        raise exceptions.SCCSException(
             c.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE.format(url=remote)
         ) from e
 
@@ -178,7 +178,7 @@ def clear_updated_branches(
         ) as f:
             json.dump(data, f, indent=4)
     except Exception as e:
-        raise exceptions.FileWriteError(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
 
 
 def print_push_success_message(

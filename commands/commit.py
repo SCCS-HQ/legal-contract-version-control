@@ -16,7 +16,7 @@ from repository_layout import (
 def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> None:
 
     if commit_message is None or not commit_message:
-        raise exceptions.EmptyArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_MESSAGE_FIELD_NAME
             )

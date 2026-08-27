@@ -20,12 +20,12 @@ def validate_branch_to_switch(
 ) -> None:
 
     if not branch_to_switch:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
 
     if not rs.branch_exists(branch_to_switch):
-        raise exceptions.BranchNotFoundError(
+        raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_to_switch
             )
@@ -44,7 +44,7 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.CommitNotFoundError()
+        raise exceptions.SCCSException()
 
     rs.target.reset()
 
@@ -67,7 +67,7 @@ def copy_commit_to_main(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException() from e
 
     rs.target.reset()
 

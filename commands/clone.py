@@ -16,15 +16,15 @@ from constants_classes import SCCSConstants
 def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
 
     if not url:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
         )
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
-        raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
     if not url.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
     return url
 
@@ -35,7 +35,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
         response = requests.get(url, timeout=timeout)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise exceptions.HTTPGetRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
@@ -45,10 +45,10 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
     if not path_parts or not urlsplit(url).path.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.InvalidArgumentError(c.INVALID_ENDING_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
     if len(path_parts) < c.MINIMUM_PATH_PARTS:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.REPOSITORY_NAME_FIELD_NAME
             )
@@ -60,16 +60,16 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
         ".",
         "..",
     ):
-        raise exceptions.InvalidArgumentError(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
     try:
         with zipfile.ZipFile(zip_buffer, "r") as zf:
             for i in zf.namelist():
                 utils.safe_extract_zip(zf, i, destination)
-    except exceptions.ZippingFileError:
+    except exceptions.SCCSException:
         raise
     except Exception as e:
-        raise exceptions.ZippingFileError(c.UNZIP_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:

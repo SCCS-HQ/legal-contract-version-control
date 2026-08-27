@@ -19,13 +19,13 @@ from repository_layout import (
 def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
 
     if not branch:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
     if branch == rd.current_branch():
-        raise exceptions.InvalidArgumentError(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
     if branch not in rd.branches():
-        raise exceptions.BranchNotFoundError(
+        raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
 
@@ -53,7 +53,7 @@ def copy_branch_data(
                 ignore=ignore_metadata,
             )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException() from e
 
 
 def copy_repository_document(
@@ -71,7 +71,7 @@ def copy_repository_document(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException() from e
     finally:
         rd.target.set(original_target)
 

@@ -16,7 +16,7 @@ from repository_layout import (
 def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
 
     if not commit_identifier:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_IDENTIFIER_FIELD_NAME
             )
@@ -25,7 +25,7 @@ def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) 
     is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
 
     if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_IDENTIFIER_FIELD_NAME
             )
@@ -37,7 +37,7 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
     try:
         shutil.copy2(commit_path, output_file_name)
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException() from e
 
 
 def print_open_success_message(

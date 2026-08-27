@@ -18,7 +18,7 @@ from repository_layout import (
 def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
 
     if not commit_path.is_file():
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
                 file_name=commit_path.stem
             )
@@ -27,7 +27,7 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
     try:
         shutil.copy2(commit_path, rp.document_path())
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException() from e
 
 
 def print_revert_success_message(

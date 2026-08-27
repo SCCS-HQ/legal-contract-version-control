@@ -18,10 +18,10 @@ from repository_layout import (
 
 def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     if key not in c.ACCEPTED_CONFIG_KEYS:
-        raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
     if not value.strip():
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
 
@@ -33,7 +33,7 @@ def resolve_key_value(
 ) -> str:
 
     if not value:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
 
@@ -49,7 +49,7 @@ def resolve_key_value(
             or parsed_url.query
             or parsed_url.fragment
         ):
-            raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
+            raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
             c.REPOSITORIES_PATH_SEGMENT

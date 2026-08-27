@@ -23,16 +23,16 @@ def validate_subcommand(
 ) -> None:
 
     if not subcommand:
-        raise exceptions.InvalidSubcommandError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.SUBCOMMAND_FIELD_NAME)
         )
 
     if subcommand not in c.ACCEPTED_SUBCOMMANDS:
-        raise exceptions.InvalidSubcommandError(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         if not branch_name:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=c.BRANCH_NAME_FIELD_NAME
                 )
@@ -40,7 +40,7 @@ def validate_subcommand(
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if rs.branch_exists(branch_name):
-            raise exceptions.BranchAlreadyExistsError(
+            raise exceptions.SCCSException(
                 c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
                     branch_name=branch_name
                 )
@@ -48,12 +48,12 @@ def validate_subcommand(
 
     if subcommand == c.DELETE_SUBCOMMAND:
         if rs.is_current_branch(branch_name):
-            raise exceptions.BranchDeletionError(
+            raise exceptions.SCCSException(
                 c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE
             )
 
         if not rs.branch_exists(branch_name):
-            raise exceptions.BranchMissingFromMetadataError(
+            raise exceptions.SCCSException(
                 c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     branch_name=branch_name
                 )
@@ -76,7 +76,7 @@ def rollback_changes_after_failure(
         if subcommand == c.DELETE_SUBCOMMAND:
             rw.add_to_branches_list(branch_name)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError(
+        raise exceptions.SCCSException(
             c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_name
             )
@@ -100,7 +100,7 @@ def branch_create_subcommand(
         rw.set_current_branch(branch_name)
     except Exception as e:
         rollback_changes_after_failure(c, branch_name, c.CREATE_SUBCOMMAND, rp, rw)
-        raise exceptions.FileCopyError(
+        raise exceptions.SCCSException(
             c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
                 action=c.CREATE_SUBCOMMAND
             )
@@ -128,7 +128,7 @@ def branch_delete_subcommand(
         shutil.rmtree(rp.branch_path(branch_name))
     except Exception as e:
         rollback_changes_after_failure(c, branch_name, c.DELETE_SUBCOMMAND, rp, rw)
-        raise exceptions.FileDeleteError(
+        raise exceptions.SCCSException(
             c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
                 action=c.DELETE_SUBCOMMAND
             )

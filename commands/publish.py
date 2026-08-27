@@ -28,7 +28,7 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
     try:
         zip_buffer = io.BytesIO()
     except Exception as e:
-        raise exceptions.BufferError(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
         with zipfile.ZipFile(
@@ -39,12 +39,12 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
                 for i in files:
                     zf.write(Path(root) / i)
     except Exception as e:
-        raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
         zip_buffer.seek(0)
     except Exception as e:
-        raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return zip_buffer
 
@@ -74,7 +74,7 @@ def post_repository(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     return response
 
 

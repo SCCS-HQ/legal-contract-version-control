@@ -26,7 +26,7 @@ class TargetBranch:
 
     def require(self) -> str:
         if self._branch is None:
-            raise exceptions.BranchNotSetError(
+            raise exceptions.SCCSException(
                 self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
             )
         return self._branch
@@ -46,12 +46,12 @@ class RepositoryData:
 
     def config_data(self, key: str) -> str:
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(self.c.INVALID_KEY_ERROR_MESSAGE)
+            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
     def raise_for_commit_identifier_length(self, commit_identifier: str) -> None:
         if commit_identifier is None:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
@@ -61,7 +61,7 @@ class RepositoryData:
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
             and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
@@ -69,7 +69,7 @@ class RepositoryData:
         self, commit_identifier: str, folder: str
     ) -> Path:
         if commit_identifier is None:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
@@ -79,7 +79,7 @@ class RepositoryData:
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
             and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
@@ -90,14 +90,14 @@ class RepositoryData:
                 matching_files.append(i)
 
         if not matching_files:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
                     file_path=commit_identifier
                 )
             )
 
         if len(matching_files) > 1:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     commit=commit_identifier
                 )
@@ -107,7 +107,7 @@ class RepositoryData:
 
     def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
         if commit_identifier is None:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
@@ -117,7 +117,7 @@ class RepositoryData:
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
             and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
@@ -128,14 +128,14 @@ class RepositoryData:
                 matching_files.append(i)
 
         if not matching_files:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
                     file_path=commit_identifier
                 )
             )
 
         if len(matching_files) > 1:
-            raise exceptions.InvalidArgumentError(
+            raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     commit=commit_identifier
                 )
@@ -154,7 +154,7 @@ class RepositoryData:
             self.c.LATEST_COMMIT_DICT_KEY
         ]
         if not commit_identifier:
-            raise exceptions.InvalidMetadataError(
+            raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
             )
 
@@ -441,14 +441,14 @@ class RepositoryStatus:
 
         for i in dirs:
             if not i.is_dir():
-                raise exceptions.InvalidMetadataError(
+                raise exceptions.SCCSException(
                     self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
                         resource_name=i
                     )
                 )
         for i in files:
             if not i.is_file():
-                raise exceptions.InvalidMetadataError(
+                raise exceptions.SCCSException(
                     self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
                         resource_name=i
                     )
@@ -467,7 +467,7 @@ class RepositoryStatus:
     def raise_for_uncommitted_changes(self) -> None:
 
         if self.validate_uncommitted_changes():
-            raise exceptions.UncommittedChangesError(
+            raise exceptions.SCCSException(
                 self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
 
@@ -497,14 +497,14 @@ class RepositoryWrite:
 
     def write_key_to_config(self, key: str, value: str) -> None:
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.InvalidArgumentError(self.c.INVALID_KEY_ERROR_MESSAGE)
+            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
 
         try:
             config = self.io.read_config()
             config[key] = value
             self.io.write_config(config)
         except Exception as e:
-            raise exceptions.UpdatingMetadataError(
+            raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
             ) from e
 
@@ -514,7 +514,7 @@ class RepositoryWrite:
             branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
-            raise exceptions.BranchCreationError(
+            raise exceptions.SCCSException(
                 self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
                     action=self.c.CREATE_SUBCOMMAND
                 )
@@ -526,12 +526,12 @@ class RepositoryWrite:
             if branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
                 branch_data[self.c.BRANCHES_DICT_KEY].remove(branch_name)
             else:
-                raise exceptions.BranchMissingFromMetadataError(
+                raise exceptions.SCCSException(
                     self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE
                 )
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
-            raise exceptions.BranchDeletionError(
+            raise exceptions.SCCSException(
                 self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
                     action=self.c.DELETE_SUBCOMMAND
                 )
@@ -543,7 +543,7 @@ class RepositoryWrite:
             branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
-            raise exceptions.UpdatingMetadataError(
+            raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=self.c.BRANCH_NAME_FIELD_NAME
                 )
@@ -564,7 +564,7 @@ class RepositoryWrite:
 
         if not allow_empty_commit:
             if latest_byte_hash == document_byte_hash:
-                raise exceptions.NoUncommittedChangesError(
+                raise exceptions.SCCSException(
                     self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
                 )
 
