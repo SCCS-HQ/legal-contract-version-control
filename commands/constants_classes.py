@@ -93,6 +93,7 @@ class SCCSConstants:
     CURRENT_BRANCH_DICT_KEY = "current_branch"
     EMAIL_KEY = "email"
     HEX_DIGITS = "0123456789abcdef"
+    HISTORY_DICT_KEY = "history"
     HTTP_OBJECTS_DICT_KEY = "objects"
     INVALID_KEY_ERROR_MESSAGE = (
         f"Invalid configuration key provided. Accepted keys are: "
