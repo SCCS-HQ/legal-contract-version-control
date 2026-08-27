@@ -63,7 +63,6 @@ class SCCSConstants:
         "The entered file '{file_path}' does not exist. Please provide a valid file "
         "path to an existing file."
     )
-    HISTORY_DICT_KEY = "history"
     INVALID_URL_ERROR_MESSAGE = (
         f"Invalid remote URL provided. The URL must start with one of the following "
         f"schemes: {COMMA_SPACE.join(ACCEPTED_SCHEMES)}, and use the format "
@@ -87,25 +86,24 @@ class SCCSConstants:
 
     # region Shared - Configuration Values (keys, schemes, dict keys)
 
-    EMAIL_KEY = "email"
-    NAME_KEY = "name"
-    REMOTE_KEY = "remote"
-
-    ACCEPTED_CONFIG_KEYS = (REMOTE_KEY, NAME_KEY, EMAIL_KEY)
+    ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     AUTHOR_DICT_KEY = "author"
     BRANCHES_DICT_KEY = "branches"
     COMMIT_ORDER_DICT_KEY = "commit_order"
     CURRENT_BRANCH_DICT_KEY = "current_branch"
+    EMAIL_KEY = "email"
     HEX_DIGITS = "0123456789abcdef"
     HTTP_OBJECTS_DICT_KEY = "objects"
     INVALID_KEY_ERROR_MESSAGE = (
         f"Invalid configuration key provided. Accepted keys are: "
-        f"{COMMA_SPACE.join(ACCEPTED_CONFIG_KEYS)}."
+        f"remote, name, email."
     )
     LATEST_COMMIT_DICT_KEY = "latest_commit"
     LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
     LOG_DICT_KEY = "log"
     MESSAGE_DICT_KEY = "message"
+    NAME_KEY = "name"
+    REMOTE_KEY = "remote"
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
 
@@ -214,6 +212,12 @@ class SCCSConstants:
     # (none)
     # endregion
 
+    # region branch.py - Paths
+
+    WALK_ROOT = "."
+
+    # endregion
+
     # region branch.py - Strings
 
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -244,12 +248,6 @@ class SCCSConstants:
 
     # endregion
 
-    # region branch.py - Paths
-
-    WALK_ROOT = "."
-
-    # endregion
-
     # region branch.py - Other
 
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
@@ -275,6 +273,10 @@ class SCCSConstants:
         f"Invalid remote URL provided. Please provide a valid URL ending with "
         f"'{CLONE_ENDPOINT}'."
     )
+    INVALID_REPOSITORY_NAME_ERROR_MESSAGE = (
+        "Invalid repository name. Please ensure the repository is properly initialized "
+        "with a valid name."
+    )
     URL_FIELD_NAME = "URL"
 
     # endregion
@@ -286,8 +288,8 @@ class SCCSConstants:
     # region commit.py - Strings
 
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully."
-    COMMIT_FAILURE_ERROR_MESSAGE = "Failed to commit changes."
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
+    COMMIT_PRINT_ERROR_MESSAGE = "Failed to print commit success message."
 
     # endregion
 
@@ -300,18 +302,11 @@ class SCCSConstants:
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
     )
-
-    # The following 2 constants have been moved out of alphabetical order as they would be used by constants defined before them
+    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+        f"API URL must end with '/repos/{{repo_name}}'."
+    )
     REPOSITORIES_PATH_SEGMENT = "repos"
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
-
-    INVALID_PATH_ENDING_ERROR_MESSAGE = (
-        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
-    )
-    INVALID_REPOSITORY_NAME_ERROR_MESSAGE = (
-        "Invalid repository name. Please ensure the repository is properly initialized "
-        "with a valid name."
-    )
 
     # endregion
 
@@ -325,6 +320,7 @@ class SCCSConstants:
     DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
     DELETE_OPCODE = "delete"
+    DIFF_ERROR_MESSAGE = "Failed to generate diff output."
     DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
     HTML_PARSER = "html.parser"
     INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
@@ -375,6 +371,15 @@ class SCCSConstants:
 
     # endregion
 
+    # region init.py - Dicts
+
+    DEFAULT_BRANCH_DATA = {
+        CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+        BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
+    }
+
+    # endregion
+
     # region init.py - Strings
 
     ALREADY_INITIALIZED_ERROR_MESSAGE = (
@@ -391,20 +396,15 @@ class SCCSConstants:
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
+    INIT_BRANCH_DATA_ERROR_MESSAGE = "Failed to write branch data during initialization."
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
+    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
     INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
         "File is not a .docx file. Please provide a valid .docx file."
     )
-
-    # endregion
-
-    # region init.py - Dicts
-
-    DEFAULT_BRANCH_DATA = {
-        CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
-        BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
-    }
 
     # endregion
 
@@ -430,6 +430,8 @@ class SCCSConstants:
 
     CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
     MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
+    MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
+    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = (
         "Successfully merged branch '{branch}' into branch '{current_branch}'."
     )
@@ -442,6 +444,8 @@ class SCCSConstants:
 
     # region open.py - Strings
 
+    HEX_DIGITS = "0123456789abcdef"
+    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_hash}"
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
         "Commit '{commit_hash}' has been successfully opened in {output_file}. It is "
@@ -459,6 +463,7 @@ class SCCSConstants:
 
     PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
     PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
+    WALK_ROOT = "."
     ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
         "Failed to create a buffer for the zipped repository. Please try again."
     )
@@ -480,11 +485,24 @@ class SCCSConstants:
 
     # region File-Specific Constants - push.py
 
+    # region push.py - Numbers
+    # (none)
+    # endregion
+
+    # region push.py - Paths
+
+    JSON_EXTENSION = ".json"
+
+    # endregion
+
     # region push.py - Strings
 
     CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = (
         "Push successful, but failed to clear updated branches list in current branch "
         "file."
+    )
+    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
     MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = (
         "The remote repository has extra commits that the local is missing. Please "
@@ -501,6 +519,8 @@ class SCCSConstants:
         "again later or check you internet connection."
     )
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
+    REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
+    REPOSITORIES_PATH_SEGMENT = "repos"
     TEMPORARY_DIRECTORY_TEMPLATE = "tmp_{repo_name}"
 
     # endregion
@@ -509,20 +529,55 @@ class SCCSConstants:
 
     # region File-Specific Constants - repository_layout.py
 
+    # region repository_layout.py - Numbers
+
+    COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
+    FULL_COMMIT_IDENTIFIER_LENGTH = 64
+    MAX_FILE_READ_SIZE = 64 * 1024
+
+    # endregion
+
+    # region repository_layout.py - Paths (directories)
+
+    BRANCHES_DIRECTORY = "branches"
+    COMMIT_BYTE_HASH_DIRECTORY = "commit_file_hash"
+    COMMIT_MESSAGES_DIRECTORY = "commit_messages"
+    CURRENT_BRANCH_DIRECTORY = "current_branch"
+    DOCUMENT_DIRECTORY = "docx"
+    HISTORY_DIRECTORY = "history"
+    HTML_DIRECTORY = "html"
+    OBJECTS_DIRECTORY = "objects"
+    SCCS_DIRECTORY = ".sccs"
+    VIEW_HTML_DIRECTORY = "view_html"
+
+    # endregion
+
+    # region repository_layout.py - Paths (files)
+
+    COMMIT_BYTE_HASH_JSON_FILE = "commit_file_hash.json"
+    COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
+    CONFIG_JSON_FILE = "config.json"
+    CURRENT_BRANCH_JSON_FILE = "current_branch.json"
+    HISTORY_JSON_FILE = "history.json"
+
+    # endregion
+
     # region repository_layout.py - Strings
 
+    BRANCHES_DICT_KEY = "branches"
+    CURRENT_BRANCH_DICT_KEY = "current_branch"
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     INVALID_BRANCH_DATA_ERROR_MESSAGE = (
         "Invalid branch data. Please ensure that the branch data has not been manually "
         "modified and the targeted branch exists."
     )
-    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = (
-        "Invalid commit file name. Please provide a shortened, 10 character commit "
-        "hash or the full 64 character commit hash as the commit identifier."
-    )
     INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE = (
         "Invalid commit history data. Please ensure that the commit data has not been "
         "manually modified."
+    )
+    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = (
+        "Invalid commit file name. Please provide a shortened, 10 character commit "
+        "hash or the full 64 character commit hash as the commit identifier."
     )
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = (
         "Resource '{resource_name}' is missing from the repository directory."
@@ -535,7 +590,6 @@ class SCCSConstants:
         "No uncommitted changes detected. Uncommitted changes are required before "
         "committing."
     )
-    TARGET_BRANCH_ATTRIBUTE = "_target_branch"
     TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
         "Target branch not set. Ensure the branch is set by using "
         "Repository*.target.set(foo)"
@@ -567,6 +621,7 @@ class SCCSConstants:
     # region revert.py - Strings
 
     REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_hash}'."
+    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
         "Document successfully reverted to commit '{commit_hash}' on commit "
         "'{new_commit_hash}'."
@@ -583,7 +638,6 @@ class SCCSConstants:
 
     # region sccs(sh) - Strings
 
-    PYTHON_EXTENSION = ".py"
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
         f"Unknown command: {{entered_command}}. "
         f"Please use {COMMA_SPACE.join(COMMANDS_LIST)} "
@@ -609,24 +663,35 @@ class SCCSConstants:
 
     # region switch.py - Strings
 
-    SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
+    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
+    INVALID_BRANCH_NAME_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
+    MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
+    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
+    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
+    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
     SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE = (
         "Commit file missing for branch '{branch_name}'."
     )
-    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
     SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch."
-    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
-    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
-    INIT_BRANCH_DATA_ERROR_MESSAGE = "Failed to write branch data during initialization."
-    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
-    MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
-    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
-    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
+    SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
     UTILS_ARGUMENT_ERROR_MESSAGE = "Required argument missing. Please provide the required argument."
-    UTILS_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip archive."
-    DIFF_ERROR_MESSAGE = "Failed to generate diff output."
-    COMMIT_PRINT_ERROR_MESSAGE = "Failed to print commit success message."
-    BRANCH_RUN_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
+
+    # endregion
+
+    # endregion
+
+    # region File-Specific Constants - utils.py
+
+    # region utils.py - Strings
+
+    EXPECTED_ERROR_TEMPLATE = "An error occurred:{e}"
+    HTML_BOILERPLATE_TEMPLATE = (
+        "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
+        "<div class='center'><div id='target'>{html}</div></div></body></html>"
+    )
+    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred:{type_name}: {e}"
 
     # endregion
 

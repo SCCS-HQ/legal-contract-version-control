@@ -164,11 +164,11 @@ def run_specified_subcommand(
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
-            raise exceptions.SCCSException(c.BRANCH_RUN_ERROR_MESSAGE)
+            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
         branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
-            raise exceptions.SCCSException(c.BRANCH_RUN_ERROR_MESSAGE)
+            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
         branch_delete_subcommand(c, branch_name, rp, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
