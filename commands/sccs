@@ -40,7 +40,7 @@ def validate_command(c: SCCSConstants, entered_command: str) -> None:
     """
 
     if entered_command not in c.COMMANDS_LIST:
-        raise exceptions.UnknownCommandError(
+        raise exceptions.SCCSException(
             c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(
                 entered_command=entered_command
             )
@@ -53,7 +53,8 @@ def main(c: SCCSConstants, entered_command: str) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main, utils.entered_argument(1))
+    c = SCCSConstants()
+    utils.run_command(main, utils.entered_argument(c, 1))
 
 # If on MacOS / Linux, move all files in commands/, and make this file executable
 # with 'chmod +x /usr/local/bin/sccs'.

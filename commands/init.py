@@ -61,7 +61,7 @@ def create_sccs_directory_layout(
         for i in paths:
             (i).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
@@ -112,7 +112,7 @@ def copy_document_to_objects_as_document_and_html(
         with open(document_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         shutil.copy2(
@@ -122,7 +122,7 @@ def copy_document_to_objects_as_document_and_html(
             ),
         )
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -133,7 +133,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(c.DEFAULT_HTML_STYLES + result)
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -146,7 +146,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
 def write_history_data(
@@ -229,7 +229,7 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         ) as f:
             json.dump(c.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_BRANCH_DATA_ERROR_MESSAGE) from e
 
 
 def move_document_to_repository_directory(
@@ -304,7 +304,7 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(2))
+    document_path = Path(utils.entered_argument(c, 2))
     utils.run_command(
         main,
         document_path,

@@ -164,11 +164,11 @@ def run_specified_subcommand(
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
-            raise ValueError()
+            raise exceptions.SCCSException(c.BRANCH_RUN_ERROR_MESSAGE)
         branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
-            raise ValueError()
+            raise exceptions.SCCSException(c.BRANCH_RUN_ERROR_MESSAGE)
         branch_delete_subcommand(c, branch_name, rp, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
@@ -204,8 +204,8 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
-        utils.entered_argument(3, raise_on_not_provided=False),
+        utils.entered_argument(c, 2),
+        utils.entered_argument(c, 3, raise_on_not_provided=False),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

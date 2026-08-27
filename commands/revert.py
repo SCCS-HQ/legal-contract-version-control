@@ -27,7 +27,7 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
     try:
         shutil.copy2(commit_path, rp.document_path())
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
 
 
 def print_revert_success_message(
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

@@ -34,7 +34,7 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
             )
         )
     except Exception as e:
-        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.COMMIT_PRINT_ERROR_MESSAGE) from e
 
 
 def main(
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),

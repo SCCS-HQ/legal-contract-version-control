@@ -233,7 +233,7 @@ def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) 
     )
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
-        raise exceptions.SCCSException()
+        raise exceptions.SCCSException(c.DIFF_ERROR_MESSAGE)
 
 
 def print_diff_success_message(c: SCCSConstants) -> None:
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryIO(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

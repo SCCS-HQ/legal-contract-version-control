@@ -92,4 +92,5 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
 
 if __name__ == "__main__":
-    utils.run_command(main, utils.entered_argument(2))
+    c = SCCSConstants()
+    utils.run_command(main, utils.entered_argument(c, 2))

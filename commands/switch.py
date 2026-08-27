@@ -44,7 +44,7 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.SCCSException()
+        raise exceptions.SCCSException(c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE.format(branch_name=branch_to_switch))
 
     rs.target.reset()
 
@@ -67,7 +67,7 @@ def copy_commit_to_main(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.SWITCH_COPY_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

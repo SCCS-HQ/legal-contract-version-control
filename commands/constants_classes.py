@@ -599,6 +599,25 @@ class SCCSConstants:
     ## strings - success messages
     SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
 
+    ## strings - error messages
+    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE = (
+        "Commit file missing for branch '{branch_name}'."
+    )
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
+    SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch."
+    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
+    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
+    INIT_BRANCH_DATA_ERROR_MESSAGE = "Failed to write branch data during initialization."
+    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
+    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
+    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
+    UTILS_ARGUMENT_ERROR_MESSAGE = "Required argument missing. Please provide the required argument."
+    UTILS_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip archive."
+    DIFF_ERROR_MESSAGE = "Failed to generate diff output."
+    COMMIT_PRINT_ERROR_MESSAGE = "Failed to print commit success message."
+    BRANCH_RUN_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
+
     # endregion
 
 

@@ -53,7 +53,7 @@ def copy_branch_data(
                 ignore=ignore_metadata,
             )
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.MERGE_COPY_ERROR_MESSAGE) from e
 
 
 def copy_repository_document(
@@ -71,7 +71,7 @@ def copy_repository_document(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE) from e
     finally:
         rd.target.set(original_target)
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

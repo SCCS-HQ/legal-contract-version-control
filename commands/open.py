@@ -37,7 +37,7 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
     try:
         shutil.copy2(commit_path, output_file_name)
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
 def print_open_success_message(
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
     )

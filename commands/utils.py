@@ -15,11 +15,11 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     return c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
 
 
-def entered_argument(argument: int, raise_on_not_provided: bool = True) -> Any:
+def entered_argument(c: SCCSConstants, argument: int, raise_on_not_provided: bool = True) -> Any:
 
     if not len(sys.argv) > argument:
         if raise_on_not_provided:
-            raise exceptions.SCCSException()
+            raise exceptions.SCCSException(c.UTILS_ARGUMENT_ERROR_MESSAGE)
         else:
             return None
 

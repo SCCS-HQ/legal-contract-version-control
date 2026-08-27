@@ -103,8 +103,8 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
-        utils.entered_argument(3),
+        utils.entered_argument(c, 2),
+        utils.entered_argument(c, 3),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
