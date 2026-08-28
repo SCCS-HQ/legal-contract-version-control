@@ -44,7 +44,7 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.SCCSException(c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE.format(branch_name=branch_to_switch))
+        raise exceptions.SCCSException(c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
     rs.target.reset()
 

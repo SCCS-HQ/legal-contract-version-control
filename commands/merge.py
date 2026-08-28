@@ -81,7 +81,7 @@ def print_merge_success_message(
 ) -> None:
     print(
         c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch=branch, current_branch=rd.current_branch()
+            branch_name=branch, current_branch=rd.current_branch()
         )
     )
 
@@ -109,7 +109,7 @@ def main(
 
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
-            branch=branch, current_branch=rd.current_branch()
+            branch_name=branch, current_branch=rd.current_branch()
         ),
         allow_empty_commit=True,
     )

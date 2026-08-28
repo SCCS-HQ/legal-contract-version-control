@@ -52,7 +52,7 @@ class SCCSConstants:
     )
     BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
     COMMA_SPACE = ", "
-    COMMIT_IDENTIFIER_FIELD_NAME = "commit file hash"
+    COMMIT_IDENTIFIER_FIELD_NAME = "commit byte hash"
     CONTENT_TYPE_ZIP = "application/zip"
     CREATE_SUBCOMMAND = "create"
     DELETE_SUBCOMMAND = "delete"
@@ -304,7 +304,7 @@ class SCCSConstants:
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
     )
-    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+    INVALID_PATH_ENDING_ERROR_MESSAGE_TEMPLATE = (
         f"API URL must end with '/repos/{{repo_name}}'."
     )
     REPOSITORIES_PATH_SEGMENT = "repos"
@@ -385,7 +385,7 @@ class SCCSConstants:
     # region init.py - Strings
 
     ALREADY_INIT_ERROR_MESSAGE = (
-        "This file has already been initialized with SCCS."
+        "This document has already been initialized with SCCS."
     )
     HTML_BOILERPLATE_TEMPLATE = (
         "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
@@ -431,11 +431,11 @@ class SCCSConstants:
     # region merge.py - Strings
 
     CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
-    MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch}' into '{current_branch}'."
+    MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch_name}' into '{current_branch}'."
     MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
-    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
+    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = (
-        "Successfully merged branch '{branch}' into branch '{current_branch}'."
+        "Successfully merged branch '{branch_name}' into branch '{current_branch}'."
     )
 
     # endregion
@@ -447,9 +447,9 @@ class SCCSConstants:
     # region open.py - Strings
 
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
-    OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_hash}"
+    OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit '{commit_hash}' has been successfully opened in {output_file}. It is "
+        "Commit '{commit_identifier}' has been successfully opened in {output_file}. It is "
         "safe to delete this file. No changes will be lost unless {output_file} is "
         "modified after this point."
     )
@@ -501,7 +501,7 @@ class SCCSConstants:
         "Push successful, but failed to clear updated branches list in current branch "
         "file."
     )
-    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+    INVALID_PATH_ENDING_ERROR_MESSAGE_TEMPLATE = (
         f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
     MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = (
@@ -516,7 +516,7 @@ class SCCSConstants:
     PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}."
     PUSH_HTTP_REQUEST_ERROR_MESSAGE = (
         "The HTTP request failed while attempting the push the new changes. Please try "
-        "again later or check you internet connection."
+        "again later or check your internet connection."
     )
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
@@ -560,7 +560,7 @@ class SCCSConstants:
         "Resource '{resource_name}' is missing from the repository directory."
     )
     MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Multiple commit files found matching '{commit}'. Please provide a full, 64 "
+        "Multiple commit files found matching '{commit_identifier}'. Please provide a full, 64 "
         "character commit hash."
     )
     NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
@@ -597,11 +597,11 @@ class SCCSConstants:
 
     # region revert.py - Strings
 
-    REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_hash}'."
+    REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_identifier}'."
     REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
-        "Document successfully reverted to commit '{commit_hash}' on commit "
-        "'{new_commit_hash}'."
+        "Document successfully reverted to commit '{commit_identifier}' on commit "
+        "'{new_commit_identifier}'."
     )
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
         "Source file '{file_name}' does not exist."
@@ -641,7 +641,7 @@ class SCCSConstants:
     # region switch.py - Strings
 
     INVALID_BRANCH_NAME_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
-    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE = (
+    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = (
         "Commit file missing for branch '{branch_name}'."
     )
     SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch."

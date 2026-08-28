@@ -99,7 +99,7 @@ class RepositoryData:
         if len(matching_files) > 1:
             raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit_identifier
+                    commit_identifier=commit_identifier
                 )
             )
 
@@ -137,7 +137,7 @@ class RepositoryData:
         if len(matching_files) > 1:
             raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit=commit_identifier
+                    commit_identifier=commit_identifier
                 )
             )
 
