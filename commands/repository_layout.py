@@ -498,7 +498,6 @@ class RepositoryWrite:
     def write_key_to_config(self, key: str, value: str) -> None:
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
-
         try:
             config = self.io.read_config()
             config[key] = value

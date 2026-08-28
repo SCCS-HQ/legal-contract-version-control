@@ -29,13 +29,9 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
 
 
 def resolve_key_value(
-    c: SCCSConstants, repository_name: str, key: str | None, value: str | None
+    c: SCCSConstants, repository_name: str, key: str, value: str
 ) -> str:
 
-    if not value:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-        )
 
     if key == c.REMOTE_KEY:
         url = (

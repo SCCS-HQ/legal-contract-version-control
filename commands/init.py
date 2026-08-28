@@ -209,7 +209,7 @@ def write_byte_hash(
                 mammoth.convert_to_html(f).value.encode(c.UTF_8)
             ).hexdigest()
     except Exception as e:
-        raise exceptions.SCCSException() from e
+        raise exceptions.SCCSException(c.INIT_BYTE_HASH_DATA_ERROR_MESSAGE) from e
 
     byte_hash = {commit_identifier: byte_hash_file}
 
@@ -279,13 +279,14 @@ def initialize_repository(
 
         move_document_to_repository_directory(rp.root, document_path)
 
-    except Exception:
-        delete_repository_after_error(rp.root)
-        raise RuntimeError
+    except Exception as e:
+        delete_repository_after_error(rp.root, e)
+        
 
 
-def delete_repository_after_error(repository_path: Path) -> None:
+def delete_repository_after_error(repository_path: Path, e: Exception) -> None:
     shutil.rmtree(repository_path, ignore_errors=True)
+    raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
 
 def main(

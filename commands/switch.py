@@ -93,16 +93,13 @@ def main(
 
     validate_branch_to_switch(c, branch_to_switch, rs)
 
-    if branch_to_switch is None:
-        raise ValueError()
-
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    copy_commit_to_main(c, branch_to_switch, rd, rp, rs)
+    copy_commit_to_main(c, branch_to_switch, rd, rp, rs) # pyright: ignore [reportArgumentType]
 
-    rw.set_current_branch(branch_to_switch)
+    rw.set_current_branch(branch_to_switch) # pyright: ignore [reportArgumentType]
 
-    print_switch_success_message(c, branch_to_switch)
+    print_switch_success_message(c, branch_to_switch) # pyright: ignore [reportArgumentType]
 
     rs.target.reset()
 

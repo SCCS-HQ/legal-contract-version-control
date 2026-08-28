@@ -163,10 +163,6 @@ def clear_updated_branches(
 ) -> None:
 
     data = ri.read_current_branch_data()
-    if data is None:
-        data = {}
-    if not isinstance(data, dict):
-        raise ValueError()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:

@@ -25,16 +25,12 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
 
 def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
 
-    try:
-        print(
-            c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[
-                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-                ]
-            )
+    print(
+        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
-    except Exception as e:
-        raise exceptions.SCCSException(c.COMMIT_PRINT_ERROR_MESSAGE) from e
+    )
+
 
 
 def main(

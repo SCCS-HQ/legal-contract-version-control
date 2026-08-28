@@ -16,20 +16,13 @@ from repository_layout import (
 def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
 
     if not commit_identifier:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_IDENTIFIER_FIELD_NAME
-            )
-        )
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
     is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
 
     if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_IDENTIFIER_FIELD_NAME
-            )
-        )
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
+        
 
 
 def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:

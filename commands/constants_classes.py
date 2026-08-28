@@ -3,6 +3,7 @@
 import datetime
 from functools import cached_property
 
+import exceptions
 
 class SCCSConstants:
     # region Shared Constants
@@ -288,7 +289,7 @@ class SCCSConstants:
 
     # region commit.py - Strings
 
-    COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {sha_hash} created successfully."
+    COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {commit_identifier} created successfully."
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
     COMMIT_PRINT_ERROR_MESSAGE = "Failed to print commit success message."
 
@@ -687,12 +688,12 @@ class SCCSConstants:
 
     # region utils.py - Strings
 
-    EXPECTED_ERROR_TEMPLATE = "An error occurred:{e}"
+    EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     HTML_BOILERPLATE_TEMPLATE = (
         "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
-    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred:{type_name}: {e}"
+    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
 
     # endregion
 
@@ -705,12 +706,12 @@ _missing_commands = [
     if i not in SCCSConstants.COMMAND_DESCRIPTIONS
 ]
 if _missing_commands:
-    raise ValueError(
+    raise exceptions.SCCSException(
         f"COMMAND_DESCRIPTIONS is missing entries for: "
         f"{SCCSConstants.COMMA_SPACE.join(_missing_commands)}"
     )
 
 
 class ErrorWrappers:
-    EXPECTED_ERROR_TEMPLATE = "An error occurred:{e}"
-    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred:{type_name}: {e}"
+    EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
+    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
