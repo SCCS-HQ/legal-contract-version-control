@@ -20,7 +20,7 @@ from repository_layout import (
 def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
     if (rp.sccs_path()).is_dir():
-        raise exceptions.SCCSException(c.ALREADY_INITIALIZED_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
 
 
 def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
@@ -175,7 +175,7 @@ def write_history_data(
                 c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=name, email=email
                 ),
-                c.MESSAGE_DICT_KEY: c.INITIAL_COMMIT_MESSAGE,
+                c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
             }
         },
     }
@@ -189,7 +189,7 @@ def write_commit_message_data(
     c: SCCSConstants, commit_identifier: str, ri: RepositoryIO
 ) -> None:
 
-    commit_message_data = {commit_identifier: c.INITIAL_COMMIT_MESSAGE}
+    commit_message_data = {commit_identifier: c.INIT_COMMIT_MESSAGE}
     ri.write_commit_messages(commit_message_data)
 
 

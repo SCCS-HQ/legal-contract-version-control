@@ -384,7 +384,7 @@ class SCCSConstants:
 
     # region init.py - Strings
 
-    ALREADY_INITIALIZED_ERROR_MESSAGE = (
+    ALREADY_INIT_ERROR_MESSAGE = (
         "This file has already been initialized with SCCS."
     )
     HTML_BOILERPLATE_TEMPLATE = (
@@ -392,16 +392,16 @@ class SCCSConstants:
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
     HTML_EXTENSION = ".html"
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
+    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INITIAL_COMMIT_DICT_KEY = "initial_commit"
-    INITIAL_COMMIT_MESSAGE = (
+    INIT_COMMIT_MESSAGE = (
         "Initial commit (This is a default commit message " "for initial version)"
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
     INIT_BRANCH_DATA_ERROR_MESSAGE = "Failed to write branch data during initialization."
-    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
-    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
-    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
     INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
@@ -446,7 +446,6 @@ class SCCSConstants:
 
     # region open.py - Strings
 
-    HEX_DIGITS = "0123456789abcdef"
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_hash}"
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
@@ -465,7 +464,6 @@ class SCCSConstants:
 
     PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
     PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
-    WALK_ROOT = "."
     ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
         "Failed to create a buffer for the zipped repository. Please try again."
     )
@@ -493,7 +491,7 @@ class SCCSConstants:
 
     # region push.py - Paths
 
-    JSON_EXTENSION = ".json"
+    # (none)
 
     # endregion
 
@@ -532,42 +530,19 @@ class SCCSConstants:
     # region File-Specific Constants - repository_layout.py
 
     # region repository_layout.py - Numbers
-
-    COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
-    FULL_COMMIT_IDENTIFIER_LENGTH = 64
-    MAX_FILE_READ_SIZE = 64 * 1024
-
+    # (none)
     # endregion
 
     # region repository_layout.py - Paths (directories)
-
-    BRANCHES_DIRECTORY = "branches"
-    COMMIT_BYTE_HASH_DIRECTORY = "commit_file_hash"
-    COMMIT_MESSAGES_DIRECTORY = "commit_messages"
-    CURRENT_BRANCH_DIRECTORY = "current_branch"
-    DOCUMENT_DIRECTORY = "docx"
-    HISTORY_DIRECTORY = "history"
-    HTML_DIRECTORY = "html"
-    OBJECTS_DIRECTORY = "objects"
-    SCCS_DIRECTORY = ".sccs"
-    VIEW_HTML_DIRECTORY = "view_html"
-
+    # (none)
     # endregion
 
     # region repository_layout.py - Paths (files)
-
-    COMMIT_BYTE_HASH_JSON_FILE = "commit_file_hash.json"
-    COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
-    CONFIG_JSON_FILE = "config.json"
-    CURRENT_BRANCH_JSON_FILE = "current_branch.json"
-    HISTORY_JSON_FILE = "history.json"
-
+    # (none)
     # endregion
 
     # region repository_layout.py - Strings
 
-    BRANCHES_DICT_KEY = "branches"
-    CURRENT_BRANCH_DICT_KEY = "current_branch"
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     INVALID_BRANCH_DATA_ERROR_MESSAGE = (
         "Invalid branch data. Please ensure that the branch data has not been manually "
@@ -665,14 +640,7 @@ class SCCSConstants:
 
     # region switch.py - Strings
 
-    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
-    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
-    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INVALID_BRANCH_NAME_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
-    MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
-    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy repository document during merge."
-    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
-    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
     SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE = (
         "Commit file missing for branch '{branch_name}'."
     )
@@ -689,10 +657,6 @@ class SCCSConstants:
     # region utils.py - Strings
 
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
-    HTML_BOILERPLATE_TEMPLATE = (
-        "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
-        "<div class='center'><div id='target'>{html}</div></div></body></html>"
-    )
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
 
     # endregion
