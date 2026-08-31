@@ -80,6 +80,7 @@ def copy_repository_document(
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
+
     print(
         c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
             branch_name=branch, current_branch=rd.current_branch()

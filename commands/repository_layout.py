@@ -74,6 +74,7 @@ class RepositoryData:
     def commit_identifier_to_full_path(
         self, commit_identifier: str, folder: str
     ) -> Path:
+
         if commit_identifier is None:
             raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(

@@ -110,6 +110,7 @@ def branch_create_subcommand(
 def print_branch_create_success_message(
     c: SCCSConstants, branch_name: str, current_branch_name: str
 ) -> None:
+
     print(
         c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
             branch_name=branch_name, current_branch_name=current_branch_name

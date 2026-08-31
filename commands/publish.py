@@ -84,6 +84,7 @@ def post_repository(
 def print_publish_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
+
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
@@ -94,6 +95,7 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
+
 ) -> None:
     rs.target.set(rd.current_branch())
 

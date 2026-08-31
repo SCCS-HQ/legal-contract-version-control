@@ -251,6 +251,7 @@ def initialize_repository(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+
     try:
         validate_no_prev_init(c, rp)
 

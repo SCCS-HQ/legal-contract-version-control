@@ -47,6 +47,7 @@ def print_open_success_message(
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

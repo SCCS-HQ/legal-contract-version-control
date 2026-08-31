@@ -89,6 +89,7 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
@@ -100,14 +101,14 @@ def main(
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
     copy_commit_to_main(
-        c, branch_to_switch, rd, rp, rs
-    )  # pyright: ignore [reportArgumentType]
+        c, branch_to_switch, rd, rp, rs # pyright: ignore [reportArgumentType]
+    )
 
-    rw.set_current_branch(branch_to_switch)  # pyright: ignore [reportArgumentType]
+    rw.set_current_branch(branch_to_switch) # pyright: ignore [reportArgumentType]
 
     print_switch_success_message(
-        c, branch_to_switch
-    )  # pyright: ignore [reportArgumentType]
+        c, branch_to_switch # pyright: ignore [reportArgumentType]
+    )
 
     rs.target.reset()
 

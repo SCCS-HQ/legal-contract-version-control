@@ -44,6 +44,7 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

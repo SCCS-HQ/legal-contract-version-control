@@ -132,6 +132,7 @@ def ensure_repository_exists(repository_path: Path) -> None:
 def safe_extract_zip(
     zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
 ) -> None:
+
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
@@ -164,6 +165,7 @@ async def root() -> dict:
 @app.post("/repos/{repository_name}/publish")
 async def publish(
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
+
 ) -> dict:
     """Publish a repository to the hosted API"""
 

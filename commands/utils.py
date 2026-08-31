@@ -36,6 +36,7 @@ def safe_extract_zip(
     member_path: str,
     destination_directory: Path,
 ) -> None:
+
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:

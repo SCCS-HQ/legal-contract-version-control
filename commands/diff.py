@@ -197,6 +197,7 @@ def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSo
 def generate_diff_output(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, ri: RepositoryIO
 ) -> BeautifulSoup:
+
     commit_soup = convert_html_to_soup(
         c, rd.commit_file_bytes(commit_identifier, c.HTML_DIRECTORY)
     )
@@ -248,6 +249,7 @@ def main(
     rd: RepositoryData,
     ri: RepositoryIO,
     rs: RepositoryStatus,
+
 ) -> None:
     rs.target.set(rd.current_branch())
     rs.validate_repository_layout()
