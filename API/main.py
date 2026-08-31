@@ -171,7 +171,7 @@ async def publish(
 
     try:
         remote = json.loads(data)["remote"]
-    except json.JSONDecodeError as e:
+    except (json.JSONDecodeError, KeyError) as e:
         raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE) from e
 
     if not remote:

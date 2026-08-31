@@ -66,8 +66,8 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
         with zipfile.ZipFile(zip_buffer, "r") as zf:
             for i in zf.namelist():
                 utils.safe_extract_zip(c, zf, i, destination)
-    except Exception as e:
-        raise exceptions.SCCSException(c.UNZIP_FAILED_ERROR_MESSAGE) from e
+    except exceptions.SCCSException as e:
+        raise e
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
