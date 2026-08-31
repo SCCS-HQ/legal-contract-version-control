@@ -42,6 +42,7 @@ def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
 
 
 def main(
+
     c: SCCSConstants,
     rd: RepositoryData,
     ri: RepositoryIO,

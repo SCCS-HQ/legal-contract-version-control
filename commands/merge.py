@@ -31,13 +31,15 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
 
 
 def copy_branch_data(
+
     c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
     source = rp.branch_path(branch)
     destination = rp.branch_path(rd.current_branch())
 
-    def ignore_metadata(_directory, names) -> set[Any]:
+    def ignore_metadata(_directory: str, names: list[str]) -> set[Any]:
+
         ignored = set()
         for i in names:
             if i in (c.HISTORY_DIRECTORY, c.COMMIT_BYTE_HASH_DIRECTORY):
@@ -57,6 +59,7 @@ def copy_branch_data(
 
 
 def copy_repository_document(
+
     branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
@@ -77,6 +80,7 @@ def copy_repository_document(
 
 
 def print_merge_success_message(
+
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
     print(
@@ -87,6 +91,7 @@ def print_merge_success_message(
 
 
 def main(
+
     c: SCCSConstants,
     branch: str,
     rd: RepositoryData,

@@ -12,6 +12,7 @@ from repository_layout import (
 
 
 def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
+
     if uncommitted_changes:
         print(c.UNCOMMITTED_CHANGES_FOUND)
     else:
@@ -19,6 +20,7 @@ def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) ->
 
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

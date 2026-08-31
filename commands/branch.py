@@ -16,6 +16,7 @@ from repository_layout import (
 
 
 def validate_subcommand(
+
     c: SCCSConstants,
     subcommand: str | None,
     branch_name: str | None,
@@ -61,6 +62,7 @@ def validate_subcommand(
 
 
 def rollback_changes_after_failure(
+
     c: SCCSConstants,
     branch_name: str,
     subcommand: str,
@@ -84,6 +86,7 @@ def rollback_changes_after_failure(
 
 
 def branch_create_subcommand(
+
     c: SCCSConstants,
     branch_name: str,
     current_branch_name: str,
@@ -110,6 +113,7 @@ def branch_create_subcommand(
 
 
 def print_branch_create_success_message(
+
     c: SCCSConstants, branch_name: str, current_branch_name: str
 ) -> None:
     print(
@@ -120,6 +124,7 @@ def print_branch_create_success_message(
 
 
 def branch_delete_subcommand(
+
     c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
 ) -> None:
 
@@ -138,6 +143,7 @@ def branch_delete_subcommand(
 
 
 def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
+
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
@@ -153,6 +159,7 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
 
 
 def run_specified_subcommand(
+
     c: SCCSConstants,
     subcommand: str | None,
     branch_name: str | None,
@@ -175,6 +182,7 @@ def run_specified_subcommand(
 
 
 def main(
+
     c: SCCSConstants,
     subcommand: str | None,
     branch_name: str | None,

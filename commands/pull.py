@@ -41,6 +41,7 @@ def update_repository_files(c: SCCSConstants, response: requests.Response) -> No
 
 
 def print_pull_success_message(
+
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
 
@@ -49,6 +50,7 @@ def print_pull_success_message(
 
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

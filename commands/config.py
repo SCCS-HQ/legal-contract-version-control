@@ -17,6 +17,7 @@ from repository_layout import (
 
 
 def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
+
     if key not in c.ACCEPTED_CONFIG_KEYS:
         raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
@@ -29,6 +30,7 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
 
 
 def resolve_key_value(
+
     c: SCCSConstants, repository_name: str, key: str, value: str
 ) -> str:
 
@@ -69,6 +71,7 @@ def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None
 
 
 def main(
+
     c: SCCSConstants,
     key: str,
     value: str,

@@ -36,7 +36,6 @@ MAX_INDIVIDUAL_FILE_SIZE = 10 * 1024 * 1024
 JSON_DUMP_INDENT = 4
 
 EASTER_EGG_MESSAGE = "Boo!"
-INVALID_FILE_PATH_ERROR_MESSAGE = "Invalid file path"
 INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
 REPOSITORY_NOT_FOUND_ERROR_MESSAGE = "Repository not found: {repository_name}"
 INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
@@ -71,33 +70,37 @@ class ValidatedRepositoryName:
     value: str
 
     def __post_init__(self) -> None:
+
         if (
             not self.value
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
             or self.value in (".", "..")
         ):
-            raise HTTPException(status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+            raise HTTPException(
+                status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+            )
 
     def __str__(self) -> str:
+
         return self.value
 
 
-REPOSITORY_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
-
-
 def validate_repository_name(repository_name: str) -> ValidatedRepositoryName:
+
     """Validate a user-provided repository name against the allowed pattern."""
 
     return ValidatedRepositoryName(repository_name)
 
 
 def repository_base_directory() -> Path:
+
     """Return the fully-resolved base directory that holds all repositories."""
 
     return Path(REPOSITORIES_BASE_DIRECTORY).resolve()
 
 
 def repository_directory(repository_name: str) -> Path:
+
     """
     Build the fully-resolved directory for a validated repository name and
     guarantee it stays inside the repositories base directory.
@@ -118,6 +121,7 @@ def repository_directory(repository_name: str) -> Path:
 
 
 def ensure_repository_exists(repository_path: Path) -> None:
+
     """Ensure that the specified repository exists and is a directory."""
 
     if not repository_path.exists() or not repository_path.is_dir():
@@ -130,6 +134,7 @@ def ensure_repository_exists(repository_path: Path) -> None:
 
 
 def safe_extract_zip(
+
     zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
 ) -> None:
     destination_resolved = destination_directory.resolve()
@@ -140,7 +145,9 @@ def safe_extract_zip(
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE) from e
+        raise HTTPException(
+            status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE
+        ) from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
@@ -154,6 +161,7 @@ app = FastAPI()
 
 @app.get("/")
 async def root() -> dict:
+
     """Easter Egg Endpoint - Do Not Remove"""
 
     return {JSON_KEY_MESSAGE: EASTER_EGG_MESSAGE}
@@ -161,6 +169,7 @@ async def root() -> dict:
 
 @app.post("/repos/{repository_name}/publish")
 async def publish(
+
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
     """Publish a repository to the hosted API"""
@@ -176,25 +185,27 @@ async def publish(
         raise HTTPException(status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE)
 
     if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+        )
 
     if repository_path.exists():
         raise HTTPException(status_code=400, detail=REPOSITORY_EXISTS_ERROR_MESSAGE)
 
-    with zipfile.ZipFile(file.file, "r") as zip_archive:
-        if len(zip_archive.infolist()) > MAX_FILES_IN_ZIP:
+    with zipfile.ZipFile(file.file, "r") as zf:
+        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
             raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        if sum(i.file_size for i in zip_archive.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
 
-        for i in zip_archive.infolist():
+        for i in zf.infolist():
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
                     status_code=400,
                     detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
                 )
 
-            safe_extract_zip(zip_archive, i.filename, repository_path)
+            safe_extract_zip(zf, i.filename, repository_path)
 
     return {
         JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE,
@@ -204,6 +215,7 @@ async def publish(
 
 @app.get("/repos/{repository_name}/clone")
 async def clone(repository_name: str) -> StreamingResponse:
+
     """Return a zipped version of a requested repository"""
 
     repository_path = repository_directory(repository_name)
@@ -219,7 +231,7 @@ async def clone(repository_name: str) -> StreamingResponse:
                 )
 
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-                    raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
+            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
 
@@ -244,6 +256,7 @@ async def clone(repository_name: str) -> StreamingResponse:
 
 @app.get("/repos/{repository_name}/push")
 async def push(repository_name: str) -> dict:
+
     """
     Return the folder layout of a requested repository so that the client only needs to
     upload changed files and new files.
@@ -252,7 +265,9 @@ async def push(repository_name: str) -> dict:
     repository_path = repository_directory(repository_name)
     ensure_repository_exists(repository_path)
 
-    objects_directory = (repository_path  / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
+    objects_directory = (
+        repository_path  / SCCS_DIRECTORY / OBJECTS_DIRECTORY
+    ).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
         raise HTTPException(status_code=404, detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE)
@@ -266,6 +281,7 @@ async def push(repository_name: str) -> dict:
 
 @app.post("/repos/{repository_name}/push")
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
+
     """
     Accept a zip archives of new objects to upload to the selected repository, and a zip
     archive of the updated metadata files. Extract the files from the archives, defend
@@ -275,29 +291,31 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     repository_path = repository_directory(repository_name)
 
     if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+        )
 
     zip_buffer_directory = Path(
         tempfile.gettempdir(),
         TEMPORARY_DIRECTORY_PREFIX + repository_name,
     )
 
-    with zipfile.ZipFile(file.file, "r") as zip_archive:
-        if sum(i.file_size for i in zip_archive.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+    with zipfile.ZipFile(file.file, "r") as zf:
+        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
             raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
-        if len(zip_archive.infolist()) > MAX_FILES_IN_ZIP:
+        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
             raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
         zip_buffer_directory.mkdir(parents=True, exist_ok=True)
-        for info in zip_archive.infolist():
-            if info.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+        for i in zf.infolist():
+            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 shutil.rmtree(zip_buffer_directory, ignore_errors=True)
                 raise HTTPException(
                     status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=info.filename),
+                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
                 )
-            safe_extract_zip(zip_archive, info.filename, zip_buffer_directory)
+            safe_extract_zip(zf, i.filename, zip_buffer_directory)
 
         try:
             for root, dirs, files in os.walk(zip_buffer_directory):
@@ -359,6 +377,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
 @app.post("/repos/{repository_name}/pull")
 async def pull(repository_name: str, data: dict) -> StreamingResponse:
+
     """
     Send a zip archive of commit objects and metadata files that the local repository
     (caller) is missing by accepting a list of commit objects that the local doesn't
@@ -442,9 +461,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     )
 
     zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for i in files_to_upload:
-            zip_archive.write(filename=i, arcname=i.relative_to(repository_path))
+            zf.write(filename=i, arcname=i.relative_to(repository_path))
     zip_buffer.seek(0)
     return StreamingResponse(
         zip_buffer,

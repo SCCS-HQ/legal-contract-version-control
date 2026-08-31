@@ -48,9 +48,12 @@ class SCCSConstants:
     ACCEPTED_SCHEMES = ("http", "https")
     BRANCH_NAME_FIELD_NAME = "branch name"
     BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Branch '{branch_name}' is missing from repository metadata. If the branch does not exist, please create it."
+        "Branch '{branch_name}' is missing from repository metadata. If the branch "
+        "does not exist, please create it."
     )
-    BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch. Please try again."
+    BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = (
+        "Failed to {action} branch. Please try again."
+    )
     COMMIT_IDENTIFIER_FIELD_NAME = "commit byte hash"
     CONTENT_TYPE_ZIP = "application/zip"
     CREATE_SUBCOMMAND = "create"
@@ -201,6 +204,7 @@ class SCCSConstants:
 
     @cached_property
     def PROGRAM_START_TIME(self) -> str:
+
         return datetime.datetime.now().isoformat()
 
     # endregion
@@ -238,12 +242,14 @@ class SCCSConstants:
     )
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
-        "Invalid subcommand provided. Please provide one of the valid subcommands: create, delete, list."
+        "Invalid subcommand provided. Please provide one of the valid subcommands: "
+        "create, delete, list."
     )
     LIST_SUBCOMMAND = "list"
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = (
-        "Failed to rollback metadata after failure for branch '{branch_name}'. The repository metadata is likely in an inconsistent state."
+        "Failed to rollback metadata after failure for branch '{branch_name}'. The "
+        "repository metadata is likely in an inconsistent state."
     )
     SUBCOMMAND_FIELD_NAME = "subcommand"
 
@@ -269,7 +275,9 @@ class SCCSConstants:
 
     CLONE_ENDPOINT = "/clone"
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
-    HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote URL. Please try again."
+    HTTP_REQUEST_ERROR_MESSAGE = (
+        "Failed to request repository from the remote URL. Please try again."
+    )
     INVALID_ENDING_ERROR_MESSAGE = (
         f"Invalid remote URL provided. Please provide a valid URL ending with "
         f"'{CLONE_ENDPOINT}'."
@@ -288,7 +296,9 @@ class SCCSConstants:
 
     # region commit.py - Strings
 
-    COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {commit_identifier} created successfully."
+    COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
+        "Commit {commit_identifier} created successfully."
+    )
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
 
     # endregion
@@ -351,6 +361,7 @@ class SCCSConstants:
 
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
+
         return (
             "SCCS Help",
             "Available commands:",
@@ -390,8 +401,12 @@ class SCCSConstants:
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
     HTML_EXTENSION = ".html"
-    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization. Please try again."
-    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = (
+        "Failed to write byte hash data during initialization. Please try again."
+    )
+    INIT_COPY_ERROR_MESSAGE = (
+        "Failed to copy document or write HTML during initialization."
+    )
     INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INITIAL_COMMIT_DICT_KEY = "initial_commit"
     INIT_COMMIT_MESSAGE = (
@@ -399,7 +414,9 @@ class SCCSConstants:
     )
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
-    INIT_BRANCH_DATA_ERROR_MESSAGE = "Failed to write branch data during initialization."
+    INIT_BRANCH_DATA_ERROR_MESSAGE = (
+        "Failed to write branch data during initialization."
+    )
     INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
     INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
@@ -429,7 +446,9 @@ class SCCSConstants:
     # region merge.py - Strings
 
     CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
-    MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch_name}' into '{current_branch}'."
+    MERGE_COMMIT_MESSAGE_TEMPLATE = (
+        "Merged branch '{branch_name}' into '{current_branch}'."
+    )
     MERGE_COPY_ERROR_MESSAGE = "Failed to copy branch data during merge."
     MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = (
@@ -447,9 +466,9 @@ class SCCSConstants:
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit '{commit_identifier}' has been successfully opened in {output_file}. It is "
-        "safe to delete this file. No changes will be lost unless {output_file} is "
-        "modified after this point."
+        "Commit '{commit_identifier}' has been successfully opened in {output_file}. "
+        "It is safe to delete this file. No changes will be lost unless {output_file} "
+        "is modified after this point."
     )
 
     # endregion
@@ -558,8 +577,8 @@ class SCCSConstants:
         "Resource '{resource_name}' is missing from the repository directory."
     )
     MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Multiple commit files found matching '{commit_identifier}'. Please provide a full, 64 "
-        "character commit hash."
+        "Multiple commit files found matching '{commit_identifier}'. Please provide a "
+        "full, 64 character commit hash."
     )
     NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = (
         "No uncommitted changes detected. Uncommitted changes are required before "
@@ -595,8 +614,12 @@ class SCCSConstants:
 
     # region revert.py - Strings
 
-    REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_identifier}'."
-    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."
+    REVERT_COMMIT_MESSAGE_TEMPLATE = (
+        "Reverted document to commit '{commit_identifier}'."
+    )
+    REVERT_COPY_ERROR_MESSAGE = (
+        "Failed to revert document to selected commit. Please try again."
+    )
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
         "Document successfully reverted to commit '{commit_identifier}' on commit "
         "'{new_commit_identifier}'."
@@ -644,9 +667,13 @@ class SCCSConstants:
     SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = (
         "Commit file missing for branch '{branch_name}'."
     )
-    SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch. Please try again."
+    SWITCH_COPY_ERROR_MESSAGE = (
+        "Failed to copy commit file during branch switch. Please try again."
+    )
     SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
-    UTILS_ARGUMENT_ERROR_MESSAGE = "Required argument missing. Please provide the required argument."
+    UTILS_ARGUMENT_ERROR_MESSAGE = (
+        "Required argument missing. Please provide the required argument."
+    )
 
     # endregion
 
@@ -656,8 +683,14 @@ class SCCSConstants:
 
     # region utils.py - String
 
-    PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = ("Invalid file path: {entry_path} in zip. Please ensure the path does not include '..' and is not an absolute path.")
-    TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = ("Invalid file path: {target_path} in zip. Please ensure that {target_path} is inside {destination_resolved}.")
+    PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = (
+        "Invalid file path: {entry_path} in zip. Please ensure the path does not "
+        "include '..' and is not an absolute path."
+    )
+    TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = (
+        "Invalid file path: {target_path} in zip. Please ensure that {target_path} is "
+        "inside {destination_resolved}."
+    )
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
 

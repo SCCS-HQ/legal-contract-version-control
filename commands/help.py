@@ -11,6 +11,7 @@ def print_help(c: SCCSConstants) -> None:
 
 
 def main(c: SCCSConstants) -> None:
+
     print_help(c)
 
 

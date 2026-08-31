@@ -15,6 +15,7 @@ from repository_layout import (
 
 
 def reset(
+
     c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
@@ -34,10 +35,12 @@ def reset(
 
 
 def print_reset_success_message(c: SCCSConstants) -> None:
+
     print(c.RESET_SUCCESS_MESSAGE)
 
 
 def main(
+
     c: SCCSConstants,
     rd: RepositoryData,
     rp: RepositoryPaths,

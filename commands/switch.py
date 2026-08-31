@@ -16,6 +16,7 @@ from repository_layout import (
 
 
 def validate_branch_to_switch(
+
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
 
@@ -33,6 +34,7 @@ def validate_branch_to_switch(
 
 
 def validate_commit_identifier(
+
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
@@ -44,12 +46,17 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.SCCSException(c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
+        raise exceptions.SCCSException(
+            c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_to_switch
+            )
+        )
 
     rs.target.reset()
 
 
 def copy_commit_to_main(
+
     c: SCCSConstants,
     branch_to_switch: str,
     rd: RepositoryData,
@@ -78,6 +85,7 @@ def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> Non
 
 
 def main(
+
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,

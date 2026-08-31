@@ -35,6 +35,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
 
 def create_sccs_directory_layout(
+
     c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
@@ -105,6 +106,7 @@ def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 
 
 def copy_document_to_objects_as_document_and_html(
+
     c: SCCSConstants, document_path: Path, commit_identifier: str, rp: RepositoryPaths
 ) -> None:
 
@@ -150,6 +152,7 @@ def copy_document_to_objects_as_document_and_html(
 
 
 def write_history_data(
+
     c: SCCSConstants,
     name: str,
     email: str,
@@ -186,6 +189,7 @@ def write_history_data(
 
 
 def write_commit_message_data(
+
     c: SCCSConstants, commit_identifier: str, ri: RepositoryIO
 ) -> None:
 
@@ -194,6 +198,7 @@ def write_commit_message_data(
 
 
 def write_byte_hash(
+
     c: SCCSConstants,
     document_path: Path,
     commit_identifier: str,
@@ -233,6 +238,7 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
 
 def move_document_to_repository_directory(
+
     repository_path: Path, document_path: Path
 ) -> None:
 
@@ -245,6 +251,7 @@ def print_init_success_message(c: SCCSConstants) -> None:
 
 
 def initialize_repository(
+
     c: SCCSConstants,
     document_path: Path,
     ri: RepositoryIO,
@@ -285,11 +292,13 @@ def initialize_repository(
 
 
 def delete_repository_after_error(repository_path: Path, e: Exception) -> None:
+
     shutil.rmtree(repository_path, ignore_errors=True)
     raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
 
 def main(
+
     c: SCCSConstants,
     document_path: Path,
     ri: RepositoryIO,

@@ -34,6 +34,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
 
 
 def get_matching_file_paths(
+
     c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
 ) -> list[Path]:
 
@@ -51,6 +52,7 @@ def get_matching_file_paths(
 
 
 def compare_commit_identifier_lists(
+
     remote_objects: list[str], rd: RepositoryData
 ) -> list[str]:
 
@@ -64,6 +66,7 @@ def compare_commit_identifier_lists(
 
 
 def zip_files_to_upload(
+
     c: SCCSConstants,
     remote_objects: list[str],
     rd: RepositoryData,
@@ -94,8 +97,8 @@ def zip_files_to_upload(
         + commit_messages_path
     )
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temporary_folder_path = Path(temp_dir) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
+    with tempfile.TemporaryDirectory() as tf:
+        temporary_folder_path = Path(tf) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
             repository_name=rp.repository_name
         )
         for i in files_to_upload:
@@ -108,10 +111,10 @@ def zip_files_to_upload(
 
         try:
             with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, _, files in os.walk(temp_dir):
+                for root, dirs, files in os.walk(tf):
                     for i in files:
                         full_path = Path(root) / i
-                        zf.write(full_path, arcname=full_path.relative_to(temp_dir))
+                        zf.write(full_path, arcname=full_path.relative_to(tf))
         except Exception as e:
             raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
@@ -124,6 +127,7 @@ def zip_files_to_upload(
 
 
 def upload_objects(
+
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
 
@@ -159,6 +163,7 @@ def upload_objects(
 
 
 def clear_updated_branches(
+
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
 ) -> None:
 
@@ -178,6 +183,7 @@ def clear_updated_branches(
 
 
 def print_push_success_message(
+
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
 
@@ -186,6 +192,7 @@ def print_push_success_message(
 
 
 def main(
+
     c: SCCSConstants,
     rd: RepositoryData,
     ri: RepositoryIO,

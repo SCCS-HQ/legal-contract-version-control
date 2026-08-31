@@ -13,10 +13,14 @@ from constants_classes import ErrorWrappers, SCCSConstants
 
 
 def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
+
     return c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
 
 
-def entered_argument(c: SCCSConstants, argument: int, raise_on_not_provided: bool = True) -> Any:
+def entered_argument(
+
+        c: SCCSConstants, argument: int, raise_on_not_provided: bool = True
+    ) -> Any:
 
     if not len(sys.argv) > argument:
         if raise_on_not_provided:
@@ -27,16 +31,30 @@ def entered_argument(c: SCCSConstants, argument: int, raise_on_not_provided: boo
     return sys.argv[argument].strip()
 
 
-def safe_extract_zip(c: SCCSConstants, zip_archive: ZipFile, member_path: str, destination_directory: Path):
+def safe_extract_zip(
+
+        c: SCCSConstants,
+        zip_archive: ZipFile,
+        member_path: str,
+        destination_directory: Path
+    ) -> None:
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
-        raise exceptions.SCCSException(c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(entry_path=entry_path))
+        raise exceptions.SCCSException(
+            c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+                entry_path=entry_path
+            )
+        )
     target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
-        raise exceptions.SCCSException(c.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(target_path=target_path, destination_resolved=destination_resolved)) from e
+        raise exceptions.SCCSException(
+            c.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
+                target_path=target_path, destination_resolved=destination_resolved
+            )
+        ) from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
@@ -46,6 +64,7 @@ def safe_extract_zip(c: SCCSConstants, zip_archive: ZipFile, member_path: str, d
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
+
     error_wrappers = ErrorWrappers()
     c = SCCSConstants()
     try:
