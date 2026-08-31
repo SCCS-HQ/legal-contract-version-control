@@ -17,11 +17,12 @@ from repository_layout import (
 
 
 def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
+
     if key not in c.ACCEPTED_CONFIG_KEYS:
-        raise exceptions.InvalidArgumentError(c.INVALID_KEY_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
     if not value.strip():
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         )
 
@@ -29,13 +30,8 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
 
 
 def resolve_key_value(
-    c: SCCSConstants, repository_name: str, key: str | None, value: str | None
+    c: SCCSConstants, repository_name: str, key: str, value: str
 ) -> str:
-
-    if not value:
-        raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-        )
 
     if key == c.REMOTE_KEY:
         url = (
@@ -49,7 +45,7 @@ def resolve_key_value(
             or parsed_url.query
             or parsed_url.fragment
         ):
-            raise exceptions.InvalidArgumentError(c.INVALID_URL_ERROR_MESSAGE)
+            raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
             c.REPOSITORIES_PATH_SEGMENT
@@ -81,6 +77,7 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
@@ -103,8 +100,8 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
-        utils.entered_argument(3),
+        utils.entered_argument(c, 2),
+        utils.entered_argument(c, 3),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

@@ -25,26 +25,29 @@ def reset_current_branch(c: SCCSConstants, rw: RepositoryWrite) -> None:
 
 
 def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
+
     try:
         zip_buffer = io.BytesIO()
     except Exception as e:
-        raise exceptions.BufferError(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(
+            c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
+        ) from e
 
     try:
         with zipfile.ZipFile(
             zip_buffer,
             "w",
         ) as zf:
-            for root, _, files in os.walk(c.WALK_ROOT):
+            for root, dirs, files in os.walk(c.WALK_ROOT):
                 for i in files:
                     zf.write(Path(root) / i)
     except Exception as e:
-        raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
         zip_buffer.seek(0)
     except Exception as e:
-        raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return zip_buffer
 
@@ -74,13 +77,14 @@ def post_repository(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     return response
 
 
 def print_publish_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
+
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
@@ -91,6 +95,7 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
+
 ) -> None:
     rs.target.set(rd.current_branch())
 

@@ -16,20 +16,12 @@ from repository_layout import (
 def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
 
     if not commit_identifier:
-        raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_IDENTIFIER_FIELD_NAME
-            )
-        )
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
     is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
 
     if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
-        raise exceptions.InvalidArgumentError(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_IDENTIFIER_FIELD_NAME
-            )
-        )
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 
 def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
@@ -37,7 +29,7 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
     try:
         shutil.copy2(commit_path, output_file_name)
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
 def print_open_success_message(
@@ -55,6 +47,7 @@ def print_open_success_message(
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
@@ -87,7 +80,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
     )

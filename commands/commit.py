@@ -16,7 +16,7 @@ from repository_layout import (
 def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> None:
 
     if commit_message is None or not commit_message:
-        raise exceptions.EmptyArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_MESSAGE_FIELD_NAME
             )
@@ -25,16 +25,11 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
 
 def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
 
-    try:
-        print(
-            c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[
-                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-                ]
-            )
+    print(
+        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
-    except Exception as e:
-        raise exceptions.SCCSException(c.COMMIT_FAILURE_ERROR_MESSAGE) from e
+    )
 
 
 def main(
@@ -61,7 +56,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),

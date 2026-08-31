@@ -28,7 +28,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
     try:
         response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
     except Exception as e:
-        raise exceptions.HTTPGetRequestError() from e
+        raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
@@ -40,7 +40,7 @@ def get_matching_file_paths(
     paths = []
     updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
     if updated_branches is None:
-        raise exceptions.InvalidMetadataError()
+        raise exceptions.SCCSException(c.NO_UPDATED_BRANCHES_ERROR_MESSAGE)
     for i in updated_branches:
         branch_directory = rp.branches_path() / i
         if branch_directory.is_dir():
@@ -58,7 +58,7 @@ def compare_commit_identifier_lists(
 
     object_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
-        raise exceptions.MissingCommitObjectsError()
+        raise exceptions.SCCSException(c.MISSING_REMOTE_OBJECTS_ERROR_MESSAGE)
 
     return object_to_upload
 
@@ -94,8 +94,8 @@ def zip_files_to_upload(
         + commit_messages_path
     )
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temporary_folder_path = Path(temp_dir) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
+    with tempfile.TemporaryDirectory() as tf:
+        temporary_folder_path = Path(tf) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
             repository_name=rp.repository_name
         )
         for i in files_to_upload:
@@ -108,17 +108,17 @@ def zip_files_to_upload(
 
         try:
             with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, _, files in os.walk(temp_dir):
+                for root, dirs, files in os.walk(tf):
                     for i in files:
                         full_path = Path(root) / i
-                        zf.write(full_path, arcname=full_path.relative_to(temp_dir))
+                        zf.write(full_path, arcname=full_path.relative_to(tf))
         except Exception as e:
-            raise exceptions.ZippingFileError(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
         try:
             buffer.seek(0)
         except Exception as e:
-            raise exceptions.BufferError(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 
@@ -133,7 +133,7 @@ def upload_objects(
     if not remote_path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repository_name)
     ):
-        raise exceptions.InvalidAPIURLError(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
     try:
         response = requests.post(
@@ -151,7 +151,7 @@ def upload_objects(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.HTTPPostRequestError(
+        raise exceptions.SCCSException(
             c.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE.format(url=remote)
         ) from e
 
@@ -163,10 +163,6 @@ def clear_updated_branches(
 ) -> None:
 
     data = ri.read_current_branch_data()
-    if data is None:
-        data = {}
-    if not isinstance(data, dict):
-        raise ValueError()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
 
     try:
@@ -178,7 +174,7 @@ def clear_updated_branches(
         ) as f:
             json.dump(data, f, indent=4)
     except Exception as e:
-        raise exceptions.FileWriteError(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
 
 
 def print_push_success_message(
@@ -196,6 +192,7 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

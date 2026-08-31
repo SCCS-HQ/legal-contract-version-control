@@ -19,13 +19,13 @@ from repository_layout import (
 def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
 
     if not branch:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
     if branch == rd.current_branch():
-        raise exceptions.InvalidArgumentError(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
     if branch not in rd.branches():
-        raise exceptions.BranchNotFoundError(
+        raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
 
@@ -37,7 +37,8 @@ def copy_branch_data(
     source = rp.branch_path(branch)
     destination = rp.branch_path(rd.current_branch())
 
-    def ignore_metadata(_directory, names) -> set[Any]:
+    def ignore_metadata(_directory: str, names: list[str]) -> set[Any]:
+
         ignored = set()
         for i in names:
             if i in (c.HISTORY_DIRECTORY, c.COMMIT_BYTE_HASH_DIRECTORY):
@@ -53,7 +54,7 @@ def copy_branch_data(
                 ignore=ignore_metadata,
             )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException(c.MERGE_COPY_ERROR_MESSAGE) from e
 
 
 def copy_repository_document(
@@ -71,7 +72,7 @@ def copy_repository_document(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException(c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE) from e
     finally:
         rd.target.set(original_target)
 
@@ -79,9 +80,10 @@ def copy_repository_document(
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
+
     print(
         c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch=branch, current_branch=rd.current_branch()
+            branch_name=branch, current_branch=rd.current_branch()
         )
     )
 
@@ -109,7 +111,7 @@ def main(
 
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
-            branch=branch, current_branch=rd.current_branch()
+            branch_name=branch, current_branch=rd.current_branch()
         ),
         allow_empty_commit=True,
     )
@@ -124,7 +126,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),

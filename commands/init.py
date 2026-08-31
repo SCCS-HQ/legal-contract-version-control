@@ -20,16 +20,16 @@ from repository_layout import (
 def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
     if (rp.sccs_path()).is_dir():
-        raise exceptions.AlreadyInitializedError(c.ALREADY_INITIALIZED_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
 
 
 def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
     if file.suffix.lower() != c.DOCUMENT_EXTENSION:
-        raise exceptions.InvalidFileTypeError(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
+        raise exceptions.SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
     if not file.is_file():
-        raise exceptions.FileDoesNotExistError(
+        raise exceptions.SCCSException(
             c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
 
@@ -61,7 +61,7 @@ def create_sccs_directory_layout(
         for i in paths:
             (i).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        raise exceptions.FileCreateError() from e
+        raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
@@ -73,7 +73,7 @@ def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str
     for i in data:
         data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
         if not data_value:
-            raise exceptions.InvalidInputError(
+            raise exceptions.SCCSException(
                 c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
             )
         values.append(data_value)
@@ -112,7 +112,7 @@ def copy_document_to_objects_as_document_and_html(
         with open(document_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
-        raise exceptions.ConvertingDocumentToHTMLError() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         shutil.copy2(
@@ -122,7 +122,7 @@ def copy_document_to_objects_as_document_and_html(
             ),
         )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -133,7 +133,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(c.DEFAULT_HTML_STYLES + result)
     except Exception as e:
-        raise exceptions.FileWriteError() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -146,7 +146,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
-        raise exceptions.FileWriteError() from e
+        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
 def write_history_data(
@@ -175,7 +175,7 @@ def write_history_data(
                 c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=name, email=email
                 ),
-                c.MESSAGE_DICT_KEY: c.INITIAL_COMMIT_MESSAGE,
+                c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
             }
         },
     }
@@ -189,7 +189,7 @@ def write_commit_message_data(
     c: SCCSConstants, commit_identifier: str, ri: RepositoryIO
 ) -> None:
 
-    commit_message_data = {commit_identifier: c.INITIAL_COMMIT_MESSAGE}
+    commit_message_data = {commit_identifier: c.INIT_COMMIT_MESSAGE}
     ri.write_commit_messages(commit_message_data)
 
 
@@ -209,7 +209,7 @@ def write_byte_hash(
                 mammoth.convert_to_html(f).value.encode(c.UTF_8)
             ).hexdigest()
     except Exception as e:
-        raise exceptions.DocumentHashingError() from e
+        raise exceptions.SCCSException(c.INIT_BYTE_HASH_DATA_ERROR_MESSAGE) from e
 
     byte_hash = {commit_identifier: byte_hash_file}
 
@@ -229,7 +229,7 @@ def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
         ) as f:
             json.dump(c.DEFAULT_BRANCH_DATA, f, indent=4)
     except Exception as e:
-        raise exceptions.UpdatingMetadataError() from e
+        raise exceptions.SCCSException(c.INIT_BRANCH_DATA_ERROR_MESSAGE) from e
 
 
 def move_document_to_repository_directory(
@@ -251,6 +251,7 @@ def initialize_repository(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+
     try:
         validate_no_prev_init(c, rp)
 
@@ -279,13 +280,14 @@ def initialize_repository(
 
         move_document_to_repository_directory(rp.root, document_path)
 
-    except Exception:
-        delete_repository_after_error(rp.root)
-        raise RuntimeError
+    except Exception as e:
+        delete_repository_after_error(rp.root, e)
 
 
-def delete_repository_after_error(repository_path: Path) -> None:
+def delete_repository_after_error(repository_path: Path, e: Exception) -> None:
+
     shutil.rmtree(repository_path, ignore_errors=True)
+    raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
 
 def main(
@@ -304,7 +306,7 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(2))
+    document_path = Path(utils.entered_argument(c, 2))
     utils.run_command(
         main,
         document_path,

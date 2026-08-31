@@ -28,12 +28,13 @@ def reset(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError(c.RESET_ERROR_MESSAGE) from e
+        raise exceptions.SCCSException(c.RESET_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
 
 def print_reset_success_message(c: SCCSConstants) -> None:
+
     print(c.RESET_SUCCESS_MESSAGE)
 
 
@@ -43,6 +44,7 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

@@ -20,12 +20,12 @@ def validate_branch_to_switch(
 ) -> None:
 
     if not branch_to_switch:
-        raise exceptions.InvalidArgumentError(
+        raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
 
     if not rs.branch_exists(branch_to_switch):
-        raise exceptions.BranchNotFoundError(
+        raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_to_switch
             )
@@ -44,7 +44,11 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.CommitNotFoundError()
+        raise exceptions.SCCSException(
+            c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_to_switch
+            )
+        )
 
     rs.target.reset()
 
@@ -67,7 +71,7 @@ def copy_commit_to_main(
             rp.document_path(),
         )
     except Exception as e:
-        raise exceptions.FileCopyError() from e
+        raise exceptions.SCCSException(c.SWITCH_COPY_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
@@ -85,6 +89,7 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
@@ -93,16 +98,17 @@ def main(
 
     validate_branch_to_switch(c, branch_to_switch, rs)
 
-    if branch_to_switch is None:
-        raise ValueError()
-
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    copy_commit_to_main(c, branch_to_switch, rd, rp, rs)
+    copy_commit_to_main(
+        c, branch_to_switch, rd, rp, rs # pyright: ignore [reportArgumentType]
+    )
 
-    rw.set_current_branch(branch_to_switch)
+    rw.set_current_branch(branch_to_switch) # pyright: ignore [reportArgumentType]
 
-    print_switch_success_message(c, branch_to_switch)
+    print_switch_success_message(
+        c, branch_to_switch # pyright: ignore [reportArgumentType]
+    )
 
     rs.target.reset()
 
@@ -112,7 +118,7 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     utils.run_command(
         main,
-        utils.entered_argument(2),
+        utils.entered_argument(c, 2),
         RepositoryData(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
