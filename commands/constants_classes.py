@@ -48,10 +48,9 @@ class SCCSConstants:
     ACCEPTED_SCHEMES = ("http", "https")
     BRANCH_NAME_FIELD_NAME = "branch name"
     BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
-        "Branch '{branch_name}' is missing from repository metadata."
+        "Branch '{branch_name}' is missing from repository metadata. If the branch does not exist, please create it."
     )
-    BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch."
-    COMMA_SPACE = ", "
+    BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE = "Failed to {action} branch. Please try again."
     COMMIT_IDENTIFIER_FIELD_NAME = "commit byte hash"
     CONTENT_TYPE_ZIP = "application/zip"
     CREATE_SUBCOMMAND = "create"
@@ -66,7 +65,7 @@ class SCCSConstants:
     )
     INVALID_URL_ERROR_MESSAGE = (
         f"Invalid remote URL provided. The URL must start with one of the following "
-        f"schemes: {COMMA_SPACE.join(ACCEPTED_SCHEMES)}, and use the format "
+        f"schemes: {', '.join(ACCEPTED_SCHEMES)}, and use the format "
         f"'http(s)://<host>/<base-path>'. Base path is optional."
     )
     MAIN_BRANCH_NAME = "main"
@@ -79,7 +78,7 @@ class SCCSConstants:
     UNZIP_FAILED_ERROR_MESSAGE = (
         "Failed to unzip repository file. Please try again or ensure the zip is valid."
     )
-    ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position."
+    ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
     ZIP_EXTENSION = ".zip"
     ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
 
@@ -97,7 +96,7 @@ class SCCSConstants:
     HISTORY_DICT_KEY = "history"
     HTTP_OBJECTS_DICT_KEY = "objects"
     INVALID_KEY_ERROR_MESSAGE = (
-        f"Invalid configuration key provided. Accepted keys are: "
+        f"Invalid configuration key provided. Please provide one of the valid keys: "
         f"remote, name, email."
     )
     LATEST_COMMIT_DICT_KEY = "latest_commit"
@@ -235,16 +234,16 @@ class SCCSConstants:
         "Branch '{branch_name}' deleted successfully."
     )
     CURRENT_BRANCH_DELETION_ERROR_MESSAGE = (
-        "Cannot delete the current branch. Switch branches first."
+        "Cannot delete the current branch. Please switch to another branch first."
     )
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
-        "Invalid subcommand provided. Accepted subcommands are: create, delete, list."
+        "Invalid subcommand provided. Please provide one of the valid subcommands: create, delete, list."
     )
     LIST_SUBCOMMAND = "list"
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE = (
-        "Failed to rollback metadata after failure for branch '{branch_name}'."
+        "Failed to rollback metadata after failure for branch '{branch_name}'. The repository metadata is likely in an inconsistent state."
     )
     SUBCOMMAND_FIELD_NAME = "subcommand"
 
@@ -270,7 +269,7 @@ class SCCSConstants:
 
     CLONE_ENDPOINT = "/clone"
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
-    HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote url."
+    HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote URL. Please try again."
     INVALID_ENDING_ERROR_MESSAGE = (
         f"Invalid remote URL provided. Please provide a valid URL ending with "
         f"'{CLONE_ENDPOINT}'."
@@ -291,7 +290,6 @@ class SCCSConstants:
 
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = "Commit {commit_identifier} created successfully."
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
-    COMMIT_PRINT_ERROR_MESSAGE = "Failed to print commit success message."
 
     # endregion
 
@@ -322,7 +320,7 @@ class SCCSConstants:
     DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
     DELETE_OPCODE = "delete"
-    DIFF_ERROR_MESSAGE = "Failed to generate diff output."
+    DIFF_ERROR_MESSAGE = "Failed to generate diff output. Please try again."
     DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
     HTML_PARSER = "html.parser"
     INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
@@ -392,7 +390,7 @@ class SCCSConstants:
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
     HTML_EXTENSION = ".html"
-    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization"
+    INIT_BYTE_HASH_DATA_ERROR_MESSAGE = "Failed to write byte hash data during initialization. Please try again."
     INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
     INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
     INITIAL_COMMIT_DICT_KEY = "initial_commit"
@@ -515,7 +513,7 @@ class SCCSConstants:
     PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
     PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}."
     PUSH_HTTP_REQUEST_ERROR_MESSAGE = (
-        "The HTTP request failed while attempting the push the new changes. Please try "
+        "The HTTP request failed while attempting to push the new changes. Please try "
         "again later or check your internet connection."
     )
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
@@ -583,7 +581,7 @@ class SCCSConstants:
 
     # region reset.py - Strings
 
-    RESET_ERROR_MESSAGE = "Failed to reset the document."
+    RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
     RESET_SUCCESS_MESSAGE = (
         "All uncommitted changes have been deleted. The document has been reset to the "
         "latest commit."
@@ -598,7 +596,7 @@ class SCCSConstants:
     # region revert.py - Strings
 
     REVERT_COMMIT_MESSAGE_TEMPLATE = "Reverted document to commit '{commit_identifier}'."
-    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit."
+    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."
     REVERT_SUCCESS_MESSAGE_TEMPLATE = (
         "Document successfully reverted to commit '{commit_identifier}' on commit "
         "'{new_commit_identifier}'."
@@ -617,7 +615,7 @@ class SCCSConstants:
 
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
         f"Unknown command: {{entered_command}}. "
-        f"Please use {COMMA_SPACE.join(COMMANDS_LIST)} "
+        f"Please use {', '.join(COMMANDS_LIST)} "
         f"along with required arguments."
     )
 
@@ -644,7 +642,7 @@ class SCCSConstants:
     SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = (
         "Commit file missing for branch '{branch_name}'."
     )
-    SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch."
+    SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch. Please try again."
     SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
     UTILS_ARGUMENT_ERROR_MESSAGE = "Required argument missing. Please provide the required argument."
 
@@ -672,7 +670,7 @@ _missing_commands = [
 if _missing_commands:
     raise exceptions.SCCSException(
         f"COMMAND_DESCRIPTIONS is missing entries for: "
-        f"{SCCSConstants.COMMA_SPACE.join(_missing_commands)}"
+        f"{', '.join(_missing_commands)}"
     )
 
 
