@@ -313,8 +313,8 @@ class SCCSConstants:
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
     )
-    INVALID_PATH_ENDING_ERROR_MESSAGE_TEMPLATE = (
-        f"API URL must end with '/repos/{{repo_name}}'."
+    INVALID_PATH_ENDING_ERROR_MESSAGE = (
+        f"API URL must end with '/repos/your-repo-name'."
     )
     REPOSITORIES_PATH_SEGMENT = "repos"
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
@@ -516,9 +516,6 @@ class SCCSConstants:
     CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE = (
         "Push successful, but failed to clear updated branches list in current branch "
         "file."
-    )
-    INVALID_PATH_ENDING_ERROR_MESSAGE_TEMPLATE = (
-        f"API URL must end with '{REQUIRED_PATH_ENDING_TEMPLATE}'."
     )
     MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = (
         "The remote repository has extra commits that the local is missing. Please "

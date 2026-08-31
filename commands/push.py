@@ -133,7 +133,7 @@ def upload_objects(
     if not remote_path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repository_name)
     ):
-        raise exceptions.SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE_TEMPLATE)
+        raise exceptions.SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
     try:
         response = requests.post(
