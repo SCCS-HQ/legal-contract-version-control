@@ -5,6 +5,7 @@ from functools import cached_property
 
 import exceptions
 
+
 class SCCSConstants:
     # region Shared Constants
 
@@ -393,9 +394,7 @@ class SCCSConstants:
 
     # region init.py - Strings
 
-    ALREADY_INIT_ERROR_MESSAGE = (
-        "This document has already been initialized with SCCS."
-    )
+    ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with SCCS."
     HTML_BOILERPLATE_TEMPLATE = (
         "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
         "<div class='center'><div id='target'>{html}</div></div></body></html>"

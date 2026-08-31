@@ -86,21 +86,18 @@ class ValidatedRepositoryName:
 
 
 def validate_repository_name(repository_name: str) -> ValidatedRepositoryName:
-
     """Validate a user-provided repository name against the allowed pattern."""
 
     return ValidatedRepositoryName(repository_name)
 
 
 def repository_base_directory() -> Path:
-
     """Return the fully-resolved base directory that holds all repositories."""
 
     return Path(REPOSITORIES_BASE_DIRECTORY).resolve()
 
 
 def repository_directory(repository_name: str) -> Path:
-
     """
     Build the fully-resolved directory for a validated repository name and
     guarantee it stays inside the repositories base directory.
@@ -121,7 +118,6 @@ def repository_directory(repository_name: str) -> Path:
 
 
 def ensure_repository_exists(repository_path: Path) -> None:
-
     """Ensure that the specified repository exists and is a directory."""
 
     if not repository_path.exists() or not repository_path.is_dir():
@@ -134,7 +130,6 @@ def ensure_repository_exists(repository_path: Path) -> None:
 
 
 def safe_extract_zip(
-
     zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
 ) -> None:
     destination_resolved = destination_directory.resolve()
@@ -161,7 +156,6 @@ app = FastAPI()
 
 @app.get("/")
 async def root() -> dict:
-
     """Easter Egg Endpoint - Do Not Remove"""
 
     return {JSON_KEY_MESSAGE: EASTER_EGG_MESSAGE}
@@ -169,7 +163,6 @@ async def root() -> dict:
 
 @app.post("/repos/{repository_name}/publish")
 async def publish(
-
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
     """Publish a repository to the hosted API"""
@@ -215,7 +208,6 @@ async def publish(
 
 @app.get("/repos/{repository_name}/clone")
 async def clone(repository_name: str) -> StreamingResponse:
-
     """Return a zipped version of a requested repository"""
 
     repository_path = repository_directory(repository_name)
@@ -256,7 +248,6 @@ async def clone(repository_name: str) -> StreamingResponse:
 
 @app.get("/repos/{repository_name}/push")
 async def push(repository_name: str) -> dict:
-
     """
     Return the folder layout of a requested repository so that the client only needs to
     upload changed files and new files.
@@ -265,9 +256,7 @@ async def push(repository_name: str) -> dict:
     repository_path = repository_directory(repository_name)
     ensure_repository_exists(repository_path)
 
-    objects_directory = (
-        repository_path  / SCCS_DIRECTORY / OBJECTS_DIRECTORY
-    ).resolve()
+    objects_directory = (repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
         raise HTTPException(status_code=404, detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE)
@@ -281,7 +270,6 @@ async def push(repository_name: str) -> dict:
 
 @app.post("/repos/{repository_name}/push")
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
-
     """
     Accept a zip archives of new objects to upload to the selected repository, and a zip
     archive of the updated metadata files. Extract the files from the archives, defend
@@ -377,7 +365,6 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
 @app.post("/repos/{repository_name}/pull")
 async def pull(repository_name: str, data: dict) -> StreamingResponse:
-
     """
     Send a zip archive of commit objects and metadata files that the local repository
     (caller) is missing by accepting a list of commit objects that the local doesn't

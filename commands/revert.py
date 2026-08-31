@@ -31,7 +31,6 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
 
 
 def print_revert_success_message(
-
     c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
 ) -> None:
 
@@ -46,7 +45,6 @@ def print_revert_success_message(
 
 
 def main(
-
     c: SCCSConstants,
     commit_identifier: str,
     rd: RepositoryData,

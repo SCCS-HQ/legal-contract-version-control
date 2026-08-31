@@ -32,9 +32,7 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
-
 def main(
-
     c: SCCSConstants,
     commit_message: str,
     rd: RepositoryData,

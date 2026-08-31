@@ -34,7 +34,6 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
 
 
 def get_matching_file_paths(
-
     c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
 ) -> list[Path]:
 
@@ -52,7 +51,6 @@ def get_matching_file_paths(
 
 
 def compare_commit_identifier_lists(
-
     remote_objects: list[str], rd: RepositoryData
 ) -> list[str]:
 
@@ -66,7 +64,6 @@ def compare_commit_identifier_lists(
 
 
 def zip_files_to_upload(
-
     c: SCCSConstants,
     remote_objects: list[str],
     rd: RepositoryData,
@@ -127,7 +124,6 @@ def zip_files_to_upload(
 
 
 def upload_objects(
-
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
 
@@ -163,7 +159,6 @@ def upload_objects(
 
 
 def clear_updated_branches(
-
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
 ) -> None:
 
@@ -183,7 +178,6 @@ def clear_updated_branches(
 
 
 def print_push_success_message(
-
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
 
@@ -192,7 +186,6 @@ def print_push_success_message(
 
 
 def main(
-
     c: SCCSConstants,
     rd: RepositoryData,
     ri: RepositoryIO,

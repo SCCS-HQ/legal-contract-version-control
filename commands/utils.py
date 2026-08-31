@@ -18,9 +18,8 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 
 
 def entered_argument(
-
-        c: SCCSConstants, argument: int, raise_on_not_provided: bool = True
-    ) -> Any:
+    c: SCCSConstants, argument: int, raise_on_not_provided: bool = True
+) -> Any:
 
     if not len(sys.argv) > argument:
         if raise_on_not_provided:
@@ -32,12 +31,11 @@ def entered_argument(
 
 
 def safe_extract_zip(
-
-        c: SCCSConstants,
-        zip_archive: ZipFile,
-        member_path: str,
-        destination_directory: Path
-    ) -> None:
+    c: SCCSConstants,
+    zip_archive: ZipFile,
+    member_path: str,
+    destination_directory: Path,
+) -> None:
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:

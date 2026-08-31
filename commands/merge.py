@@ -31,7 +31,6 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
 
 
 def copy_branch_data(
-
     c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
@@ -59,7 +58,6 @@ def copy_branch_data(
 
 
 def copy_repository_document(
-
     branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
@@ -80,7 +78,6 @@ def copy_repository_document(
 
 
 def print_merge_success_message(
-
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
     print(
@@ -91,7 +88,6 @@ def print_merge_success_message(
 
 
 def main(
-
     c: SCCSConstants,
     branch: str,
     rd: RepositoryData,

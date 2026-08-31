@@ -53,7 +53,6 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
 
 
 def post_repository(
-
     c: SCCSConstants,
     repository_zip: io.BytesIO,
     url: str,
@@ -83,7 +82,6 @@ def post_repository(
 
 
 def print_publish_success_message(
-
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
@@ -91,7 +89,6 @@ def print_publish_success_message(
 
 
 def main(
-
     c: SCCSConstants,
     rd: RepositoryData,
     rp: RepositoryPaths,

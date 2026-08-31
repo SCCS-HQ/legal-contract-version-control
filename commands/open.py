@@ -22,7 +22,6 @@ def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) 
 
     if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
-        
 
 
 def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
@@ -34,7 +33,6 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
 
 
 def print_open_success_message(
-
     c: SCCSConstants, commit_identifier: str, output_file_name: Path
 ) -> None:
 
@@ -47,7 +45,6 @@ def print_open_success_message(
 
 
 def main(
-
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
     rs.target.set(rd.current_branch())

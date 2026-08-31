@@ -59,7 +59,6 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
 
 
 def delete_tag(
-
     c: SCCSConstants, old_changed_strings: list[str], soup: BeautifulSoup
 ) -> BeautifulSoup:
 
@@ -83,7 +82,6 @@ def delete_tag(
 
 
 def replace_tag(
-
     c: SCCSConstants,
     old_changed_strings: list[str],
     new_changed_strings: list[str],
@@ -124,7 +122,6 @@ def replace_tag(
 
 
 def insert_tag(
-
     c: SCCSConstants,
     new_changed_strings: list[str],
     insert_index: int,
@@ -162,7 +159,6 @@ def insert_tag(
 
 
 def format_redline_html(
-
     c: SCCSConstants,
     past_version: list[str],
     current_version: list[str],
@@ -199,7 +195,6 @@ def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSo
 
 
 def generate_diff_output(
-
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, ri: RepositoryIO
 ) -> BeautifulSoup:
     commit_soup = convert_html_to_soup(
@@ -248,7 +243,6 @@ def print_diff_success_message(c: SCCSConstants) -> None:
 
 
 def main(
-
     c: SCCSConstants,
     commit_identifier: str,
     rd: RepositoryData,

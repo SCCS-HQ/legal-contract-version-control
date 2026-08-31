@@ -16,7 +16,6 @@ from repository_layout import (
 
 
 def validate_branch_to_switch(
-
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
 
@@ -34,7 +33,6 @@ def validate_branch_to_switch(
 
 
 def validate_commit_identifier(
-
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
@@ -56,7 +54,6 @@ def validate_commit_identifier(
 
 
 def copy_commit_to_main(
-
     c: SCCSConstants,
     branch_to_switch: str,
     rd: RepositoryData,
@@ -85,7 +82,6 @@ def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> Non
 
 
 def main(
-
     c: SCCSConstants,
     branch_to_switch: str | None,
     rd: RepositoryData,
@@ -103,11 +99,15 @@ def main(
 
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    copy_commit_to_main(c, branch_to_switch, rd, rp, rs) # pyright: ignore [reportArgumentType]
+    copy_commit_to_main(
+        c, branch_to_switch, rd, rp, rs
+    )  # pyright: ignore [reportArgumentType]
 
-    rw.set_current_branch(branch_to_switch) # pyright: ignore [reportArgumentType]
+    rw.set_current_branch(branch_to_switch)  # pyright: ignore [reportArgumentType]
 
-    print_switch_success_message(c, branch_to_switch) # pyright: ignore [reportArgumentType]
+    print_switch_success_message(
+        c, branch_to_switch
+    )  # pyright: ignore [reportArgumentType]
 
     rs.target.reset()
 

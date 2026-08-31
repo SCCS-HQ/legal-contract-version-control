@@ -41,7 +41,6 @@ def update_repository_files(c: SCCSConstants, response: requests.Response) -> No
 
 
 def print_pull_success_message(
-
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
 

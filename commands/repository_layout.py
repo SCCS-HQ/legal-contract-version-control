@@ -30,9 +30,7 @@ class TargetBranch:
     def require(self) -> str:
 
         if self._branch is None:
-            raise exceptions.SCCSException(
-                self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
-            )
+            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
         return self._branch
 
     def reset(self) -> None:
@@ -74,7 +72,6 @@ class RepositoryData:
             )
 
     def commit_identifier_to_full_path(
-
         self, commit_identifier: str, folder: str
     ) -> Path:
         if commit_identifier is None:
@@ -587,9 +584,7 @@ class RepositoryWrite:
             if branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
                 branch_data[self.c.BRANCHES_DICT_KEY].remove(branch_name)
             else:
-                raise exceptions.SCCSException(
-                    self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE
-                )
+                raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
             raise exceptions.SCCSException(
@@ -612,7 +607,6 @@ class RepositoryWrite:
             ) from e
 
     def commit_changes(
-
         self, commit_message: str, allow_empty_commit: bool = False
     ) -> str:
 
