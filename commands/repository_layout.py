@@ -462,7 +462,7 @@ class RepositoryPaths:
 
     def branch_path(self, branch_name: str) -> Path:
 
-        return self.branches_path() / branch_name
+        return self.branches_path() / branch_name.lower()
 
 
 class RepositoryStatus:
@@ -529,8 +529,10 @@ class RepositoryStatus:
 
         if branch_name is None:
             return False
-        branches = self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
-        return branch_name in branches
+        branches = (
+            i.lower() for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
+        )
+        return branch_name.lower() in branches
 
     def is_current_branch(self, branch_name: str | None) -> bool:
 
@@ -539,7 +541,7 @@ class RepositoryStatus:
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]
-        return branch_name == current_branch
+        return branch_name.lower == current_branch.lower()
 
 
 class RepositoryWrite:
@@ -569,7 +571,7 @@ class RepositoryWrite:
 
         try:
             branch_data = self.io.read_current_branch_data()
-            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
+            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
             self.io.write_current_branch_data(branch_data)
         except Exception as e:
             raise exceptions.SCCSException(
@@ -580,10 +582,12 @@ class RepositoryWrite:
 
     def remove_from_branches_list(self, branch_name: str) -> None:
 
+        lowercase_branch_name = branch_name.lower()
+
         try:
             branch_data = self.io.read_current_branch_data()
-            if branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
-                branch_data[self.c.BRANCHES_DICT_KEY].remove(branch_name)
+            if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
+                branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
             else:
                 raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
             self.io.write_current_branch_data(branch_data)
