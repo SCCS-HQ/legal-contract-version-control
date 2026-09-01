@@ -65,7 +65,7 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) ->
     try:
         with zipfile.ZipFile(zip_buffer, "r") as zf:
             for i in zf.namelist():
-                utils.safe_extract_zip(zf, i, destination)
+                utils.safe_extract_zip(c, zf, i, destination)
     except Exception as e:
         raise exceptions.SCCSException(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
