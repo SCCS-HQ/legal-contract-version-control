@@ -20,15 +20,15 @@ SCCS_DIRECTORY = ".sccs"
 OBJECTS_DIRECTORY = "objects"
 BRANCHES_DIRECTORY = "branches"
 CURRENT_BRANCH_DIRECTORY = "current_branch"
-CURRENT_BRANCH_FILE = "current_branch.json"
+CURRENT_BRANCH_JSON_FILE = "current_branch.json"
 CURRENT_BRANCH_TEMPORARY_FILE = "current_branch.json.tmp"
 COMMIT_MESSAGES_DIRECTORY = "commit_messages"
-COMMIT_MESSAGES_FILE = "commit_messages.json"
+COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
 DOCUMENT_FILE_TEMPLATE = "{repository_name}.docx"
 TEMPORARY_DIRECTORY_PREFIX = "tmp_"
 STATIC_FILES_NAME = "repos"
-HISTORY_FILE_STEM = "history"
-COMMIT_BYTE_HASH_STEM = "commit_file_hash"
+HISTORY_JSON_FILE_STEM = "history"
+COMMIT_BYTE_HASH_JSON_FILE_STEM = "commit_file_hash"
 
 MAX_FILES_IN_ZIP = 1000
 MAX_TOTAL_UPLOAD_SIZE = 100 * 1024 * 1024
@@ -36,24 +36,24 @@ MAX_INDIVIDUAL_FILE_SIZE = 10 * 1024 * 1024
 JSON_DUMP_INDENT = 4
 
 EASTER_EGG_MESSAGE = "Boo!"
-ERROR_INVALID_FILE_PATH = "Invalid file path"
-ERROR_INVALID_REPOSITORY_NAME = "Invalid repository name"
-ERROR_REPOSITORY_NOT_FOUND = "Repository not found: {repository_name}"
-ERROR_INVALID_ZIP_PATH = "Invalid file path in zip"
-ERROR_INVALID_JSON = "Invalid JSON data"
-ERROR_REMOTE_URL_REQUIRED = "Remote URL is required"
-ERROR_REPOSITORY_NAME_MISMATCH = "Repository name does not match file name"
-ERROR_REPOSITORY_EXISTS = "Repository already exists"
-ERROR_TOO_MANY_FILES = "Too many files in the uploaded zip"
-ERROR_UPLOAD_TOO_LARGE = "Uploaded file is too large"
-ERROR_FILE_TOO_LARGE = "File {filename} is too large"
-ERROR_OBJECTS_NOT_FOUND = "Repository objects not found"
-ERROR_LOCAL_UNKNOWN_OBJECTS = (
+INVALID_FILE_PATH_ERROR_MESSAGE = "Invalid file path"
+INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
+REPOSITORY_NOT_FOUND_ERROR_MESSAGE = "Repository not found: {repository_name}"
+INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
+INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
+REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
+REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
+REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
+TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
+UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded file is too large"
+FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
+OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
+LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
     "Local repository has objects that the remote does not have. Run 'sccs push"
     "' to upload these objects before pulling."
 )
-MESSAGE_PUSH_SUCCESS = "changes pushed successfully"
-MESSAGE_FILE_PUBLISHED = "File published successfully"
+PUSH_SUCCESS_MESSAGE = "changes pushed successfully"
+FILE_PUBLISHED_MESSAGE = "File published successfully"
 
 JSON_KEY_MESSAGE = "message"
 JSON_KEY_REPOSITORY_URL = "repository_url"
@@ -76,7 +76,7 @@ class ValidatedRepositoryName:
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
             or self.value in (".", "..")
         ):
-            raise HTTPException(status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME)
+            raise HTTPException(status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
     def __str__(self) -> str:
         return self.value
@@ -111,7 +111,7 @@ def repository_directory(repository_name: str) -> Path:
         repository_path.relative_to(base_directory)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
     return repository_path
@@ -123,7 +123,7 @@ def ensure_repository_exists(repository_path: Path) -> None:
     if not repository_path.exists() or not repository_path.is_dir():
         raise HTTPException(
             status_code=404,
-            detail=ERROR_REPOSITORY_NOT_FOUND.format(
+            detail=REPOSITORY_NOT_FOUND_ERROR_MESSAGE.format(
                 repository_name=repository_path.name
             ),
         )
@@ -135,12 +135,12 @@ def safe_extract_zip(
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or ".." in entry_path.parts:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH)
+        raise HTTPException(status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE)
     target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_ZIP_PATH) from e
+        raise HTTPException(status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE) from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
     else:
@@ -170,34 +170,34 @@ async def publish(
     try:
         remote = json.loads(data)["remote"]
     except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_JSON) from e
+        raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE) from e
 
     if not remote:
-        raise HTTPException(status_code=400, detail=ERROR_REMOTE_URL_REQUIRED)
+        raise HTTPException(status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE)
 
     if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(status_code=400, detail=ERROR_REPOSITORY_NAME_MISMATCH)
+        raise HTTPException(status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE)
 
     if repository_path.exists():
-        raise HTTPException(status_code=400, detail=ERROR_REPOSITORY_EXISTS)
+        raise HTTPException(status_code=400, detail=REPOSITORY_EXISTS_ERROR_MESSAGE)
 
     with zipfile.ZipFile(file.file, "r") as zip_archive:
         if len(zip_archive.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
+            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
         if sum(i.file_size for i in zip_archive.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
+            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
 
         for i in zip_archive.infolist():
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
                     status_code=400,
-                    detail=ERROR_FILE_TOO_LARGE.format(filename=i.filename),
+                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
                 )
 
             safe_extract_zip(zip_archive, i.filename, repository_path)
 
     return {
-        JSON_KEY_MESSAGE: MESSAGE_FILE_PUBLISHED,
+        JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE,
         JSON_KEY_REPOSITORY_URL: remote,
     }
 
@@ -219,15 +219,15 @@ async def clone(repository_name: str) -> StreamingResponse:
                 )
 
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-                    raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
+                    raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
+            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
 
         for i in zf.infolist():
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
                     status_code=400,
-                    detail=ERROR_FILE_TOO_LARGE.format(filename=i.filename),
+                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
                 )
 
     zip_buffer.seek(0)
@@ -255,7 +255,7 @@ async def push(repository_name: str) -> dict:
     objects_directory = (repository_path  / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
-        raise HTTPException(status_code=404, detail=ERROR_OBJECTS_NOT_FOUND)
+        raise HTTPException(status_code=404, detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE)
 
     return {
         JSON_KEY_OBJECTS: list(
@@ -275,7 +275,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     repository_path = repository_directory(repository_name)
 
     if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(status_code=400, detail=ERROR_REPOSITORY_NAME_MISMATCH)
+        raise HTTPException(status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE)
 
     zip_buffer_directory = Path(
         tempfile.gettempdir(),
@@ -285,17 +285,17 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     with zipfile.ZipFile(file.file, "r") as zip_archive:
         if sum(i.file_size for i in zip_archive.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
-            raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
+            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
         if len(zip_archive.infolist()) > MAX_FILES_IN_ZIP:
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
-            raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
+            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
         zip_buffer_directory.mkdir(parents=True, exist_ok=True)
         for info in zip_archive.infolist():
             if info.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 shutil.rmtree(zip_buffer_directory, ignore_errors=True)
                 raise HTTPException(
                     status_code=400,
-                    detail=ERROR_FILE_TOO_LARGE.format(filename=info.filename),
+                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=info.filename),
                 )
             safe_extract_zip(zip_archive, info.filename, zip_buffer_directory)
 
@@ -317,7 +317,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
                         destination_file.relative_to(repository_path)
                     except ValueError as e:
                         raise HTTPException(
-                            status_code=400, detail=ERROR_INVALID_ZIP_PATH
+                            status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE
                         ) from e
                     destination_file.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(str(source_file), str(destination_file))
@@ -328,7 +328,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         repository_path
         / SCCS_DIRECTORY
         / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_FILE,
+        / CURRENT_BRANCH_JSON_FILE,
         "r",
         encoding="utf-8",
     ) as f:
@@ -351,10 +351,10 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         repository_path
         / SCCS_DIRECTORY
         / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_FILE
+        / CURRENT_BRANCH_JSON_FILE
     )
 
-    return {JSON_KEY_MESSAGE: MESSAGE_PUSH_SUCCESS}
+    return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
 
 
 @app.post("/repos/{repository_name}/pull")
@@ -375,7 +375,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         or not all(isinstance(i, str) for i in data[JSON_KEY_OBJECTS])
         or not data[JSON_KEY_OBJECTS]
     ):
-        raise HTTPException(status_code=400, detail=ERROR_INVALID_JSON)
+        raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE)
 
     local_objects = set(data[JSON_KEY_OBJECTS])
 
@@ -385,7 +385,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         objects_paths.relative_to(repository_path)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
     remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
@@ -393,7 +393,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     if local_objects - remote_objects:
         raise HTTPException(
             status_code=400,
-            detail=ERROR_LOCAL_UNKNOWN_OBJECTS,
+            detail=LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
         )
 
     branches_path = (repository_path / SCCS_DIRECTORY / BRANCHES_DIRECTORY).resolve()
@@ -402,7 +402,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         branches_path.relative_to(repository_path)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=ERROR_INVALID_REPOSITORY_NAME
+            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
     files_to_upload = (
@@ -415,12 +415,12 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         + [
             i.resolve()
             for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == HISTORY_FILE_STEM
+            if i.is_file() and i.stem == HISTORY_JSON_FILE_STEM
         ]
         + [
             i.resolve()
             for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == COMMIT_BYTE_HASH_STEM
+            if i.is_file() and i.stem == COMMIT_BYTE_HASH_JSON_FILE_STEM
         ]
         + [
             repository_path
@@ -430,13 +430,13 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             repository_path
             / SCCS_DIRECTORY
             / CURRENT_BRANCH_DIRECTORY
-            / CURRENT_BRANCH_FILE
+            / CURRENT_BRANCH_JSON_FILE
         ]
         + [
             repository_path
             / SCCS_DIRECTORY
             / COMMIT_MESSAGES_DIRECTORY
-            / COMMIT_MESSAGES_FILE
+            / COMMIT_MESSAGES_JSON_FILE
         ]
         if i.is_file()
     )
