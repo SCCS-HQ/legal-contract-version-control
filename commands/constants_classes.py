@@ -654,8 +654,10 @@ class SCCSConstants:
 
     # region File-Specific Constants - utils.py
 
-    # region utils.py - Strings
+    # region utils.py - String
 
+    PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = ("Invalid file path: {entry_path} in zip. Please ensure the path does not include '..' and is not an absolute path.")
+    TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = ("Invalid file path: {target_path} in zip. Please ensure that {target_path} is inside {destination_resolved}.")
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
 

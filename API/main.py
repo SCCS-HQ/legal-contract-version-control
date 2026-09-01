@@ -169,7 +169,7 @@ async def publish(
 
     try:
         remote = json.loads(data)["remote"]
-    except Exception as e:
+    except json.JSONDecodeError as e:
         raise HTTPException(status_code=400, detail=ERROR_INVALID_JSON) from e
 
     if not remote:
@@ -210,12 +210,24 @@ async def clone(repository_name: str) -> StreamingResponse:
     ensure_repository_exists(repository_path)
 
     zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_archive:
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(repository_path):
             for i in files:
                 file_path = Path(root) / i
-                zip_archive.write(
+                zf.write(
                     filename=file_path, arcname=file_path.relative_to(repository_path)
+                )
+
+        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
+                    raise HTTPException(status_code=400, detail=ERROR_TOO_MANY_FILES)
+        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+            raise HTTPException(status_code=400, detail=ERROR_UPLOAD_TOO_LARGE)
+
+        for i in zf.infolist():
+            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=ERROR_FILE_TOO_LARGE.format(filename=i.filename),
                 )
 
     zip_buffer.seek(0)
@@ -237,9 +249,10 @@ async def push(repository_name: str) -> dict:
     upload changed files and new files.
     """
 
-    repository_path = (repository_directory(repository_name) / SCCS_DIRECTORY).resolve()
+    repository_path = repository_directory(repository_name)
+    ensure_repository_exists(repository_path)
 
-    objects_directory = repository_path / OBJECTS_DIRECTORY
+    objects_directory = (repository_path  / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
         raise HTTPException(status_code=404, detail=ERROR_OBJECTS_NOT_FOUND)
@@ -359,6 +372,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         not isinstance(data, dict)
         or JSON_KEY_OBJECTS not in data
         or not isinstance(data[JSON_KEY_OBJECTS], list)
+        or not all(isinstance(i, str) for i in data[JSON_KEY_OBJECTS])
+        or not data[JSON_KEY_OBJECTS]
     ):
         raise HTTPException(status_code=400, detail=ERROR_INVALID_JSON)
 

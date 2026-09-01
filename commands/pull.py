@@ -35,7 +35,7 @@ def update_repository_files(c: SCCSConstants, response: requests.Response) -> No
     try:
         with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
             for i in zf.namelist():
-                utils.safe_extract_zip(zf, i, destination)
+                utils.safe_extract_zip(c, zf, i, destination)
     except Exception as e:
         raise exceptions.SCCSException(c.UNZIP_FAILED_ERROR_MESSAGE) from e
 
