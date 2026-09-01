@@ -239,6 +239,7 @@ class RepositoryIO:
 
         with open(self.paths.document_path(), "wb") as f:
             f.write(data)
+            f.truncate()
 
 
     def read_metadata(self) -> dict[str, Any]:
@@ -261,6 +262,7 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             json.dump(data, f, indent=4)
+            f.truncate()
 
 
     def read_branches_data(self) -> dict[str, Any]:
@@ -474,6 +476,7 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             json.dump(full_metadata, f, indent=4)
+            f.truncate()
 
 
     def read_commit_messages(self) -> dict[str, str]:
@@ -556,6 +559,7 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             f.write(diff)
+            f.truncate()
 
 
 class RepositoryPaths:
