@@ -613,6 +613,8 @@ class SCCSConstants:
 
     # region sccs(sh) - Strings
 
+    PYTHON_EXTENSION = ".py"
+
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
         f"Unknown command: {{entered_command}}. "
         f"Please use {', '.join(COMMANDS_LIST)} "
