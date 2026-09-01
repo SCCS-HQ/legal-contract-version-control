@@ -7,11 +7,11 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 
@@ -58,51 +58,14 @@ def validate_subcommand(
             )
 
 
-def rollback_changes_after_failure(
-    c: SCCSConstants,
-    branch_name: str,
-    subcommand: str,
-    rp: RepositoryPaths,
-    rw: RepositoryWrite,
-) -> None:
-
-    try:
-        if subcommand == c.CREATE_SUBCOMMAND:
-            rw.remove_from_branches_list(branch_name)
-            rw.set_current_branch(c.MAIN_BRANCH_NAME)
-            shutil.rmtree(rp.branch_path(branch_name))
-        if subcommand == c.DELETE_SUBCOMMAND:
-            rw.add_to_branches_list(branch_name)
-    except Exception as e:
-        raise exceptions.SCCSException(
-            c.ROLLBACK_METADATA_FAILURE_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch_name
-            )
-        ) from e
-
-
 def branch_create_subcommand(
     c: SCCSConstants,
     branch_name: str,
     current_branch_name: str,
-    rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
 
-    try:
-        shutil.copytree(
-            rp.branch_path(current_branch_name),
-            rp.branch_path(branch_name),
-        )
-        rw.add_to_branches_list(branch_name)
-        rw.set_current_branch(branch_name)
-    except Exception as e:
-        rollback_changes_after_failure(c, branch_name, c.CREATE_SUBCOMMAND, rp, rw)
-        raise exceptions.SCCSException(
-            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
-                action=c.CREATE_SUBCOMMAND
-            )
-        ) from e
+    rw.add_branch_metadata(branch_name, current_branch_name)
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
 
@@ -119,20 +82,10 @@ def print_branch_create_success_message(
 
 
 def branch_delete_subcommand(
-    c: SCCSConstants, branch_name: str, rp: RepositoryPaths, rw: RepositoryWrite
+    c: SCCSConstants, branch_name: str, rw: RepositoryWrite
 ) -> None:
 
-    try:
-        rw.remove_from_branches_list(branch_name)
-        shutil.rmtree(rp.branch_path(branch_name))
-    except Exception as e:
-        rollback_changes_after_failure(c, branch_name, c.DELETE_SUBCOMMAND, rp, rw)
-        raise exceptions.SCCSException(
-            c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
-                action=c.DELETE_SUBCOMMAND
-            )
-        ) from e
-
+    rw.remove_branch_metadata(branch_name)
     print_branch_delete_success_message(c, branch_name)
 
 
@@ -165,11 +118,11 @@ def run_specified_subcommand(
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
             raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_create_subcommand(c, branch_name, current_branch_name, rp, rw)
+        branch_create_subcommand(c, branch_name, current_branch_name, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
             raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_delete_subcommand(c, branch_name, rp, rw)
+        branch_delete_subcommand(c, branch_name, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
 

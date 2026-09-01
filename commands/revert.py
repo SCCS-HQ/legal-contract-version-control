@@ -7,11 +7,11 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 

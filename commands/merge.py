@@ -8,11 +8,12 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    TargetBranch,
     RepositoryData,
+    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 
@@ -31,30 +32,14 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
 
 
 def copy_branch_data(
-    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
+    c: SCCSConstants, branch: str, rd: RepositoryData, ri: RepositoryIO
 ) -> None:
 
-    source = rp.branch_path(branch)
-    destination = rp.branch_path(rd.current_branch())
+    ri.target.set(branch)
+    branch_to_merge_data = ri.read_branch_data()
 
-    def ignore_metadata(_directory: str, names: list[str]) -> set[Any]:
-
-        ignored = set()
-        for i in names:
-            if i in (c.HISTORY_DIRECTORY, c.COMMIT_BYTE_HASH_DIRECTORY):
-                ignored.add(i)
-        return ignored
-
-    try:
-        if source.exists():
-            shutil.copytree(
-                source,
-                destination,
-                dirs_exist_ok=True,
-                ignore=ignore_metadata,
-            )
-    except Exception as e:
-        raise exceptions.SCCSException(c.MERGE_COPY_ERROR_MESSAGE) from e
+    ri.target.set(rd.current_branch())
+    ri.write_branch_data(branch_to_merge_data)
 
 
 def copy_repository_document(
@@ -92,6 +77,7 @@ def main(
     c: SCCSConstants,
     branch: str,
     rd: RepositoryData,
+    ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -107,7 +93,7 @@ def main(
 
     copy_repository_document(branch, rd, rp)
 
-    copy_branch_data(c, branch, rd, rp)
+    copy_branch_data(c, branch, rd, ri)
 
     rw.commit_changes(
         c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(

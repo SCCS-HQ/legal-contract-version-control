@@ -93,7 +93,10 @@ class SCCSConstants:
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     AUTHOR_DICT_KEY = "author"
     BRANCHES_DICT_KEY = "branches"
+    BYTE_HASH_DICT_KEY = "byte_hash"
     COMMIT_ORDER_DICT_KEY = "commit_order"
+    COMMIT_MESSAGES_DICT_KEY = "commit_messages"
+    CONFIG_DICT_KEY = "config"
     CURRENT_BRANCH_DICT_KEY = "current_branch"
     EMAIL_KEY = "email"
     HEX_DIGITS = "0123456789abcdef"
@@ -551,7 +554,10 @@ class SCCSConstants:
     # endregion
 
     # region repository_layout.py - Paths (files)
-    # (none)
+    
+    METADATA_JSON = "metadata.json"
+
+
     # endregion
 
     # region repository_layout.py - Strings

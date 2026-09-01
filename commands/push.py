@@ -14,11 +14,11 @@ import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -33,21 +33,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
     return response
 
 
-def get_matching_file_paths(
-    c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
-) -> list[Path]:
 
-    paths = []
-    updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
-    if updated_branches is None:
-        raise exceptions.SCCSException(c.NO_UPDATED_BRANCHES_ERROR_MESSAGE)
-    for i in updated_branches:
-        branch_directory = rp.branches_path() / i
-        if branch_directory.is_dir():
-            f = (branch_directory / filename / filename).with_suffix(c.JSON_EXTENSION)
-            if f.is_file():
-                paths.append(f.resolve())
-    return paths
 
 
 def compare_commit_identifier_lists(
@@ -67,31 +53,21 @@ def zip_files_to_upload(
     c: SCCSConstants,
     remote_objects: list[str],
     rd: RepositoryData,
-    ri: RepositoryIO,
     rp: RepositoryPaths,
 ) -> io.BytesIO:
 
-    document_path = [rp.document_path()]
-
-    current_branch_path = [rp.current_branch_data_file_path()]
-    commit_messages_path = [rp.commit_messages_path()]
-    object_to_upload_set = set(compare_commit_identifier_lists(remote_objects, rd))
-    objects_paths = [
-        i.resolve()
-        for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
-        if i.is_file() and i.stem in object_to_upload_set
-    ]
-
-    history_paths = get_matching_file_paths(c, c.HISTORY_DIRECTORY, ri, rp)
-    byte_hash_paths = get_matching_file_paths(c, c.COMMIT_BYTE_HASH_DIRECTORY, ri, rp)
 
     files_to_upload = (
-        objects_paths
-        + history_paths
-        + byte_hash_paths
-        + document_path
-        + current_branch_path
-        + commit_messages_path
+        [    
+            i.resolve()
+            for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file() and i.stem in set(
+                compare_commit_identifier_lists(remote_objects, rd)
+            )
+        ]
+        + [rp.document_path()]
+        + [rp.metadata_path()]
+        
     )
 
     with tempfile.TemporaryDirectory() as tf:
@@ -164,17 +140,7 @@ def clear_updated_branches(
 
     data = ri.read_current_branch_data()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
-
-    try:
-        with open(
-            rp.current_branch_data_file_path(),
-            "w",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            json.dump(data, f, indent=4)
-    except Exception as e:
-        raise exceptions.SCCSException(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
+    ri.write_current_branch_data(data)
 
 
 def print_push_success_message(
@@ -205,7 +171,7 @@ def main(
 
     remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
 
-    buffer = zip_files_to_upload(c, remote_objects, rd, ri, rp)
+    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
 
     upload_response = upload_objects(c, buffer, rd, rp)
 

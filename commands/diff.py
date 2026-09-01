@@ -10,10 +10,10 @@ import utils
 from bs4 import BeautifulSoup
 from constants_classes import SCCSConstants
 from repository_layout import (
+    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
