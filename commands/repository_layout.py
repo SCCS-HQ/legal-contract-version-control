@@ -170,7 +170,7 @@ class RepositoryData:
 
     def latest_commit_identifier(self) -> str:
 
-        commit_identifier = self.io.read_history()[self.c.HISTORY_DICT_KEY][
+        commit_identifier = self.io.read_history()[
             self.c.LATEST_COMMIT_DICT_KEY
         ]
         if not commit_identifier:
@@ -651,10 +651,13 @@ class RepositoryStatus:
 
     def validate_uncommitted_changes(self) -> bool:
 
-        latest_commit_identifier = self.io.read_history()[self.c.HISTORY_DICT_KEY][
+        latest_commit_identifier = self.io.read_history()[
             self.c.LATEST_COMMIT_DICT_KEY
         ]
-        latest_byte_hash = self.io.read_byte_hash()[latest_commit_identifier]
+        byte_hash_data = self.io.read_byte_hash()
+        print(byte_hash_data)
+        latest_byte_hash = byte_hash_data[latest_commit_identifier]
+
         document_byte_hash = self.io.document_html_byte_hash()
 
         return latest_byte_hash != document_byte_hash
@@ -713,8 +716,8 @@ class RepositoryWrite:
 
                         if (
                             len(author_config) == 2
-                            and author_config[1] == current_config.get(self.c.NAME_KEY, "")
-                            and author_config[2] == current_config.get(self.c.EMAIL_KEY, "")
+                            and author_config[0] == current_config.get(self.c.NAME_KEY, "")
+                            and author_config[1] == current_config.get(self.c.EMAIL_KEY, "")
                         ):
                             data[key] = new_value
 
@@ -740,47 +743,37 @@ class RepositoryWrite:
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
-        try:
-            full_metadata = self.io.read_metadata()
-            full_metadata.setdefault(self.c.CONFIG_DICT_KEY, {})[key] = value
 
-            if key == self.c.NAME_KEY:
-                change_dict(
-                    full_metadata,
-                    self.c.AUTHOR_DICT_KEY,
-                    self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                        name=value, email=current_config.get(self.c.EMAIL_KEY, "")
-                    )
+        full_metadata = self.io.read_metadata()
+        full_metadata.setdefault(self.c.CONFIG_DICT_KEY, {})[key] = value
+
+        if key == self.c.NAME_KEY:
+            change_dict(
+                full_metadata,
+                self.c.AUTHOR_DICT_KEY,
+                self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                    name=value, email=current_config.get(self.c.EMAIL_KEY, "")
                 )
+            )
 
-            if key == self.c.EMAIL_KEY:
-                change_dict(
-                    full_metadata,
-                    self.c.AUTHOR_DICT_KEY,
-                    self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                        name=current_config.get(self.c.NAME_KEY, ""), email=value
-                    )
+        if key == self.c.EMAIL_KEY:
+            change_dict(
+                full_metadata,
+                self.c.AUTHOR_DICT_KEY,
+                self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                    name=current_config.get(self.c.NAME_KEY, ""), email=value
                 )
+            )
 
-            self.io.write_metadata(full_metadata)
-        except Exception as e:
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-            ) from e
+        self.io.write_metadata(full_metadata)
+
 
 
     def add_to_branches_list(self, branch_name: str) -> None:
 
-        try:
-            branch_data = self.io.read_current_branch_data()
-            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
-            self.io.write_current_branch_data(branch_data)
-        except Exception as e:
-            raise exceptions.SCCSException(
-                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
-                    action=self.c.CREATE_SUBCOMMAND
-                )
-            ) from e
+        branch_data = self.io.read_current_branch_data()
+        branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
+        self.io.write_current_branch_data(branch_data)
 
 
     def add_branch_metadata(self, branch_name: str, current_branch_name: str):
@@ -793,6 +786,7 @@ class RepositoryWrite:
         self.io.write_metadata(full_metadata)
 
         self.add_to_branches_list(branch_name)
+        self.add_to_updated_branches(branch_name, current_branch_name)
         self.set_current_branch(branch_name)
 
 
@@ -800,42 +794,53 @@ class RepositoryWrite:
 
         lowercase_branch_name = branch_name.lower()
 
-        try:
-            branch_data = self.io.read_current_branch_data()
-            if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
-                branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
-            else:
-                raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
-            self.io.write_current_branch_data(branch_data)
-        except Exception as e:
-            raise exceptions.SCCSException(
-                self.c.BRANCH_OPERATION_FAILED_ERROR_MESSAGE_TEMPLATE.format(
-                    action=self.c.DELETE_SUBCOMMAND
-                )
-            ) from e
+        branch_data = self.io.read_current_branch_data()
+        if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
+            branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
+        else:
+            raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
+        self.io.write_current_branch_data(branch_data)
 
 
-    def remove_branch_metadata(self, branch_name: str) -> None:
+    def remove_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
 
         full_metadata = self.io.read_metadata()
         del full_metadata[self.c.BRANCHES_DICT_KEY][branch_name]
         self.io.write_metadata(full_metadata)
 
+
         self.remove_from_branches_list(branch_name)
+        self.remove_from_updated_branch(branch_name)
+
+        if branch_name == current_branch_name:
+            self.set_current_branch(self.c.MAIN_BRANCH_NAME)
+
+
+    def add_to_updated_branches(self, branch_name: str, conditional_branch: str | None = None) -> None:
+        
+
+        branch_data = self.io.read_current_branch_data()
+        if (
+            conditional_branch in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
+            or conditional_branch is None
+        ):
+            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].append(branch_name)
+            self.io.write_branch_data(branch_data)
+
+
+    def remove_from_updated_branch(self, branch_name: str) -> None:
+
+        branch_data = self.io.read_current_branch_data()
+        if branch_name in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]:
+            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].remove(branch_name)
+            self.io.write_branch_data(branch_data)
 
 
     def set_current_branch(self, branch_name: str) -> None:
 
-        try:
-            branch_data = self.io.read_current_branch_data()
-            branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
-            self.io.write_current_branch_data(branch_data)
-        except Exception as e:
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.BRANCH_NAME_FIELD_NAME
-                )
-            ) from e
+        branch_data = self.io.read_current_branch_data()
+        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
+        self.io.write_current_branch_data(branch_data)
 
 
     def commit_changes(
@@ -848,7 +853,10 @@ class RepositoryWrite:
             self.c.CURRENT_BRANCH_DICT_KEY
         ]
         latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
-        latest_byte_hash = self.io.read_byte_hash()[latest_commit_identifier]
+        byte_hash_data = self.io.read_byte_hash()
+        print(byte_hash_data)
+
+        latest_byte_hash = byte_hash_data[latest_commit_identifier]
         document_byte_hash = self.io.document_html_byte_hash()
 
         if not allow_empty_commit:
@@ -879,7 +887,7 @@ class RepositoryWrite:
         metadata = self.io.read_metadata()
 
         metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.BYTE_HASH_DICT_KEY] = document_byte_hash
+            self.c.BYTE_HASH_DICT_KEY][commit_identifier] = document_byte_hash
 
         metadata[self.c.COMMIT_MESSAGES_DICT_KEY][commit_identifier] = commit_message
 

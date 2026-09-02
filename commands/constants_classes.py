@@ -245,6 +245,7 @@ class SCCSConstants:
         "Cannot delete the current branch. Please switch to another branch first."
     )
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
+    DELETING_MAIN_ERROR_MESSAGE = "You cannot delete 'main'. Please try deleting another branch."
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
         "Invalid subcommand provided. Please provide one of the valid subcommands: "
         "create, delete, list."

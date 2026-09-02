@@ -178,6 +178,14 @@ def write_starting_metadata(
         }
     )
 
+    print({                    
+        c.BYTE_HASH_DICT_KEY: {
+            commit_identifier: hashlib.sha256(
+                (ri.document_html()).encode(c.UTF_8)
+            ).hexdigest()
+        },
+    })
+
 
 def move_document_to_repository_directory(
     repository_path: Path, document_path: Path

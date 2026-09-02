@@ -82,10 +82,13 @@ def print_branch_create_success_message(
 
 
 def branch_delete_subcommand(
-    c: SCCSConstants, branch_name: str, rw: RepositoryWrite
+    c: SCCSConstants, branch_name: str, rd: RepositoryData, rw: RepositoryWrite
 ) -> None:
 
-    rw.remove_branch_metadata(branch_name)
+    if branch_name == c.MAIN_BRANCH_NAME:
+        raise exceptions.SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
+
+    rw.remove_branch_metadata(branch_name, rd.current_branch())
     print_branch_delete_success_message(c, branch_name)
 
 
@@ -122,7 +125,7 @@ def run_specified_subcommand(
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
             raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_delete_subcommand(c, branch_name, rw)
+        branch_delete_subcommand(c, branch_name, rd, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
 
