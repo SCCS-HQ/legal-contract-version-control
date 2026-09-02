@@ -655,7 +655,6 @@ class RepositoryStatus:
             self.c.LATEST_COMMIT_DICT_KEY
         ]
         byte_hash_data = self.io.read_byte_hash()
-        print(byte_hash_data)
         latest_byte_hash = byte_hash_data[latest_commit_identifier]
 
         document_byte_hash = self.io.document_html_byte_hash()
@@ -854,7 +853,6 @@ class RepositoryWrite:
         ]
         latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         byte_hash_data = self.io.read_byte_hash()
-        print(byte_hash_data)
 
         latest_byte_hash = byte_hash_data[latest_commit_identifier]
         document_byte_hash = self.io.document_html_byte_hash()
