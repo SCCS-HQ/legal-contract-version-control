@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import io
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from constants_classes import SCCSConstants
 from repository_layout import (
     TargetBranch,
     RepositoryData,
+    RepositoryPaths,
     RepositoryStatus,
 )
 
@@ -28,13 +30,23 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     return response
 
 
-def update_repository_files(c: SCCSConstants, response: requests.Response) -> None:
+def update_repository_files(c: SCCSConstants, response: requests.Response, rd: RepositoryData, rp: RepositoryPaths) -> None:
 
     destination = Path.cwd()
     try:
         with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
+            print(i for i in zf.namelist())
             for i in zf.namelist():
                 utils.safe_extract_zip(c, zf, i, destination)
+
+        shutil.copy2(
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(),
+                c.DOCUMENT_DIRECTORY
+            ),
+            rp.document_path()
+        )
+    
     except exceptions.SCCSException as e:
         raise e
 
@@ -47,7 +59,7 @@ def print_pull_success_message(
     print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+def main(c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus) -> None:
 
     rs.target.set(rd.current_branch())
 
@@ -58,7 +70,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     response = pull(c, rd)
     response.raise_for_status()
 
-    update_repository_files(c, response)
+    update_repository_files(c, response, rd, rp)
 
     print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
 
@@ -71,5 +83,6 @@ if __name__ == "__main__":
     utils.run_command(
         main,
         RepositoryData(Path.cwd(), c, target),
+        RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
     )

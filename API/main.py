@@ -61,6 +61,10 @@ JSON_KEY_UPDATED_BRANCHES = "updated_branches"
 
 CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
 CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
+UTF_8 = "utf-8"
+NEWLINE = "\n"
+CURRENT_BRANCH_DICT_KEY = "current_branch"
+UPDATED_BRANCHES_DICT_KEY = "updated_branches"
 
 
 @dataclass(frozen=True, slots=True)
@@ -333,34 +337,16 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
 
     with open(
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_JSON_FILE,
-        "r",
-        encoding="utf-8",
+        (repository_directory(repository_name) / SCCS_DIRECTORY / "metadata.json").resolve(),
+        "r+",
+        encoding=UTF_8,
+        newline=NEWLINE,
     ) as f:
         data = json.load(f)
-
-    temporary_file = (
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_TEMPORARY_FILE
-    )
-    with open(
-        temporary_file,
-        "w",
-        encoding="utf-8",
-    ) as f:
-        data[JSON_KEY_UPDATED_BRANCHES] = []
-        json.dump(data, f, indent=JSON_DUMP_INDENT)
-    temporary_file.replace(
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_JSON_FILE
-    )
+        data[CURRENT_BRANCH_DICT_KEY][UPDATED_BRANCHES_DICT_KEY] = []
+        f.seek(0)
+        json.dump(data, f)
+        f.truncate()
 
     return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
 
@@ -413,41 +399,19 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
-    files_to_upload = (
+    files_to_upload = [
         i
         for i in [
             i.resolve()
             for i in objects_paths.rglob("*")
             if i.is_file() and i.stem in remote_objects - local_objects
         ]
-        + [
-            i.resolve()
-            for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == HISTORY_JSON_FILE_STEM
-        ]
-        + [
-            i.resolve()
-            for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == COMMIT_BYTE_HASH_JSON_FILE_STEM
-        ]
-        + [
-            repository_path
-            / DOCUMENT_FILE_TEMPLATE.format(repository_name=repository_path.name)
-        ]
-        + [
-            repository_path
-            / SCCS_DIRECTORY
-            / CURRENT_BRANCH_DIRECTORY
-            / CURRENT_BRANCH_JSON_FILE
-        ]
-        + [
-            repository_path
-            / SCCS_DIRECTORY
-            / COMMIT_MESSAGES_DIRECTORY
-            / COMMIT_MESSAGES_JSON_FILE
-        ]
+        + [(repository_path / SCCS_DIRECTORY / "metadata.json").resolve()]
+        
         if i.is_file()
-    )
+    ]
+    print(repository_path / repository_name)
+    print(files_to_upload)
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
