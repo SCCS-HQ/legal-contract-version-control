@@ -43,7 +43,7 @@ def copy_branch_data(
 
 
 def copy_repository_document(
-    branch: str, rd: RepositoryData, rp: RepositoryPaths
+    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
     original_target = rd.target.get()
@@ -91,7 +91,7 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    copy_repository_document(branch, rd, rp)
+    copy_repository_document(c, branch, rd, rp)
 
     copy_branch_data(c, branch, rd, ri)
 
