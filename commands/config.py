@@ -88,9 +88,9 @@ def main(
 
     value = validate_entered_value(c, key, value)
 
-    value = resolve_key_value(c, repository_name, key, value)
+    resolved_value = resolve_key_value(c, repository_name, key, value)
 
-    rw.write_key_to_config(key, value, ri.read_config())
+    rw.write_key_to_config(key, resolved_value, ri.read_config())
 
     print_config_success_message(c, key, value)
 
