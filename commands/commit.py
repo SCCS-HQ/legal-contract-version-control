@@ -40,7 +40,7 @@ def main(
     rw: RepositoryWrite,
 ) -> None:
 
-    rw.target.set(rd.current_branch())
+    rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
 
@@ -48,7 +48,7 @@ def main(
 
     print_commit_success_message(c, rw.commit_changes(commit_message))
 
-    rw.target.reset()
+    rs.target.reset()
 
 
 if __name__ == "__main__":
