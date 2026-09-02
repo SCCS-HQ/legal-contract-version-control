@@ -219,8 +219,8 @@ def main(
 
     write_starting_metadata(c, commit_identifier, name, email, ri)
 
-    rw.write_key_to_config(c.NAME_KEY, name)
-    rw.write_key_to_config(c.EMAIL_KEY, email)
+    rw.write_key_to_config(c.NAME_KEY, name, ri.read_config())
+    rw.write_key_to_config(c.EMAIL_KEY, email, ri.read_config())
 
     print_init_success_message(c)
 
@@ -230,7 +230,6 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     document_path = Path(utils.entered_argument(c, 2))
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
-    print(repository_root)
     utils.run_command(
         main,
         document_path,

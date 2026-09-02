@@ -8,6 +8,7 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
+    RepositoryIO,
     TargetBranch,
     RepositoryData,
     RepositoryPaths,
@@ -73,6 +74,7 @@ def main(
     key: str,
     value: str,
     rd: RepositoryData,
+    ri: RepositoryIO, 
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -88,7 +90,7 @@ def main(
 
     value = resolve_key_value(c, repository_name, key, value)
 
-    rw.write_key_to_config(key, value)
+    rw.write_key_to_config(key, value, ri.read_config())
 
     print_config_success_message(c, key, value)
 
@@ -103,6 +105,7 @@ if __name__ == "__main__":
         utils.entered_argument(c, 2),
         utils.entered_argument(c, 3),
         RepositoryData(Path.cwd(), c, target),
+        RepositoryIO(Path.cwd(), c, target),
         RepositoryPaths(Path.cwd(), c, target),
         RepositoryStatus(Path.cwd(), c, target),
         RepositoryWrite(Path.cwd(), c, target),

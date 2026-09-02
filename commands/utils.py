@@ -65,17 +65,17 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
 
     error_wrappers = ErrorWrappers()
     c = SCCSConstants()
-    try:
-        main(c, *args)
+    # try:
+    main(c, *args)
 
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(1)
+    # except exceptions.SCCSException as e:
+    #     print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+    #     sys.exit(1)
 
-    except Exception as e:
-        print(
-            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-                type_name=type(e).__name__, e=e
-            )
-        )
-        sys.exit(2)
+    # except Exception as e:
+    #     print(
+    #         error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+    #             type_name=type(e).__name__, e=e
+    #         )
+    #     )
+    #     sys.exit(2)

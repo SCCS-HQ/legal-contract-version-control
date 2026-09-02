@@ -557,11 +557,10 @@ class SCCSConstants:
     
     METADATA_JSON = "metadata.json"
 
-
     # endregion
 
     # region repository_layout.py - Strings
-
+    
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     INVALID_BRANCH_DATA_ERROR_MESSAGE = (
         "Invalid branch data. Please ensure that the branch data has not been manually "
@@ -575,6 +574,7 @@ class SCCSConstants:
         "Invalid commit file name. Please provide a shortened, 10 character commit "
         "hash or the full 64 character commit hash as the commit identifier."
     )
+    LEFT_ANGLE_BRACKET = "<"
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = (
         "Resource '{resource_name}' is missing from the repository directory."
     )
@@ -586,6 +586,8 @@ class SCCSConstants:
         "No uncommitted changes detected. Uncommitted changes are required before "
         "committing."
     )
+    RIGHT_ANGLE_BRACKET = ">"
+    SPACE = " "
     TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = (
         "Target branch not set. Ensure the branch is set by using "
         "Repository*.target.set(foo)"

@@ -278,6 +278,8 @@ class RepositoryIO:
 
     def write_branches_data(self, data) -> None:
 
+        self.target.require()
+
         full_metadata = self.read_metadata()
         full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
 
@@ -697,15 +699,61 @@ class RepositoryWrite:
         self.io = RepositoryIO(root, c, self.target)
 
 
-    def write_key_to_config(self, key: str, value: str) -> None:
+    def write_key_to_config(self, key: str, value: str, current_config: dict[str, str]) -> None:
+
+        def change_dict(data: dict, target_key: str, new_value: str) -> None:
+            if isinstance(data, dict):
+                for key, value in data.items():
+                    if key == target_key:
+                        author_config = data[key].replace(
+                            self.c.LEFT_ANGLE_BRACKET, ""
+                        ).replace(
+                            self.c.RIGHT_ANGLE_BRACKET, ""
+                        ).split(self.c.SPACE)
+
+                        if (
+                            len(author_config) == 2
+                            and author_config[1] == current_config.get(self.c.NAME_KEY, "")
+                            and author_config[2] == current_config.get(self.c.EMAIL_KEY, "")
+                        ):
+                            data[key] = new_value
+
+                    change_dict(value, target_key, new_value)
+
+            elif isinstance(data, list):
+                for item in data:
+                    change_dict(item, target_key, new_value)
+
+        if not value or not value.strip():
+            raise exceptions.SCCSException(
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            )
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         try:
             full_metadata = self.io.read_metadata()
-            config = full_metadata.setdefault(self.c.CONFIG_DICT_KEY, {})
-            config[key] = value
-            self.io.write_config(config)
+            full_metadata.setdefault(self.c.CONFIG_DICT_KEY, {})[key] = value
+
+            if key == self.c.NAME_KEY:
+                change_dict(
+                    full_metadata,
+                    self.c.AUTHOR_DICT_KEY,
+                    self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                        name=value, email=current_config.get(self.c.EMAIL_KEY, "")
+                    )
+                )
+
+            if key == self.c.EMAIL_KEY:
+                change_dict(
+                    full_metadata,
+                    self.c.AUTHOR_DICT_KEY,
+                    self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                        name=current_config.get(self.c.NAME_KEY, ""), email=value
+                    )
+                )
+
+            self.io.write_metadata(full_metadata)
         except Exception as e:
             raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
