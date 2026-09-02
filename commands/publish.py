@@ -111,7 +111,7 @@ def main(
 
     response.raise_for_status()
 
-    print_publish_success_message(c, response, url)
+    print_publish_success_message(c, response, rd.base_repository_url())
 
     rs.target.reset()
 
