@@ -816,20 +816,23 @@ class RepositoryWrite:
 
 
     def add_to_updated_branches(self, branch_name: str, conditional_branch: str | None = None) -> None:
-        
 
         branch_data = self.io.read_current_branch_data()
+        if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
+            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
         if (
             conditional_branch in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
             or conditional_branch is None
         ):
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].append(branch_name)
-            self.io.write_branch_data(branch_data)
+            self.io.write_current_branch_data(branch_data)
 
 
     def remove_from_updated_branch(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
+        if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
+            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
         if branch_name in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].remove(branch_name)
             self.io.write_branch_data(branch_data)

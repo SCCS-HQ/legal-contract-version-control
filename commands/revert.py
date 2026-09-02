@@ -66,7 +66,8 @@ def main(
     new_commit_identifier = rw.commit_changes(
         c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
             commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
-        )
+        ),
+        allow_empty_commit=True
     )
 
     full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
