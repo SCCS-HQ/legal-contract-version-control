@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
 import io
-import os
-import shutil
-import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -69,31 +66,19 @@ def zip_files_to_upload(
         
     )
 
-    with tempfile.TemporaryDirectory() as tf:
-        temporary_folder_path = Path(tf) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
-            repo_name=rp.repository_name
-        )
-        for i in files_to_upload:
-            (temporary_folder_path / i.relative_to(rp.root).parent).mkdir(
-                parents=True, exist_ok=True
-            )
-            shutil.copy2(i, temporary_folder_path / i.relative_to(rp.root))
+    buffer = io.BytesIO()
 
-        buffer = io.BytesIO()
+    try:
+        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            for i in files_to_upload:
+                zf.write(i, arcname=i.relative_to(rp.root))
+    except Exception as e:
+        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
-        try:
-            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, dirs, files in os.walk(tf):
-                    for i in files:
-                        full_path = Path(root) / i
-                        zf.write(full_path, arcname=full_path.relative_to(tf))
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
-
-        try:
-            buffer.seek(0)
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+    try:
+        buffer.seek(0)
+    except Exception as e:
+        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 
     return buffer
 

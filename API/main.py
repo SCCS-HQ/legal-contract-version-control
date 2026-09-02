@@ -6,7 +6,6 @@ import json
 import os
 import re
 import shutil
-import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,11 +20,9 @@ OBJECTS_DIRECTORY = "objects"
 BRANCHES_DIRECTORY = "branches"
 CURRENT_BRANCH_DIRECTORY = "current_branch"
 CURRENT_BRANCH_JSON_FILE = "current_branch.json"
-CURRENT_BRANCH_TEMPORARY_FILE = "current_branch.json.tmp"
 COMMIT_MESSAGES_DIRECTORY = "commit_messages"
 COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
 DOCUMENT_FILE_TEMPLATE = "{repository_name}.docx"
-TEMPORARY_DIRECTORY_PREFIX = "tmp_"
 STATIC_FILES_NAME = "repos"
 HISTORY_JSON_FILE_STEM = "history"
 COMMIT_BYTE_HASH_JSON_FILE_STEM = "commit_file_hash"
@@ -289,52 +286,20 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
         )
 
-    zip_buffer_directory = Path(
-        tempfile.gettempdir(),
-        TEMPORARY_DIRECTORY_PREFIX + repository_name,
-    )
-
     with zipfile.ZipFile(file.file, "r") as zf:
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
             raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
             raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        zip_buffer_directory.mkdir(parents=True, exist_ok=True)
         for i in zf.infolist():
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
-                shutil.rmtree(zip_buffer_directory, ignore_errors=True)
                 raise HTTPException(
                     status_code=400,
                     detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
                 )
-            safe_extract_zip(zf, i.filename, zip_buffer_directory)
 
-        try:
-            for root, dirs, files in os.walk(zip_buffer_directory):
-                for i in files:
-                    source_file = Path(root) / i
-                    destination_file = Path(
-                        *[
-                            i
-                            for i in Path(
-                                repository_path
-                                / source_file.relative_to(zip_buffer_directory)
-                            ).parts
-                            if not i.startswith(TEMPORARY_DIRECTORY_PREFIX)
-                        ]
-                    ).resolve()
-                    try:
-                        destination_file.relative_to(repository_path)
-                    except ValueError as e:
-                        raise HTTPException(
-                            status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE
-                        ) from e
-                    destination_file.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(str(source_file), str(destination_file))
-        finally:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
+        for i in zf.infolist():
+            safe_extract_zip(zf, i.filename, repository_path)
 
     with open(
         (
