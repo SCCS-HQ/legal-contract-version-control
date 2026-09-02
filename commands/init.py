@@ -66,12 +66,12 @@ def create_sccs_directory_layout(
     rs.target.reset()
 
 
-def ask_config_input(c, key: str) -> str:
+def ask_config_input(c: SCCSConstants, key: str) -> str:
 
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
     if not data_value:
         raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key).capitalize()
         )
 
     return data_value

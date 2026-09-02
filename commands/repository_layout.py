@@ -729,6 +729,15 @@ class RepositoryWrite:
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
             )
 
+        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value):
+            raise exceptions.SCCSException(
+                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
+            )
+        if key == self.c.REMOTE_KEY and not all(i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value):
+            raise exceptions.SCCSException(
+                self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
+            )
+
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         try:
