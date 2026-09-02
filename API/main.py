@@ -337,7 +337,9 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             shutil.rmtree(zip_buffer_directory, ignore_errors=True)
 
     with open(
-        (repository_directory(repository_name) / SCCS_DIRECTORY / "metadata.json").resolve(),
+        (
+            repository_directory(repository_name) / SCCS_DIRECTORY / "metadata.json"
+        ).resolve(),
         "r+",
         encoding=UTF_8,
         newline=NEWLINE,

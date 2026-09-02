@@ -30,7 +30,12 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     return response
 
 
-def update_repository_files(c: SCCSConstants, response: requests.Response, rd: RepositoryData, rp: RepositoryPaths) -> None:
+def update_repository_files(
+        c: SCCSConstants,
+        response: requests.Response,
+        rd: RepositoryData,
+        rp: RepositoryPaths
+    ) -> None:
 
     destination = Path.cwd()
     try:
@@ -59,7 +64,9 @@ def print_pull_success_message(
     print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus) -> None:
+def main(
+        c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
+    ) -> None:
 
     rs.target.set(rd.current_branch())
 

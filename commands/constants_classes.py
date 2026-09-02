@@ -245,7 +245,9 @@ class SCCSConstants:
         "Cannot delete the current branch. Please switch to another branch first."
     )
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
-    DELETING_MAIN_ERROR_MESSAGE = "You cannot delete 'main'. Please try deleting another branch."
+    DELETING_MAIN_ERROR_MESSAGE = (
+        "You cannot delete 'main'. Please try deleting another branch."
+    )
     INVALID_SUBCOMMAND_ERROR_MESSAGE = (
         "Invalid subcommand provided. Please provide one of the valid subcommands: "
         "create, delete, list."
@@ -561,8 +563,13 @@ class SCCSConstants:
     # endregion
 
     # region repository_layout.py - Strings
-    ALLOWED_NAME_AND_EMAIL_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-"
-    ALLOWED_REMOTE_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'()*+,;=%"
+    ALLOWED_NAME_AND_EMAIL_CHARACTERS = (
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-"
+    )
+    ALLOWED_REMOTE_CHARACTERS = (
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'("
+        ")*+,;=%"
+    )
 
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     INVALID_BRANCH_DATA_ERROR_MESSAGE = (
@@ -577,8 +584,14 @@ class SCCSConstants:
         "Invalid commit file name. Please provide a shortened, 10 character commit "
         "hash or the full 64 character commit hash as the commit identifier."
     )
-    INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE = "Invalid character in config value. Only letters, numbers, ., _, %, +, and - are allowed."
-    INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE = "Invalid character in URL. Only letters, numbers, and -._~:/?#[]@!$&'()*+,;=% are allowed."
+    INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE = (
+        "Invalid character in config value. Only letters, numbers, ., _, %, +, and - "
+        "are allowed."
+    )
+    INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE = (
+        "Invalid character in URL. Only letters, numbers, and -._~:/?#[]@!$&'()*+,;=% "
+        "are allowed."
+    )
     LEFT_ANGLE_BRACKET = "<"
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = (
         "Resource '{resource_name}' is missing from the repository directory."

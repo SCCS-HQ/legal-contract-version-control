@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import hashlib
-import json
 import shutil
 from pathlib import Path
 

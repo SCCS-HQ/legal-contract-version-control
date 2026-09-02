@@ -276,7 +276,7 @@ class RepositoryIO:
             return json.load(f)[self.c.BRANCHES_DICT_KEY]
 
 
-    def write_branches_data(self, data) -> None:
+    def write_branches_data(self, data: dict[str, Any]) -> None:
 
         self.target.require()
 
@@ -675,7 +675,9 @@ class RepositoryStatus:
         if branch_name is None:
             return False
         branches = (
-            i.lower() for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
+            i.lower() for i in self.io.read_current_branch_data()[
+                self.c.BRANCHES_DICT_KEY
+            ]
         )
         return branch_name.lower() in branches
 
@@ -701,7 +703,9 @@ class RepositoryWrite:
         self.io = RepositoryIO(root, c, self.target)
 
 
-    def write_key_to_config(self, key: str, value: str, current_config: dict[str, str]) -> None:
+    def write_key_to_config(
+            self, key: str, value: str, current_config: dict[str, str]
+        ) -> None:
 
         def change_dict(data: dict, target_key: str, new_value: str) -> None:
             if isinstance(data, dict):
@@ -715,8 +719,12 @@ class RepositoryWrite:
 
                         if (
                             len(author_config) == 2
-                            and author_config[0] == current_config.get(self.c.NAME_KEY, "")
-                            and author_config[1] == current_config.get(self.c.EMAIL_KEY, "")
+                            and author_config[0] == current_config.get(
+                                self.c.NAME_KEY, self.c.EMPTY_STRING
+                            )
+                            and author_config[1] == current_config.get(
+                                self.c.EMAIL_KEY, self.c.EMPTY_STRING
+                            )
                         ):
                             data[key] = new_value
 
@@ -731,11 +739,19 @@ class RepositoryWrite:
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
             )
 
-        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value):
+        if (
+            key in [self.c.NAME_KEY, self.c.EMAIL_KEY]
+            and not all(
+                i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
+            )
+        ):
             raise exceptions.SCCSException(
                 self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
             )
-        if key == self.c.REMOTE_KEY and not all(i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value):
+        if (
+            key == self.c.REMOTE_KEY
+            and not all(i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value)
+        ):
             raise exceptions.SCCSException(
                 self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
             )
@@ -767,7 +783,6 @@ class RepositoryWrite:
         self.io.write_metadata(full_metadata)
 
 
-
     def add_to_branches_list(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
@@ -775,7 +790,7 @@ class RepositoryWrite:
         self.io.write_current_branch_data(branch_data)
 
 
-    def add_branch_metadata(self, branch_name: str, current_branch_name: str):
+    def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
 
         full_metadata = self.io.read_metadata()
         current_branch_metadata = full_metadata[self.c.BRANCHES_DICT_KEY][
@@ -801,7 +816,9 @@ class RepositoryWrite:
         self.io.write_current_branch_data(branch_data)
 
 
-    def remove_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
+    def remove_branch_metadata(
+            self, branch_name: str, current_branch_name: str
+        ) -> None:
 
         full_metadata = self.io.read_metadata()
         del full_metadata[self.c.BRANCHES_DICT_KEY][branch_name]
@@ -815,7 +832,9 @@ class RepositoryWrite:
             self.set_current_branch(self.c.MAIN_BRANCH_NAME)
 
 
-    def add_to_updated_branches(self, branch_name: str, conditional_branch: str | None = None) -> None:
+    def add_to_updated_branches(
+            self, branch_name: str, conditional_branch: str | None = None
+        ) -> None:
 
         branch_data = self.io.read_current_branch_data()
         if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
@@ -911,7 +930,9 @@ class RepositoryWrite:
                 self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
         ] = commit_identifier
 
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.LOG_DICT_KEY][commit_identifier] = {
+        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.LOG_DICT_KEY][
+            commit_identifier
+        ] = {
             self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
             self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
                 name=name, email=email
@@ -927,7 +948,9 @@ class RepositoryWrite:
                 list
             )
         ):
-            metadata[self.c.CURRENT_BRANCH_DICT_KEY][self.c.UPDATED_BRANCHES_DICT_KEY] = list(
+            metadata[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.UPDATED_BRANCHES_DICT_KEY
+            ] = list(
                 set(
                     metadata[self.c.CURRENT_BRANCH_DICT_KEY][
                         self.c.UPDATED_BRANCHES_DICT_KEY]
