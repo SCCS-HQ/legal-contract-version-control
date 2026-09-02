@@ -72,7 +72,7 @@ def zip_files_to_upload(
 
     with tempfile.TemporaryDirectory() as tf:
         temporary_folder_path = Path(tf) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
-            repository_name=rp.repository_name
+            repo_name=rp.repository_name
         )
         for i in files_to_upload:
             (temporary_folder_path / i.relative_to(rp.root).parent).mkdir(
