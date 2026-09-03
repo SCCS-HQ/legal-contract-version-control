@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import datetime
-from functools import cached_property
 
 import exceptions
 
@@ -216,11 +215,11 @@ class SCCSConstants:
         "File is not a .docx file. Please provide a valid .docx file."
     )
     INVALID_KEY_ERROR_MESSAGE = (
-        f"Invalid configuration key provided. Please provide one of the valid keys: "
-        f"remote, name, email."
+        "Invalid configuration key provided. Please provide one of the valid keys: "
+        "remote, name, email."
     )
     INVALID_PATH_ENDING_ERROR_MESSAGE = (
-        f"API URL must end with '/repos/your-repo-name'."
+        "API URL must end with '/repos/your-repo-name'."
     )
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = (
         "Invalid repository name. Please ensure the repository is properly initialized "
@@ -280,10 +279,6 @@ class SCCSConstants:
         "No uncommitted changes detected. Uncommitted changes are required before "
         "committing."
     )
-    NOT_SIBLINGS_ERROR_MESSAGE_TEMPLATE = (
-        "{staging_root} is not a sibling of {final_root}. The files must be siblings "
-        "to ensure an atomic write."
-    )
     OBJECTS_DIRECTORY = "objects"
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
@@ -315,7 +310,6 @@ class SCCSConstants:
     REMOTE_KEY = "remote"
     REPLACE_OPCODE = "replace"
     REPOSITORIES_PATH_SEGMENT = "repos"
-    REPOSITORY_NAME_FIELD_NAME = "repository name"
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
     RESET_SUCCESS_MESSAGE = (
@@ -337,7 +331,8 @@ class SCCSConstants:
     SCCS_DIRECTORY = ".sccs"
     SINGLE_PERIOD = "."
     SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = (
-        "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
+        "Warning: could not remove source file {document_path}: {e}. The repository "
+        "has been initialized."
     )
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = (
         "Source file '{file_name}' does not exist."

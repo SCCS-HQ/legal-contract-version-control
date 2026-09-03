@@ -187,7 +187,10 @@ def copy_document_to_repository_directory(
 
 
 def finalize_repository_creation(
-        c: SCCSConstants, document_path: Path, rp: RepositoryPaths, staging_rp: RepositoryPaths
+        c: SCCSConstants,
+        document_path: Path,
+        rp: RepositoryPaths,
+        staging_rp: RepositoryPaths
     ) -> None:
 
     utils.promote_staging(c, staging_rp.root, rp.root)

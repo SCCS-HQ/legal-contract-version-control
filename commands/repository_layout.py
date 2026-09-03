@@ -771,7 +771,9 @@ class RepositoryWrite:
                 log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=value, email=current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING)
+                    name=value, email=current_config.get(
+                        self.c.EMAIL_KEY, self.c.EMPTY_STRING
+                    )
                 )
             )
 
@@ -780,7 +782,8 @@ class RepositoryWrite:
                 log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING), email=value
+                    name=current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING),
+                    email=value
                 )
             )
 
