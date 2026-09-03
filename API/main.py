@@ -10,6 +10,8 @@ import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+import random
+import string
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
@@ -209,7 +211,6 @@ async def publish(
 
         os.replace(staging_root, repository_path)
 
-        shutil.rmtree(staging_root)
 
     except Exception:
         shutil.rmtree(staging_root)
@@ -300,34 +301,56 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
         )
 
-    with zipfile.ZipFile(file.file, "r") as zf:
-        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
-        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        for i in zf.infolist():
-            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
-                raise HTTPException(
-                    status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
-                )
+    staging_root = Path(tempfile.mkdtemp(prefix="sccs_temp_", dir=repository_path.parent))
 
-        for i in zf.infolist():
-            safe_extract_zip(zf, i.filename, repository_path)
+    try:
+        with zipfile.ZipFile(file.file, "r") as zf:
+            if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+                raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+            if len(zf.infolist()) > MAX_FILES_IN_ZIP:
+                raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
+            for i in zf.infolist():
+                if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    )
 
-    with open(
-        (
-            repository_directory(repository_name) / SCCS_DIRECTORY / "metadata.json"
-        ).resolve(),
-        "r+",
-        encoding=UTF_8,
-        newline=NEWLINE,
-    ) as f:
-        data = json.load(f)
-        data[CURRENT_BRANCH_DICT_KEY][UPDATED_BRANCHES_DICT_KEY] = []
-        f.seek(0)
-        json.dump(data, f)
-        f.truncate()
+            for i in zf.infolist():
+                safe_extract_zip(zf, i.filename, staging_root)
+
+        with open(
+            (
+                staging_root / SCCS_DIRECTORY / "metadata.json"
+            ).resolve(),
+            "r+",
+            encoding=UTF_8,
+            newline=NEWLINE,
+        ) as f:
+            data = json.load(f)
+            data[CURRENT_BRANCH_DICT_KEY][UPDATED_BRANCHES_DICT_KEY] = []
+            f.seek(0)
+            json.dump(data, f)
+            f.truncate()
+
+        saved_repository_path = repository_path.with_name(repository_path.name + ''.join(random.choices(string.ascii_letters + string.digits, k=32)))
+
+        os.rename(
+            repository_path, saved_repository_path)
+
+        try:
+            os.replace(staging_root, repository_path)
+        except Exception:
+            os.replace(saved_repository_path, repository_path)
+
+
+        shutil.rmtree(saved_repository_path)
+        
+    except Exception:
+        shutil.rmtree(staging_root)
+
+        raise
+
 
     return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
 
