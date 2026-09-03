@@ -18,9 +18,9 @@ def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) 
     if not commit_identifier:
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
-    is_valid_length = len(commit_identifier) == (c.FULL_COMMIT_IDENTIFIER_LENGTH)
-
-    if not is_valid_length or not all(i in c.HEX_DIGITS for i in commit_identifier):
+    if len(commit_identifier) != c.FULL_COMMIT_IDENTIFIER_LENGTH or not all(
+        i in c.HEX_DIGITS for i in commit_identifier
+    ):
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 

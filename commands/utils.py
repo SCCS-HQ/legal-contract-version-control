@@ -39,7 +39,7 @@ def safe_extract_zip(
 
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
-    if entry_path.is_absolute() or ".." in entry_path.parts:
+    if entry_path.is_absolute() or c.DOUBLE_PERIOD in entry_path.parts:
         raise exceptions.SCCSException(
             c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
                 entry_path=entry_path
@@ -65,9 +65,8 @@ def safe_extract_zip(
 def run_command(main: Callable[..., None], *args: Any) -> None:
 
     error_wrappers = ErrorWrappers()
-    c = SCCSConstants()
     try:
-        main(c, *args)
+        main(SCCSConstants(), *args)
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
@@ -111,4 +110,8 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
     if staging_root.resolve().parent == final_root.resolve().parent:
         shutil.move(staging_root, final_root)
     else:
-        raise exceptions.SCCSException(c.NOT_SIBLINGS_ERROR_MESSAGE_TEMPLATE.format(staging_root=staging_root, final_root=final_root))
+        raise exceptions.SCCSException(
+            c.NOT_SIBLINGS_ERROR_MESSAGE_TEMPLATE.format(
+                staging_root=staging_root, final_root=final_root
+            )
+        )

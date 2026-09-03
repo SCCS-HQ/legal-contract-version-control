@@ -85,11 +85,9 @@ def main(
 
     rs.validate_repository_layout()
 
-    repository_name = rp.repository_name
-
-    value = validate_entered_value(c, key, value)
-
-    resolved_value = resolve_key_value(c, repository_name, key, value)
+    resolved_value = resolve_key_value(
+        c, rp.repository_name, key, validate_entered_value(c, key, value)
+    )
 
     staging_root = utils.create_staging_directory(c, rp.root)
 

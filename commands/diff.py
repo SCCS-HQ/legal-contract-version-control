@@ -4,7 +4,6 @@ import copy
 import difflib
 import filecmp
 from pathlib import Path
-import shutil
 
 import exceptions
 import utils
@@ -168,11 +167,10 @@ def format_redline_html(
     soup: BeautifulSoup,
 ) -> BeautifulSoup:
 
-    opcodes = difflib.SequenceMatcher(None, past_version, current_version).get_opcodes()
-
     redline = soup
-    for i in reversed(opcodes):
-        tag, i1, i2, j1, j2 = i
+    for tag, i1, i2, j1, j2 in reversed(
+        difflib.SequenceMatcher(None, past_version, current_version).get_opcodes()
+    ):
         old_changed_strings = commit_identifier_list[i1:i2]
         new_changed_strings = document_current_version_list[j1:j2]
         if tag == c.REPLACE_OPCODE:
@@ -258,8 +256,6 @@ def main(
 
     validate_diff(c, rd, commit_identifier)
 
-    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
-
     staging_root = utils.create_staging_directory(c, ri.root)
 
     try:
@@ -271,7 +267,12 @@ def main(
                 c,
                 str(
                     strip_number_attribute(
-                        c, generate_diff_output(c, full_commit_identifier, rd, ri)
+                        c, generate_diff_output(
+                            c,
+                            rd.short_commit_identifier_to_full(commit_identifier),
+                            rd,
+                            ri
+                        )
                     )
                 ),
                 c.DEFAULT_HTML_STYLES,

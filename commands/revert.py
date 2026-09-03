@@ -70,7 +70,7 @@ def main(
         revert(c, commit_path, staging_root)
         new_commit_identifier = staging_rw.commit_changes(
             c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+                commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
             ),
             allow_empty_commit=True
         )
@@ -79,9 +79,9 @@ def main(
         utils.cleanup_staging(staging_root)
         raise
 
-    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
-
-    print_revert_success_message(c, full_commit_identifier, new_commit_identifier)
+    print_revert_success_message(
+        c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
+    )
 
     rs.target.reset()
 

@@ -79,15 +79,15 @@ def ask_config_input(c: SCCSConstants, key: str) -> str:
 
 def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 
-    commit_identifier_parts = [
-        c.PROGRAM_START_TIME,
-        c.INITIAL_VERSION_COMMIT_MESSAGE,
-        name,
-        email,
-    ]
-
     return hashlib.sha256(
-        c.PATH_SEPARATOR.join(commit_identifier_parts).encode(c.UTF_8)
+        c.PATH_SEPARATOR.join(
+            [
+                c.PROGRAM_START_TIME,
+                c.INITIAL_VERSION_COMMIT_MESSAGE,
+                name,
+                email,
+            ]
+        ).encode(c.UTF_8)
     ).hexdigest()
 
 
@@ -186,14 +186,20 @@ def copy_document_to_repository_directory(
     shutil.copy2(document_path, repository_path)
 
 
-def finalize_repository_creation(c: SCCSConstants, document_path: Path, rp: RepositoryPaths, staging_rp: RepositoryPaths):
+def finalize_repository_creation(
+        c: SCCSConstants, document_path: Path, rp: RepositoryPaths, staging_rp: RepositoryPaths
+    ) -> None:
 
     utils.promote_staging(c, staging_rp.root, rp.root)
 
     try:
         os.remove(document_path)
     except OSError as e:
-        print(c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(document_path=document_path, e=e))
+        print(
+            c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(
+                document_path=document_path, e=e
+            )
+        )
 
 
 def print_init_success_message(c: SCCSConstants) -> None:

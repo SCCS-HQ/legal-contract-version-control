@@ -159,7 +159,13 @@ def main(
         staging_rw = RepositoryWrite(staging_root, c, rw.target)
 
         run_specified_subcommand(
-            c, subcommand, branch_name, staging_rd.current_branch(), staging_rd, staging_rp, staging_rw
+            c,
+            subcommand,
+            branch_name,
+            staging_rd.current_branch(),
+            staging_rd,
+            staging_rp,
+            staging_rw
         )
         utils.promote_staging(c, staging_root, rp.root)
     except Exception:

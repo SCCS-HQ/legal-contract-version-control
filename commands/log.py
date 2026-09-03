@@ -37,7 +37,7 @@ def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
                 + c.NEWLINE
             ),
             c.LOG_SEPARATOR,
-            sep="",
+            sep=c.EMPTY_STRING,
         )
 
 

@@ -73,7 +73,7 @@ def post_repository(
                     ),
                 ),
             ],
-            data={"data": json.dumps({"remote": rd.base_repository_url()})},
+            data={c.DATA_DATA: json.dumps({c.DATA_REMOTE: rd.base_repository_url()})},
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
@@ -105,14 +105,17 @@ def main(
 
     reset_current_branch(c, rw)
 
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
-
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
         staging_rw = RepositoryWrite(staging_root, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
-        response = post_repository(c, zip_current_directory(c), url, rd, rp)
+        response = post_repository(
+            c, zip_current_directory(c),
+            c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            rd,
+            rp
+        )
         response.raise_for_status()
         utils.promote_staging(c, staging_root, rp.root)
     except Exception:

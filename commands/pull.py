@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import io
-from logging import root
 import shutil
 import zipfile
 from pathlib import Path
@@ -20,11 +19,12 @@ from repository_layout import (
 
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    remote_data = {c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()}
-    url = c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
-
     try:
-        response = requests.post(url, json=remote_data, timeout=c.HTTP_TIMEOUT_SECONDS)
+        response = requests.post(
+            c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            json={c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()},
+            timeout=c.HTTP_TIMEOUT_SECONDS
+        )
     except Exception as e:
         raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
@@ -38,23 +38,17 @@ def update_repository_files(
         rp: RepositoryPaths
     ) -> None:
 
-    destination = Path.cwd()
-    try:
-        with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-            print(i for i in zf.namelist())
-            for i in zf.namelist():
-                utils.safe_extract_zip(c, zf, i, destination)
+    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
+        for i in zf.namelist():
+            utils.safe_extract_zip(c, zf, i, Path.cwd())
 
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(),
-                c.DOCUMENT_DIRECTORY
-            ),
-            rp.document_path()
-        )
-    
-    except exceptions.SCCSException as e:
-        raise
+    shutil.copy2(
+        rd.commit_identifier_to_full_path(
+            rd.latest_commit_identifier(),
+            c.DOCUMENT_DIRECTORY
+        ),
+        rp.document_path()
+    )
 
 
 def print_pull_success_message(

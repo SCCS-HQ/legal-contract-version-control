@@ -3,7 +3,6 @@
 import io
 import os
 import re
-import shutil
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -41,7 +40,9 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     return response
 
 
-def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str, destination: Path) -> None:
+def unzip_repository_file(
+        c: SCCSConstants, zip_buffer: io.BytesIO, url: str, destination: Path
+    ) -> None:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -58,17 +59,14 @@ def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str, de
     destination = Path(os.path.abspath(path_parts[-2]))
 
     if not re.fullmatch(r"^[A-Za-z0-9._-]+$", destination.name) or destination.name in (
-        ".",
-        "..",
+        c.SINGLE_PERIOD, c.DOUBLE_PERIOD,
     ):
         raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
-    try:
-        with zipfile.ZipFile(zip_buffer, "r") as zf:
-            for i in zf.namelist():
-                utils.safe_extract_zip(c, zf, i, destination)
-    except exceptions.SCCSException as e:
-        raise
+    with zipfile.ZipFile(zip_buffer, "r") as zf:
+        for i in zf.namelist():
+            utils.safe_extract_zip(c, zf, i, destination)
+
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:

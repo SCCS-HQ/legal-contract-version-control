@@ -712,9 +712,9 @@ class RepositoryWrite:
                 for key, value in data.items():
                     if key == target_key:
                         author_config = data[key].replace(
-                            self.c.LEFT_ANGLE_BRACKET, ""
+                            self.c.LEFT_ANGLE_BRACKET, self.c.EMPTY_STRING
                         ).replace(
-                            self.c.RIGHT_ANGLE_BRACKET, ""
+                            self.c.RIGHT_ANGLE_BRACKET, self.c.EMPTY_STRING
                         ).split(self.c.SPACE)
 
                         if (
@@ -731,8 +731,8 @@ class RepositoryWrite:
                     change_dict(value, target_key, new_value)
 
             elif isinstance(data, list):
-                for item in data:
-                    change_dict(item, target_key, new_value)
+                for i in data:
+                    change_dict(i, target_key, new_value)
 
         if not value or not value.strip():
             raise exceptions.SCCSException(
@@ -771,7 +771,7 @@ class RepositoryWrite:
                 log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=value, email=current_config.get(self.c.EMAIL_KEY, "")
+                    name=value, email=current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING)
                 )
             )
 
@@ -780,7 +780,7 @@ class RepositoryWrite:
                 log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=current_config.get(self.c.NAME_KEY, ""), email=value
+                    name=current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING), email=value
                 )
             )
 

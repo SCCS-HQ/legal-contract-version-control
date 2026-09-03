@@ -22,13 +22,13 @@ from repository_layout import (
 
 def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
     try:
-        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
+        return requests.get(
+            c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            timeout=c.HTTP_TIMEOUT_SECONDS,
+        )
     except Exception as e:
         raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
-
-    return response
 
 
 
