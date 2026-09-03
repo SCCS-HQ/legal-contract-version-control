@@ -72,7 +72,7 @@ def main(
 
     try:
         copy_commit_file(commit_path, staging_root / output_file_name.name)
-        utils.promote_staging(c, staging_root, Path.cwd())
+        utils.promote_staging(staging_root, Path.cwd())
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

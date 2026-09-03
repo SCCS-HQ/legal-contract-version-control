@@ -87,7 +87,7 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
     try:
         unzip_repository_file(c, zip_buffer, url, staging_root)
-        utils.promote_staging(c, staging_root, Path.cwd())
+        utils.promote_staging(staging_root, Path.cwd())
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

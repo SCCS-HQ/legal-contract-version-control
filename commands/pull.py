@@ -79,7 +79,7 @@ def main(
         staging_rp = RepositoryPaths(staging_root, c, rp.target)
 
         update_repository_files(c, response, staging_rd, staging_rp)
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_staging(staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

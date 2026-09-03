@@ -53,7 +53,7 @@ def main(
 
     try:
         reset(c, rd, staging_root, rs)
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_staging(staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

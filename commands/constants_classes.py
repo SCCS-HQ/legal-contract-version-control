@@ -309,6 +309,7 @@ class SCCSConstants:
     PYTHON_EXTENSION = ".py"
     REMOTE_KEY = "remote"
     REPLACE_OPCODE = "replace"
+    REPOSITORY_NAME_FIELD_NAME = "repository name"
     REPOSITORIES_PATH_SEGMENT = "repos"
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."

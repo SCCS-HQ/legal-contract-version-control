@@ -108,7 +108,7 @@ def main(
         )
         staging_rw = RepositoryWrite(staging_root, c, rw.target)
         staging_rw.set_current_branch(branch_to_switch)
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_staging(staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

@@ -139,7 +139,8 @@ def copy_document_to_objects_as_document_and_html(
 def write_starting_metadata(
         c: SCCSConstants,
         commit_identifier: str,
-        name: str, email: str,
+        name: str,
+        email: str,
         ri: RepositoryIO
     ) -> None:
 
@@ -193,7 +194,7 @@ def finalize_repository_creation(
         staging_rp: RepositoryPaths
     ) -> None:
 
-    utils.promote_staging(c, staging_rp.root, rp.root)
+    utils.promote_staging(staging_rp.root, rp.root)
 
     try:
         os.remove(document_path)

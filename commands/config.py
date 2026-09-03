@@ -98,7 +98,7 @@ def main(
         staging_rw = RepositoryWrite(staging_root, c, rw.target)
         
         staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_staging(staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

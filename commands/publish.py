@@ -117,7 +117,7 @@ def main(
             rp
         )
         response.raise_for_status()
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_staging(staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

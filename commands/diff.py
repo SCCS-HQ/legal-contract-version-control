@@ -278,7 +278,7 @@ def main(
                 c.DEFAULT_HTML_STYLES,
             )
         )
-        utils.promote_staging(c, staging_root, ri.root)
+        utils.promote_staging(staging_root, ri.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise
