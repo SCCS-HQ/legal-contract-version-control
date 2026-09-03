@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -172,40 +173,52 @@ async def publish(
 
     repository_path = repository_directory(repository_name)
 
-    try:
-        remote = json.loads(data)["remote"]
-    except (json.JSONDecodeError, KeyError) as e:
-        raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE) from e
-
-    if not remote:
-        raise HTTPException(status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE)
-
-    if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(
-            status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
-        )
-
     if repository_path.exists():
         raise HTTPException(status_code=400, detail=REPOSITORY_EXISTS_ERROR_MESSAGE)
 
-    with zipfile.ZipFile(file.file, "r") as zf:
-        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+    staging_root = Path(tempfile.mkdtemp(prefix="sccs_temp_", dir=repository_path.parent))
 
-        for i in zf.infolist():
-            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
-                raise HTTPException(
-                    status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
-                )
+    try:
+        try:
+            remote = json.loads(data)["remote"]
+        except (json.JSONDecodeError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE) from e
 
-            safe_extract_zip(zf, i.filename, repository_path)
+        if not remote:
+            raise HTTPException(status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE)
+
+        if not file.filename or Path(file.filename).stem != repository_name:
+            raise HTTPException(
+                status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+            )
+
+        with zipfile.ZipFile(file.file, "r") as zf:
+            if len(zf.infolist()) > MAX_FILES_IN_ZIP:
+                raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
+            if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+                raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+
+            for i in zf.infolist():
+                if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    )
+
+                safe_extract_zip(zf, i.filename, staging_root)
+
+        os.replace(staging_root, repository_path)
+
+        shutil.rmtree(staging_root)
+
+    except Exception:
+        shutil.rmtree(staging_root)
+
+        raise
 
     return {
         JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE,
-        JSON_KEY_REPOSITORY_URL: remote,
+        JSON_KEY_REPOSITORY_URL: remote
     }
 
 
@@ -280,6 +293,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     """
 
     repository_path = repository_directory(repository_name)
+    ensure_repository_exists(repository_path)
 
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(
