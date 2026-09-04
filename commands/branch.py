@@ -64,6 +64,7 @@ def branch_create_subcommand(
     rw: RepositoryWrite,
 ) -> None:
 
+    rw.target.set(branch_name)
     rw.add_branch_metadata(branch_name, current_branch_name)
 
     print_branch_create_success_message(c, branch_name, current_branch_name)

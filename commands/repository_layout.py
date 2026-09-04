@@ -759,12 +759,16 @@ class RepositoryWrite:
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
 
-        full_metadata = self.io.read_metadata()
-        full_metadata.setdefault(self.c.CONFIG_DICT_KEY, {})[key] = value
+        config = self.io.read_config()
+        config[key] = value
+
+        self.io.write_config(config)
+
+        log = self.io.read_log()
 
         if key == self.c.NAME_KEY:
             change_dict(
-                full_metadata,
+                log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=value, email=current_config.get(self.c.EMAIL_KEY, "")
@@ -773,14 +777,14 @@ class RepositoryWrite:
 
         if key == self.c.EMAIL_KEY:
             change_dict(
-                full_metadata,
+                log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=current_config.get(self.c.NAME_KEY, ""), email=value
                 )
             )
 
-        self.io.write_metadata(full_metadata)
+        self.io.write_log(log)
 
 
     def add_to_branches_list(self, branch_name: str) -> None:
@@ -792,12 +796,12 @@ class RepositoryWrite:
 
     def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
 
-        full_metadata = self.io.read_metadata()
-        current_branch_metadata = full_metadata[self.c.BRANCHES_DICT_KEY][
-            current_branch_name
-        ]
-        full_metadata[self.c.BRANCHES_DICT_KEY][branch_name] = current_branch_metadata
-        self.io.write_metadata(full_metadata)
+        branches_metadata = self.io.read_branches_data()
+        current_branch_metadata = branches_metadata[current_branch_name]
+
+        branches_metadata[branch_name] = current_branch_metadata
+
+        self.io.write_branch_data(branches_metadata[branch_name])
 
         self.add_to_branches_list(branch_name)
         self.add_to_updated_branches(branch_name, current_branch_name)
@@ -820,9 +824,9 @@ class RepositoryWrite:
             self, branch_name: str, current_branch_name: str
         ) -> None:
 
-        full_metadata = self.io.read_metadata()
-        del full_metadata[self.c.BRANCHES_DICT_KEY][branch_name]
-        self.io.write_metadata(full_metadata)
+        branches_metadata = self.io.read_branches_data()
+        del branches_metadata[branch_name]
+        self.io.write_branches_data(branches_metadata)
 
 
         self.remove_from_branches_list(branch_name)
@@ -904,66 +908,49 @@ class RepositoryWrite:
         self.io.create_document_commit(commit_identifier)
         self.io.write_html_commit(commit_identifier, document_as_html)
 
-        metadata = self.io.read_metadata()
+        byte_hash_data = self.io.read_byte_hash()
+        byte_hash_data[commit_identifier] = document_byte_hash
+        self.io.write_byte_hash(byte_hash_data)
 
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.BYTE_HASH_DICT_KEY][commit_identifier] = document_byte_hash
+        commit_messages = self.io.read_commit_messages()
+        commit_messages[commit_identifier] = commit_message
+        self.io.write_commit_messages(commit_messages)
 
-        metadata[self.c.COMMIT_MESSAGES_DICT_KEY][commit_identifier] = commit_message
-
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.HISTORY_DICT_KEY][
-            self.c.LATEST_COMMIT_DICT_KEY
-        ] = commit_identifier
-
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.HISTORY_DICT_KEY][
-            self.c.LATEST_COMMIT_NUMBER_DICT_KEY
-        ] = (
-            metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY
-            ] + 1
+        history = self.io.read_history()
+        history[self.c.LATEST_COMMIT_DICT_KEY] = commit_identifier
+        history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
+            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
         )
-
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.HISTORY_DICT_KEY][
-            self.c.COMMIT_ORDER_DICT_KEY
-        ][
-            metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.HISTORY_DICT_KEY][self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
+        history[self.c.COMMIT_ORDER_DICT_KEY][
+            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
         ] = commit_identifier
+        self.io.write_history(history)
 
-        metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][self.c.LOG_DICT_KEY][
-            commit_identifier
-        ] = {
+        log = self.io.read_log()
+        log[commit_identifier] = {
             self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
             self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
                 name=name, email=email
             ),
             self.c.MESSAGE_DICT_KEY: commit_message,
         }
+        self.io.write_log(log)
 
+        current_branch_data = self.io.read_current_branch_data()
         if (
-            self.c.UPDATED_BRANCHES_DICT_KEY in metadata[self.c.CURRENT_BRANCH_DICT_KEY]
+            self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data
             and isinstance(
-                metadata[self.c.CURRENT_BRANCH_DICT_KEY][
-                    self.c.UPDATED_BRANCHES_DICT_KEY],
-                list
+                current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
             )
         ):
-            metadata[self.c.CURRENT_BRANCH_DICT_KEY][
-                self.c.UPDATED_BRANCHES_DICT_KEY
-            ] = list(
+            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = list(
                 set(
-                    metadata[self.c.CURRENT_BRANCH_DICT_KEY][
-                        self.c.UPDATED_BRANCHES_DICT_KEY]
+                    current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
                     + [current_branch]
                 )
             )
-
         else:
-            metadata[self.c.CURRENT_BRANCH_DICT_KEY][
-                self.c.UPDATED_BRANCHES_DICT_KEY
-            ] = [current_branch]
-        
-
-        self.io.write_metadata(metadata)
+            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = [current_branch]
+        self.io.write_current_branch_data(current_branch_data)
 
         return commit_identifier
