@@ -219,7 +219,7 @@ def main(
     name = ask_config_input(c, c.NAME_KEY)
     email = ask_config_input(c, c.EMAIL_KEY)
 
-    staging_root = Path(tempfile.mkdtemp(prefix="sccs_init_", dir=rp.root.parent))
+    staging_root = Path(tempfile.mkdtemp(prefix=c.INIT_TEMPORARY_DIRECTORY_PREFIX, dir=rp.root.parent))
 
     try: 
         staging_ri = RepositoryIO(staging_root, c, ri.target)
