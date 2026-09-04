@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import shutil
 from pathlib import Path
 
 import exceptions
@@ -32,6 +33,11 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
+def finalize_commit(rw: RepositoryWrite, staging_rw: RepositoryWrite) -> None:
+
+    utils.promote_staging(staging_rw.root, rw.root)
+
+
 def main(
     c: SCCSConstants,
     commit_message: str,
@@ -40,24 +46,39 @@ def main(
     rw: RepositoryWrite,
 ) -> None:
 
-    rw.target.set(rd.current_branch())
+    rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
 
     validate_commit_message(c, commit_message)
 
-    print_commit_success_message(c, rw.commit_changes(commit_message))
+    staging_root = utils.create_staging_directory(c, rd.root)
 
-    rw.target.reset()
+    try:
+        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
+
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        commit_identifier = staging_rw.commit_changes(commit_message)
+
+        finalize_commit(rw, staging_rw)
+
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
+    print_commit_success_message(c, commit_identifier)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

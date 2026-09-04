@@ -15,7 +15,9 @@ from repository_layout import (
 )
 
 
-def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
+def revert(
+    c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str
+) -> None:
 
     if not commit_path.is_file():
         raise exceptions.SCCSException(
@@ -25,7 +27,9 @@ def revert(c: SCCSConstants, commit_path: Path, rp: RepositoryPaths) -> None:
         )
 
     try:
-        shutil.copy2(commit_path, rp.document_path())
+        shutil.copy2(
+            commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION)
+        )
     except Exception as e:
         raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
 
@@ -61,17 +65,31 @@ def main(
         commit_identifier, c.DOCUMENT_DIRECTORY
     )
 
-    revert(c, commit_path, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    new_commit_identifier = rw.commit_changes(
-        c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+    new_commit_identifier = None
+
+    try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        revert(c, commit_path, staging_root, staging_rw.repository_name)
+        new_commit_identifier = staging_rw.commit_changes(
+            c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
+                commit_identifier=commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
+            ),
+            allow_empty_commit=True,
         )
+        utils.promote_staging(staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
+    print_revert_success_message(
+        c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
     )
-
-    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
-
-    print_revert_success_message(c, full_commit_identifier, new_commit_identifier)
 
     rs.target.reset()
 
@@ -79,11 +97,12 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

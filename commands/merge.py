@@ -2,13 +2,13 @@
 
 import shutil
 from pathlib import Path
-from typing import Any
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
     RepositoryData,
+    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
@@ -31,34 +31,18 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
 
 
 def copy_branch_data(
-    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
+    c: SCCSConstants, branch: str, rd: RepositoryData, ri: RepositoryIO
 ) -> None:
 
-    source = rp.branch_path(branch)
-    destination = rp.branch_path(rd.current_branch())
+    ri.target.set(branch)
+    branch_to_merge_data = ri.read_branch_data()
 
-    def ignore_metadata(_directory: str, names: list[str]) -> set[Any]:
-
-        ignored = set()
-        for i in names:
-            if i in (c.HISTORY_DIRECTORY, c.COMMIT_BYTE_HASH_DIRECTORY):
-                ignored.add(i)
-        return ignored
-
-    try:
-        if source.exists():
-            shutil.copytree(
-                source,
-                destination,
-                dirs_exist_ok=True,
-                ignore=ignore_metadata,
-            )
-    except Exception as e:
-        raise exceptions.SCCSException(c.MERGE_COPY_ERROR_MESSAGE) from e
+    ri.target.set(rd.current_branch())
+    ri.write_branch_data(branch_to_merge_data)
 
 
 def copy_repository_document(
-    branch: str, rd: RepositoryData, rp: RepositoryPaths
+    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
 
     original_target = rd.target.get()
@@ -92,6 +76,7 @@ def main(
     c: SCCSConstants,
     branch: str,
     rd: RepositoryData,
+    ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -105,16 +90,30 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    copy_repository_document(branch, rd, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    copy_branch_data(c, branch, rd, rp)
+    try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
 
-    rw.commit_changes(
-        c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
-            branch_name=branch, current_branch=rd.current_branch()
-        ),
-        allow_empty_commit=True,
-    )
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        copy_repository_document(c, branch, rd, staging_rp)
+
+        copy_branch_data(c, branch, rd, staging_ri)
+
+        staging_rw.commit_changes(
+            c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
+                branch_name=branch, current_branch=rd.current_branch()
+            ),
+            allow_empty_commit=True,
+        )
+
+        utils.promote_staging(staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_merge_success_message(c, branch, rd)
 
@@ -124,11 +123,13 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

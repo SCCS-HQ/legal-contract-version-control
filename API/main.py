@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import tempfile
+import uuid
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,52 +16,56 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-REPOSITORIES_BASE_DIRECTORY = "API/repos"
-SCCS_DIRECTORY = ".sccs"
-OBJECTS_DIRECTORY = "objects"
 BRANCHES_DIRECTORY = "branches"
-CURRENT_BRANCH_DIRECTORY = "current_branch"
-CURRENT_BRANCH_JSON_FILE = "current_branch.json"
-CURRENT_BRANCH_TEMPORARY_FILE = "current_branch.json.tmp"
-COMMIT_MESSAGES_DIRECTORY = "commit_messages"
-COMMIT_MESSAGES_JSON_FILE = "commit_messages.json"
-DOCUMENT_FILE_TEMPLATE = "{repository_name}.docx"
-TEMPORARY_DIRECTORY_PREFIX = "tmp_"
-STATIC_FILES_NAME = "repos"
-HISTORY_JSON_FILE_STEM = "history"
-COMMIT_BYTE_HASH_JSON_FILE_STEM = "commit_file_hash"
-
-MAX_FILES_IN_ZIP = 1000
-MAX_TOTAL_UPLOAD_SIZE = 100 * 1024 * 1024
-MAX_INDIVIDUAL_FILE_SIZE = 10 * 1024 * 1024
-JSON_DUMP_INDENT = 4
-
+CLONE_ENDPOINT_TEMPLATE = "/repos/{repository_name}/clone"
+CONTENT_DISPOSITION_HEADER_TITLE = "Content-Disposition"
+CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
+CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
+CURRENT_BRANCH_DICT_KEY = "current_branch"
+DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
-INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
-REPOSITORY_NOT_FOUND_ERROR_MESSAGE = "Repository not found: {repository_name}"
-INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
-INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
-REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
-REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
-REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
-TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
-UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded file is too large"
+FILE_PUBLISHED_MESSAGE = "File published successfully"
 FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
-OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
+INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
+INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
+INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
+JSON_KEY_MESSAGE = "message"
+JSON_KEY_OBJECTS = "objects"
+JSON_KEY_REPOSITORY_URL = "repository_url"
 LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
     "Local repository has objects that the remote does not have. Run 'sccs push"
     "' to upload these objects before pulling."
 )
+MAX_FILES_IN_ZIP = 1000
+MAX_INDIVIDUAL_FILE_SIZE = 10 * 1024 * 1024
+MAX_TOTAL_UPLOAD_SIZE = 100 * 1024 * 1024
+METADATA_JSON = "metadata.json"
+NEWLINE = "\n"
+OBJECTS_DIRECTORY = "objects"
+OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
+OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
+PUBLISH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/publish"
+PULL_ENDPOINT_TEMPLATE = "/repos/{repository_name}/pull"
+PUSH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/push"
 PUSH_SUCCESS_MESSAGE = "changes pushed successfully"
-FILE_PUBLISHED_MESSAGE = "File published successfully"
-
-JSON_KEY_MESSAGE = "message"
-JSON_KEY_REPOSITORY_URL = "repository_url"
-JSON_KEY_OBJECTS = "objects"
-JSON_KEY_UPDATED_BRANCHES = "updated_branches"
-
-CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
-CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
+REMOTE_KEY = "remote"
+REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
+REPOSITORIES_BASE_DIRECTORY = "API/repos"
+REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
+REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name dos not match file name"
+REPOSITORY_NOT_FOUND_ERROR_MESSAGE = "Repository not found: {repository_name}"
+RGLOB_ALL_FILES_PATTERN = "*"
+REPOS_MOUNT_ENDPOINT = "/repos"
+ROOT_ENDPOINT = "/"
+SCCS_DIRECTORY = ".sccs"
+SINGLE_PERIOD = "."
+STATIC_FILES_NAME = "repos"
+TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
+TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
+UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded fie is too large"
+UTF_8 = "utf-8"
+ZIP_MEDIA_TYPE = "application/zip"
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,7 +79,7 @@ class ValidatedRepositoryName:
         if (
             not self.value
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
-            or self.value in (".", "..")
+            or self.value in (SINGLE_PERIOD, DOUBLE_PERIOD)
         ):
             raise HTTPException(
                 status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
@@ -135,7 +140,7 @@ def safe_extract_zip(
 
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
-    if entry_path.is_absolute() or ".." in entry_path.parts:
+    if entry_path.is_absolute() or DOUBLE_PERIOD in entry_path.parts:
         raise HTTPException(status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE)
     target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
@@ -155,60 +160,76 @@ def safe_extract_zip(
 app = FastAPI()
 
 
-@app.get("/")
+@app.get(ROOT_ENDPOINT)
 async def root() -> dict:
     """Easter Egg Endpoint - Do Not Remove"""
 
     return {JSON_KEY_MESSAGE: EASTER_EGG_MESSAGE}
 
 
-@app.post("/repos/{repository_name}/publish")
+@app.post(PUBLISH_ENDPOINT_TEMPLATE)
 async def publish(
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
-
 ) -> dict:
     """Publish a repository to the hosted API"""
 
     repository_path = repository_directory(repository_name)
 
-    try:
-        remote = json.loads(data)["remote"]
-    except (json.JSONDecodeError, KeyError) as e:
-        raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE) from e
-
-    if not remote:
-        raise HTTPException(status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE)
-
-    if not file.filename or Path(file.filename).stem != repository_name:
-        raise HTTPException(
-            status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
-        )
-
     if repository_path.exists():
         raise HTTPException(status_code=400, detail=REPOSITORY_EXISTS_ERROR_MESSAGE)
 
-    with zipfile.ZipFile(file.file, "r") as zf:
-        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+    staging_root = Path(
+        tempfile.mkdtemp(prefix=TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
+    )
 
-        for i in zf.infolist():
-            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+    try:
+        try:
+            remote = json.loads(data)[REMOTE_KEY]
+        except (json.JSONDecodeError, KeyError) as e:
+            raise HTTPException(
+                status_code=400, detail=INVALID_JSON_ERROR_MESSAGE
+            ) from e
+
+        if not remote:
+            raise HTTPException(
+                status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE
+            )
+
+        if not file.filename or Path(file.filename).stem != repository_name:
+            raise HTTPException(
+                status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+            )
+
+        with zipfile.ZipFile(file.file, "r") as zf:
+            if len(zf.infolist()) > MAX_FILES_IN_ZIP:
                 raise HTTPException(
-                    status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE
+                )
+            if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
+                raise HTTPException(
+                    status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE
                 )
 
-            safe_extract_zip(zf, i.filename, repository_path)
+            for i in zf.infolist():
+                if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    )
 
-    return {
-        JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE,
-        JSON_KEY_REPOSITORY_URL: remote,
-    }
+                safe_extract_zip(zf, i.filename, staging_root)
+
+        os.replace(staging_root, repository_path)
+
+    except Exception:
+        shutil.rmtree(staging_root, ignore_errors=True)
+
+        raise
+
+    return {JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE, JSON_KEY_REPOSITORY_URL: remote}
 
 
-@app.get("/repos/{repository_name}/clone")
+@app.get(CLONE_ENDPOINT_TEMPLATE)
 async def clone(repository_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
@@ -239,16 +260,16 @@ async def clone(repository_name: str) -> StreamingResponse:
     zip_buffer.seek(0)
     return StreamingResponse(
         zip_buffer,
-        media_type="application/zip",
+        media_type=ZIP_MEDIA_TYPE,
         headers={
-            "Content-Disposition": CONTENT_DISPOSITION_HEADER.format(
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER.format(
                 repository_name=repository_name
             )
         },
     )
 
 
-@app.get("/repos/{repository_name}/push")
+@app.get(PUSH_ENDPOINT_TEMPLATE)
 async def push(repository_name: str) -> dict:
     """
     Return the folder layout of a requested repository so that the client only needs to
@@ -265,12 +286,16 @@ async def push(repository_name: str) -> dict:
 
     return {
         JSON_KEY_OBJECTS: list(
-            set(i.stem for i in objects_directory.rglob("*") if i.is_file())
+            set(
+                i.stem
+                for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN)
+                if i.is_file()
+            )
         )
     }
 
 
-@app.post("/repos/{repository_name}/push")
+@app.post(PUSH_ENDPOINT_TEMPLATE)
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
     """
     Accept a zip archives of new objects to upload to the selected repository, and a zip
@@ -279,93 +304,73 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     """
 
     repository_path = repository_directory(repository_name)
+    ensure_repository_exists(repository_path)
 
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(
             status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
         )
 
-    zip_buffer_directory = Path(
-        tempfile.gettempdir(),
-        TEMPORARY_DIRECTORY_PREFIX + repository_name,
+    staging_root = Path(
+        tempfile.mkdtemp(prefix=TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
     )
 
-    with zipfile.ZipFile(file.file, "r") as zf:
-        if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
-            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
-        if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
-            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
-        zip_buffer_directory.mkdir(parents=True, exist_ok=True)
-        for i in zf.infolist():
-            if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
-                shutil.rmtree(zip_buffer_directory, ignore_errors=True)
+    try:
+        shutil.copytree(repository_path, staging_root, dirs_exist_ok=True)
+
+        with zipfile.ZipFile(file.file, "r") as zf:
+            if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
                 raise HTTPException(
-                    status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE
                 )
-            safe_extract_zip(zf, i.filename, zip_buffer_directory)
+            if len(zf.infolist()) > MAX_FILES_IN_ZIP:
+                raise HTTPException(
+                    status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE
+                )
+            for i in zf.infolist():
+                if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    )
+
+            for i in zf.infolist():
+                safe_extract_zip(zf, i.filename, staging_root)
+
+        with open(
+            (staging_root / SCCS_DIRECTORY / METADATA_JSON).resolve(),
+            "r+",
+            encoding=UTF_8,
+            newline=NEWLINE,
+        ) as f:
+            data = json.load(f)
+            data[CURRENT_BRANCH_DICT_KEY][UPDATED_BRANCHES_DICT_KEY] = []
+            f.seek(0)
+            json.dump(data, f)
+            f.truncate()
+
+        old_root = repository_path.with_name(
+            OLD_ROOT_TEMPLATE.format(repository_name=repository_path.name)
+        )
+
+        os.rename(repository_path, old_root)
 
         try:
-            for root, dirs, files in os.walk(zip_buffer_directory):
-                for i in files:
-                    source_file = Path(root) / i
-                    destination_file = Path(
-                        *[
-                            i
-                            for i in Path(
-                                repository_path
-                                / source_file.relative_to(zip_buffer_directory)
-                            ).parts
-                            if not i.startswith(TEMPORARY_DIRECTORY_PREFIX)
-                        ]
-                    ).resolve()
-                    try:
-                        destination_file.relative_to(repository_path)
-                    except ValueError as e:
-                        raise HTTPException(
-                            status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE
-                        ) from e
-                    destination_file.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(str(source_file), str(destination_file))
-        finally:
-            shutil.rmtree(zip_buffer_directory, ignore_errors=True)
+            os.replace(staging_root, repository_path)
+        except Exception:
+            os.replace(old_root, repository_path)
 
-    with open(
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_JSON_FILE,
-        "r",
-        encoding="utf-8",
-    ) as f:
-        data = json.load(f)
+        shutil.rmtree(old_root)
 
-    temporary_file = (
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_TEMPORARY_FILE
-    )
-    with open(
-        temporary_file,
-        "w",
-        encoding="utf-8",
-    ) as f:
-        data[JSON_KEY_UPDATED_BRANCHES] = []
-        json.dump(data, f, indent=JSON_DUMP_INDENT)
-    temporary_file.replace(
-        repository_path
-        / SCCS_DIRECTORY
-        / CURRENT_BRANCH_DIRECTORY
-        / CURRENT_BRANCH_JSON_FILE
-    )
+    except Exception:
+        shutil.rmtree(staging_root)
+
+        raise
 
     return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
 
 
-@app.post("/repos/{repository_name}/pull")
+@app.post(PULL_ENDPOINT_TEMPLATE)
 async def pull(repository_name: str, data: dict) -> StreamingResponse:
     """
     Send a zip archive of commit objects and metadata files that the local repository
@@ -396,7 +401,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
-    remote_objects = set(i.stem for i in (objects_paths).rglob("*") if i.is_file())
+    remote_objects = set(
+        i.stem for i in (objects_paths).rglob(RGLOB_ALL_FILES_PATTERN) if i.is_file()
+    )
 
     if local_objects - remote_objects:
         raise HTTPException(
@@ -413,41 +420,16 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
-    files_to_upload = (
+    files_to_upload = [
         i
         for i in [
             i.resolve()
-            for i in objects_paths.rglob("*")
+            for i in objects_paths.rglob(RGLOB_ALL_FILES_PATTERN)
             if i.is_file() and i.stem in remote_objects - local_objects
         ]
-        + [
-            i.resolve()
-            for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == HISTORY_JSON_FILE_STEM
-        ]
-        + [
-            i.resolve()
-            for i in (branches_path).rglob("*")
-            if i.is_file() and i.stem == COMMIT_BYTE_HASH_JSON_FILE_STEM
-        ]
-        + [
-            repository_path
-            / DOCUMENT_FILE_TEMPLATE.format(repository_name=repository_path.name)
-        ]
-        + [
-            repository_path
-            / SCCS_DIRECTORY
-            / CURRENT_BRANCH_DIRECTORY
-            / CURRENT_BRANCH_JSON_FILE
-        ]
-        + [
-            repository_path
-            / SCCS_DIRECTORY
-            / COMMIT_MESSAGES_DIRECTORY
-            / COMMIT_MESSAGES_JSON_FILE
-        ]
+        + [(repository_path / SCCS_DIRECTORY / METADATA_JSON).resolve()]
         if i.is_file()
-    )
+    ]
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -456,9 +438,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     zip_buffer.seek(0)
     return StreamingResponse(
         zip_buffer,
-        media_type="application/zip",
+        media_type=ZIP_MEDIA_TYPE,
         headers={
-            "Content-Disposition": CONTENT_DISPOSITION_HEADER_SPACED.format(
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_SPACED.format(
                 repository_name=repository_name
             )
         },
@@ -466,6 +448,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
 
 app.mount(
-    "/repos", StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY), name=STATIC_FILES_NAME
+    REPOS_MOUNT_ENDPOINT,
+    StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY),
+    name=STATIC_FILES_NAME,
 )
 """Mount all repositories as static files on the /repos endpoint."""

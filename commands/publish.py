@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -73,7 +74,7 @@ def post_repository(
                     ),
                 ),
             ],
-            data={"data": json.dumps({"remote": rd.base_repository_url()})},
+            data={c.DATA_DATA: json.dumps({c.DATA_REMOTE: rd.base_repository_url()})},
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
@@ -95,7 +96,6 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
-
 ) -> None:
     rs.target.set(rd.current_branch())
 
@@ -105,13 +105,27 @@ def main(
 
     reset_current_branch(c, rw)
 
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    response = post_repository(c, zip_current_directory(c), url, rd, rp)
+    try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
 
-    response.raise_for_status()
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
+        response = post_repository(
+            c,
+            zip_current_directory(c),
+            c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            rd,
+            rp,
+        )
+        response.raise_for_status()
+        utils.promote_staging(staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
-    print_publish_success_message(c, response, url)
+    print_publish_success_message(c, response, rd.base_repository_url())
 
     rs.target.reset()
 
@@ -119,10 +133,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

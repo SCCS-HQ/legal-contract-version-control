@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import io
-import json
 import os
 import shutil
-import tempfile
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -24,30 +22,13 @@ from repository_layout import (
 
 def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
-    url = c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
     try:
-        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
+        return requests.get(
+            c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            timeout=c.HTTP_TIMEOUT_SECONDS,
+        )
     except Exception as e:
         raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
-
-    return response
-
-
-def get_matching_file_paths(
-    c: SCCSConstants, filename: str, ri: RepositoryIO, rp: RepositoryPaths
-) -> list[Path]:
-
-    paths = []
-    updated_branches = ri.read_current_branch_data_key(c.UPDATED_BRANCHES_DICT_KEY)
-    if updated_branches is None:
-        raise exceptions.SCCSException(c.NO_UPDATED_BRANCHES_ERROR_MESSAGE)
-    for i in updated_branches:
-        branch_directory = rp.branches_path() / i
-        if branch_directory.is_dir():
-            f = (branch_directory / filename / filename).with_suffix(c.JSON_EXTENSION)
-            if f.is_file():
-                paths.append(f.resolve())
-    return paths
 
 
 def compare_commit_identifier_lists(
@@ -63,55 +44,50 @@ def compare_commit_identifier_lists(
     return object_to_upload
 
 
+def _snapshot_file(src: Path, dst: Path) -> None:
+    """Mirror `src` to `dst` cheaply.
+
+    Tries a hardlink first (O(1), same filesystem, no extra disk usage);
+    falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
+    """
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
 def zip_files_to_upload(
     c: SCCSConstants,
     remote_objects: list[str],
     rd: RepositoryData,
-    ri: RepositoryIO,
     rp: RepositoryPaths,
 ) -> io.BytesIO:
 
-    document_path = [rp.document_path()]
-
-    current_branch_path = [rp.current_branch_data_file_path()]
-    commit_messages_path = [rp.commit_messages_path()]
-    object_to_upload_set = set(compare_commit_identifier_lists(remote_objects, rd))
-    objects_paths = [
-        i.resolve()
-        for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
-        if i.is_file() and i.stem in object_to_upload_set
-    ]
-
-    history_paths = get_matching_file_paths(c, c.HISTORY_DIRECTORY, ri, rp)
-    byte_hash_paths = get_matching_file_paths(c, c.COMMIT_BYTE_HASH_DIRECTORY, ri, rp)
-
     files_to_upload = (
-        objects_paths
-        + history_paths
-        + byte_hash_paths
-        + document_path
-        + current_branch_path
-        + commit_messages_path
+        [
+            i.resolve()
+            for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
+            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
+        ]
+        + [rp.document_path()]
+        + [rp.metadata_path()]
     )
 
-    with tempfile.TemporaryDirectory() as tf:
-        temporary_folder_path = Path(tf) / c.TEMPORARY_DIRECTORY_TEMPLATE.format(
-            repository_name=rp.repository_name
-        )
+    staging_root = utils.create_staging_directory(c, rp.root)
+    try:
         for i in files_to_upload:
-            (temporary_folder_path / i.relative_to(rp.root).parent).mkdir(
-                parents=True, exist_ok=True
-            )
-            shutil.copy2(i, temporary_folder_path / i.relative_to(rp.root))
+            dst = staging_root / i.relative_to(rp.root)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            _snapshot_file(i, dst)
 
         buffer = io.BytesIO()
 
         try:
             with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for root, dirs, files in os.walk(tf):
-                    for i in files:
-                        full_path = Path(root) / i
-                        zf.write(full_path, arcname=full_path.relative_to(tf))
+                for i in files_to_upload:
+                    snapshot_path = staging_root / i.relative_to(rp.root)
+                    zf.write(snapshot_path, arcname=i.relative_to(rp.root))
         except Exception as e:
             raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
@@ -119,6 +95,8 @@ def zip_files_to_upload(
             buffer.seek(0)
         except Exception as e:
             raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+    finally:
+        utils.cleanup_staging(staging_root)
 
     return buffer
 
@@ -164,17 +142,7 @@ def clear_updated_branches(
 
     data = ri.read_current_branch_data()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
-
-    try:
-        with open(
-            rp.current_branch_data_file_path(),
-            "w",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            json.dump(data, f, indent=4)
-    except Exception as e:
-        raise exceptions.SCCSException(c.CLEAR_UPDATED_BRANCHES_ERROR_MESSAGE) from e
+    ri.write_current_branch_data(data)
 
 
 def print_push_success_message(
@@ -205,13 +173,24 @@ def main(
 
     remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
 
-    buffer = zip_files_to_upload(c, remote_objects, rd, ri, rp)
+    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
 
     upload_response = upload_objects(c, buffer, rd, rp)
 
     upload_response.raise_for_status()
 
-    clear_updated_branches(c, ri, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        clear_updated_branches(c, staging_ri, rp)
+        utils.promote_staging(staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
     print_push_success_message(c, upload_response, remote)
 
     rs.target.reset()
@@ -220,10 +199,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

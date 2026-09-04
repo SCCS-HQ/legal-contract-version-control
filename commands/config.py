@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+import shutil
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
@@ -9,6 +10,7 @@ import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
     RepositoryData,
+    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
@@ -73,6 +75,7 @@ def main(
     key: str,
     value: str,
     rd: RepositoryData,
+    ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -82,13 +85,23 @@ def main(
 
     rs.validate_repository_layout()
 
-    repository_name = rp.repository_name
+    resolved_value = resolve_key_value(
+        c, rp.repository_name, key, validate_entered_value(c, key, value)
+    )
 
-    value = validate_entered_value(c, key, value)
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    value = resolve_key_value(c, repository_name, key, value)
+    try:
+        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
 
-    rw.write_key_to_config(key, value)
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
+        utils.promote_staging(staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_config_success_message(c, key, value)
 
@@ -98,12 +111,14 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
         utils.entered_argument(c, 3),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

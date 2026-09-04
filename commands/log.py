@@ -13,31 +13,19 @@ from repository_layout import (
 )
 
 
-def print_log(c: SCCSConstants, history_data: dict[str, Any]) -> None:
+def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
 
-    for i in history_data[c.LOG_DICT_KEY]:
+    for i in log_data:
         print(
             c.LOG_SEPARATOR + c.NEWLINE,
             c.LOG_COMMIT_FILE_LABEL
             + i[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
             + c.NEWLINE,
-            (
-                c.LOG_AUTHOR_LABEL
-                + history_data[c.LOG_DICT_KEY][i][c.AUTHOR_DICT_KEY]
-                + c.NEWLINE
-            ),
-            (
-                c.LOG_DATE_LABEL
-                + history_data[c.LOG_DICT_KEY][i][c.TIMESTAMP_DICT_KEY]
-                + c.NEWLINE
-            ),
-            (
-                c.LOG_MESSAGE_LABEL
-                + history_data[c.LOG_DICT_KEY][i][c.MESSAGE_DICT_KEY]
-                + c.NEWLINE
-            ),
+            (c.LOG_AUTHOR_LABEL + log_data[i][c.AUTHOR_DICT_KEY] + c.NEWLINE),
+            (c.LOG_DATE_LABEL + log_data[i][c.TIMESTAMP_DICT_KEY] + c.NEWLINE),
+            (c.LOG_MESSAGE_LABEL + log_data[i][c.MESSAGE_DICT_KEY] + c.NEWLINE),
             c.LOG_SEPARATOR,
-            sep="",
+            sep=c.EMPTY_STRING,
         )
 
 
@@ -52,7 +40,7 @@ def main(
 
     rs.validate_repository_layout()
 
-    print_log(c, ri.read_history())
+    print_log(c, ri.read_log())
 
     rs.target.reset()
 
@@ -60,9 +48,10 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

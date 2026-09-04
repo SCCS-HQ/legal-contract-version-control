@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import hashlib
-import json
+import os
 import shutil
 from pathlib import Path
 
@@ -13,6 +13,7 @@ from repository_layout import (
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
+    RepositoryWrite,
     TargetBranch,
 )
 
@@ -35,7 +36,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
 
 def create_sccs_directory_layout(
-    c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
+    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -46,13 +47,6 @@ def create_sccs_directory_layout(
         rp.document_objects_path(),
         rp.html_objects_path(),
         rp.view_html_objects_path(),
-        rp.branches_path(),
-        rp.branch_path(c.MAIN_BRANCH_NAME),
-        rp.history_directory_path(),
-        rp.byte_hash_directory_path(),
-        rp.commit_messages_directory_path(),
-        rp.config_directory_path(),
-        rp.current_branch_directory_path(),
     ]
 
     try:
@@ -60,47 +54,37 @@ def create_sccs_directory_layout(
 
         for i in paths:
             (i).mkdir(parents=True, exist_ok=True)
+
+        ri.write_metadata({})
+
     except Exception as e:
         raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
 
-def config_inputs(c: SCCSConstants, rp: RepositoryPaths, *data: str) -> dict[str, str]:
+def ask_config_input(c: SCCSConstants, key: str) -> str:
 
-    values = []
+    data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
+    if not data_value:
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key).capitalize()
+        )
 
-    for i in data:
-        data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=i)).strip()
-        if not data_value:
-            raise exceptions.SCCSException(
-                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=i)
-            )
-        values.append(data_value)
-
-    with open(rp.config_path(), "w", encoding=c.UTF_8, newline=c.NEWLINE) as f:
-        config = {}
-
-        for i, value in enumerate(values):
-            config_key = data[i]
-            config[config_key] = value
-
-        f.seek(0)
-        json.dump(config, f, indent=4)
-    return config
+    return data_value
 
 
 def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 
-    commit_identifier_parts = [
-        c.PROGRAM_START_TIME,
-        c.INITIAL_VERSION_COMMIT_MESSAGE,
-        name,
-        email,
-    ]
-
     return hashlib.sha256(
-        c.PATH_SEPARATOR.join(commit_identifier_parts).encode(c.UTF_8)
+        c.PATH_SEPARATOR.join(
+            [
+                c.PROGRAM_START_TIME,
+                c.INITIAL_VERSION_COMMIT_MESSAGE,
+                name,
+                email,
+            ]
+        ).encode(c.UTF_8)
     ).hexdigest()
 
 
@@ -149,145 +133,75 @@ def copy_document_to_objects_as_document_and_html(
         raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
-def write_history_data(
-    c: SCCSConstants,
-    name: str,
-    email: str,
-    commit_identifier: str,
-    ri: RepositoryIO,
-    rs: RepositoryStatus,
+def write_starting_metadata(
+    c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
 ) -> None:
 
-    rs.target.set(c.MAIN_BRANCH_NAME)
+    ri.target.set(c.MAIN_BRANCH_NAME)
 
-    history_data = {
-        c.HISTORY_DICT_KEY: {
-            c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
-            c.LATEST_COMMIT_DICT_KEY: commit_identifier,
-            c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
-            c.COMMIT_ORDER_DICT_KEY: {
-                c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+    ri.write_metadata(
+        {
+            c.BRANCHES_DICT_KEY: {
+                c.MAIN_BRANCH_NAME: {
+                    c.HISTORY_DICT_KEY: {
+                        c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
+                        c.LATEST_COMMIT_DICT_KEY: commit_identifier,
+                        c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
+                        c.COMMIT_ORDER_DICT_KEY: {
+                            c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+                        },
+                    },
+                    c.LOG_DICT_KEY: {
+                        commit_identifier: {
+                            c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
+                            c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                                name=name, email=email
+                            ),
+                            c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
+                        }
+                    },
+                    c.BYTE_HASH_DICT_KEY: {
+                        commit_identifier: hashlib.sha256(
+                            (ri.document_html()).encode(c.UTF_8)
+                        ).hexdigest()
+                    },
+                }
             },
-        },
-        c.LOG_DICT_KEY: {
-            commit_identifier: {
-                c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
-                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=name, email=email
-                ),
-                c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
-            }
-        },
-    }
-
-    ri.write_history(history_data)
-
-    rs.target.reset()
+            c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
+            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
+        }
+    )
 
 
-def write_commit_message_data(
-    c: SCCSConstants, commit_identifier: str, ri: RepositoryIO
-) -> None:
-
-    commit_message_data = {commit_identifier: c.INIT_COMMIT_MESSAGE}
-    ri.write_commit_messages(commit_message_data)
-
-
-def write_byte_hash(
-    c: SCCSConstants,
-    document_path: Path,
-    commit_identifier: str,
-    ri: RepositoryIO,
-    rs: RepositoryStatus,
-) -> None:
-
-    rs.target.set(c.MAIN_BRANCH_NAME)
-
-    try:
-        with open(document_path, "rb") as f:
-            byte_hash_file = hashlib.sha256(
-                mammoth.convert_to_html(f).value.encode(c.UTF_8)
-            ).hexdigest()
-    except Exception as e:
-        raise exceptions.SCCSException(c.INIT_BYTE_HASH_DATA_ERROR_MESSAGE) from e
-
-    byte_hash = {commit_identifier: byte_hash_file}
-
-    ri.write_byte_hash(byte_hash)
-
-    rs.target.reset()
-
-
-def write_branch_data(c: SCCSConstants, rp: RepositoryPaths) -> None:
-
-    try:
-        with open(
-            rp.current_branch_data_file_path(),
-            "w",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            json.dump(c.DEFAULT_BRANCH_DATA, f, indent=4)
-    except Exception as e:
-        raise exceptions.SCCSException(c.INIT_BRANCH_DATA_ERROR_MESSAGE) from e
-
-
-def move_document_to_repository_directory(
+def copy_document_to_repository_directory(
     repository_path: Path, document_path: Path
 ) -> None:
 
-    shutil.move(document_path, repository_path)
+    shutil.copy2(document_path, repository_path)
+
+
+def finalize_repository_creation(
+    c: SCCSConstants,
+    document_path: Path,
+    rp: RepositoryPaths,
+    staging_rp: RepositoryPaths,
+) -> None:
+
+    utils.promote_staging(staging_rp.root, rp.root)
+
+    try:
+        os.remove(document_path)
+    except OSError as e:
+        print(
+            c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(
+                document_path=document_path, e=e
+            )
+        )
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
 
     print(c.INIT_SUCCESS_MESSAGE)
-
-
-def initialize_repository(
-    c: SCCSConstants,
-    document_path: Path,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-) -> None:
-
-    try:
-        validate_no_prev_init(c, rp)
-
-        validate_file_requirements(c, document_path)
-
-        create_sccs_directory_layout(c, rp, rs)
-
-        config = config_inputs(c, rp, c.NAME_KEY, c.EMAIL_KEY)
-
-        name = config[c.NAME_KEY]
-        email = config[c.EMAIL_KEY]
-
-        commit_identifier = create_commit_identifier(c, name, email)
-
-        copy_document_to_objects_as_document_and_html(
-            c, document_path, commit_identifier, rp
-        )
-
-        write_history_data(c, name, email, commit_identifier, ri, rs)
-
-        write_commit_message_data(c, commit_identifier, ri)
-
-        write_byte_hash(c, document_path, commit_identifier, ri, rs)
-
-        write_branch_data(c, rp)
-
-        move_document_to_repository_directory(rp.root, document_path)
-
-    except Exception as e:
-        delete_repository_after_error(rp.root, e)
-
-
-def delete_repository_after_error(repository_path: Path, e: Exception) -> None:
-
-    shutil.rmtree(repository_path, ignore_errors=True)
-    raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
 
 def main(
@@ -296,9 +210,46 @@ def main(
     ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
+    rw: RepositoryWrite,
 ) -> None:
 
-    initialize_repository(c, document_path, ri, rp, rs)
+    validate_no_prev_init(c, rp)
+
+    validate_file_requirements(c, document_path)
+
+    name = ask_config_input(c, c.NAME_KEY)
+    email = ask_config_input(c, c.EMAIL_KEY)
+
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
+
+        commit_identifier = create_commit_identifier(c, name, email)
+
+        copy_document_to_objects_as_document_and_html(
+            c, document_path, commit_identifier, staging_rp
+        )
+
+        copy_document_to_repository_directory(staging_rp.root, document_path)
+
+        write_starting_metadata(c, commit_identifier, name, email, staging_ri)
+
+        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
+
+        finalize_repository_creation(c, document_path, rp, staging_rp)
+
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        if rp.root.exists():
+            utils.cleanup_staging(rp.root)
+        raise
 
     print_init_success_message(c)
 
@@ -307,10 +258,13 @@ if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
     document_path = Path(utils.entered_argument(c, 2))
+    repository_root = document_path.with_suffix(c.EMPTY_STRING)
+    repository_name = repository_root.name
     utils.run_command(
         main,
         document_path,
-        RepositoryIO(document_path.with_suffix(c.EMPTY_STRING), c, target),
-        RepositoryPaths(document_path.with_suffix(c.EMPTY_STRING), c, target),
-        RepositoryStatus(document_path, c, target),
+        RepositoryIO(repository_root, repository_name, c, target),
+        RepositoryPaths(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
+        RepositoryWrite(repository_root, repository_name, c, target),
     )
