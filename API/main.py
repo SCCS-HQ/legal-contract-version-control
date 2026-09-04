@@ -25,6 +25,7 @@ CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 CURRENT_BRANCH_DICT_KEY = "current_branch"
 DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
+EMPTY_STRING = ""
 FILE_PUBLISHED_MESSAGE = "File published successfully"
 FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
 INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
@@ -351,7 +352,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
         saved_repository_path = repository_path.with_name(
             repository_path.name
-            + "".join(random.choices(string.ascii_letters + string.digits, k=32))
+            + EMPTY_STRING.join(random.choices(string.ascii_letters + string.digits, k=32))
         )
 
         os.rename(repository_path, saved_repository_path)
