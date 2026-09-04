@@ -43,14 +43,14 @@ class TargetBranch:
 
 
 class RepositoryData:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
 
         self.root = root
-        self.repository_name = root.stem
+        self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, c, self.target)
-        self.io = RepositoryIO(root, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.io = RepositoryIO(root, repository_name, c, self.target)
 
 
     def config_data(self, key: str) -> str:
@@ -215,13 +215,13 @@ class RepositoryData:
 
 
 class RepositoryIO:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
 
         self.root = root
-        self.repository_name = root.stem
+        self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c, self.target)
 
 
     def file_bytes(self, path: Path) -> bytes:
@@ -565,10 +565,10 @@ class RepositoryIO:
 
 
 class RepositoryPaths:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
 
         self.root = root
-        self.repository_name = root.stem
+        self.repository_name = repository_name
         self.c = c
         self.target = target
 
@@ -609,14 +609,14 @@ class RepositoryPaths:
 
 
 class RepositoryStatus:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(self, root: Path, repository_name: str , c: SCCSConstants, target: TargetBranch) -> None:
 
         self.root = root
-        self.repository_name = root.stem
+        self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, c, self.target)
-        self.io = RepositoryIO(root, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.io = RepositoryIO(root, repository_name, c, self.target)
 
 
     def validate_repository_layout(self) -> None:
@@ -693,14 +693,14 @@ class RepositoryStatus:
 
 
 class RepositoryWrite:
-    def __init__(self, root: Path, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
 
         self.root = root
-        self.repository_name = root.stem
+        self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, c, self.target)
-        self.io = RepositoryIO(root, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.io = RepositoryIO(root, repository_name, c, self.target)
 
 
     def write_key_to_config(

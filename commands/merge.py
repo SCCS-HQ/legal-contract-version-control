@@ -93,9 +93,9 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
-        staging_ri = RepositoryIO(staging_root, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, c, rp.target)
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         copy_repository_document(c, branch, rd, staging_rp)
 
@@ -121,12 +121,13 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

@@ -154,9 +154,9 @@ def main(
     try:
         shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
 
-        staging_rd = RepositoryData(staging_root, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, c, rp.target)
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
 
         run_specified_subcommand(
             c,
@@ -178,12 +178,13 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
         utils.entered_argument(c, 3, raise_on_not_provided=False),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

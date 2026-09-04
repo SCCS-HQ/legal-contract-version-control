@@ -229,11 +229,13 @@ def main(
 
     staging_root = utils.create_staging_directory(c, rp.root)
 
+    print(staging_root.resolve())
+
     try:
-        staging_ri = RepositoryIO(staging_root, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, c, rp.target)
-        staging_rs =  RepositoryStatus(staging_root, c, rs.target)
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rs =  RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
+        staging_rw = RepositoryWrite(staging_root, repository_name, c, rw.target)
 
         create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
 
@@ -253,7 +255,7 @@ def main(
         finalize_repository_creation(c, document_path, rp, staging_rp)
 
     except Exception:
-        utils.cleanup_staging(staging_root)
+        # utils.cleanup_staging(staging_root)
         if rp.root.exists():
             utils.cleanup_staging(rp.root)
         raise
@@ -266,11 +268,12 @@ if __name__ == "__main__":
     target = TargetBranch(c)
     document_path = Path(utils.entered_argument(c, 2))
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
+    repository_name = repository_root.name
     utils.run_command(
         main,
         document_path,
-        RepositoryIO(repository_root, c, target),
-        RepositoryPaths(repository_root, c, target),
-        RepositoryStatus(repository_root, c, target),
-        RepositoryWrite(repository_root, c, target)
+        RepositoryIO(repository_root, repository_name, c, target),
+        RepositoryPaths(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
+        RepositoryWrite(repository_root, repository_name, c, target)
     )

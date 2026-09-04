@@ -65,20 +65,20 @@ def safe_extract_zip(
 def run_command(main: Callable[..., None], *args: Any) -> None:
 
     error_wrappers = ErrorWrappers()
-    try:
-        main(SCCSConstants(), *args)
+    # try:
+    main(SCCSConstants(), *args)
 
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(1)
+    # except exceptions.SCCSException as e:
+    #     print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+    #     sys.exit(1)
 
-    except Exception as e:
-        print(
-            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-                type_name=type(e).__name__, e=e
-            )
-        )
-        sys.exit(2)
+    # except Exception as e:
+    #     print(
+    #         error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+    #             type_name=type(e).__name__, e=e
+    #         )
+    #     )
+    #     sys.exit(2)
 
 
 def create_staging_directory(
@@ -101,11 +101,13 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
-def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
+def promote_staging(staging_root: Path, final_root: Path) -> None:
     """Atomically promote a staging directory to its final location.
 
     Uses shutil.move for lenient cross-filesystem fallback. Same-filesystem
     placement is required for true atomicity.
     """
 
-    os.replace(staging_root, final_root)
+    shutil.copytree(staging_root, final_root)
+
+    # os.replace(staging_root, final_root)

@@ -106,7 +106,7 @@ def main(
         copy_commit_to_main(
             c, branch_to_switch, rd, staging_root, rs
         )
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(branch_to_switch)
         utils.promote_staging(staging_root, rp.root)
     except Exception:
@@ -123,11 +123,12 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

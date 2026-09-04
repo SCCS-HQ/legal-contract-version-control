@@ -66,7 +66,7 @@ def main(
     new_commit_identifier = None
 
     try:
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         revert(c, commit_path, staging_root)
         new_commit_identifier = staging_rw.commit_changes(
             c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
@@ -89,11 +89,12 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

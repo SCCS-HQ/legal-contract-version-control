@@ -188,7 +188,7 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
-        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         clear_updated_branches(c, staging_ri, rp)
         utils.promote_staging(staging_root, rp.root)
     except Exception:
@@ -203,10 +203,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

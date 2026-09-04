@@ -75,8 +75,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
-        staging_rd = RepositoryData(staging_root, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, c, rp.target)
+        staging_rd = RepositoryData(staging_root, repository_name, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, repository_name, c, rp.target)
 
         update_repository_files(c, response, staging_rd, staging_rp)
         utils.promote_staging(staging_root, rp.root)
@@ -92,9 +92,10 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

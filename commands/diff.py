@@ -260,7 +260,7 @@ def main(
 
     try:
         
-        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
 
         staging_ri.write_diff_output(
             utils.wrap_html(
@@ -290,10 +290,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryIO(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

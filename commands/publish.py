@@ -108,7 +108,7 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
         response = post_repository(
             c, zip_current_directory(c),
@@ -130,10 +130,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryPaths(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )

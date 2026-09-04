@@ -57,7 +57,7 @@ def main(
     try:
         shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
 
-        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         commit_identifier = staging_rw.commit_changes(commit_message)
 
         finalize_commit(rw, staging_rw)
@@ -75,10 +75,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
+    repository_name = Path.cwd().name
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), c, target),
-        RepositoryStatus(Path.cwd(), c, target),
-        RepositoryWrite(Path.cwd(), c, target),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
     )
