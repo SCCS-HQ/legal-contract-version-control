@@ -3,6 +3,7 @@
 import os
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -79,3 +80,32 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
             )
         )
         sys.exit(2)
+
+
+def create_staging_directory(
+    c: SCCSConstants, sibling_of: Path, prefix: str | None = None
+) -> Path:
+    """Create a sibling-staging directory for atomic filesystem operations.
+
+    Placement as a sibling of `sibling_of` guarantees same-filesystem
+    placement so a subsequent rename is atomic on POSIX/macOS.
+    """
+    if prefix is None:
+        prefix = c.TEMPORARY_DIRECTORY_PREFIX
+    return Path(tempfile.mkdtemp(prefix=prefix, dir=sibling_of.parent))
+
+
+def cleanup_staging(staging_root: Path | None) -> None:
+    """Best-effort removal of a staging directory. Safe to call multiple times."""
+    if staging_root is None:
+        return
+    shutil.rmtree(staging_root, ignore_errors=True)
+
+
+def promote_staging(staging_root: Path, final_root: Path) -> None:
+    """Atomically promote a staging directory to its final location.
+
+    Uses shutil.move for lenient cross-filesystem fallback. Same-filesystem
+    placement is required for true atomicity.
+    """
+    shutil.move(staging_root, final_root)

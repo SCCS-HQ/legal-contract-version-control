@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import tempfile
 import hashlib
 import shutil
 from pathlib import Path
@@ -189,7 +188,7 @@ def copy_document_to_repository_directory(
 
 def finalize_repository_creation(c: SCCSConstants, document_path: Path, rp: RepositoryPaths, staging_rp: RepositoryPaths):
 
-    shutil.move(staging_rp.root, rp.root)
+    utils.promote_staging(staging_rp.root, rp.root)
 
     try:
         os.remove(document_path)
@@ -218,9 +217,9 @@ def main(
     name = ask_config_input(c, c.NAME_KEY)
     email = ask_config_input(c, c.EMAIL_KEY)
 
-    staging_root = Path(tempfile.mkdtemp(prefix=c.TEMPORARY_DIRECTORY_PREFIX, dir=rp.root.parent))
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    try: 
+    try:
         staging_ri = RepositoryIO(staging_root, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, c, rp.target)
         staging_rs =  RepositoryStatus(staging_root, c, rs.target)
@@ -242,13 +241,12 @@ def main(
         staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
 
         finalize_repository_creation(c, document_path, rp, staging_rp)
-    
-    except Exception as e:
-        if staging_root.exists():
-            shutil.rmtree(staging_root, ignore_errors=True)
-            shutil.rmtree(rp.root, ignore_errors=True)
 
-        raise e
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        if rp.root.exists():
+            utils.cleanup_staging(rp.root)
+        raise
 
     print_init_success_message(c)
 
