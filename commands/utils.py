@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import uuid
 import os
 import shutil
 import sys
@@ -101,12 +102,26 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
+
 def promote_staging(staging_root: Path, final_root: Path) -> None:
     """Atomically promote a staging directory to its final location.
 
-    Uses shutil.move for lenient cross-filesystem fallback. Same-filesystem
-    placement is required for true atomicity.
-    """
+    final_root is assumed to already exist and be non-empty. True atomicity
+    requires staging_root, final_root, and the temp swap path to all live on
+    the same filesystem, since os.rename() is only atomic within one.
 
-    shutil.copytree(staging_root, final_root, dirs_exist_ok=True)
-    shutil.rmtree(staging_root, ignore_errors=True)
+    Strategy: rename final_root aside (atomic), rename staging_root into its
+    place (atomic), then delete the old contents. If the second rename fails,
+    the original final_root is restored so callers never observe a missing
+    final_root.
+    """
+    old_root = final_root.with_name(f"{final_root.name}.old-{uuid.uuid4().hex}")
+
+    os.rename(final_root, old_root)
+    try:
+        os.rename(staging_root, final_root)
+    except Exception:
+        os.rename(old_root, final_root)  # roll back
+        raise
+
+    shutil.rmtree(old_root, ignore_errors=True)

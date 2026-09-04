@@ -4,11 +4,10 @@
 import io
 import json
 import os
-import random
 import re
 import shutil
-import string
 import tempfile
+import uuid
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,7 +24,6 @@ CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 CURRENT_BRANCH_DICT_KEY = "current_branch"
 DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
-EMPTY_STRING = ""
 FILE_PUBLISHED_MESSAGE = "File published successfully"
 FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
 INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
@@ -45,6 +43,7 @@ METADATA_JSON = "metadata.json"
 NEWLINE = "\n"
 OBJECTS_DIRECTORY = "objects"
 OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
+OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
 PUBLISH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/publish"
 PULL_ENDPOINT_TEMPLATE = "/repos/{repository_name}/pull"
 PUSH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/push"
@@ -223,7 +222,7 @@ async def publish(
         os.replace(staging_root, repository_path)
 
     except Exception:
-        shutil.rmtree(staging_root)
+        shutil.rmtree(staging_root, ignore_errors=True)
 
         raise
 
@@ -350,19 +349,18 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
             json.dump(data, f)
             f.truncate()
 
-        saved_repository_path = repository_path.with_name(
-            repository_path.name
-            + EMPTY_STRING.join(random.choices(string.ascii_letters + string.digits, k=32))
+        old_root = repository_path.with_name(
+            OLD_ROOT_TEMPLATE.format(repository_name=repository_path.name)
         )
 
-        os.rename(repository_path, saved_repository_path)
+        os.rename(repository_path, old_root)
 
         try:
             os.replace(staging_root, repository_path)
         except Exception:
-            os.replace(saved_repository_path, repository_path)
+            os.replace(old_root, repository_path)
 
-        shutil.rmtree(saved_repository_path)
+        shutil.rmtree(old_root)
 
     except Exception:
         shutil.rmtree(staging_root)
@@ -432,8 +430,6 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         + [(repository_path / SCCS_DIRECTORY / METADATA_JSON).resolve()]
         if i.is_file()
     ]
-    print(repository_path / repository_name)
-    print(files_to_upload)
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:

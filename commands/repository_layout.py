@@ -261,7 +261,7 @@ class RepositoryIO:
         self.target.require()
 
         full_metadata = self.read_metadata()
-        full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
+        full_metadata[self.c.BRANCHES_DICT_KEY] = data
 
         with open(
             self.paths.metadata_path(),
@@ -635,7 +635,7 @@ class RepositoryStatus:
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]
-        return branch_name.lower == current_branch.lower()
+        return branch_name.lower() == current_branch.lower()
 
 
 class RepositoryWrite:
@@ -795,7 +795,7 @@ class RepositoryWrite:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
         if branch_name in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].remove(branch_name)
-            self.io.write_branch_data(branch_data)
+            self.io.write_current_branch_data(branch_data)
 
     def set_current_branch(self, branch_name: str) -> None:
 

@@ -76,8 +76,8 @@ def main(
     try:
         shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
 
-        staging_rd = RepositoryData(staging_root, repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, repository_name, c, rp.target)
+        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
 
         update_repository_files(c, response, staging_rd, staging_rp)
         utils.promote_staging(staging_root, rp.root)
