@@ -40,7 +40,7 @@ def update_repository_files(
 
     with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
         for i in zf.namelist():
-            utils.safe_extract_zip(c, zf, i, Path.cwd())
+            utils.safe_extract_zip(c, zf, i, rd.root)
 
     shutil.copy2(
         rd.commit_identifier_to_full_path(
@@ -75,6 +75,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         staging_rd = RepositoryData(staging_root, repository_name, c, rd.target)
         staging_rp = RepositoryPaths(staging_root, repository_name, c, rp.target)
 

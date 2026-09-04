@@ -317,6 +317,8 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     )
 
     try:
+        shutil.copytree(repository_path, staging_root, dirs_exist_ok=True)
+
         with zipfile.ZipFile(file.file, "r") as zf:
             if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
                 raise HTTPException(

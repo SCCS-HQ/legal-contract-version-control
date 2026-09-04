@@ -188,6 +188,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         clear_updated_branches(c, staging_ri, rp)
         utils.promote_staging(staging_root, rp.root)

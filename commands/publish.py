@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import shutil
 import zipfile
 from pathlib import Path
 
@@ -108,6 +109,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
         response = post_repository(

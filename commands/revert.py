@@ -15,7 +15,7 @@ from repository_layout import (
 )
 
 
-def revert(c: SCCSConstants, commit_path: Path, staging_root: Path) -> None:
+def revert(c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str) -> None:
 
     if not commit_path.is_file():
         raise exceptions.SCCSException(
@@ -25,7 +25,7 @@ def revert(c: SCCSConstants, commit_path: Path, staging_root: Path) -> None:
         )
 
     try:
-        shutil.copy2(commit_path, staging_root / commit_path.name)
+        shutil.copy2(commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION))
     except Exception as e:
         raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
 
@@ -66,8 +66,10 @@ def main(
     new_commit_identifier = None
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        revert(c, commit_path, staging_root)
+        revert(c, commit_path, staging_root, staging_rw.repository_name)
         new_commit_identifier = staging_rw.commit_changes(
             c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
                 commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]

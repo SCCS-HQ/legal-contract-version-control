@@ -93,6 +93,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)

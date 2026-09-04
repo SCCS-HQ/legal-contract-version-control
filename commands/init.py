@@ -229,13 +229,11 @@ def main(
 
     staging_root = utils.create_staging_directory(c, rp.root)
 
-    print(staging_root.resolve())
-
     try:
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
         staging_rs =  RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
-        staging_rw = RepositoryWrite(staging_root, repository_name, c, rw.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
 
@@ -255,7 +253,7 @@ def main(
         finalize_repository_creation(c, document_path, rp, staging_rp)
 
     except Exception:
-        # utils.cleanup_staging(staging_root)
+        utils.cleanup_staging(staging_root)
         if rp.root.exists():
             utils.cleanup_staging(rp.root)
         raise

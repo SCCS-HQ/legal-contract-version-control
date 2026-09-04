@@ -103,6 +103,8 @@ def main(
     staging_root = utils.create_staging_directory(c, rp.root)
 
     try:
+        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+
         copy_commit_to_main(
             c, branch_to_switch, rd, staging_root, rs
         )
