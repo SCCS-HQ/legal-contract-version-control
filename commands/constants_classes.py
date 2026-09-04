@@ -307,6 +307,7 @@ class SCCSConstants:
         "Commit {commit_identifier} created successfully."
     )
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
+    TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
 
     # endregion
 

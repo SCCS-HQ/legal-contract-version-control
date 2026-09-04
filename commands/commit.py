@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import shutil
+import tempfile
 
 import exceptions
 import utils
@@ -32,6 +34,10 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
+def finalize_commit(rw, staging_rw):
+
+    shutil.move(staging_rw.root, rw.root)
+
 def main(
     c: SCCSConstants,
     commit_message: str,
@@ -46,7 +52,24 @@ def main(
 
     validate_commit_message(c, commit_message)
 
-    print_commit_success_message(c, rw.commit_changes(commit_message))
+    staging_root = Path(tempfile.mkdtemp(prefix=c.TEMPORARY_DIRECTORY_PREFIX, dir=rd.root.parent))
+
+    try:
+        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
+
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        commit_identifier = staging_rw.commit_changes(commit_message)
+
+        finalize_commit(rw, staging_rw)
+
+    except Exception as e:
+        if staging_root.exists():
+            shutil.rmtree(staging_root, ignore_errors=True)
+
+        raise e
+
+
+    print_commit_success_message(c, commit_identifier)
 
     rs.target.reset()
 
