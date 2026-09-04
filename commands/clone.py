@@ -40,9 +40,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     return response
 
 
-def unzip_repository_file(
-    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, destination: Path
-) -> None:
+def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root) -> None:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -56,7 +54,9 @@ def unzip_repository_file(
             )
         )
 
-    destination = Path(os.path.abspath(path_parts[-2]))
+    destination = Path(staging_root / path_parts[-2])
+
+    print(destination)
 
     if not re.fullmatch(r"^[A-Za-z0-9._-]+$", destination.name) or destination.name in (
         c.SINGLE_PERIOD,
@@ -84,6 +84,8 @@ def main(c: SCCSConstants, url: str | None) -> None:
     zip_buffer = io.BytesIO(response.content)
 
     staging_root = utils.create_staging_directory(c, Path.cwd())
+
+    print(staging_root)
 
     try:
         unzip_repository_file(c, zip_buffer, url, staging_root)
