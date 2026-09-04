@@ -53,7 +53,7 @@ def update_repository_files(
         )
     
     except exceptions.SCCSException as e:
-        raise e
+        raise
 
 
 def print_pull_success_message(
