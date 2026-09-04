@@ -12,11 +12,11 @@ import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -96,7 +96,6 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
-
 ) -> None:
     rs.target.set(rd.current_branch())
 
@@ -114,10 +113,11 @@ def main(
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
         response = post_repository(
-            c, zip_current_directory(c),
+            c,
+            zip_current_directory(c),
             c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
             rd,
-            rp
+            rp,
         )
         response.raise_for_status()
         utils.promote_staging(staging_root, rp.root)

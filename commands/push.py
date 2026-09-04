@@ -12,11 +12,11 @@ import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
+    TargetBranch,
 )
 
 
@@ -29,9 +29,6 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
         )
     except Exception as e:
         raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
-
-
-
 
 
 def compare_commit_identifier_lists(
@@ -66,18 +63,15 @@ def zip_files_to_upload(
     rp: RepositoryPaths,
 ) -> io.BytesIO:
 
-
     files_to_upload = (
-        [    
+        [
             i.resolve()
             for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
-            if i.is_file() and i.stem in set(
-                compare_commit_identifier_lists(remote_objects, rd)
-            )
+            if i.is_file()
+            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
         ]
         + [rp.document_path()]
         + [rp.metadata_path()]
-        
     )
 
     staging_root = utils.create_staging_directory(c, rp.root)

@@ -7,10 +7,10 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -65,7 +65,6 @@ def main(
     except Exception:
         utils.cleanup_staging(staging_root)
         raise
-
 
     print_commit_success_message(c, commit_identifier)
 

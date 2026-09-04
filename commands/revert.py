@@ -7,15 +7,17 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
-def revert(c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str) -> None:
+def revert(
+    c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str
+) -> None:
 
     if not commit_path.is_file():
         raise exceptions.SCCSException(
@@ -25,7 +27,9 @@ def revert(c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: s
         )
 
     try:
-        shutil.copy2(commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION))
+        shutil.copy2(
+            commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION)
+        )
     except Exception as e:
         raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
 
@@ -72,9 +76,11 @@ def main(
         revert(c, commit_path, staging_root, staging_rw.repository_name)
         new_commit_identifier = staging_rw.commit_changes(
             c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+                commit_identifier=commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
             ),
-            allow_empty_commit=True
+            allow_empty_commit=True,
         )
         utils.promote_staging(staging_root, rp.root)
     except Exception:

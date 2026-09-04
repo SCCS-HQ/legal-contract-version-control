@@ -19,16 +19,13 @@ class TargetBranch:
         self.c = c
         self._branch: str | None = None
 
-
     def set(self, branch_name: str | None) -> None:
 
         self._branch = branch_name
 
-
     def get(self) -> str | None:
 
         return self._branch
-
 
     def require(self) -> str:
 
@@ -36,14 +33,15 @@ class TargetBranch:
             raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
         return self._branch
 
-
     def reset(self) -> None:
 
         self._branch = None
 
 
 class RepositoryData:
-    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(
+        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+    ) -> None:
 
         self.root = root
         self.repository_name = repository_name
@@ -52,13 +50,11 @@ class RepositoryData:
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-
     def config_data(self, key: str) -> str:
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
-
 
     def raise_for_commit_identifier_length(self, commit_identifier: str) -> None:
 
@@ -76,7 +72,6 @@ class RepositoryData:
             raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
-
 
     def commit_identifier_to_full_path(
         self, commit_identifier: str, folder: str
@@ -119,7 +114,6 @@ class RepositoryData:
 
         return Path(matching_files[0])
 
-
     def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
 
         if commit_identifier is None:
@@ -159,7 +153,6 @@ class RepositoryData:
 
         return self.io.file_bytes(matching_files[0])
 
-
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
 
         path = self.commit_identifier_to_full_path(
@@ -167,12 +160,9 @@ class RepositoryData:
         )
         return path.stem
 
-
     def latest_commit_identifier(self) -> str:
 
-        commit_identifier = self.io.read_history()[
-            self.c.LATEST_COMMIT_DICT_KEY
-        ]
+        commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         if not commit_identifier:
             raise exceptions.SCCSException(
                 self.c.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
@@ -180,13 +170,11 @@ class RepositoryData:
 
         return commit_identifier
 
-
     def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
 
         return hashlib.sha256(
             self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
         ).hexdigest()
-
 
     def repository_objects(self) -> list[str]:
 
@@ -198,16 +186,13 @@ class RepositoryData:
             )
         )
 
-
     def base_repository_url(self) -> str:
 
         return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
 
-
     def current_branch(self) -> str:
 
         return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
-
 
     def branches(self) -> list[str]:
 
@@ -215,7 +200,9 @@ class RepositoryData:
 
 
 class RepositoryIO:
-    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(
+        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+    ) -> None:
 
         self.root = root
         self.repository_name = repository_name
@@ -223,24 +210,20 @@ class RepositoryIO:
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
 
-
     def file_bytes(self, path: Path) -> bytes:
 
         with open(path, "rb") as f:
             return f.read()
 
-
     def document_bytes(self) -> bytes:
 
         return self.file_bytes(self.paths.document_path())
-
 
     def write_document_bytes(self, data: bytes) -> None:
 
         with open(self.paths.document_path(), "wb") as f:
             f.write(data)
             f.truncate()
-
 
     def read_metadata(self) -> dict[str, Any]:
 
@@ -251,7 +234,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)
-
 
     def write_metadata(self, data: dict[str, Any]) -> None:
 
@@ -264,7 +246,6 @@ class RepositoryIO:
             json.dump(data, f, indent=4)
             f.truncate()
 
-
     def read_branches_data(self) -> dict[str, Any]:
 
         with open(
@@ -274,7 +255,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)[self.c.BRANCHES_DICT_KEY]
-
 
     def write_branches_data(self, data: dict[str, Any]) -> None:
 
@@ -291,7 +271,6 @@ class RepositoryIO:
         ) as f:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
-            
 
     def read_branch_data(self) -> dict[str, Any]:
 
@@ -304,7 +283,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()]
-
 
     def write_branch_data(self, data: dict[str, Any]) -> None:
 
@@ -322,7 +300,6 @@ class RepositoryIO:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
 
-
     def read_current_branch_data(self) -> dict[str, Any]:
 
         with open(
@@ -333,11 +310,9 @@ class RepositoryIO:
         ) as f:
             return json.load(f)[self.c.CURRENT_BRANCH_DICT_KEY]
 
-
     def read_current_branch_data_key(self, key: str) -> Any:
 
         return self.read_current_branch_data()[key]
-
 
     def write_current_branch_data(self, data: dict[str, Any]) -> None:
 
@@ -353,7 +328,6 @@ class RepositoryIO:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
 
-
     def read_config(self) -> dict[str, str]:
 
         with open(
@@ -363,7 +337,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f).setdefault(self.c.CONFIG_DICT_KEY, {})
-
 
     def write_config(self, data: dict[str, str]) -> None:
 
@@ -379,7 +352,6 @@ class RepositoryIO:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
 
-
     def read_history(self) -> dict[str, Any]:
 
         self.target.require()
@@ -390,19 +362,18 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            return (
-                json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                    self.c.HISTORY_DICT_KEY]
-            )
-
+            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
+                self.c.HISTORY_DICT_KEY
+            ]
 
     def write_history(self, data: dict[str, Any]) -> None:
 
         self.target.require()
-        
+
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.HISTORY_DICT_KEY] = data
+            self.c.HISTORY_DICT_KEY
+        ] = data
 
         with open(
             self.paths.metadata_path(),
@@ -412,7 +383,6 @@ class RepositoryIO:
         ) as f:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
-
 
     def read_log(self) -> dict[str, Any]:
 
@@ -424,19 +394,18 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            return (
-                json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                    self.c.LOG_DICT_KEY]
-            )
-
+            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
+                self.c.LOG_DICT_KEY
+            ]
 
     def write_log(self, data: dict[str, Any]) -> None:
 
         self.target.require()
-        
+
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.LOG_DICT_KEY] = data
+            self.c.LOG_DICT_KEY
+        ] = data
 
         with open(
             self.paths.metadata_path(),
@@ -446,7 +415,6 @@ class RepositoryIO:
         ) as f:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
-
 
     def read_byte_hash(self) -> dict[str, str]:
 
@@ -459,8 +427,8 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.BYTE_HASH_DICT_KEY]
-
+                self.c.BYTE_HASH_DICT_KEY
+            ]
 
     def write_byte_hash(self, data: dict[str, str]) -> None:
 
@@ -468,8 +436,8 @@ class RepositoryIO:
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.BYTE_HASH_DICT_KEY] = data
-
+            self.c.BYTE_HASH_DICT_KEY
+        ] = data
 
         with open(
             self.paths.metadata_path(),
@@ -480,7 +448,6 @@ class RepositoryIO:
             json.dump(full_metadata, f, indent=4)
             f.truncate()
 
-
     def read_commit_messages(self) -> dict[str, str]:
 
         with open(
@@ -490,7 +457,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             return json.load(f)[self.c.COMMIT_MESSAGES_DICT_KEY]
-
 
     def write_commit_messages(self, data: dict[str, str]) -> None:
 
@@ -505,12 +471,10 @@ class RepositoryIO:
         ) as f:
             json.dump(full_metadata, f, indent=4)
 
-
     def document_html_byte_hash(self) -> str:
 
         html = self.document_html()
         return hashlib.sha256(html.encode(self.c.UTF_8)).hexdigest()
-
 
     def document_byte_hash(self) -> str:
 
@@ -520,13 +484,11 @@ class RepositoryIO:
                 hasher.update(i)
         return hasher.hexdigest()
 
-
     def document_html(self) -> str:
 
         with open(self.paths.document_path(), "rb") as f:
             result = mammoth.convert_to_html(f)
             return result.value
-
 
     def create_document_commit(self, commit_identifier: str) -> None:
 
@@ -534,7 +496,6 @@ class RepositoryIO:
         shutil.copy2(
             self.paths.document_path(), self.paths.document_objects_path() / name
         )
-
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
 
@@ -551,7 +512,6 @@ class RepositoryIO:
             ) as f:
                 f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
-
     def write_diff_output(self, diff: str) -> None:
 
         with open(
@@ -565,43 +525,38 @@ class RepositoryIO:
 
 
 class RepositoryPaths:
-    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(
+        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+    ) -> None:
 
         self.root = root
         self.repository_name = repository_name
         self.c = c
         self.target = target
 
-
     def document_path(self) -> Path:
 
         return (self.root / self.repository_name).with_suffix(self.c.DOCUMENT_EXTENSION)
-
 
     def sccs_path(self) -> Path:
 
         return self.root / self.c.SCCS_DIRECTORY
 
-
     def metadata_path(self) -> Path:
 
         return self.sccs_path() / self.c.METADATA_JSON
-
 
     def objects_path(self) -> Path:
 
         return self.sccs_path() / self.c.OBJECTS_DIRECTORY
 
-
     def document_objects_path(self) -> Path:
 
         return self.objects_path() / self.c.DOCUMENT_DIRECTORY
 
-
     def view_html_objects_path(self) -> Path:
 
         return self.objects_path() / self.c.VIEW_HTML_DIRECTORY
-
 
     def html_objects_path(self) -> Path:
 
@@ -609,7 +564,9 @@ class RepositoryPaths:
 
 
 class RepositoryStatus:
-    def __init__(self, root: Path, repository_name: str , c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(
+        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+    ) -> None:
 
         self.root = root
         self.repository_name = repository_name
@@ -617,7 +574,6 @@ class RepositoryStatus:
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
-
 
     def validate_repository_layout(self) -> None:
 
@@ -628,10 +584,7 @@ class RepositoryStatus:
             self.paths.document_objects_path(),
         ]
 
-        files = [
-            self.paths.document_path(),
-            self.paths.metadata_path()
-        ]
+        files = [self.paths.document_path(), self.paths.metadata_path()]
 
         for i in dirs:
             if not i.is_dir():
@@ -648,19 +601,15 @@ class RepositoryStatus:
                     )
                 )
 
-
     def validate_uncommitted_changes(self) -> bool:
 
-        latest_commit_identifier = self.io.read_history()[
-            self.c.LATEST_COMMIT_DICT_KEY
-        ]
+        latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         byte_hash_data = self.io.read_byte_hash()
         latest_byte_hash = byte_hash_data[latest_commit_identifier]
 
         document_byte_hash = self.io.document_html_byte_hash()
 
         return latest_byte_hash != document_byte_hash
-
 
     def raise_for_uncommitted_changes(self) -> None:
 
@@ -669,18 +618,15 @@ class RepositoryStatus:
                 self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
 
-
     def branch_exists(self, branch_name: str | None) -> bool:
 
         if branch_name is None:
             return False
         branches = (
-            i.lower() for i in self.io.read_current_branch_data()[
-                self.c.BRANCHES_DICT_KEY
-            ]
+            i.lower()
+            for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
         )
         return branch_name.lower() in branches
-
 
     def is_current_branch(self, branch_name: str | None) -> bool:
 
@@ -693,7 +639,9 @@ class RepositoryStatus:
 
 
 class RepositoryWrite:
-    def __init__(self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch) -> None:
+    def __init__(
+        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+    ) -> None:
 
         self.root = root
         self.repository_name = repository_name
@@ -702,29 +650,27 @@ class RepositoryWrite:
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-
     def write_key_to_config(
-            self, key: str, value: str, current_config: dict[str, str]
-        ) -> None:
+        self, key: str, value: str, current_config: dict[str, str]
+    ) -> None:
 
         def change_dict(data: dict, target_key: str, new_value: str) -> None:
             if isinstance(data, dict):
                 for key, value in data.items():
                     if key == target_key:
-                        author_config = data[key].replace(
-                            self.c.LEFT_ANGLE_BRACKET, self.c.EMPTY_STRING
-                        ).replace(
-                            self.c.RIGHT_ANGLE_BRACKET, self.c.EMPTY_STRING
-                        ).split(self.c.SPACE)
+                        author_config = (
+                            data[key]
+                            .replace(self.c.LEFT_ANGLE_BRACKET, self.c.EMPTY_STRING)
+                            .replace(self.c.RIGHT_ANGLE_BRACKET, self.c.EMPTY_STRING)
+                            .split(self.c.SPACE)
+                        )
 
                         if (
                             len(author_config) == 2
-                            and author_config[0] == current_config.get(
-                                self.c.NAME_KEY, self.c.EMPTY_STRING
-                            )
-                            and author_config[1] == current_config.get(
-                                self.c.EMAIL_KEY, self.c.EMPTY_STRING
-                            )
+                            and author_config[0]
+                            == current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING)
+                            and author_config[1]
+                            == current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING)
                         ):
                             data[key] = new_value
 
@@ -739,18 +685,14 @@ class RepositoryWrite:
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
             )
 
-        if (
-            key in [self.c.NAME_KEY, self.c.EMAIL_KEY]
-            and not all(
-                i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
-            )
+        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
+            i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
             raise exceptions.SCCSException(
                 self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
             )
-        if (
-            key == self.c.REMOTE_KEY
-            and not all(i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value)
+        if key == self.c.REMOTE_KEY and not all(
+            i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):
             raise exceptions.SCCSException(
                 self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
@@ -771,10 +713,9 @@ class RepositoryWrite:
                 log,
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=value, email=current_config.get(
-                        self.c.EMAIL_KEY, self.c.EMPTY_STRING
-                    )
-                )
+                    name=value,
+                    email=current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING),
+                ),
             )
 
         if key == self.c.EMAIL_KEY:
@@ -783,19 +724,17 @@ class RepositoryWrite:
                 self.c.AUTHOR_DICT_KEY,
                 self.c.COMMIT_AUTHOR_TEMPLATE.format(
                     name=current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING),
-                    email=value
-                )
+                    email=value,
+                ),
             )
 
         self.io.write_log(log)
-
 
     def add_to_branches_list(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
         branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
         self.io.write_current_branch_data(branch_data)
-
 
     def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
 
@@ -810,7 +749,6 @@ class RepositoryWrite:
         self.add_to_updated_branches(branch_name, current_branch_name)
         self.set_current_branch(branch_name)
 
-
     def remove_from_branches_list(self, branch_name: str) -> None:
 
         lowercase_branch_name = branch_name.lower()
@@ -822,15 +760,13 @@ class RepositoryWrite:
             raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
         self.io.write_current_branch_data(branch_data)
 
-
     def remove_branch_metadata(
-            self, branch_name: str, current_branch_name: str
-        ) -> None:
+        self, branch_name: str, current_branch_name: str
+    ) -> None:
 
         branches_metadata = self.io.read_branches_data()
         del branches_metadata[branch_name]
         self.io.write_branches_data(branches_metadata)
-
 
         self.remove_from_branches_list(branch_name)
         self.remove_from_updated_branch(branch_name)
@@ -838,10 +774,9 @@ class RepositoryWrite:
         if branch_name == current_branch_name:
             self.set_current_branch(self.c.MAIN_BRANCH_NAME)
 
-
     def add_to_updated_branches(
-            self, branch_name: str, conditional_branch: str | None = None
-        ) -> None:
+        self, branch_name: str, conditional_branch: str | None = None
+    ) -> None:
 
         branch_data = self.io.read_current_branch_data()
         if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
@@ -853,7 +788,6 @@ class RepositoryWrite:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].append(branch_name)
             self.io.write_current_branch_data(branch_data)
 
-
     def remove_from_updated_branch(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
@@ -863,13 +797,11 @@ class RepositoryWrite:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].remove(branch_name)
             self.io.write_branch_data(branch_data)
 
-
     def set_current_branch(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
         branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
         self.io.write_current_branch_data(branch_data)
-
 
     def commit_changes(
         self, commit_message: str, allow_empty_commit: bool = False
@@ -940,11 +872,8 @@ class RepositoryWrite:
         self.io.write_log(log)
 
         current_branch_data = self.io.read_current_branch_data()
-        if (
-            self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data
-            and isinstance(
-                current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
-            )
+        if self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data and isinstance(
+            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
         ):
             current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = list(
                 set(

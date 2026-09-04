@@ -4,14 +4,14 @@
 import io
 import json
 import os
+import random
 import re
 import shutil
+import string
 import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-import random
-import string
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
@@ -23,7 +23,7 @@ CONTENT_DISPOSITION_HEADER_TITLE = "Content-Disposition"
 CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
 CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 CURRENT_BRANCH_DICT_KEY = "current_branch"
-DOUBLE_PERIOD =".."
+DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
 FILE_PUBLISHED_MESSAGE = "File published successfully"
 FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
@@ -170,7 +170,6 @@ async def root() -> dict:
 @app.post(PUBLISH_ENDPOINT_TEMPLATE)
 async def publish(
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
-
 ) -> dict:
     """Publish a repository to the hosted API"""
 
@@ -188,7 +187,7 @@ async def publish(
             remote = json.loads(data)[REMOTE_KEY]
         except (json.JSONDecodeError, KeyError) as e:
             raise HTTPException(
-                status_code=400,detail=INVALID_JSON_ERROR_MESSAGE
+                status_code=400, detail=INVALID_JSON_ERROR_MESSAGE
             ) from e
 
         if not remote:
@@ -222,16 +221,12 @@ async def publish(
 
         os.replace(staging_root, repository_path)
 
-
     except Exception:
         shutil.rmtree(staging_root)
 
         raise
 
-    return {
-        JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE,
-        JSON_KEY_REPOSITORY_URL: remote
-    }
+    return {JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE, JSON_KEY_REPOSITORY_URL: remote}
 
 
 @app.get(CLONE_ENDPOINT_TEMPLATE)
@@ -291,7 +286,11 @@ async def push(repository_name: str) -> dict:
 
     return {
         JSON_KEY_OBJECTS: list(
-            set(i.stem for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN) if i.is_file())
+            set(
+                i.stem
+                for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN)
+                if i.is_file()
+            )
         )
     }
 
@@ -339,9 +338,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
                 safe_extract_zip(zf, i.filename, staging_root)
 
         with open(
-            (
-                staging_root / SCCS_DIRECTORY / METADATA_JSON
-            ).resolve(),
+            (staging_root / SCCS_DIRECTORY / METADATA_JSON).resolve(),
             "r+",
             encoding=UTF_8,
             newline=NEWLINE,
@@ -354,25 +351,22 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
         saved_repository_path = repository_path.with_name(
             repository_path.name
-            + ''.join(random.choices(string.ascii_letters + string.digits, k=32))
+            + "".join(random.choices(string.ascii_letters + string.digits, k=32))
         )
 
-        os.rename(
-            repository_path, saved_repository_path)
+        os.rename(repository_path, saved_repository_path)
 
         try:
             os.replace(staging_root, repository_path)
         except Exception:
             os.replace(saved_repository_path, repository_path)
 
-
         shutil.rmtree(saved_repository_path)
-        
+
     except Exception:
         shutil.rmtree(staging_root)
 
         raise
-
 
     return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
 
@@ -408,7 +402,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
         ) from e
 
-    remote_objects = set(i.stem for i in (objects_paths).rglob(RGLOB_ALL_FILES_PATTERN) if i.is_file())
+    remote_objects = set(
+        i.stem for i in (objects_paths).rglob(RGLOB_ALL_FILES_PATTERN) if i.is_file()
+    )
 
     if local_objects - remote_objects:
         raise HTTPException(
@@ -433,7 +429,6 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             if i.is_file() and i.stem in remote_objects - local_objects
         ]
         + [(repository_path / SCCS_DIRECTORY / METADATA_JSON).resolve()]
-        
         if i.is_file()
     ]
     print(repository_path / repository_name)
@@ -456,6 +451,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
 
 app.mount(
-    REPOS_MOUNT_ENDPOINT, StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY), name=STATIC_FILES_NAME
+    REPOS_MOUNT_ENDPOINT,
+    StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY),
+    name=STATIC_FILES_NAME,
 )
 """Mount all repositories as static files on the /repos endpoint."""

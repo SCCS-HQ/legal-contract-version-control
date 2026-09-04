@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -165,7 +165,7 @@ def main(
             staging_rd.current_branch(),
             staging_rd,
             staging_rp,
-            staging_rw
+            staging_rw,
         )
         utils.promote_staging(staging_root, rp.root)
     except Exception:

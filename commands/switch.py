@@ -7,11 +7,11 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -105,9 +105,7 @@ def main(
     try:
         shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
 
-        copy_commit_to_main(
-            c, branch_to_switch, rd, staging_root, rs
-        )
+        copy_commit_to_main(c, branch_to_switch, rd, staging_root, rs)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(branch_to_switch)
         utils.promote_staging(staging_root, rp.root)
@@ -115,9 +113,7 @@ def main(
         utils.cleanup_staging(staging_root)
         raise
 
-    print_switch_success_message(
-        c, branch_to_switch
-    )
+    print_switch_success_message(c, branch_to_switch)
 
     rs.target.reset()
 

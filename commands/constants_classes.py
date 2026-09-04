@@ -150,6 +150,7 @@ class SCCSConstants:
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
     HEX_DIGITS = "0123456789abcdef"
     HISTORY_DICT_KEY = "history"
+
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
 
@@ -160,6 +161,7 @@ class SCCSConstants:
             f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
             for i in self.COMMANDS_LIST
         )
+
     HTML_BOILERPLATE_TEMPLATE = (
         "<!DOCTYPE html><html><head><meta charset='UTF-8'>{styles}</head><body>"
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
@@ -218,9 +220,7 @@ class SCCSConstants:
         "Invalid configuration key provided. Please provide one of the valid keys: "
         "remote, name, email."
     )
-    INVALID_PATH_ENDING_ERROR_MESSAGE = (
-        "API URL must end with '/repos/your-repo-name'."
-    )
+    INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/your-repo-name'."
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = (
         "Invalid repository name. Please ensure the repository is properly initialized "
         "with a valid name."
@@ -395,7 +395,6 @@ class SCCSConstants:
     ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
     ZIP_EXTENSION = ".zip"
     ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
-
 
 
 _missing_commands = [

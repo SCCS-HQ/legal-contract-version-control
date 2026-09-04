@@ -10,10 +10,10 @@ import requests
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
+    TargetBranch,
 )
 
 
@@ -23,7 +23,7 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
         response = requests.post(
             c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
             json={c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()},
-            timeout=c.HTTP_TIMEOUT_SECONDS
+            timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
         raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
@@ -32,11 +32,11 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
 
 
 def update_repository_files(
-        c: SCCSConstants,
-        response: requests.Response,
-        rd: RepositoryData,
-        rp: RepositoryPaths
-    ) -> None:
+    c: SCCSConstants,
+    response: requests.Response,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+) -> None:
 
     with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
         for i in zf.namelist():
@@ -44,10 +44,9 @@ def update_repository_files(
 
     shutil.copy2(
         rd.commit_identifier_to_full_path(
-            rd.latest_commit_identifier(),
-            c.DOCUMENT_DIRECTORY
+            rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
         ),
-        rp.document_path()
+        rp.document_path(),
     )
 
 
@@ -60,8 +59,8 @@ def print_pull_success_message(
 
 
 def main(
-        c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
-    ) -> None:
+    c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
 
     rs.target.set(rd.current_branch())
 

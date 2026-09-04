@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 import exceptions
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    RepositoryIO,
-    TargetBranch,
     RepositoryData,
+    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -75,7 +75,7 @@ def main(
     key: str,
     value: str,
     rd: RepositoryData,
-    ri: RepositoryIO, 
+    ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -96,7 +96,7 @@ def main(
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        
+
         staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
         utils.promote_staging(staging_root, rp.root)
     except Exception:

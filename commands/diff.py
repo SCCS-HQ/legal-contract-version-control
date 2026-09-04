@@ -10,10 +10,10 @@ import utils
 from bs4 import BeautifulSoup
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
+    TargetBranch,
 )
 
 
@@ -248,7 +248,6 @@ def main(
     rd: RepositoryData,
     ri: RepositoryIO,
     rs: RepositoryStatus,
-
 ) -> None:
     rs.target.set(rd.current_branch())
     rs.validate_repository_layout()
@@ -259,7 +258,7 @@ def main(
     staging_root = utils.create_staging_directory(c, ri.root)
 
     try:
-        
+
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
 
         staging_ri.write_diff_output(
@@ -267,12 +266,13 @@ def main(
                 c,
                 str(
                     strip_number_attribute(
-                        c, generate_diff_output(
+                        c,
+                        generate_diff_output(
                             c,
                             rd.short_commit_identifier_to_full(commit_identifier),
                             rd,
-                            ri
-                        )
+                            ri,
+                        ),
                     )
                 ),
                 c.DEFAULT_HTML_STYLES,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import os
 import hashlib
+import os
 import shutil
 from pathlib import Path
 
@@ -10,11 +10,11 @@ import mammoth
 import utils
 from constants_classes import SCCSConstants
 from repository_layout import (
-    TargetBranch,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
-    RepositoryWrite
+    RepositoryWrite,
+    TargetBranch,
 )
 
 
@@ -36,10 +36,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
 
 def create_sccs_directory_layout(
-    c: SCCSConstants,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus
+    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -49,7 +46,7 @@ def create_sccs_directory_layout(
         rp.objects_path(),
         rp.document_objects_path(),
         rp.html_objects_path(),
-        rp.view_html_objects_path()
+        rp.view_html_objects_path(),
     ]
 
     try:
@@ -137,12 +134,8 @@ def copy_document_to_objects_as_document_and_html(
 
 
 def write_starting_metadata(
-        c: SCCSConstants,
-        commit_identifier: str,
-        name: str,
-        email: str,
-        ri: RepositoryIO
-    ) -> None:
+    c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
+) -> None:
 
     ri.target.set(c.MAIN_BRANCH_NAME)
 
@@ -175,7 +168,7 @@ def write_starting_metadata(
                 }
             },
             c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
-            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA
+            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
         }
     )
 
@@ -188,11 +181,11 @@ def copy_document_to_repository_directory(
 
 
 def finalize_repository_creation(
-        c: SCCSConstants,
-        document_path: Path,
-        rp: RepositoryPaths,
-        staging_rp: RepositoryPaths
-    ) -> None:
+    c: SCCSConstants,
+    document_path: Path,
+    rp: RepositoryPaths,
+    staging_rp: RepositoryPaths,
+) -> None:
 
     utils.promote_staging(staging_rp.root, rp.root)
 
@@ -217,9 +210,9 @@ def main(
     ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
-    rw: RepositoryWrite
+    rw: RepositoryWrite,
 ) -> None:
-    
+
     validate_no_prev_init(c, rp)
 
     validate_file_requirements(c, document_path)
@@ -232,7 +225,7 @@ def main(
     try:
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
-        staging_rs =  RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
+        staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
@@ -273,5 +266,5 @@ if __name__ == "__main__":
         RepositoryIO(repository_root, repository_name, c, target),
         RepositoryPaths(repository_root, repository_name, c, target),
         RepositoryStatus(repository_root, repository_name, c, target),
-        RepositoryWrite(repository_root, repository_name, c, target)
+        RepositoryWrite(repository_root, repository_name, c, target),
     )
