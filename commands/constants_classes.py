@@ -427,6 +427,11 @@ class SCCSConstants:
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
         "File is not a .docx file. Please provide a valid .docx file."
     )
+    INIT_TEMPORARY_DIRECTORY_PREFIX = "sccs_init_"
+    SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = (
+        "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
+    )
+    
 
     # endregion
 

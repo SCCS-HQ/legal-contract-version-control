@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from codecs import ignore_errors
+import os
+import tempfile
 import hashlib
 import shutil
 from pathlib import Path
@@ -178,11 +181,21 @@ def write_starting_metadata(
     )
 
 
-def move_document_to_repository_directory(
+def copy_document_to_repository_directory(
     repository_path: Path, document_path: Path
 ) -> None:
 
-    shutil.move(document_path, repository_path)
+    shutil.copy2(document_path, repository_path)
+
+
+def finalize_repository_creation(c: SCCSConstants, document_path: Path, rp: RepositoryPaths, staging_rp: RepositoryPaths):
+
+    shutil.move(staging_rp.root, rp.root)
+
+    try:
+        os.remove(document_path)
+    except OSError as e:
+        print(c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(document_path=document_path, e=e))
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
@@ -206,20 +219,37 @@ def main(
     name = ask_config_input(c, c.NAME_KEY)
     email = ask_config_input(c, c.EMAIL_KEY)
 
-    create_sccs_directory_layout(c, ri, rp, rs)
+    staging_root = Path(tempfile.mkdtemp(prefix="sccs_init_", dir=rp.root.parent))
 
-    commit_identifier = create_commit_identifier(c, name, email)
+    try: 
+        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, c, rp.target)
+        staging_rs =  RepositoryStatus(staging_root, c, rs.target)
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
 
-    copy_document_to_objects_as_document_and_html(
-        c, document_path, commit_identifier, rp
-    )
+        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
 
-    move_document_to_repository_directory(rp.root, document_path)
+        commit_identifier = create_commit_identifier(c, name, email)
 
-    write_starting_metadata(c, commit_identifier, name, email, ri)
+        copy_document_to_objects_as_document_and_html(
+            c, document_path, commit_identifier, staging_rp
+        )
 
-    rw.write_key_to_config(c.NAME_KEY, name, ri.read_config())
-    rw.write_key_to_config(c.EMAIL_KEY, email, ri.read_config())
+        copy_document_to_repository_directory(staging_rp.root, document_path)
+
+        write_starting_metadata(c, commit_identifier, name, email, staging_ri)
+
+        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
+
+        finalize_repository_creation(c, document_path, rp, staging_rp)
+    
+    except Exception as e:
+        if staging_root.exists():
+            shutil.rmtree(staging_root, ignore_errors=True)
+            shutil.rmtree(rp.root, ignore_errors=True)
+
+        raise e
 
     print_init_success_message(c)
 
