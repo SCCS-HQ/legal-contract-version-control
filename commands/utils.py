@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import uuid
 import os
 import shutil
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -100,7 +100,6 @@ def cleanup_staging(staging_root: Path | None) -> None:
     if staging_root is None:
         return
     shutil.rmtree(staging_root, ignore_errors=True)
-
 
 
 def promote_staging(staging_root: Path, final_root: Path) -> None:

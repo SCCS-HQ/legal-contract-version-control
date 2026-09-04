@@ -40,7 +40,9 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     return response
 
 
-def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root) -> None:
+def unzip_repository_file(
+    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
+) -> None:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
