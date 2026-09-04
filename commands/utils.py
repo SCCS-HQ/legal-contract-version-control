@@ -102,10 +102,13 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
-def promote_staging(staging_root: Path, final_root: Path) -> None:
+def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
     """Atomically promote a staging directory to its final location.
 
     Uses shutil.move for lenient cross-filesystem fallback. Same-filesystem
     placement is required for true atomicity.
     """
-    shutil.move(staging_root, final_root)
+    if staging_root.resolve().parent == final_root.resolve().parent:
+        shutil.move(staging_root, final_root)
+    else:
+        raise exceptions.SCCSException(c.NOT_SIBLINGS_ERROR_MESSAGE_TEMPLATE.format(staging_root=staging_root, final_root=final_root))

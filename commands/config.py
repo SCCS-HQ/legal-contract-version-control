@@ -2,6 +2,7 @@
 
 
 from pathlib import Path
+import shutil
 from urllib.parse import urljoin, urlsplit
 
 import exceptions
@@ -90,7 +91,19 @@ def main(
 
     resolved_value = resolve_key_value(c, repository_name, key, value)
 
-    rw.write_key_to_config(key, resolved_value, ri.read_config())
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
+
+        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        
+        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_config_success_message(c, key, value)
 

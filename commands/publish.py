@@ -107,9 +107,17 @@ def main(
 
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
-    response = post_repository(c, zip_current_directory(c), url, rd, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    response.raise_for_status()
+    try:
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
+        response = post_repository(c, zip_current_directory(c), url, rd, rp)
+        response.raise_for_status()
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_publish_success_message(c, response, rd.base_repository_url())
 

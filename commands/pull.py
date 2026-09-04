@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import io
+from logging import root
 import shutil
 import zipfile
 from pathlib import Path
@@ -77,7 +78,17 @@ def main(
     response = pull(c, rd)
     response.raise_for_status()
 
-    update_repository_files(c, response, rd, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        staging_rd = RepositoryData(staging_root, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, c, rp.target)
+
+        update_repository_files(c, response, staging_rd, staging_rp)
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
 

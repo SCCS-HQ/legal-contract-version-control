@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import io
+import os
+import shutil
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -45,6 +47,18 @@ def compare_commit_identifier_lists(
     return object_to_upload
 
 
+def _snapshot_file(src: Path, dst: Path) -> None:
+    """Mirror `src` to `dst` cheaply.
+
+    Tries a hardlink first (O(1), same filesystem, no extra disk usage);
+    falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
+    """
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
 def zip_files_to_upload(
     c: SCCSConstants,
     remote_objects: list[str],
@@ -66,19 +80,29 @@ def zip_files_to_upload(
         
     )
 
-    buffer = io.BytesIO()
-
+    staging_root = utils.create_staging_directory(c, rp.root)
     try:
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for i in files_to_upload:
-                zf.write(i, arcname=i.relative_to(rp.root))
-    except Exception as e:
-        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+        for i in files_to_upload:
+            dst = staging_root / i.relative_to(rp.root)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            _snapshot_file(i, dst)
 
-    try:
-        buffer.seek(0)
-    except Exception as e:
-        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+        buffer = io.BytesIO()
+
+        try:
+            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                for i in files_to_upload:
+                    snapshot_path = staging_root / i.relative_to(rp.root)
+                    zf.write(snapshot_path, arcname=i.relative_to(rp.root))
+        except Exception as e:
+            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+
+        try:
+            buffer.seek(0)
+        except Exception as e:
+            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+    finally:
+        utils.cleanup_staging(staging_root)
 
     return buffer
 
@@ -161,7 +185,16 @@ def main(
 
     upload_response.raise_for_status()
 
-    clear_updated_branches(c, ri, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        clear_updated_branches(c, staging_ri, rp)
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
     print_push_success_message(c, upload_response, remote)
 
     rs.target.reset()

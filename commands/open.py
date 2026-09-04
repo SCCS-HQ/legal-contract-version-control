@@ -68,7 +68,14 @@ def main(
         )
     ).with_suffix(c.DOCUMENT_EXTENSION)
 
-    copy_commit_file(commit_path, output_file_name)
+    staging_root = utils.create_staging_directory(c, Path.cwd())
+
+    try:
+        copy_commit_file(commit_path, staging_root / output_file_name.name)
+        utils.promote_staging(c, staging_root, Path.cwd())
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_open_success_message(c, full_commit_identifier, output_file_name)
 

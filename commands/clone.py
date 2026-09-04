@@ -3,6 +3,7 @@
 import io
 import os
 import re
+import shutil
 import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -40,7 +41,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     return response
 
 
-def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str) -> None:
+def unzip_repository_file(c: SCCSConstants, zip_buffer: io.BytesIO, url: str, destination: Path) -> None:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -84,7 +85,14 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
     zip_buffer = io.BytesIO(response.content)
 
-    unzip_repository_file(c, zip_buffer, url)
+    staging_root = utils.create_staging_directory(c, Path.cwd())
+
+    try:
+        unzip_repository_file(c, zip_buffer, url, staging_root)
+        utils.promote_staging(c, staging_root, Path.cwd())
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_clone_success_message(c, response)
 

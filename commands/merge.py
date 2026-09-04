@@ -90,16 +90,28 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    copy_repository_document(c, branch, rd, rp)
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    copy_branch_data(c, branch, rd, ri)
+    try:
+        staging_ri = RepositoryIO(staging_root, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, c, rp.target)
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
 
-    rw.commit_changes(
-        c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
-            branch_name=branch, current_branch=rd.current_branch()
-        ),
-        allow_empty_commit=True,
-    )
+        copy_repository_document(c, branch, rd, staging_rp)
+
+        copy_branch_data(c, branch, rd, staging_ri)
+
+        staging_rw.commit_changes(
+            c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
+                branch_name=branch, current_branch=rd.current_branch()
+            ),
+            allow_empty_commit=True,
+        )
+
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_merge_success_message(c, branch, rd)
 

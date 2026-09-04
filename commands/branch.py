@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import shutil
 
 import exceptions
 import utils
@@ -148,9 +149,22 @@ def main(
 
     validate_subcommand(c, subcommand, branch_name, rs)
 
-    run_specified_subcommand(
-        c, subcommand, branch_name, rd.current_branch(), rd, rp, rw
-    )
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
+
+        staging_rd = RepositoryData(staging_root, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, c, rp.target)
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+
+        run_specified_subcommand(
+            c, subcommand, branch_name, staging_rd.current_branch(), staging_rd, staging_rp, staging_rw
+        )
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     rs.target.reset()
 

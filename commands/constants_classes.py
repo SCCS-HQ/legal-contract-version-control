@@ -14,6 +14,7 @@ class SCCSConstants:
     COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
     HTTP_TIMEOUT_SECONDS = 60
     MAX_FILE_READ_SIZE = 64 * 1024
+    NOT_SIBLINGS_ERROR_MESSAGE_TEMPLATE = "{staging_root} is not a sibling of {final_root}. The files must be siblings to ensure an atomic write."
 
     # endregion
 

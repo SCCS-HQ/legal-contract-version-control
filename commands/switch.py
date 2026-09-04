@@ -57,7 +57,7 @@ def copy_commit_to_main(
     c: SCCSConstants,
     branch_to_switch: str,
     rd: RepositoryData,
-    rp: RepositoryPaths,
+    staging_root: Path,
     rs: RepositoryStatus,
 ) -> None:
 
@@ -68,7 +68,7 @@ def copy_commit_to_main(
             rd.commit_identifier_to_full_path(
                 rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
             ),
-            rp.document_path(),
+            staging_root / rd.paths.document_path().name,
         )
     except Exception as e:
         raise exceptions.SCCSException(c.SWITCH_COPY_ERROR_MESSAGE) from e
@@ -83,7 +83,7 @@ def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> Non
 
 def main(
     c: SCCSConstants,
-    branch_to_switch: str | None,
+    branch_to_switch: str,
     rd: RepositoryData,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
@@ -100,14 +100,21 @@ def main(
 
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    copy_commit_to_main(
-        c, branch_to_switch, rd, rp, rs # pyright: ignore [reportArgumentType]
-    )
+    staging_root = utils.create_staging_directory(c, rp.root)
 
-    rw.set_current_branch(branch_to_switch) # pyright: ignore [reportArgumentType]
+    try:
+        copy_commit_to_main(
+            c, branch_to_switch, rd, staging_root, rs
+        )
+        staging_rw = RepositoryWrite(staging_root, c, rw.target)
+        staging_rw.set_current_branch(branch_to_switch)
+        utils.promote_staging(c, staging_root, rp.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
     print_switch_success_message(
-        c, branch_to_switch # pyright: ignore [reportArgumentType]
+        c, branch_to_switch
     )
 
     rs.target.reset()

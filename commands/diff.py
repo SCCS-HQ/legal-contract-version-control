@@ -4,6 +4,7 @@ import copy
 import difflib
 import filecmp
 from pathlib import Path
+import shutil
 
 import exceptions
 import utils
@@ -259,17 +260,28 @@ def main(
 
     full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
-    ri.write_diff_output(
-        utils.wrap_html(
-            c,
-            str(
-                strip_number_attribute(
-                    c, generate_diff_output(c, full_commit_identifier, rd, ri)
-                )
-            ),
-            c.DEFAULT_HTML_STYLES,
+    staging_root = utils.create_staging_directory(c, ri.root)
+
+    try:
+        
+        staging_ri = RepositoryIO(staging_root, c, ri.target)
+
+        staging_ri.write_diff_output(
+            utils.wrap_html(
+                c,
+                str(
+                    strip_number_attribute(
+                        c, generate_diff_output(c, full_commit_identifier, rd, ri)
+                    )
+                ),
+                c.DEFAULT_HTML_STYLES,
+            )
         )
-    )
+        utils.promote_staging(c, staging_root, ri.root)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
     print_diff_success_message(c)
     rs.target.reset()
 
