@@ -3,6 +3,8 @@
 import os
 import shutil
 import sys
+import tempfile
+import uuid
 from pathlib import Path
 from typing import Any, Callable
 from zipfile import ZipFile
@@ -38,7 +40,7 @@ def safe_extract_zip(
 
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
-    if entry_path.is_absolute() or ".." in entry_path.parts:
+    if entry_path.is_absolute() or c.DOUBLE_PERIOD in entry_path.parts:
         raise exceptions.SCCSException(
             c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
                 entry_path=entry_path
@@ -64,9 +66,8 @@ def safe_extract_zip(
 def run_command(main: Callable[..., None], *args: Any) -> None:
 
     error_wrappers = ErrorWrappers()
-    c = SCCSConstants()
     try:
-        main(c, *args)
+        main(SCCSConstants(), *args)
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
@@ -79,3 +80,43 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
             )
         )
         sys.exit(2)
+
+
+def create_staging_directory(
+    c: SCCSConstants, sibling_of: Path, prefix: str | None = None
+) -> Path:
+    """Create a sibling-staging directory for atomic filesystem operations.
+
+    Placement as a sibling of `sibling_of` guarantees same-filesystem
+    placement so a subsequent rename is atomic on POSIX/macOS.
+    """
+    if prefix is None:
+        prefix = c.TEMPORARY_DIRECTORY_PREFIX
+    return Path(tempfile.mkdtemp(prefix=prefix, dir=sibling_of.parent))
+
+
+def cleanup_staging(staging_root: Path | None) -> None:
+    """Best-effort removal of a staging directory. Safe to call multiple times."""
+    if staging_root is None:
+        return
+    shutil.rmtree(staging_root, ignore_errors=True)
+
+
+def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
+
+    if not final_root.exists():
+        os.rename(staging_root, final_root)
+        return
+
+    old_root = final_root.with_name(
+        c.OLD_ROOT_TEMPLATE.format(repository_name=final_root.name)
+    )
+
+    os.rename(final_root, old_root)
+    try:
+        os.rename(staging_root, final_root)
+    except Exception:
+        os.rename(old_root, final_root)
+        raise
+
+    shutil.rmtree(old_root, ignore_errors=True)
