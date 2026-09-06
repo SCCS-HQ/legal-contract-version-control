@@ -103,17 +103,11 @@ def cleanup_staging(staging_root: Path | None) -> None:
 
 
 def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
-    """Atomically promote a staging directory to its final location.
 
-    final_root is assumed to already exist and be non-empty. True atomicity
-    requires staging_root, final_root, and the temp swap path to all live on
-    the same filesystem, since os.rename() is only atomic within one.
+    if not final_root.exists():
+        os.rename(staging_root, final_root)
+        return
 
-    Strategy: rename final_root aside (atomic), rename staging_root into its
-    place (atomic), then delete the old contents. If the second rename fails,
-    the original final_root is restored so callers never observe a missing
-    final_root.
-    """
     old_root = final_root.with_name(
         c.OLD_ROOT_TEMPLATE.format(repository_name=final_root.name)
     )

@@ -40,6 +40,9 @@ class SCCSConstants:
     CLASS_HTML_ATTRIBUTE = "class"
     CLONE_ENDPOINT = "/clone"
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
+    CLONE_DESTINATION_EXISTS_ERROR_MESSAGE = (
+        "A directory with the repository name already exists in the current directory."
+    )
     COMMAND_DESCRIPTIONS = {
         "branch": "Create a new branch, delete, or list branches.",
         "clone": "Clone a hosted SCCS repository with a URL.",
@@ -246,11 +249,6 @@ class SCCSConstants:
     LOG_SEPARATOR = "-" * 30
     LOG_DICT_KEY = "log"
     MAIN_BRANCH_NAME = "main"
-    # DEFAULT_BRANCH_DATA out of order to not error
-    DEFAULT_BRANCH_DATA = {
-        CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
-        BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
-    }
     MAX_FILE_READ_SIZE = 64 * 1024
     MERGE_COMMIT_MESSAGE_TEMPLATE = (
         "Merged branch '{branch_name}' into '{current_branch}'."
@@ -384,6 +382,12 @@ class SCCSConstants:
         f"along with required arguments."
     )
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+    # DEFAULT_BRANCH_DATA out of order to not error
+    DEFAULT_BRANCH_DATA = {
+        CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+        BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
+        UPDATED_BRANCHES_DICT_KEY: []
+    }
     URL_FIELD_NAME = "URL"
     UTILS_ARGUMENT_ERROR_MESSAGE = (
         "Required argument missing. Please provide the required argument."

@@ -654,32 +654,6 @@ class RepositoryWrite:
         self, key: str, value: str, current_config: dict[str, str]
     ) -> None:
 
-        def change_dict(data: dict, target_key: str, new_value: str) -> None:
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    if key == target_key:
-                        author_config = (
-                            data[key]
-                            .replace(self.c.LEFT_ANGLE_BRACKET, self.c.EMPTY_STRING)
-                            .replace(self.c.RIGHT_ANGLE_BRACKET, self.c.EMPTY_STRING)
-                            .split(self.c.SPACE)
-                        )
-
-                        if (
-                            len(author_config) == 2
-                            and author_config[0]
-                            == current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING)
-                            and author_config[1]
-                            == current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING)
-                        ):
-                            data[key] = new_value
-
-                    change_dict(value, target_key, new_value)
-
-            elif isinstance(data, list):
-                for i in data:
-                    change_dict(i, target_key, new_value)
-
         if not value or not value.strip():
             raise exceptions.SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
@@ -706,29 +680,6 @@ class RepositoryWrite:
 
         self.io.write_config(config)
 
-        log = self.io.read_log()
-
-        if key == self.c.NAME_KEY:
-            change_dict(
-                log,
-                self.c.AUTHOR_DICT_KEY,
-                self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=value,
-                    email=current_config.get(self.c.EMAIL_KEY, self.c.EMPTY_STRING),
-                ),
-            )
-
-        if key == self.c.EMAIL_KEY:
-            change_dict(
-                log,
-                self.c.AUTHOR_DICT_KEY,
-                self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                    name=current_config.get(self.c.NAME_KEY, self.c.EMPTY_STRING),
-                    email=value,
-                ),
-            )
-
-        self.io.write_log(log)
 
     def add_to_branches_list(self, branch_name: str) -> None:
 
@@ -737,6 +688,8 @@ class RepositoryWrite:
         self.io.write_current_branch_data(branch_data)
 
     def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
+
+        branch_name = branch_name.lower()
 
         branches_metadata = self.io.read_branches_data()
         current_branch_metadata = branches_metadata[current_branch_name]
@@ -764,8 +717,11 @@ class RepositoryWrite:
         self, branch_name: str, current_branch_name: str
     ) -> None:
 
+        branch_name = branch_name.lower()
+
         branches_metadata = self.io.read_branches_data()
-        del branches_metadata[branch_name]
+        if branch_name in branches_metadata:
+            del branches_metadata[branch_name]
         self.io.write_branches_data(branches_metadata)
 
         self.remove_from_branches_list(branch_name)
@@ -777,6 +733,8 @@ class RepositoryWrite:
     def add_to_updated_branches(
         self, branch_name: str, conditional_branch: str | None = None
     ) -> None:
+
+        branch_name = branch_name.lower()
 
         branch_data = self.io.read_current_branch_data()
         if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
@@ -790,6 +748,8 @@ class RepositoryWrite:
 
     def remove_from_updated_branch(self, branch_name: str) -> None:
 
+        branch_name = branch_name.lower()
+
         branch_data = self.io.read_current_branch_data()
         if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
             branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
@@ -800,7 +760,7 @@ class RepositoryWrite:
     def set_current_branch(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name
+        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
         self.io.write_current_branch_data(branch_data)
 
     def commit_changes(
@@ -811,7 +771,7 @@ class RepositoryWrite:
 
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
-        ]
+        ].lower()
         latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         byte_hash_data = self.io.read_byte_hash()
 

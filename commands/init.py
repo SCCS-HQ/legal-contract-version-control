@@ -55,8 +55,6 @@ def create_sccs_directory_layout(
         for i in paths:
             (i).mkdir(parents=True, exist_ok=True)
 
-        ri.write_metadata({})
-
     except Exception as e:
         raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 

@@ -22,9 +22,9 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
         raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
         )
-    if branch == rd.current_branch():
+    if branch.lower() == rd.current_branch().lower():
         raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
-    if branch not in rd.branches():
+    if branch.lower() not in (i.lower() for i in rd.branches()):
         raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
@@ -34,11 +34,59 @@ def copy_branch_data(
     c: SCCSConstants, branch: str, rd: RepositoryData, ri: RepositoryIO
 ) -> None:
 
-    ri.target.set(branch)
+    ri.target.set(branch.lower())
     branch_to_merge_data = ri.read_branch_data()
 
     ri.target.set(rd.current_branch())
-    ri.write_branch_data(branch_to_merge_data)
+    current_branch_data = ri.read_branch_data()
+
+    log = {
+        **current_branch_data[c.LOG_DICT_KEY],
+        **branch_to_merge_data[c.LOG_DICT_KEY],
+    }
+
+    byte_hash = {
+        **current_branch_data[c.BYTE_HASH_DICT_KEY],
+        **branch_to_merge_data[c.BYTE_HASH_DICT_KEY],
+    }
+
+    history = {
+        **current_branch_data[c.HISTORY_DICT_KEY],
+        **branch_to_merge_data[c.HISTORY_DICT_KEY],
+    }
+
+    commit_order = dict(
+        current_branch_data[c.HISTORY_DICT_KEY][c.COMMIT_ORDER_DICT_KEY]
+    )
+    seen_commit_identifiers = set(commit_order.values())
+    latest_commit_number = int(
+        current_branch_data[c.HISTORY_DICT_KEY][c.LATEST_COMMIT_NUMBER_DICT_KEY]
+    )
+
+    source_commit_order = branch_to_merge_data[c.HISTORY_DICT_KEY][
+        c.COMMIT_ORDER_DICT_KEY
+    ]
+    for i in sorted(source_commit_order, key=int):
+        commit_identifier = source_commit_order[i]
+        if commit_identifier not in seen_commit_identifiers:
+            latest_commit_number += 1
+            commit_order[str(latest_commit_number)] = commit_identifier
+            seen_commit_identifiers.add(commit_identifier)
+
+    history[c.COMMIT_ORDER_DICT_KEY] = commit_order
+    history[c.LATEST_COMMIT_NUMBER_DICT_KEY] = latest_commit_number
+    history[c.LATEST_COMMIT_DICT_KEY] = branch_to_merge_data[c.HISTORY_DICT_KEY][
+        c.LATEST_COMMIT_DICT_KEY
+    ]
+
+    merged_branch_data = {
+        **current_branch_data,
+        c.HISTORY_DICT_KEY: history,
+        c.LOG_DICT_KEY: log,
+        c.BYTE_HASH_DICT_KEY: byte_hash,
+    }
+
+    ri.write_branch_data(merged_branch_data)
 
 
 def copy_repository_document(
@@ -46,7 +94,7 @@ def copy_repository_document(
 ) -> None:
 
     original_target = rd.target.get()
-    rd.target.set(branch)
+    rd.target.set(branch.lower())
 
     try:
         shutil.copy2(

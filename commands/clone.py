@@ -40,9 +40,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     return response
 
 
-def unzip_repository_file(
-    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
-) -> None:
+def repository_name_from_url(c: SCCSConstants, url: str) -> str:
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -56,7 +54,16 @@ def unzip_repository_file(
             )
         )
 
-    destination = Path(staging_root / path_parts[-2])
+    return path_parts[-2]
+
+
+def unzip_repository_file(
+    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
+) -> None:
+
+    repository_name = repository_name_from_url(c, url)
+
+    destination = Path(staging_root / repository_name)
 
     print(destination)
 
@@ -85,13 +92,26 @@ def main(c: SCCSConstants, url: str | None) -> None:
 
     zip_buffer = io.BytesIO(response.content)
 
-    staging_root = utils.create_staging_directory(c, Path.cwd())
+    repository_name = repository_name_from_url(c, url)
+
+    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", repository_name) or repository_name in (
+        c.SINGLE_PERIOD,
+        c.DOUBLE_PERIOD,
+    ):
+        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+
+    destination = Path.cwd() / repository_name
+
+    if destination.exists():
+        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
+
+    staging_root = utils.create_staging_directory(c, destination)
 
     print(staging_root)
 
     try:
         unzip_repository_file(c, zip_buffer, url, staging_root)
-        utils.promote_staging(c, staging_root, Path.cwd())
+        utils.promote_staging(c, staging_root, destination)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

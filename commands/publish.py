@@ -20,11 +20,6 @@ from repository_layout import (
 )
 
 
-def reset_current_branch(c: SCCSConstants, rw: RepositoryWrite) -> None:
-
-    rw.set_current_branch(c.MAIN_BRANCH_NAME)
-
-
 def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
 
     try:
@@ -103,9 +98,9 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    reset_current_branch(c, rw)
-
     staging_root = utils.create_staging_directory(c, rp.root)
+
+    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
     try:
         shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
@@ -115,7 +110,7 @@ def main(
         response = post_repository(
             c,
             zip_current_directory(c),
-            c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            url,
             rd,
             rp,
         )
@@ -125,7 +120,7 @@ def main(
         utils.cleanup_staging(staging_root)
         raise
 
-    print_publish_success_message(c, response, rd.base_repository_url())
+    print_publish_success_message(c, response, url)
 
     rs.target.reset()
 
