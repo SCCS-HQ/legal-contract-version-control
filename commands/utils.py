@@ -102,7 +102,6 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
-
 def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
     """Atomically promote a staging directory to its final location.
 
