@@ -33,7 +33,7 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
-def finalize_commit(rw: RepositoryWrite, staging_rw: RepositoryWrite) -> None:
+def finalize_commit(c: SCCSConstants, rw: RepositoryWrite, staging_rw: RepositoryWrite) -> None:
 
     utils.promote_staging(c, staging_rw.root, rw.root)
 
@@ -60,7 +60,7 @@ def main(
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         commit_identifier = staging_rw.commit_changes(commit_message)
 
-        finalize_commit(rw, staging_rw)
+        finalize_commit(c, rw, staging_rw)
 
     except Exception:
         utils.cleanup_staging(staging_root)
