@@ -245,8 +245,6 @@ def main(
 
     except Exception:
         utils.cleanup_staging(staging_root)
-        if rp.root.exists():
-            utils.cleanup_staging(rp.root)
         raise
 
     print_init_success_message(c)
