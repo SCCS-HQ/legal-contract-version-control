@@ -33,7 +33,9 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
-def finalize_commit(c: SCCSConstants, rw: RepositoryWrite, staging_rw: RepositoryWrite) -> None:
+def finalize_commit(
+    c: SCCSConstants, rw: RepositoryWrite, staging_rw: RepositoryWrite
+) -> None:
 
     utils.promote_staging(c, staging_rw.root, rw.root)
 

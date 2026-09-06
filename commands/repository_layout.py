@@ -680,7 +680,6 @@ class RepositoryWrite:
 
         self.io.write_config(config)
 
-
     def add_to_branches_list(self, branch_name: str) -> None:
 
         branch_data = self.io.read_current_branch_data()
