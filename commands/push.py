@@ -186,7 +186,7 @@ def main(
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         clear_updated_branches(c, staging_ri, rp)
-        utils.promote_staging(staging_root, rp.root)
+        utils.promote_staging(c, staging_root, rp.root)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

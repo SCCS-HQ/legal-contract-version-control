@@ -187,7 +187,7 @@ def finalize_repository_creation(
     staging_rp: RepositoryPaths,
 ) -> None:
 
-    utils.promote_staging(staging_rp.root, rp.root)
+    utils.promote_staging(c, staging_rp.root, rp.root)
 
     try:
         os.remove(document_path)

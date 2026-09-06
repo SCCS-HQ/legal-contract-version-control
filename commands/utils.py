@@ -102,7 +102,8 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
-def promote_staging(staging_root: Path, final_root: Path) -> None:
+
+def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
     """Atomically promote a staging directory to its final location.
 
     final_root is assumed to already exist and be non-empty. True atomicity
@@ -114,13 +115,15 @@ def promote_staging(staging_root: Path, final_root: Path) -> None:
     the original final_root is restored so callers never observe a missing
     final_root.
     """
-    old_root = final_root.with_name(f"{final_root.name}.old-{uuid.uuid4().hex}")
+    old_root = final_root.with_name(
+        c.OLD_ROOT_TEMPLATE.format(repository_name=final_root.name)
+    )
 
     os.rename(final_root, old_root)
     try:
         os.rename(staging_root, final_root)
     except Exception:
-        os.rename(old_root, final_root)  # roll back
+        os.rename(old_root, final_root)
         raise
 
     shutil.rmtree(old_root, ignore_errors=True)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import uuid
 
 import exceptions
 
@@ -287,6 +288,7 @@ class SCCSConstants:
         "It is safe to delete this file. No changes will be lost unless {output_file} "
         "is modified after this point."
     )
+    OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = (
         "Invalid file path: {entry_path} in zip. Please ensure the path does not "
