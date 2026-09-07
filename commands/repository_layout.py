@@ -12,6 +12,22 @@ import utils
 from constants_classes import SCCSConstants
 
 
+class DataPaths:
+
+    def __init__(self, repository_name: str, c: SCCSConstants) -> None:
+
+        self.c = c
+        self.root = Path.home() / self.c.SCCS_DIRECTORY
+
+    def repos_path(self) -> Path:
+
+        return self.root / self.c.REPOSITORIES_PATH_SEGMENT
+
+    def versions_path(self) -> Path:
+
+        return Path(self.repos_path() / self.c.VERSIONS_PATH_SEGMENT)
+        
+
 class TargetBranch:
 
     def __init__(self, c: SCCSConstants) -> None:
