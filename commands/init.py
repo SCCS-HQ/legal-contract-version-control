@@ -36,7 +36,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 
 
 def create_sccs_directory_layout(
-    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
+    c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
     rs.target.set(c.MAIN_BRANCH_NAME)
@@ -226,7 +226,7 @@ def main(
         staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
+        create_sccs_directory_layout(c, staging_rp, staging_rs)
 
         commit_identifier = create_commit_identifier(c, name, email)
 
