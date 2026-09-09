@@ -17,6 +17,7 @@ class DataPaths:
     def __init__(self, repository_name: str, c: SCCSConstants) -> None:
 
         self.c = c
+        self.repository_name = repository_name
         self.root = Path.home() / self.c.SCCS_DIRECTORY
 
     def repos_path(self) -> Path:
@@ -25,7 +26,11 @@ class DataPaths:
 
     def versions_path(self) -> Path:
 
-        return Path(self.repos_path() / self.c.VERSIONS_PATH_SEGMENT)
+        return Path(self.repos_path() / self.repository_name / self.c.VERSIONS_PATH_SEGMENT)
+
+    def current_version_path(self):
+
+        return self.versions_path() / self.c.CURRENT_PATH_SEGMENT
         
 
 class TargetBranch:

@@ -103,6 +103,7 @@ class SCCSConstants:
     CURRENT_BRANCH_DICT_KEY = "current_branch"
     CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
     CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
+    CURRENT_PATH_SEGMENT = "current"
     DATA_DATA = "data"
     DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     DATA_REMOTE = "remote"
@@ -279,6 +280,8 @@ class SCCSConstants:
         "committing."
     )
     OBJECTS_DIRECTORY = "objects"
+    OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
+    VERSION_ONE = "1"
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
     OPEN_SUCCESS_MESSAGE_TEMPLATE = (
@@ -286,7 +289,6 @@ class SCCSConstants:
         "It is safe to delete this file. No changes will be lost unless {output_file} "
         "is modified after this point."
     )
-    OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = (
         "Invalid file path: {entry_path} in zip. Please ensure the path does not "
@@ -329,6 +331,9 @@ class SCCSConstants:
     )
     RIGHT_ANGLE_BRACKET = ">"
     RGLOB_ALL_FILES_PATTERN = "*"
+    SCCS_DATA_CREATE_ERROR_MESSAGE = (
+        "Failed to create global SCCS data directories. Please try again."
+    )
     SCCS_DIRECTORY = ".sccs"
     SINGLE_PERIOD = "."
     SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = (
@@ -393,6 +398,8 @@ class SCCSConstants:
         "Required argument missing. Please provide the required argument."
     )
     UTF_8 = "utf-8"
+    VERSION_PATH_SEGMENT_TEMPLATE = ".v{version_number}"
+    VERSIONS_PATH_SEGMENT = "versions"
     VIEW_HTML_DIRECTORY = "view_html"
     WALK_ROOT = "."
     ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = (

@@ -92,6 +92,7 @@ def create_staging_directory(
     """
     if prefix is None:
         prefix = c.TEMPORARY_DIRECTORY_PREFIX
+    sibling_of.parent.mkdir(parents=True, exist_ok=True)
     return Path(tempfile.mkdtemp(prefix=prefix, dir=sibling_of.parent))
 
 

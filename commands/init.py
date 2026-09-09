@@ -35,7 +35,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
         )
 
 
-def create_sccs_directory_layout(
+def create_sccs_repository_directory_layout(
     c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
 
@@ -185,6 +185,28 @@ def finalize_repository_creation(
     staging_rp: RepositoryPaths,
 ) -> None:
 
+    current_version_path = staging_rp.root.parent / c.CURRENT_PATH_SEGMENT
+
+    try:
+        if current_version_path.is_symlink() or current_version_path.is_file():
+            current_version_path.unlink()
+        elif current_version_path.is_dir():
+            shutil.rmtree(current_version_path)
+
+        current_version_path.symlink_to(rp.root, target_is_directory=True)
+
+        document_path.with_suffix(c.EMPTY_STRING).symlink_to(
+            current_version_path, target_is_directory=True
+        )
+
+    except OSError as e:
+        utils.cleanup_staging(staging_rp.root)
+        raise exceptions.SCCSException(
+            c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(
+                document_path=current_version_path, e=e
+            )
+        ) from e
+
     utils.promote_staging(c, staging_rp.root, rp.root)
 
     try:
@@ -226,7 +248,7 @@ def main(
         staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        create_sccs_directory_layout(c, staging_rp, staging_rs)
+        create_sccs_repository_directory_layout(c, staging_rp, staging_rs)
 
         commit_identifier = create_commit_identifier(c, name, email)
 
@@ -254,8 +276,15 @@ if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
     document_path = Path(utils.entered_argument(c, 2))
-    repository_root = document_path.with_suffix(c.EMPTY_STRING)
-    repository_name = repository_root.name
+    repository_name = document_path.stem
+    repository_root = (
+        Path.home() /
+        c.SCCS_DIRECTORY /
+        c.REPOSITORIES_PATH_SEGMENT /
+        repository_name /
+        c.VERSIONS_PATH_SEGMENT /
+        c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.VERSION_ONE)
+    )
     utils.run_command(
         main,
         document_path,
