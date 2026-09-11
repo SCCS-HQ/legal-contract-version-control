@@ -135,6 +135,16 @@ def write_starting_metadata(
     c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
 ) -> None:
 
+    if not name or not name.strip():
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.NAME_KEY)
+        )
+
+    if not email or not email.strip():
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.EMAIL_KEY)
+        )
+
     ri.target.set(c.MAIN_BRANCH_NAME)
 
     ri.write_metadata(
@@ -167,6 +177,7 @@ def write_starting_metadata(
             },
             c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
             c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
+            c.CONFIG_DICT_KEY: {c.NAME_KEY: name, c.EMAIL_KEY: email}
         }
     )
 
@@ -184,6 +195,8 @@ def finalize_repository_creation(
     rp: RepositoryPaths,
     staging_rp: RepositoryPaths,
 ) -> None:
+
+    utils.promote_staging(c, staging_rp.root, rp.root)
 
     current_version_path = staging_rp.root.parent / c.CURRENT_PATH_SEGMENT
 
@@ -206,8 +219,6 @@ def finalize_repository_creation(
                 document_path=current_version_path, e=e
             )
         ) from e
-
-    utils.promote_staging(c, staging_rp.root, rp.root)
 
     try:
         os.remove(document_path)
@@ -260,13 +271,13 @@ def main(
 
         write_starting_metadata(c, commit_identifier, name, email, staging_ri)
 
-        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
-        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
-
         finalize_repository_creation(c, document_path, rp, staging_rp)
 
     except Exception:
         utils.cleanup_staging(staging_root)
+
+        shutil.rmtree(rw.root.parent.parent)
+
         raise
 
     print_init_success_message(c)
