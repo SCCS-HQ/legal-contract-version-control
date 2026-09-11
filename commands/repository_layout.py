@@ -671,9 +671,7 @@ class RepositoryWrite:
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def write_key_to_config(
-        self, key: str, value: str, current_config: dict[str, str]
-    ) -> None:
+    def write_key_to_config(self, key: str, value: str) -> None:
 
         if not value or not value.strip():
             raise exceptions.SCCSException(
