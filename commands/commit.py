@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import shutil
 from pathlib import Path
 
@@ -37,8 +38,31 @@ def finalize_commit(
     c: SCCSConstants, rw: RepositoryWrite, staging_rw: RepositoryWrite
 ) -> None:
 
-    utils.promote_staging(c, staging_rw.root, rw.root)
+    history = rw.io.read_history()
+    next_version_number = history[c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
 
+    new_version_path = (
+        Path.home()
+        / c.SCCS_DIRECTORY
+        / c.REPOSITORIES_PATH_SEGMENT
+        / staging_rw.repository_name
+        / c.VERSIONS_PATH_SEGMENT
+        / c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=next_version_number)
+    )
+
+    utils.promote_staging(c, staging_rw.root, new_version_path)
+
+    temporary_root = rw.root.with_name(c.TEMPORARY_DIRECTORY_PREFIX + rw.root.name)
+
+    try:
+        temporary_root.symlink_to(new_version_path, target_is_directory=True)
+        os.replace(temporary_root, rw.root)
+        
+    except Exception:
+        shutil.rmtree(new_version_path)
+        shutil.rmtree(temporary_root)
+        raise
+    
 
 def main(
     c: SCCSConstants,
@@ -76,11 +100,19 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = Path.cwd().parent.parent.name
+    repository_root = (
+        Path.home() /
+        c.SCCS_DIRECTORY /
+        c.REPOSITORIES_PATH_SEGMENT /
+        repository_name /
+        c.VERSIONS_PATH_SEGMENT /
+        c.CURRENT_PATH_SEGMENT
+    )
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
+        RepositoryData(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
+        RepositoryWrite(repository_root, repository_name, c, target),
     )
