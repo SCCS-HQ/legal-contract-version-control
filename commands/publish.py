@@ -20,7 +20,9 @@ from repository_layout import (
 )
 
 
-def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
+def zip_repository(c: SCCSConstants, repository_name: str) -> io.BytesIO:
+
+    repository_root = utils.repository_path(c, repository_name)
 
     try:
         zip_buffer = io.BytesIO()
@@ -34,9 +36,12 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
             zip_buffer,
             "w",
         ) as zf:
-            for root, dirs, files in os.walk(c.WALK_ROOT):
+            for root, dirs, files in os.walk(repository_root):
                 for i in files:
-                    zf.write(Path(root) / i)
+                    current_path = Path(root) / i
+                    zf.write(
+                        current_path, arcname=current_path.relative_to(repository_root)
+                    )
     except Exception as e:
         raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
@@ -113,15 +118,17 @@ def main(
 
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
+        utils.promote_versioned(c, staging_root, rp.repository_name)
+
         response = post_repository(
             c,
-            zip_current_directory(c),
+            zip_repository(c, rp.repository_name),
             url,
             rd,
             rp,
         )
         response.raise_for_status()
-        utils.promote_versioned(c, staging_root, rp.repository_name)
+        
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

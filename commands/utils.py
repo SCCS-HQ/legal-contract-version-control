@@ -115,6 +115,13 @@ def current_symlink_path(c: SCCSConstants, repository_name: str) -> Path:
     )
 
 
+def repository_path(c: SCCSConstants, repository_name: str) -> Path:
+
+    return (
+        Path.home() / c.SCCS_DIRECTORY / c.REPOSITORIES_PATH_SEGMENT / repository_name
+    )
+
+
 def promote_versioned(
     c: SCCSConstants, staging_root: Path, repository_name: str
 ) -> Path:
@@ -133,11 +140,22 @@ def promote_versioned(
 
     if versions.is_dir():
         for i in versions.iterdir():
-            if not i.name.startswith(c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.EMPTY_STRING)):
+            if not i.name.startswith(
+                c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.EMPTY_STRING)
+            ):
                 continue
             try:
                 latest_version_number = max(
-                    latest_version_number, int(i.name[len(c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.EMPTY_STRING)) :])
+                    latest_version_number,
+                    int(
+                        i.name[
+                            len(
+                                c.VERSION_PATH_SEGMENT_TEMPLATE.format(
+                                    version_number=c.EMPTY_STRING
+                                )
+                            ) :
+                        ]
+                    ),
                 )
             except ValueError:
                 continue

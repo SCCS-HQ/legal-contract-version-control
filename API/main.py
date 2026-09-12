@@ -24,6 +24,7 @@ CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
 CURRENT_BRANCH_DICT_KEY = "current_branch"
 DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
+EMPTY_STRING = ""
 FILE_PUBLISHED_MESSAGE = "File published successfully"
 FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
 INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
@@ -65,6 +66,9 @@ TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
 UPDATED_BRANCHES_DICT_KEY = "updated_branches"
 UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded fie is too large"
 UTF_8 = "utf-8"
+VERSION_PATH_SEGMENT_TEMPLATE = ".v{version_number}"
+VERSIONS_PATH_SEGMENT = "versions"
+CURRENT_PATH_SEGMENT = "current"
 ZIP_MEDIA_TYPE = "application/zip"
 
 
@@ -157,6 +161,33 @@ def safe_extract_zip(
             shutil.copyfileobj(source, f)
 
 
+def latest_version_number(versions_directory: Path) -> int:
+
+    latest_version_number = 0
+
+    if versions_directory.is_dir:
+        for i in versions_directory.iterdir():
+            if not i.name.startswith(VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=EMPTY_STRING)):
+                continue
+
+            latest_version_number = max(
+                latest_version_number,
+                int(
+                    i.name[
+                        len(
+                            VERSION_PATH_SEGMENT_TEMPLATE.format(
+                                version_number=EMPTY_STRING
+                            )
+                        ) :
+                    ]
+                ),
+            )
+
+    return latest_version_number
+
+            
+
+
 app = FastAPI()
 
 
@@ -218,6 +249,17 @@ async def publish(
                     )
 
                 safe_extract_zip(zf, i.filename, staging_root)
+
+            versions_path = (staging_root / VERSIONS_PATH_SEGMENT)
+
+            current_version_path = (versions_path / CURRENT_PATH_SEGMENT)
+
+            current_version_path.symlink_to(
+                versions_path / VERSION_PATH_SEGMENT_TEMPLATE.format(
+                    version_number=latest_version_number(versions_path)
+                ),
+                target_is_directory=True
+            )
 
         os.replace(staging_root, repository_path)
 
