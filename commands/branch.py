@@ -167,7 +167,7 @@ def main(
             staging_rp,
             staging_rw,
         )
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_versioned(c, staging_root, rp.repository_name)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise
@@ -178,13 +178,14 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = Path.cwd().parent.parent.name
+    repository_root = utils.current_symlink_path(c, repository_name)
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
         utils.entered_argument(c, 3, raise_on_not_provided=False),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
+        RepositoryData(repository_root, repository_name, c, target),
+        RepositoryPaths(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
+        RepositoryWrite(repository_root, repository_name, c, target),
     )

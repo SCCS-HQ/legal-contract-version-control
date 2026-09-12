@@ -103,6 +103,64 @@ def cleanup_staging(staging_root: Path | None) -> None:
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
+def current_symlink_path(c: SCCSConstants, repository_name: str) -> Path:
+
+    return (
+        Path.home()
+        / c.SCCS_DIRECTORY
+        / c.REPOSITORIES_PATH_SEGMENT
+        / repository_name
+        / c.VERSIONS_PATH_SEGMENT
+        / c.CURRENT_PATH_SEGMENT
+    )
+
+
+def promote_versioned(
+    c: SCCSConstants, staging_root: Path, repository_name: str
+) -> Path:
+
+    current_symlink = current_symlink_path(c, repository_name)
+
+    versions = (
+        Path.home()
+        / c.SCCS_DIRECTORY
+        / c.REPOSITORIES_PATH_SEGMENT
+        / repository_name
+        / c.VERSIONS_PATH_SEGMENT
+    )
+
+    latest_version_number = 0
+
+    if versions.is_dir():
+        for i in versions.iterdir():
+            if not i.name.startswith(c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.EMPTY_STRING)):
+                continue
+            try:
+                latest_version_number = max(
+                    latest_version_number, int(i.name[len(c.VERSION_PATH_SEGMENT_TEMPLATE.format(version_number=c.EMPTY_STRING)) :])
+                )
+            except ValueError:
+                continue
+
+    new_version_path = versions / c.VERSION_PATH_SEGMENT_TEMPLATE.format(
+        version_number=latest_version_number + 1
+    )
+
+    promote_staging(c, staging_root, new_version_path)
+    temporary_root = current_symlink.with_name(
+        c.TEMPORARY_DIRECTORY_PREFIX + current_symlink.name
+    )
+    try:
+        temporary_root.symlink_to(new_version_path, target_is_directory=True)
+        os.replace(temporary_root, current_symlink)
+    except Exception:
+        cleanup_staging(new_version_path)
+        cleanup_staging(temporary_root)
+        raise
+
+    return new_version_path
+
+
 def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
 
     if not final_root.exists():

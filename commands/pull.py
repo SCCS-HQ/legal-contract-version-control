@@ -71,16 +71,22 @@ def main(
     response = pull(c, rd)
     response.raise_for_status()
 
-    staging_root = utils.create_staging_directory(c, rp.root)
+    staging_root = utils.create_staging_directory(
+        c, utils.current_symlink_path(c, rp.repository_name)
+    )
 
     try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+        shutil.copytree(
+            utils.current_symlink_path(c, rp.repository_name),
+            staging_root,
+            dirs_exist_ok=True,
+        )
 
         staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
 
         update_repository_files(c, response, staging_rd, staging_rp)
-        utils.promote_staging(c, staging_root, rp.root)
+        utils.promote_versioned(c, staging_root, rp.repository_name)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise
@@ -93,10 +99,11 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = Path.cwd().parent.parent.name
+    repository_root = utils.current_symlink_path(c, repository_name)
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryData(repository_root, repository_name, c, target),
+        RepositoryPaths(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
     )

@@ -3,6 +3,7 @@
 import copy
 import difflib
 import filecmp
+import shutil
 from pathlib import Path
 
 import exceptions
@@ -255,9 +256,10 @@ def main(
 
     validate_diff(c, rd, commit_identifier)
 
-    staging_root = utils.create_staging_directory(c, ri.root)
+    staging_root = utils.create_staging_directory(c, utils.current_symlink_path(c, ri.repository_name))
 
     try:
+        shutil.copytree(utils.current_symlink_path(c, ri.repository_name), staging_root, dirs_exist_ok=True)
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
 
@@ -278,7 +280,7 @@ def main(
                 c.DEFAULT_HTML_STYLES,
             )
         )
-        utils.promote_staging(c, staging_root, ri.root)
+        utils.promote_versioned(c, staging_root, ri.repository_name)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise
@@ -290,11 +292,12 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = Path.cwd().parent.parent.name
+    repository_root = utils.current_symlink_path(c, repository_name)
     utils.run_command(
         main,
         utils.entered_argument(c, 2),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryData(repository_root, repository_name, c, target),
+        RepositoryIO(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
     )

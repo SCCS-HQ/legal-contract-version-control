@@ -33,9 +33,10 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = Path.cwd().parent.parent.name
+    repository_root = utils.current_symlink_path(c, repository_name)
     utils.run_command(
         main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryData(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
     )
