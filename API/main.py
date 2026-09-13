@@ -114,7 +114,7 @@ def repository_directory(repository_name: str) -> Path:
 
     safe = validate_repository_name(repository_name)  # returns ValidatedRepositoryName
     base_directory = repository_base_directory()
-    repository_path = (base_directory / str(safe)).resolve()  #
+    repository_path = (base_directory / str(safe)).resolve()
 
     try:
         repository_path.relative_to(base_directory)
@@ -255,9 +255,9 @@ async def publish(
             current_version_path = (versions_path / CURRENT_PATH_SEGMENT)
 
             current_version_path.symlink_to(
-                versions_path / VERSION_PATH_SEGMENT_TEMPLATE.format(
+                Path(VERSION_PATH_SEGMENT_TEMPLATE.format(
                     version_number=latest_version_number(versions_path)
-                ),
+                )),
                 target_is_directory=True
             )
 
@@ -321,7 +321,13 @@ async def push(repository_name: str) -> dict:
     repository_path = repository_directory(repository_name)
     ensure_repository_exists(repository_path)
 
-    objects_directory = (repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
+    objects_directory = (
+        repository_path /
+        VERSIONS_PATH_SEGMENT /
+        CURRENT_PATH_SEGMENT / 
+        SCCS_DIRECTORY /
+        OBJECTS_DIRECTORY
+    ).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
         raise HTTPException(status_code=404, detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE)
@@ -378,6 +384,22 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
             for i in zf.infolist():
                 safe_extract_zip(zf, i.filename, staging_root)
+
+        versions_path = (staging_root / VERSIONS_PATH_SEGMENT)
+
+        current_version_path = (versions_path / CURRENT_PATH_SEGMENT)
+
+        if current_version_path.is_symlink():
+            current_version_path.unlink(missing_ok=True)
+        elif current_version_path.exists():
+            shutil.rmtree(current_version_path)
+
+        current_version_path.symlink_to(
+            Path(VERSION_PATH_SEGMENT_TEMPLATE.format(
+                version_number=latest_version_number(versions_path)
+            )),
+            target_is_directory=True
+        )
 
         with open(
             (staging_root / SCCS_DIRECTORY / METADATA_JSON).resolve(),

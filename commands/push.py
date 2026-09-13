@@ -65,7 +65,7 @@ def zip_files_to_upload(
 
     files_to_upload = (
         [
-            i.resolve()
+            i
             for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
             if i.is_file()
             and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
