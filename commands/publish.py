@@ -21,6 +21,11 @@ from repository_layout import (
 
 
 def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
+    """
+    Zip the contents of the current directory into a buffer and return it. Raise an
+    SCCSException if the buffer cannot be created, the files cannot be zipped, or the
+    buffer position cannot be reset.
+    """
 
     try:
         zip_buffer = io.BytesIO()
@@ -55,6 +60,10 @@ def post_repository(
     rd: RepositoryData,
     rp: RepositoryPaths,
 ) -> requests.Response:
+    """
+    Post the zipped repository and the repository remote to the entered URL and return
+    the response. Raise an SCCSException if the request fails.
+    """
 
     try:
         response = requests.post(
@@ -80,6 +89,9 @@ def post_repository(
 def print_publish_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
+    """
+    Print the status code and a success message after a successful publish operation.
+    """
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
@@ -92,6 +104,15 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the publish command by setting the current branch as the target, validating the
+    repository layout, and posting the zipped repository to the hosting service with the
+    main branch set as the current branch of a copy of the repository in a staging
+    directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

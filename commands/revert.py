@@ -18,6 +18,10 @@ from repository_layout import (
 def revert(
     c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str
 ) -> None:
+    """
+    Copy the entered commit document to the staging directory. Raise an SCCSException if
+    the commit file does not exist or cannot be copied.
+    """
 
     if not commit_path.is_file():
         raise exceptions.SCCSException(
@@ -37,6 +41,10 @@ def revert(
 def print_revert_success_message(
     c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
 ) -> None:
+    """
+    Print a success message indicating that the document has been reverted to the
+    entered commit.
+    """
 
     print(
         c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -56,6 +64,14 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the revert command by setting the current branch as the target, validating the
+    repository layout, and copying the entered commit document to the repository on a
+    copy of the repository in a staging directory.
+
+    Commit the reverted document, promote the staging directory to the repository root,
+    print a success message, and reset the target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

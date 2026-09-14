@@ -7,6 +7,11 @@ import exceptions
 
 
 class SCCSConstants:
+    """
+    A class to hold constants used throughout the SCCS application. This includes error
+    messages, field names, directory names, and other static values that are referenced
+    in multiple places in the codebase."""
+
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     ACCEPTED_SCHEMES = ("http", "https")
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -157,6 +162,10 @@ class SCCSConstants:
 
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
+        """
+        Return the help messages listing the available SCCS commands and their
+        descriptions.
+        """
 
         return (
             "SCCS Help",
@@ -416,5 +425,10 @@ if _missing_commands:
 
 
 class ErrorWrappers:
+    """
+    A class to hold the templates used to wrap expected and unexpected errors raised
+    while running a command.
+    """
+
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"

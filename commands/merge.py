@@ -17,6 +17,11 @@ from repository_layout import (
 
 
 def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
+    """
+    Validate the entered branch by checking that it is not empty, is not the current
+    branch, and exists in the repository. Raise an SCCSException if any validation
+    fails.
+    """
 
     if not branch:
         raise exceptions.SCCSException(
@@ -33,6 +38,10 @@ def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) ->
 def copy_branch_data(
     c: SCCSConstants, branch: str, rd: RepositoryData, ri: RepositoryIO
 ) -> None:
+    """
+    Merge the history, log, and byte hash data of the entered branch into the current
+    branch and write the merged data to the current branch metadata.
+    """
 
     ri.target.set(branch.lower())
     branch_to_merge_data = ri.read_branch_data()
@@ -92,6 +101,10 @@ def copy_branch_data(
 def copy_repository_document(
     c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
 ) -> None:
+    """
+    Copy the latest commit document of the entered branch to the repository document
+    path. Raise an SCCSException if the document cannot be copied.
+    """
 
     original_target = rd.target.get()
     rd.target.set(branch.lower())
@@ -112,6 +125,10 @@ def copy_repository_document(
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
+    """
+    Print a success message indicating that the entered branch has been merged into the
+    current branch.
+    """
 
     print(
         c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -129,6 +146,14 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the merge command by setting the current branch as the target, validating the
+    repository layout and entered branch, and merging the branch into the current branch
+    on a copy of the repository in a staging directory.
+
+    Commit the merged document, promote the staging directory to the repository root,
+    print a success message, and reset the target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

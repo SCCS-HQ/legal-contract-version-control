@@ -18,6 +18,12 @@ from repository_layout import (
 
 
 def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
+    """
+    Validates the entered key-value pair by checking if the key is accepted and if the
+    value is not empty.
+
+    Raises an SCCSException if the key or value is invalid.
+    """
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
         raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
@@ -33,6 +39,14 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
 def resolve_key_value(
     c: SCCSConstants, repository_name: str, key: str, value: str
 ) -> str:
+    """
+    Resolve the value for the given key. If the key is 'remote', it ensures that the
+    value is a valid URL and appends the required path ending for the repository. For
+    other keys, it simply returns the value.
+
+    If the key is 'remote' and validation fails, it raises an SCCSException with an
+    appropriate error message.
+    """
 
     if key == c.REMOTE_KEY:
         url = (
@@ -65,6 +79,9 @@ def resolve_key_value(
 
 
 def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
+    """
+    Print a success message after a successful configuration operation, including the
+    key and value that were set."""
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
@@ -79,6 +96,14 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the config command by setting the current branch as the target, validating the
+    repository layout, and writing the entered key-value pair to the configuration of a
+    copy of the repository in a staging directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

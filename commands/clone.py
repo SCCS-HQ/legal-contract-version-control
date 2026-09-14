@@ -13,7 +13,13 @@ import utils
 from constants_classes import SCCSConstants
 
 
-def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
+def validate_entered_url(c: SCCSConstants, url: str | None) -> None:
+    """
+    Validates the entered URL by checking if it is not empty, starts with an accepted
+    scheme, and ends with the expected clone endpoint.
+
+    Raises an SCCSException if the URL is invalid.
+    """
 
     if not url:
         raise exceptions.SCCSException(
@@ -26,10 +32,13 @@ def resolve_entered_url(c: SCCSConstants, url: str | None) -> str:
     if not url.endswith(c.CLONE_ENDPOINT):
         raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
-    return url
-
 
 def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+    """
+    Sends a GET request to the specified URL with a timeout and returns the response.
+
+    Raises an SCCSException if the request fails.
+    """
 
     try:
         response = requests.get(url, timeout=timeout)
@@ -41,6 +50,13 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
 
 
 def repository_name_from_url(c: SCCSConstants, url: str) -> str:
+    """
+    Extracts the repository name from the provided URL by splitting the path and
+    validating the last two parts of the path.
+
+    Raises an SCCSException if the URL is invalid or does not contain a valid repository
+    name.
+    """
 
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
@@ -60,6 +76,13 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
 def unzip_repository_file(
     c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
 ) -> None:
+    """
+    Unzip the repository file from the provided zip buffer into the staging root
+    directory.
+
+    Raises an SCCSException if the repository name is invalid or if the extraction
+    fails.
+    """
 
     repository_name = repository_name_from_url(c, url)
 
@@ -79,14 +102,24 @@ def unzip_repository_file(
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
+    """
+    Print the status code and a success message after a successful clone operation.
+    """
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.CLONE_SUCCESS_MESSAGE)
 
 
-def main(c: SCCSConstants, url: str | None) -> None:
+def main(c: SCCSConstants, url: str) -> None:
+    """
+    Run the clone command by validating the entered URL, requesting the repository from
+    the remote URL, and extracting it into a staging directory.
 
-    url = resolve_entered_url(c, url)
+    Promote the staging directory to the destination directory and print a success
+    message when the operation completes.
+    """
+
+    validate_entered_url(c, url)
 
     response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
 

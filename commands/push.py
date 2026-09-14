@@ -21,6 +21,10 @@ from repository_layout import (
 
 
 def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+    """
+    Request the commit identifiers stored on the remote repository and return the
+    response. Raise an SCCSException if the request fails.
+    """
 
     try:
         return requests.get(
@@ -34,6 +38,12 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
 def compare_commit_identifier_lists(
     remote_objects: list[str], rd: RepositoryData
 ) -> list[str]:
+    """
+    Compare the remote commit identifiers to the local commit identifiers and return the
+    local identifiers that are missing from the remote repository. Raise an
+    SCCSException if the remote repository contains commit identifiers that are missing
+    locally.
+    """
 
     local_objects = rd.repository_objects()
 
@@ -62,6 +72,11 @@ def zip_files_to_upload(
     rd: RepositoryData,
     rp: RepositoryPaths,
 ) -> io.BytesIO:
+    """
+    Zip the local objects that are missing from the remote repository, along with the
+    document and metadata files, into a buffer and return it. Raise an SCCSException if
+    the files cannot be zipped or the buffer position cannot be reset.
+    """
 
     files_to_upload = (
         [
@@ -104,6 +119,11 @@ def zip_files_to_upload(
 def upload_objects(
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
+    """
+    Upload the zipped objects to the push endpoint of the remote repository and return
+    the response. Raise an SCCSException if the remote path ending is invalid or the
+    request fails.
+    """
 
     remote = rd.base_repository_url()
 
@@ -139,6 +159,9 @@ def upload_objects(
 def clear_updated_branches(
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
 ) -> None:
+    """
+    Clear the list of updated branches in the current branch metadata.
+    """
 
     data = ri.read_current_branch_data()
     data[c.UPDATED_BRANCHES_DICT_KEY] = []
@@ -148,6 +171,9 @@ def clear_updated_branches(
 def print_push_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
+    """
+    Print the status code and a success message after a successful push operation.
+    """
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
@@ -160,6 +186,16 @@ def main(
     rp: RepositoryPaths,
     rs: RepositoryStatus,
 ) -> None:
+    """
+    Run the push command by setting the current branch as the target, validating the
+    repository layout, comparing the local and remote objects, and uploading the missing
+    objects to the remote repository.
+
+    Clear the updated branches in the current branch metadata of a copy of the
+    repository in a staging directory, promote the staging directory to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
+    """
 
     rs.target.set(rd.current_branch())
 
