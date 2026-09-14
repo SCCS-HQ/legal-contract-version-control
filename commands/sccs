@@ -1,5 +1,4 @@
 #!/usr/bin/env python3 
-"""SCCS - Simple Contract Control System; CLI tunnel to point to chosen command"""
 
 import subprocess
 import sys
