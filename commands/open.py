@@ -109,7 +109,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

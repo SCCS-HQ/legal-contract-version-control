@@ -27,7 +27,7 @@ def run_command(c: SCCSConstants, entered_command: str) -> None:
                     get_script_directory() / entered_command
                 ).with_suffix(c.PYTHON_EXTENSION),
             ]
-            + sys.argv[1:]
+            + sys.argv[c.COMMAND_ARGUMENT_INDEX:]
         ).returncode
     )
 
@@ -57,7 +57,7 @@ def main(c: SCCSConstants, entered_command: str) -> None:
 
 if __name__ == "__main__":
     c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, 1))
+    utils.run_command(main, utils.entered_argument(c, c.COMMAND_ARGUMENT_INDEX))
 
 # If on MacOS / Linux, move all files in commands/, and make this file executable
 # with 'chmod +x /usr/local/bin/sccs'.

@@ -46,7 +46,7 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
         raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
-        zip_buffer.seek(0)
+        zip_buffer.seek(c.FILE_START_POSITION)
     except Exception as e:
         raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
 

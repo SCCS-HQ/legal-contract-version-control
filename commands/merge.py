@@ -78,7 +78,7 @@ def copy_branch_data(
     for i in sorted(source_commit_order, key=int):
         commit_identifier = source_commit_order[i]
         if commit_identifier not in seen_commit_identifiers:
-            latest_commit_number += 1
+            latest_commit_number += c.COMMIT_NUMBER_INCREMENT
             commit_order[str(latest_commit_number)] = commit_identifier
             seen_commit_identifiers.add(commit_identifier)
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryIO(Path.cwd(), repository_name, c, target),
         RepositoryPaths(Path.cwd(), repository_name, c, target),

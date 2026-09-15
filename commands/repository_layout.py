@@ -147,14 +147,14 @@ class RepositoryData:
                 )
             )
 
-        if len(matching_files) > 1:
+        if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
             raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     commit_identifier=commit_identifier
                 )
             )
 
-        return Path(matching_files[0])
+        return Path(matching_files[self.c.FIRST_ELEMENT_INDEX])
 
     def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
         """
@@ -191,14 +191,14 @@ class RepositoryData:
                 )
             )
 
-        if len(matching_files) > 1:
+        if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
             raise exceptions.SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     commit_identifier=commit_identifier
                 )
             )
 
-        return self.io.file_bytes(matching_files[0])
+        return self.io.file_bytes(matching_files[self.c.FIRST_ELEMENT_INDEX])
 
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
         """
@@ -338,7 +338,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(data, f, indent=4)
+            json.dump(data, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_branches_data(self) -> dict[str, Any]:
@@ -371,7 +371,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_branch_data(self) -> dict[str, Any]:
@@ -407,7 +407,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_current_branch_data(self) -> dict[str, Any]:
@@ -444,7 +444,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_config(self) -> dict[str, str]:
@@ -474,7 +474,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_history(self) -> dict[str, Any]:
@@ -514,7 +514,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_log(self) -> dict[str, Any]:
@@ -554,7 +554,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_byte_hash(self) -> dict[str, str]:
@@ -594,7 +594,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
     def read_commit_messages(self) -> dict[str, str]:
@@ -624,7 +624,7 @@ class RepositoryIO:
             encoding=self.c.UTF_8,
             newline=self.c.NEWLINE,
         ) as f:
-            json.dump(full_metadata, f, indent=4)
+            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
 
     def document_html_byte_hash(self) -> str:
         """
@@ -1087,7 +1087,8 @@ class RepositoryWrite:
         history = self.io.read_history()
         history[self.c.LATEST_COMMIT_DICT_KEY] = commit_identifier
         history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
-            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] + 1
+            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
+            + self.c.COMMIT_NUMBER_INCREMENT
         )
         history[self.c.COMMIT_ORDER_DICT_KEY][
             history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]

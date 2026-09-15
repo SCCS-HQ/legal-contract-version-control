@@ -138,7 +138,7 @@ def replace_tag(
                     c.INSERTED_HTML_ATTRIBUTE_VALUE
                 ]
     if match:
-        match[-1].insert_after(html_fragment)
+        match[c.LAST_TAG_INDEX].insert_after(html_fragment)
         for i in match:
             if c.CLASS_HTML_ATTRIBUTE in i.attrs:
                 i[c.CLASS_HTML_ATTRIBUTE].append(c.DELETED_HTML_ATTRIBUTE_VALUE)
@@ -358,7 +358,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryIO(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),

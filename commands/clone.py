@@ -70,7 +70,7 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
             )
         )
 
-    return path_parts[-2]
+    return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
 
 
 def unzip_repository_file(
@@ -154,4 +154,4 @@ def main(c: SCCSConstants, url: str) -> None:
 
 if __name__ == "__main__":
     c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, 2))
+    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))

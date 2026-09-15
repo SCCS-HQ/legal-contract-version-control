@@ -175,7 +175,7 @@ def write_starting_metadata(
                     c.HISTORY_DICT_KEY: {
                         c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
                         c.LATEST_COMMIT_DICT_KEY: commit_identifier,
-                        c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
+                        c.LATEST_COMMIT_NUMBER_DICT_KEY: c.INITIAL_COMMIT_NUMBER,
                         c.COMMIT_ORDER_DICT_KEY: {
                             c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
                         },
@@ -304,7 +304,7 @@ def main(
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(c, 2))
+    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
     repository_name = repository_root.name
     utils.run_command(

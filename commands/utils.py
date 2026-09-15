@@ -83,13 +83,14 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
     the wrapped error and exiting when the command raises an exception.
     """
 
+    c = SCCSConstants()
     error_wrappers = ErrorWrappers()
     try:
-        main(SCCSConstants(), *args)
+        main(c, *args)
 
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(1)
+        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
 
     except Exception as e:
         print(
@@ -97,7 +98,7 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
                 type_name=type(e).__name__, e=e
             )
         )
-        sys.exit(2)
+        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
 
 def create_staging_directory(

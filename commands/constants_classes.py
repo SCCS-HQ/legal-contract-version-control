@@ -48,6 +48,7 @@ class SCCSConstants:
     CLONE_DESTINATION_EXISTS_ERROR_MESSAGE = (
         "A directory with the repository name already exists in the current directory."
     )
+    COMMAND_ARGUMENT_INDEX = 1
     COMMAND_DESCRIPTIONS = {
         "branch": "Create a new branch, delete, or list branches.",
         "clone": "Clone a hosted SCCS repository with a URL.",
@@ -95,6 +96,7 @@ class SCCSConstants:
     COMMIT_IDENTIFIER_FIELD_NAME = "commit byte hash"
     COMMIT_MESSAGES_DICT_KEY = "commit_messages"
     COMMIT_MESSAGE_FIELD_NAME = "commit message"
+    COMMIT_NUMBER_INCREMENT = 1
     COMMIT_ORDER_DICT_KEY = "commit_order"
     CONFIG_DICT_KEY = "config"
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
@@ -156,6 +158,10 @@ class SCCSConstants:
         "path to an existing file."
     )
     EMAIL_KEY = "email"
+    EXPECTED_ERROR_EXIT_CODE = 1
+    FILE_START_POSITION = 0
+    FIRST_ARGUMENT_INDEX = 2
+    FIRST_ELEMENT_INDEX = 0
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
     HEX_DIGITS = "0123456789abcdef"
     HISTORY_DICT_KEY = "history"
@@ -188,6 +194,7 @@ class SCCSConstants:
     )
     HTTP_TIMEOUT_SECONDS = 60
     INITIAL_COMMIT_DICT_KEY = "initial_commit"
+    INITIAL_COMMIT_NUMBER = 1
     INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
     INIT_COMMIT_MESSAGE = (
@@ -247,6 +254,8 @@ class SCCSConstants:
         f"schemes: {', '.join(ACCEPTED_SCHEMES)}, and use the format "
         f"'http(s)://<host>/<base-path>'. Base path is optional."
     )
+    JSON_INDENT = 4
+    LAST_TAG_INDEX = -1
     LATEST_COMMIT_DICT_KEY = "latest_commit"
     LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
     LEFT_ANGLE_BRACKET = "<"
@@ -258,6 +267,7 @@ class SCCSConstants:
     LOG_SEPARATOR = "-" * 30
     LOG_DICT_KEY = "log"
     MAIN_BRANCH_NAME = "main"
+    MAXIMUM_COMMIT_FILE_MATCHES = 1
     MAX_FILE_READ_SIZE = 64 * 1024
     MERGE_COMMIT_MESSAGE_TEMPLATE = (
         "Merged branch '{branch_name}' into '{current_branch}'."
@@ -319,6 +329,7 @@ class SCCSConstants:
     REMOTE_KEY = "remote"
     REPLACE_OPCODE = "replace"
     REPOSITORY_NAME_FIELD_NAME = "repository name"
+    REPOSITORY_NAME_PATH_INDEX = -2
     REPOSITORIES_PATH_SEGMENT = "repos"
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
@@ -339,6 +350,7 @@ class SCCSConstants:
     RIGHT_ANGLE_BRACKET = ">"
     RGLOB_ALL_FILES_PATTERN = "*"
     SCCS_DIRECTORY = ".sccs"
+    SECOND_ARGUMENT_INDEX = 3
     SINGLE_PERIOD = "."
     SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = (
         "Warning: could not remove source file {document_path}: {e}. The repository "
@@ -385,6 +397,7 @@ class SCCSConstants:
         "Uncommitted changes detected. Please clean the working tree before proceeding."
     )
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
+    UNEXPECTED_ERROR_EXIT_CODE = 2
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
         f"Unknown command: {{entered_command}}. "
         f"Please use {', '.join(COMMANDS_LIST)} "
