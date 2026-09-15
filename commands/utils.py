@@ -126,8 +126,8 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
     final root already exists, rename it to a temporary old root first and remove it
     after the staging directory is promoted.
 
-    There is a small window where repository may be lost if the process is interrupted 
-    between two atomic renames. This is a known limitation of the current 
+    There is a small window where repository may be lost if the process is interrupted
+    between two atomic renames. This is a known limitation of the current
     implementation, and will be addressed in a future version.
     """
 
