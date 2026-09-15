@@ -25,21 +25,13 @@ def validate_subcommand(
     subcommand. Raise an SCCSException if any validation fails.
     """
 
-    if not subcommand:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.SUBCOMMAND_FIELD_NAME)
-        )
+    utils.raise_if_empty(c, subcommand, c.SUBCOMMAND_FIELD_NAME)
 
     if subcommand not in c.ACCEPTED_SUBCOMMANDS:
         raise exceptions.SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
-        if not branch_name:
-            raise exceptions.SCCSException(
-                c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=c.BRANCH_NAME_FIELD_NAME
-                )
-            )
+        utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if rs.branch_exists(branch_name):
@@ -108,7 +100,7 @@ def branch_delete_subcommand(
     Print a success message indicating that the branch has been deleted.
     """
 
-    if branch_name == c.MAIN_BRANCH_NAME:
+    if branch_name.lower() == c.MAIN_BRANCH_NAME:
         raise exceptions.SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
 
     rw.remove_branch_metadata(branch_name, rd.current_branch())

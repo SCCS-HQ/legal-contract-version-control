@@ -13,19 +13,18 @@ from repository_layout import (
 )
 
 
-def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
+def validate_commit_identifier(
+    c: SCCSConstants, commit_identifier: str, rd: RepositoryData
+) -> None:
     """
-    Validate the entered commit identifier by checking that it is not empty, has the
-    full commit identifier length, and contains only hexadecimal digits. Raise an
-    SCCSException if the commit identifier is invalid.
+    Validate the entered commit identifier by checking that it has a valid commit
+    identifier length and contains only hexadecimal digits. Raise an SCCSException if
+    the commit identifier is invalid.
     """
 
-    if not commit_identifier:
-        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
+    rd.raise_for_commit_identifier_length(commit_identifier)
 
-    if len(commit_identifier) != c.FULL_COMMIT_IDENTIFIER_LENGTH or not all(
-        i in c.HEX_DIGITS for i in commit_identifier
-    ):
+    if not all(i in c.HEX_DIGITS for i in commit_identifier):
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 

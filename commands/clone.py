@@ -13,7 +13,7 @@ import utils
 from constants_classes import SCCSConstants
 
 
-def validate_entered_url(c: SCCSConstants, url: str | None) -> None:
+def validate_entered_url(c: SCCSConstants, url: str) -> None:
     """
     Validates the entered URL by checking if it is not empty, starts with an accepted
     scheme, and ends with the expected clone endpoint.
@@ -21,16 +21,27 @@ def validate_entered_url(c: SCCSConstants, url: str | None) -> None:
     Raises an SCCSException if the URL is invalid.
     """
 
-    if not url:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
-        )
+    utils.raise_if_empty(c, url, c.URL_FIELD_NAME)
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
         raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
     if not url.endswith(c.CLONE_ENDPOINT):
         raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+
+
+def validate_repository_name(c: SCCSConstants, name: str) -> None:
+    """
+    Validate the entered repository name by checking that it contains only allowed
+    characters and is not a single or double period. Raise an SCCSException if the
+    repository name is invalid.
+    """
+
+    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", name) or name in (
+        c.SINGLE_PERIOD,
+        c.DOUBLE_PERIOD,
+    ):
+        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
 
 def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
@@ -90,11 +101,7 @@ def unzip_repository_file(
 
     print(destination)
 
-    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", destination.name) or destination.name in (
-        c.SINGLE_PERIOD,
-        c.DOUBLE_PERIOD,
-    ):
-        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+    validate_repository_name(c, destination.name)
 
     with zipfile.ZipFile(zip_buffer, "r") as zf:
         for i in zf.namelist():
@@ -127,11 +134,7 @@ def main(c: SCCSConstants, url: str) -> None:
 
     repository_name = repository_name_from_url(c, url)
 
-    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", repository_name) or repository_name in (
-        c.SINGLE_PERIOD,
-        c.DOUBLE_PERIOD,
-    ):
-        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+    validate_repository_name(c, repository_name)
 
     destination = Path.cwd() / repository_name
 

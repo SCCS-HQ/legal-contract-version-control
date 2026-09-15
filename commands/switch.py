@@ -23,10 +23,7 @@ def validate_branch_to_switch(
     repository. Raise an SCCSException if any validation fails.
     """
 
-    if not branch_to_switch:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
-        )
+    utils.raise_if_empty(c, branch_to_switch, c.BRANCH_NAME_FIELD_NAME)
 
     if not rs.branch_exists(branch_to_switch):
         raise exceptions.SCCSException(

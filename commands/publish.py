@@ -3,7 +3,6 @@
 import io
 import json
 import os
-import zipfile
 from pathlib import Path
 
 import exceptions
@@ -22,32 +21,13 @@ from repository_layout import (
 def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
     """
     Zip the contents of the current directory into a buffer and return it. Raise an
-    SCCSException if the buffer cannot be created, the files cannot be zipped, or the
-    buffer position cannot be reset.
+    SCCSException if the files cannot be zipped.
     """
 
-    try:
-        zip_buffer = io.BytesIO()
-    except Exception as e:
-        raise exceptions.SCCSException(
-            c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
-        ) from e
-
-    try:
-        with zipfile.ZipFile(
-            zip_buffer,
-            "w",
-        ) as zf:
-            for root, dirs, files in os.walk(c.WALK_ROOT):
-                for i in files:
-                    zf.write(Path(root) / i)
-    except Exception as e:
-        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
-
-    try:
-        zip_buffer.seek(c.FILE_START_POSITION)
-    except Exception as e:
-        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+    with utils.zip_buffer(c) as (zip_buffer, zf):
+        for root, dirs, files in os.walk(c.WALK_ROOT):
+            for i in files:
+                zf.write(Path(root) / i)
 
     return zip_buffer
 

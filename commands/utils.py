@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import contextlib
+import hashlib
+import io
 import os
 import shutil
 import sys
 import tempfile
-import uuid
+import zipfile
 from pathlib import Path
 from typing import Any, Callable, Iterator
 from zipfile import ZipFile
@@ -220,3 +222,55 @@ def copy_latest_commit_document(
         raise exceptions.SCCSException(error_message) from e
     finally:
         rd.target.set(original_target)
+
+
+def create_commit_identifier(c: SCCSConstants, parts: list[str]) -> str:
+    """
+    Return the SHA-256 commit identifier created by joining the entered commit
+    identifier parts with the path separator and hashing the result.
+    """
+
+    return hashlib.sha256(c.PATH_SEPARATOR.join(parts).encode(c.UTF_8)).hexdigest()
+
+
+def raise_if_empty(
+    c: SCCSConstants, value: str | None, field: str, *, capitalize: bool = False
+) -> None:
+    """
+    Raise an SCCSException if the entered value is empty, formatting the empty value
+    error message template with the entered field name. Optionally capitalize the
+    message before raising.
+    """
+
+    if not value:
+        message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
+        raise exceptions.SCCSException(message.capitalize() if capitalize else message)
+
+
+@contextlib.contextmanager
+def zip_buffer(
+    c: SCCSConstants, compression: int = zipfile.ZIP_STORED
+) -> Iterator[tuple[io.BytesIO, ZipFile]]:
+    """
+    Create a zip archive in an in-memory buffer and yield the buffer together with the
+    zip file object. Raise an SCCSException if the buffer cannot be created, the files
+    cannot be zipped, or the buffer position cannot be reset.
+    """
+
+    try:
+        buffer = io.BytesIO()
+    except Exception as e:
+        raise exceptions.SCCSException(
+            c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
+        ) from e
+
+    try:
+        with zipfile.ZipFile(buffer, "w", compression) as zf:
+            yield buffer, zf
+    except Exception as e:
+        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+
+    try:
+        buffer.seek(c.FILE_START_POSITION)
+    except Exception as e:
+        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e

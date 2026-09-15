@@ -96,20 +96,10 @@ def zip_files_to_upload(
             dst.parent.mkdir(parents=True, exist_ok=True)
             _snapshot_file(i, dst)
 
-        buffer = io.BytesIO()
-
-        try:
-            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for i in files_to_upload:
-                    snapshot_path = staging_root / i.relative_to(rp.root)
-                    zf.write(snapshot_path, arcname=i.relative_to(rp.root))
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
-
-        try:
-            buffer.seek(c.FILE_START_POSITION)
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+        with utils.zip_buffer(c, zipfile.ZIP_DEFLATED) as (buffer, zf):
+            for i in files_to_upload:
+                snapshot_path = staging_root / i.relative_to(rp.root)
+                zf.write(snapshot_path, arcname=i.relative_to(rp.root))
     finally:
         utils.cleanup_staging(staging_root)
 
@@ -156,16 +146,16 @@ def upload_objects(
     return response
 
 
-def clear_updated_branches(
-    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
-) -> None:
+def clear_updated_branches(ri: RepositoryIO) -> None:
     """
     Clear the list of updated branches in the current branch metadata.
     """
 
-    data = ri.read_current_branch_data()
-    data[c.UPDATED_BRANCHES_DICT_KEY] = []
-    ri.write_current_branch_data(data)
+    def clear(updated: list[str]) -> bool:
+        updated.clear()
+        return True
+
+    ri.mutate_updated_branches(clear)
 
 
 def main(
@@ -207,7 +197,7 @@ def main(
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        clear_updated_branches(c, staging_ri, rp)
+        clear_updated_branches(staging_ri)
 
     utils.print_remote_success_message(
         c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE

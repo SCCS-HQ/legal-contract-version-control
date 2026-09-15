@@ -82,10 +82,7 @@ def ask_config_input(c: SCCSConstants, key: str) -> str:
     """
 
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
-    if not data_value:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key).capitalize()
-        )
+    utils.raise_if_empty(c, data_value, key, capitalize=True)
 
     return data_value
 
@@ -96,16 +93,10 @@ def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
     initial version commit message, name, and email.
     """
 
-    return hashlib.sha256(
-        c.PATH_SEPARATOR.join(
-            [
-                c.PROGRAM_START_TIME,
-                c.INITIAL_VERSION_COMMIT_MESSAGE,
-                name,
-                email,
-            ]
-        ).encode(c.UTF_8)
-    ).hexdigest()
+    return utils.create_commit_identifier(
+        c,
+        [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email],
+    )
 
 
 def copy_document_to_objects_as_document_and_html(

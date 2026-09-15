@@ -15,20 +15,19 @@ from repository_layout import (
 )
 
 
-def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
+def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
     """
     Validate the entered branch by checking that it is not empty, is not the current
     branch, and exists in the repository. Raise an SCCSException if any validation
     fails.
     """
 
-    if not branch:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
-        )
-    if branch.lower() == rd.current_branch().lower():
+    utils.raise_if_empty(c, branch, c.BRANCH_NAME_FIELD_NAME)
+
+    if rs.is_current_branch(branch):
         raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
-    if branch.lower() not in (i.lower() for i in rd.branches()):
+
+    if not rs.branch_exists(branch):
         raise exceptions.SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
@@ -136,7 +135,7 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    validate_branch(c, branch, rd)
+    validate_branch(c, branch, rs)
 
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 

@@ -4,7 +4,7 @@ import hashlib
 import json
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import exceptions
 import mammoth
@@ -110,6 +110,45 @@ class RepositoryData:
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
+    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
+        """
+        Return the commit identifier created by hashing the entered commit identifier
+        parts.
+        """
+
+        return utils.create_commit_identifier(self.c, commit_identifier_parts)
+
+    def _matching_commit_files(
+        self, commit_identifier: str, folder: str
+    ) -> list[Path]:
+        """
+        Return the commit files in the entered folder whose stems start with the
+        entered commit identifier. Raise an SCCSException if no matching commit file
+        exists or if multiple commit files match.
+        """
+
+        matching_files = [
+            i
+            for i in Path(self.paths.objects_path() / folder).iterdir()
+            if str(i.stem).startswith(commit_identifier)
+        ]
+
+        if not matching_files:
+            raise exceptions.SCCSException(
+                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                    file_path=commit_identifier
+                )
+            )
+
+        if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
+            raise exceptions.SCCSException(
+                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    commit_identifier=commit_identifier
+                )
+            )
+
+        return matching_files
+
     def commit_identifier_to_full_path(
         self, commit_identifier: str, folder: str
     ) -> Path:
@@ -119,42 +158,13 @@ class RepositoryData:
         invalid, no matching commit file exists, or multiple commit files match.
         """
 
-        if commit_identifier is None:
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
-                )
-            )
+        self.raise_for_commit_identifier_length(commit_identifier)
 
-        if (
-            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
-            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-        ):
-            raise exceptions.SCCSException(
-                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
-            )
-
-        matching_files = []
-
-        for i in Path(self.paths.objects_path() / folder).iterdir():
-            if str(i.stem).startswith(commit_identifier):
-                matching_files.append(i)
-
-        if not matching_files:
-            raise exceptions.SCCSException(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit_identifier
-                )
-            )
-
-        if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
-            raise exceptions.SCCSException(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit_identifier=commit_identifier
-                )
-            )
-
-        return Path(matching_files[self.c.FIRST_ELEMENT_INDEX])
+        return Path(
+            self._matching_commit_files(commit_identifier, folder)[
+                self.c.FIRST_ELEMENT_INDEX
+            ]
+        )
 
     def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
         """
@@ -163,42 +173,13 @@ class RepositoryData:
         commit file exists, or multiple commit files match.
         """
 
-        if commit_identifier is None:
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
-                )
-            )
+        self.raise_for_commit_identifier_length(commit_identifier)
 
-        if (
-            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
-            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-        ):
-            raise exceptions.SCCSException(
-                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
-            )
+        matching_file = self._matching_commit_files(commit_identifier, folder)[
+            self.c.FIRST_ELEMENT_INDEX
+        ]
 
-        matching_files = []
-
-        for i in Path(self.paths.objects_path() / folder).iterdir():
-            if str(i.stem).startswith(commit_identifier):
-                matching_files.append(i)
-
-        if not matching_files:
-            raise exceptions.SCCSException(
-                self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                    file_path=commit_identifier
-                )
-            )
-
-        if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
-            raise exceptions.SCCSException(
-                self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    commit_identifier=commit_identifier
-                )
-            )
-
-        return self.io.file_bytes(matching_files[self.c.FIRST_ELEMENT_INDEX])
+        return self.io.file_bytes(matching_file)
 
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
         """
@@ -224,16 +205,6 @@ class RepositoryData:
             )
 
         return commit_identifier
-
-    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
-        """
-        Return the commit identifier created by hashing the entered commit identifier
-        parts.
-        """
-
-        return hashlib.sha256(
-            self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
-        ).hexdigest()
 
     def repository_objects(self) -> list[str]:
         """
@@ -290,6 +261,46 @@ class RepositoryIO:
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
 
+    def _read_metadata_json(self) -> dict[str, Any]:
+        """
+        Return the parsed repository metadata JSON file.
+        """
+
+        with open(
+            self.paths.metadata_path(),
+            "r",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            return json.load(f)
+
+    def _write_metadata_json(self, data: dict[str, Any]) -> None:
+        """
+        Write the entered data to the repository metadata JSON file.
+        """
+
+        with open(
+            self.paths.metadata_path(),
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            json.dump(data, f, indent=self.c.JSON_INDENT)
+            f.truncate()
+
+    def mutate_updated_branches(self, mutate: Callable[[list[str]], bool]) -> None:
+        """
+        Apply the entered mutation to the updated branches list of the current branch
+        metadata, initializing the list when it is missing and writing the metadata
+        back when the mutation returns True.
+        """
+
+        data = self.read_current_branch_data()
+        if self.c.UPDATED_BRANCHES_DICT_KEY not in data:
+            data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
+        if mutate(data[self.c.UPDATED_BRANCHES_DICT_KEY]):
+            self.write_current_branch_data(data)
+
     def file_bytes(self, path: Path) -> bytes:
         """
         Return the bytes of the file at the entered path.
@@ -319,40 +330,21 @@ class RepositoryIO:
         Return the repository metadata.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)
+        return self._read_metadata_json()
 
     def write_metadata(self, data: dict[str, Any]) -> None:
         """
         Write the entered repository metadata.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(data, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(data)
 
     def read_branches_data(self) -> dict[str, Any]:
         """
         Return the branches metadata of the repository.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.BRANCHES_DICT_KEY]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY]
 
     def write_branches_data(self, data: dict[str, Any]) -> None:
         """
@@ -365,14 +357,7 @@ class RepositoryIO:
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_branch_data(self) -> dict[str, Any]:
         """
@@ -382,13 +367,7 @@ class RepositoryIO:
 
         self.target.require()
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()]
 
     def write_branch_data(self, data: dict[str, Any]) -> None:
         """
@@ -401,27 +380,14 @@ class RepositoryIO:
         full_metadata = self.read_metadata()
         full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_current_branch_data(self) -> dict[str, Any]:
         """
         Return the current branch metadata of the repository.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.CURRENT_BRANCH_DICT_KEY]
+        return self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY]
 
     def read_current_branch_data_key(self, key: str) -> Any:
         """
@@ -438,27 +404,14 @@ class RepositoryIO:
         full_metadata = self.read_metadata()
         full_metadata[self.c.CURRENT_BRANCH_DICT_KEY] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_config(self) -> dict[str, str]:
         """
         Return the configuration of the repository.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f).setdefault(self.c.CONFIG_DICT_KEY, {})
+        return self._read_metadata_json().setdefault(self.c.CONFIG_DICT_KEY, {})
 
     def write_config(self, data: dict[str, str]) -> None:
         """
@@ -468,14 +421,7 @@ class RepositoryIO:
         full_metadata = self.read_metadata()
         full_metadata[self.c.CONFIG_DICT_KEY] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_history(self) -> dict[str, Any]:
         """
@@ -485,15 +431,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.HISTORY_DICT_KEY
-            ]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
+            self.target.get()
+        ][self.c.HISTORY_DICT_KEY]
 
     def write_history(self, data: dict[str, Any]) -> None:
         """
@@ -508,14 +448,7 @@ class RepositoryIO:
             self.c.HISTORY_DICT_KEY
         ] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_log(self) -> dict[str, Any]:
         """
@@ -525,15 +458,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.LOG_DICT_KEY
-            ]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
+            self.target.get()
+        ][self.c.LOG_DICT_KEY]
 
     def write_log(self, data: dict[str, Any]) -> None:
         """
@@ -548,14 +475,7 @@ class RepositoryIO:
             self.c.LOG_DICT_KEY
         ] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_byte_hash(self) -> dict[str, str]:
         """
@@ -565,15 +485,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.BRANCHES_DICT_KEY][self.target.get()][
-                self.c.BYTE_HASH_DICT_KEY
-            ]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
+            self.target.get()
+        ][self.c.BYTE_HASH_DICT_KEY]
 
     def write_byte_hash(self, data: dict[str, str]) -> None:
         """
@@ -588,27 +502,14 @@ class RepositoryIO:
             self.c.BYTE_HASH_DICT_KEY
         ] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        self._write_metadata_json(full_metadata)
 
     def read_commit_messages(self) -> dict[str, str]:
         """
         Return the commit messages of the repository.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)[self.c.COMMIT_MESSAGES_DICT_KEY]
+        return self._read_metadata_json()[self.c.COMMIT_MESSAGES_DICT_KEY]
 
     def write_commit_messages(self, data: dict[str, str]) -> None:
         """
@@ -618,13 +519,7 @@ class RepositoryIO:
         full_metadata = self.read_metadata()
         full_metadata[self.c.COMMIT_MESSAGES_DICT_KEY] = data
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(full_metadata, f, indent=self.c.JSON_INDENT)
+        self._write_metadata_json(full_metadata)
 
     def document_html_byte_hash(self) -> str:
         """
@@ -896,10 +791,7 @@ class RepositoryWrite:
         not accepted.
         """
 
-        if not value or not value.strip():
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-            )
+        utils.raise_if_empty(self.c, value.strip(), key)
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
             i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
@@ -997,15 +889,13 @@ class RepositoryWrite:
 
         branch_name = branch_name.lower()
 
-        branch_data = self.io.read_current_branch_data()
-        if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
-            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
-        if (
-            conditional_branch in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
-            or conditional_branch is None
-        ):
-            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].append(branch_name)
-            self.io.write_current_branch_data(branch_data)
+        def add(updated: list[str]) -> bool:
+            if conditional_branch in updated or conditional_branch is None:
+                updated.append(branch_name)
+                return True
+            return False
+
+        self.io.mutate_updated_branches(add)
 
     def remove_from_updated_branch(self, branch_name: str) -> None:
         """
@@ -1015,12 +905,13 @@ class RepositoryWrite:
 
         branch_name = branch_name.lower()
 
-        branch_data = self.io.read_current_branch_data()
-        if self.c.UPDATED_BRANCHES_DICT_KEY not in branch_data:
-            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = []
-        if branch_name in branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]:
-            branch_data[self.c.UPDATED_BRANCHES_DICT_KEY].remove(branch_name)
-            self.io.write_current_branch_data(branch_data)
+        def remove(updated: list[str]) -> bool:
+            if branch_name in updated:
+                updated.remove(branch_name)
+                return True
+            return False
+
+        self.io.mutate_updated_branches(remove)
 
     def set_current_branch(self, branch_name: str) -> None:
         """
@@ -1061,15 +952,10 @@ class RepositoryWrite:
         name = config[self.c.NAME_KEY]
         email = config[self.c.EMAIL_KEY]
 
-        commit_identifier_parts = [
-            self.c.PROGRAM_START_TIME,
-            commit_message,
-            name,
-            email,
-        ]
-        commit_identifier = hashlib.sha256(
-            self.c.PATH_SEPARATOR.join(commit_identifier_parts).encode(self.c.UTF_8)
-        ).hexdigest()
+        commit_identifier = utils.create_commit_identifier(
+            self.c,
+            [self.c.PROGRAM_START_TIME, commit_message, name, email],
+        )
 
         document_as_html = self.io.document_html()
 

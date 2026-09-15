@@ -27,10 +27,7 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     if key not in c.ACCEPTED_CONFIG_KEYS:
         raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
-    if not value.strip():
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
-        )
+    utils.raise_if_empty(c, value.strip(), key)
 
     return value.strip()
 
