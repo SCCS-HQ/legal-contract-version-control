@@ -168,17 +168,6 @@ def clear_updated_branches(
     ri.write_current_branch_data(data)
 
 
-def print_push_success_message(
-    c: SCCSConstants, response: requests.Response, url: str
-) -> None:
-    """
-    Print the status code and a success message after a successful push operation.
-    """
-
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
-
-
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -215,19 +204,14 @@ def main(
 
     upload_response.raise_for_status()
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         clear_updated_branches(c, staging_ri, rp)
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
-    print_push_success_message(c, upload_response, remote)
+    utils.print_remote_success_message(
+        c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
+    )
 
     rs.target.reset()
 

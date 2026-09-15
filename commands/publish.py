@@ -3,7 +3,6 @@
 import io
 import json
 import os
-import shutil
 import zipfile
 from pathlib import Path
 
@@ -86,17 +85,6 @@ def post_repository(
     return response
 
 
-def print_publish_success_message(
-    c: SCCSConstants, response: requests.Response, url: str
-) -> None:
-    """
-    Print the status code and a success message after a successful publish operation.
-    """
-
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
-
-
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -119,12 +107,9 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
     url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
@@ -136,12 +121,10 @@ def main(
             rp,
         )
         response.raise_for_status()
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
-    print_publish_success_message(c, response, url)
+    utils.print_remote_success_message(
+        c, response.status_code, url, c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE
+    )
 
     rs.target.reset()
 

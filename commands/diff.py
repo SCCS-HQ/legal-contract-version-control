@@ -320,9 +320,7 @@ def main(
 
     validate_diff(c, rd, commit_identifier)
 
-    staging_root = utils.create_staging_directory(c, ri.root)
-
-    try:
+    with utils.staged_repository(c, ri.root, ri.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
 
@@ -343,10 +341,6 @@ def main(
                 c.DEFAULT_HTML_STYLES,
             )
         )
-        utils.promote_staging(c, staging_root, ri.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_diff_success_message(c)
     rs.target.reset()

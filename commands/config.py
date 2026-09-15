@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
@@ -113,19 +112,11 @@ def main(
         c, rp.repository_name, key, validate_entered_value(c, key, value)
     )
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
-
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_config_success_message(c, key, value)
 

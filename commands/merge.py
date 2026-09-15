@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -98,30 +97,6 @@ def copy_branch_data(
     ri.write_branch_data(merged_branch_data)
 
 
-def copy_repository_document(
-    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
-) -> None:
-    """
-    Copy the latest commit document of the entered branch to the repository document
-    path. Raise an SCCSException if the document cannot be copied.
-    """
-
-    original_target = rd.target.get()
-    rd.target.set(branch.lower())
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-            ),
-            rp.document_path(),
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE) from e
-    finally:
-        rd.target.set(original_target)
-
-
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
@@ -163,16 +138,18 @@ def main(
 
     validate_branch(c, branch, rd)
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        copy_repository_document(c, branch, rd, staging_rp)
+        utils.copy_latest_commit_document(
+            rd,
+            branch,
+            staging_rp.document_path(),
+            c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE,
+        )
 
         copy_branch_data(c, branch, rd, staging_ri)
 
@@ -182,11 +159,6 @@ def main(
             ),
             allow_empty_commit=True,
         )
-
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_merge_success_message(c, branch, rd)
 

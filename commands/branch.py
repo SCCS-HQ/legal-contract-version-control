@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -189,10 +188,7 @@ def main(
 
     validate_subcommand(c, subcommand, branch_name, rs)
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
@@ -207,10 +203,6 @@ def main(
             staging_rp,
             staging_rw,
         )
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     rs.target.reset()
 

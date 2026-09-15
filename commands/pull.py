@@ -58,17 +58,6 @@ def update_repository_files(
     )
 
 
-def print_pull_success_message(
-    c: SCCSConstants, response: requests.Response, url: str
-) -> None:
-    """
-    Print the status code and a success message after a successful pull operation.
-    """
-
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
-
-
 def main(
     c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
@@ -90,21 +79,16 @@ def main(
     response = pull(c, rd)
     response.raise_for_status()
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
 
         update_repository_files(c, response, staging_rd, staging_rp)
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
-    print_pull_success_message(c, response, rd.config_data(c.REMOTE_KEY))
+    utils.print_remote_success_message(
+        c, response.status_code, rd.config_data(c.REMOTE_KEY), c.PULL_SUCCESS_MESSAGE_TEMPLATE
+    )
 
     rs.target.reset()
 

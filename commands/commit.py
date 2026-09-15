@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -64,19 +63,9 @@ def main(
 
     validate_commit_message(c, commit_message)
 
-    staging_root = utils.create_staging_directory(c, rd.root)
-
-    try:
-        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
-
+    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         commit_identifier = staging_rw.commit_changes(commit_message)
-
-        utils.promote_staging(c, staging_rw.root, rw.root)
-
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_commit_success_message(c, commit_identifier)
 

@@ -61,33 +61,6 @@ def validate_commit_identifier(
     rs.target.reset()
 
 
-def copy_commit_to_main(
-    c: SCCSConstants,
-    branch_to_switch: str,
-    rd: RepositoryData,
-    staging_root: Path,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Copy the latest commit document of the entered branch to the staging directory.
-    Raise an SCCSException if the document cannot be copied.
-    """
-
-    rs.target.set(branch_to_switch)
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-            ),
-            staging_root / rd.paths.document_path().name,
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.SWITCH_COPY_ERROR_MESSAGE) from e
-
-    rs.target.reset()
-
-
 def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
     """
     Print a success message indicating that the entered branch has been switched to.
@@ -124,18 +97,17 @@ def main(
 
     validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    staging_root = utils.create_staging_directory(c, rp.root)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+        utils.copy_latest_commit_document(
+            rd,
+            branch_to_switch,
+            staging_root / rd.paths.document_path().name,
+            c.SWITCH_COPY_ERROR_MESSAGE,
+        )
 
-        copy_commit_to_main(c, branch_to_switch, rd, staging_root, rs)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         staging_rw.set_current_branch(branch_to_switch)
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_switch_success_message(c, branch_to_switch)
 

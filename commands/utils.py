@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import contextlib
 import os
 import shutil
 import sys
 import tempfile
 import uuid
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 from zipfile import ZipFile
 
 import exceptions
@@ -148,3 +149,74 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
         raise
 
     shutil.rmtree(old_root, ignore_errors=True)
+
+
+@contextlib.contextmanager
+def staged_repository(
+    c: SCCSConstants,
+    sibling_root: Path,
+    final_root: Path,
+    copy_from: Path | None = None,
+) -> Iterator[Path]:
+    """
+    Create a staging directory as a sibling of `sibling_root`, optionally copying the
+    repository at `copy_from` into it, and yield the staging root.
+
+    Promote the staging directory to `final_root` when the enclosing block completes,
+    or clean up the staging directory and re-raise if any exception is raised within
+    the block or during promotion.
+    """
+
+    staging_root = create_staging_directory(c, sibling_root)
+
+    try:
+        if copy_from is not None:
+            shutil.copytree(copy_from, staging_root, dirs_exist_ok=True)
+
+        yield staging_root
+
+        promote_staging(c, staging_root, final_root)
+    except Exception:
+        cleanup_staging(staging_root)
+        raise
+
+
+def print_remote_success_message(
+    c: SCCSConstants, status_code: int, url: str, message_template: str
+) -> None:
+    """
+    Print the status code and a success message after a successful remote operation,
+    formatting the entered message template with the remote URL.
+    """
+
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=status_code))
+    print(message_template.format(url=url))
+
+
+def copy_latest_commit_document(
+    rd: Any, branch: str, destination: Path, error_message: str
+) -> None:
+    """
+    Copy the latest commit document of the entered branch to the destination path,
+    temporarily setting the target branch of `rd` (a duck-typed RepositoryData-like
+    object sharing a TargetBranch with the caller's status object) to the entered
+    branch and restoring the original target afterwards.
+
+    Raise an SCCSException with the entered error message if the commit document
+    cannot be resolved or copied.
+    """
+
+    original_target = rd.target.get()
+    rd.target.set(branch)
+
+    try:
+        shutil.copy2(
+            rd.commit_identifier_to_full_path(
+                rd.latest_commit_identifier(), rd.c.DOCUMENT_DIRECTORY
+            ),
+            destination,
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(error_message) from e
+    finally:
+        rd.target.set(original_target)

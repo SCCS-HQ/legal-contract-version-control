@@ -81,12 +81,7 @@ def main(
         commit_identifier, c.DOCUMENT_DIRECTORY
     )
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    new_commit_identifier = None
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         revert(c, commit_path, staging_root, staging_rw.repository_name)
@@ -98,10 +93,6 @@ def main(
             ),
             allow_empty_commit=True,
         )
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_revert_success_message(
         c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
