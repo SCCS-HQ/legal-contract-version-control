@@ -19,12 +19,21 @@ from repository_layout import (
 
 
 def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
+    """
+    Validate that the repository has not already been initialized by checking for an
+    existing SCCS directory. Raise an SCCSException if the repository is already
+    initialized.
+    """
 
     if (rp.sccs_path()).is_dir():
         raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
 
 
 def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
+    """
+    Validate the entered document by checking that it has the expected document
+    extension and exists. Raise an SCCSException if the file type or path is invalid.
+    """
 
     if file.suffix.lower() != c.DOCUMENT_EXTENSION:
         raise exceptions.SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
@@ -38,6 +47,11 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
 def create_sccs_directory_layout(
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
+    """
+    Create the SCCS directory layout for the repository, including the objects,
+    document, and HTML directories. Raise an SCCSException if the directories cannot be
+    created.
+    """
 
     rs.target.set(c.MAIN_BRANCH_NAME)
 
@@ -62,6 +76,10 @@ def create_sccs_directory_layout(
 
 
 def ask_config_input(c: SCCSConstants, key: str) -> str:
+    """
+    Prompt the user for the entered configuration key and return the entered value.
+    Raise an SCCSException if the value is empty.
+    """
 
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
     if not data_value:
@@ -73,6 +91,10 @@ def ask_config_input(c: SCCSConstants, key: str) -> str:
 
 
 def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
+    """
+    Return the initial commit identifier created by hashing the program start time,
+    initial version commit message, name, and email.
+    """
 
     return hashlib.sha256(
         c.PATH_SEPARATOR.join(
@@ -89,6 +111,11 @@ def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
 def copy_document_to_objects_as_document_and_html(
     c: SCCSConstants, document_path: Path, commit_identifier: str, rp: RepositoryPaths
 ) -> None:
+    """
+    Copy the document to the document objects directory, convert it to HTML, and write
+    the HTML to the HTML and view HTML objects directories. Raise an SCCSException if
+    the document cannot be converted or copied.
+    """
 
     try:
         with open(document_path, "rb") as f:
@@ -134,6 +161,10 @@ def copy_document_to_objects_as_document_and_html(
 def write_starting_metadata(
     c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
 ) -> None:
+    """
+    Write the starting metadata of the repository, including the initial commit history,
+    log, byte hash, commit messages, and default branch data.
+    """
 
     ri.target.set(c.MAIN_BRANCH_NAME)
 
@@ -174,6 +205,9 @@ def write_starting_metadata(
 def copy_document_to_repository_directory(
     repository_path: Path, document_path: Path
 ) -> None:
+    """
+    Copy the document to the repository directory.
+    """
 
     shutil.copy2(document_path, repository_path)
 
@@ -184,6 +218,11 @@ def finalize_repository_creation(
     rp: RepositoryPaths,
     staging_rp: RepositoryPaths,
 ) -> None:
+    """
+    Promote the staging directory to the repository root and remove the original
+    document from the parent directory. Print a warning if the source document cannot be
+    removed.
+    """
 
     utils.promote_staging(c, staging_rp.root, rp.root)
 
@@ -198,6 +237,9 @@ def finalize_repository_creation(
 
 
 def print_init_success_message(c: SCCSConstants) -> None:
+    """
+    Print a success message after a successful init operation.
+    """
 
     print(c.INIT_SUCCESS_MESSAGE)
 
@@ -210,6 +252,15 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the init command by validating that the repository is not already initialized
+    and that the entered document exists, and by prompting for the name and email
+    configuration values.
+
+    Create the repository on a copy in a staging directory, promote it to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
+    """
 
     validate_no_prev_init(c, rp)
 

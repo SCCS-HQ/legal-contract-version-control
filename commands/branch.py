@@ -21,6 +21,10 @@ def validate_subcommand(
     branch_name: str | None,
     rs: RepositoryStatus,
 ) -> None:
+    """
+    Validate the subcommand and ensure the proper arguments are provided for each
+    subcommand. Raise an SCCSException if any validation fails.
+    """
 
     if not subcommand:
         raise exceptions.SCCSException(
@@ -64,6 +68,13 @@ def branch_create_subcommand(
     current_branch_name: str,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Set the target branch to the new branch name and add the current branch metadata to
+    the new branch.
+
+    Print a success message indicating that the new branch has been created from the
+    current branch.
+    """
 
     rw.target.set(branch_name)
     rw.add_branch_metadata(branch_name, current_branch_name)
@@ -74,6 +85,10 @@ def branch_create_subcommand(
 def print_branch_create_success_message(
     c: SCCSConstants, branch_name: str, current_branch_name: str
 ) -> None:
+    """
+    Print a success message indicating that the new branch has been created from the
+    current branch.
+    """
 
     print(
         c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -85,6 +100,14 @@ def print_branch_create_success_message(
 def branch_delete_subcommand(
     c: SCCSConstants, branch_name: str, rd: RepositoryData, rw: RepositoryWrite
 ) -> None:
+    """
+    Delete the specified branch by removing its metadata from the repository.
+
+    If the branch to be deleted is the main branch, raise an SCCSException indicating
+    that the main branch cannot be deleted.
+
+    Print a success message indicating that the branch has been deleted.
+    """
 
     if branch_name == c.MAIN_BRANCH_NAME:
         raise exceptions.SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
@@ -94,11 +117,16 @@ def branch_delete_subcommand(
 
 
 def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
+    """Print a success message indicating that the branch has been deleted."""
 
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
 
 
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
+    """
+    List all branches in the repository, indicating the current branch with a special
+    marker. Print the list of branches to the console.
+    """
 
     print(c.BRANCHES_DIRECTORY_LIST_HEADER)
     for i in rd.branches():
@@ -118,6 +146,10 @@ def run_specified_subcommand(
     rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Delegate the execution of the specified subcommand to the appropriate function based
+    on the subcommand provided. Raise an SCCSException if the subcommand is invalid.
+    """
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
@@ -140,6 +172,14 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the branch command by setting the current branch as the target, validating the
+    repository layout, and delegating execution of the entered subcommand to a copy of
+    the repository in a staging directory.
+
+    Promote the staging directory to the repository root and reset the target branch
+    when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

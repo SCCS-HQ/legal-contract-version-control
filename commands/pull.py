@@ -18,6 +18,10 @@ from repository_layout import (
 
 
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+    """
+    Post the local repository objects to the pull endpoint of the remote repository and
+    return the response. Raise an SCCSException if the request fails.
+    """
 
     try:
         response = requests.post(
@@ -37,6 +41,10 @@ def update_repository_files(
     rd: RepositoryData,
     rp: RepositoryPaths,
 ) -> None:
+    """
+    Extract the files from the response into the repository root and copy the latest
+    commit document to the repository document path.
+    """
 
     with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
         for i in zf.namelist():
@@ -53,6 +61,9 @@ def update_repository_files(
 def print_pull_success_message(
     c: SCCSConstants, response: requests.Response, url: str
 ) -> None:
+    """
+    Print the status code and a success message after a successful pull operation.
+    """
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
@@ -61,6 +72,14 @@ def print_pull_success_message(
 def main(
     c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
+    """
+    Run the pull command by setting the current branch as the target, validating the
+    repository layout, and requesting the remote repository from the pull endpoint.
+
+    Update the files of a copy of the repository in a staging directory, promote the
+    staging directory to the repository root, print a success message, and reset the
+    target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

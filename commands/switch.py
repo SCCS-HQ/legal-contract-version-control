@@ -18,6 +18,10 @@ from repository_layout import (
 def validate_branch_to_switch(
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
 ) -> None:
+    """
+    Validate the entered branch by checking that it is not empty and exists in the
+    repository. Raise an SCCSException if any validation fails.
+    """
 
     if not branch_to_switch:
         raise exceptions.SCCSException(
@@ -38,6 +42,10 @@ def validate_commit_identifier(
     rd: RepositoryData,
     rs: RepositoryStatus,
 ) -> None:
+    """
+    Validate the latest commit document of the entered branch by checking that it
+    exists. Raise an SCCSException if the commit document is missing.
+    """
 
     rs.target.set(branch_to_switch)
 
@@ -60,6 +68,10 @@ def copy_commit_to_main(
     staging_root: Path,
     rs: RepositoryStatus,
 ) -> None:
+    """
+    Copy the latest commit document of the entered branch to the staging directory.
+    Raise an SCCSException if the document cannot be copied.
+    """
 
     rs.target.set(branch_to_switch)
 
@@ -77,6 +89,9 @@ def copy_commit_to_main(
 
 
 def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
+    """
+    Print a success message indicating that the entered branch has been switched to.
+    """
 
     print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
 
@@ -89,6 +104,15 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the switch command by setting the current branch as the target, validating the
+    repository layout and entered branch, and copying the latest commit document of the
+    branch to the repository on a copy of the repository in a staging directory.
+
+    Set the entered branch as the current branch, promote the staging directory to the
+    repository root, print a success message, and reset the target branch when the
+    operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

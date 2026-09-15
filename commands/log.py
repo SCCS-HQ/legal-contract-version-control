@@ -14,6 +14,10 @@ from repository_layout import (
 
 
 def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
+    """
+    Print the log entries of the entered log data, including the commit identifier,
+    author, timestamp, and commit message of each commit.
+    """
 
     for i in log_data:
         print(
@@ -35,6 +39,10 @@ def main(
     ri: RepositoryIO,
     rs: RepositoryStatus,
 ) -> None:
+    """
+    Run the log command by setting the current branch as the target, validating the
+    repository layout, and printing the log entries of the current branch.
+    """
 
     rs.target.set(rd.current_branch())
 

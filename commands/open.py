@@ -14,6 +14,11 @@ from repository_layout import (
 
 
 def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
+    """
+    Validate the entered commit identifier by checking that it is not empty, has the
+    full commit identifier length, and contains only hexadecimal digits. Raise an
+    SCCSException if the commit identifier is invalid.
+    """
 
     if not commit_identifier:
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
@@ -25,6 +30,10 @@ def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) 
 
 
 def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
+    """
+    Copy the commit file to the output file name. Raise an SCCSException if the commit
+    file cannot be copied.
+    """
 
     try:
         shutil.copy2(commit_path, output_file_name)
@@ -35,6 +44,10 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
 def print_open_success_message(
     c: SCCSConstants, commit_identifier: str, output_file_name: Path
 ) -> None:
+    """
+    Print a success message indicating that the entered commit has been opened as the
+    output file.
+    """
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -47,6 +60,14 @@ def print_open_success_message(
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
+    """
+    Run the open command by setting the current branch as the target, validating the
+    repository layout and entered commit identifier, and copying the commit document to
+    the current directory.
+
+    Promote the staging directory to the current directory, print a success message, and
+    reset the target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 

@@ -12,6 +12,10 @@ from repository_layout import (
 
 
 def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
+    """
+    Print the status of the current document based on whether uncommitted changes were
+    detected.
+    """
 
     if uncommitted_changes:
         print(c.UNCOMMITTED_CHANGES_FOUND)
@@ -20,6 +24,10 @@ def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) ->
 
 
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+    """
+    Run the status command by setting the current branch as the target, validating the
+    repository layout, and printing the status of the current document.
+    """
 
     rs.target.set(rd.current_branch())
 

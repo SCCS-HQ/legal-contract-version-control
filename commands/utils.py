@@ -14,6 +14,9 @@ from constants_classes import ErrorWrappers, SCCSConstants
 
 
 def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
+    """
+    Wrap the entered HTML with the HTML boilerplate, applying the entered styles.
+    """
 
     return c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
 
@@ -21,6 +24,11 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 def entered_argument(
     c: SCCSConstants, argument: int, raise_on_not_provided: bool = True
 ) -> Any:
+    """
+    Return the stripped command line argument at the entered index. Raise an
+    SCCSException if the argument was not provided and raise_on_not_provided is True,
+    otherwise return None.
+    """
 
     if not len(sys.argv) > argument:
         if raise_on_not_provided:
@@ -37,6 +45,12 @@ def safe_extract_zip(
     member_path: str,
     destination_directory: Path,
 ) -> None:
+    """
+    Extract the entered zip archive member into the destination directory, validating
+    that the member path stays inside the destination directory. Raise an SCCSException
+    if the member path is absolute, contains a double period, or is not relative to the
+    destination directory.
+    """
 
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
@@ -64,6 +78,10 @@ def safe_extract_zip(
 
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
+    """
+    Run the entered command function with the constants and provided arguments, printing
+    the wrapped error and exiting when the command raises an exception.
+    """
 
     error_wrappers = ErrorWrappers()
     try:
@@ -103,6 +121,15 @@ def cleanup_staging(staging_root: Path | None) -> None:
 
 
 def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
+    """
+    Promote the staging directory to the final root by renaming it into place. If the
+    final root already exists, rename it to a temporary old root first and remove it
+    after the staging directory is promoted.
+
+    There is a small window where repository may be lost if the process is interrupted
+    between two atomic renames. This is a known limitation of the current
+    implementation, and will be addressed in a future version.
+    """
 
     if not final_root.exists():
         os.rename(staging_root, final_root)

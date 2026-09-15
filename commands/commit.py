@@ -14,9 +14,14 @@ from repository_layout import (
 )
 
 
-def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> None:
+def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
+    """
+    Validates the entered commit message by checking if it is not empty.
 
-    if commit_message is None or not commit_message:
+    Raises an SCCSException if the commit message is invalid.
+    """
+
+    if not commit_message:
         raise exceptions.SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_MESSAGE_FIELD_NAME
@@ -25,19 +30,16 @@ def validate_commit_message(c: SCCSConstants, commit_message: str | None) -> Non
 
 
 def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
+    """
+    Print a success message after a successful commit operation, including the commit
+    identifier of the new commit.
+    """
 
     print(
         c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
             commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
     )
-
-
-def finalize_commit(
-    c: SCCSConstants, rw: RepositoryWrite, staging_rw: RepositoryWrite
-) -> None:
-
-    utils.promote_staging(c, staging_rw.root, rw.root)
 
 
 def main(
@@ -47,6 +49,14 @@ def main(
     rs: RepositoryStatus,
     rw: RepositoryWrite,
 ) -> None:
+    """
+    Run the commit command by setting the current branch as the target, validating the
+    repository layout and commit message, and committing the changes to a copy of the
+    repository in a staging directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
 
     rs.target.set(rd.current_branch())
 
@@ -62,7 +72,7 @@ def main(
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         commit_identifier = staging_rw.commit_changes(commit_message)
 
-        finalize_commit(c, rw, staging_rw)
+        utils.promote_staging(c, staging_rw.root, rw.root)
 
     except Exception:
         utils.cleanup_staging(staging_root)
