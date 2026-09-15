@@ -8,6 +8,7 @@ import exceptions
 import utils
 from constants_classes import SCCSConstants
 
+
 def get_script_directory() -> Path:
     """Return the absolute path of the parent directory of this file."""
     return Path(__file__).parent.resolve()

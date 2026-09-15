@@ -31,6 +31,7 @@ def _snapshot_file(src: Path, dst: Path) -> None:
     except OSError:
         shutil.copy2(src, dst)
 
+
 def clear_updated_branches(ri: RepositoryIO) -> None:
     """
     Clear the list of updated branches in the current branch metadata.
@@ -41,6 +42,7 @@ def clear_updated_branches(ri: RepositoryIO) -> None:
         return True
 
     ri.mutate_updated_branches(clear)
+
 
 def compare_commit_identifier_lists(
     remote_objects: list[str], rd: RepositoryData
@@ -60,6 +62,7 @@ def compare_commit_identifier_lists(
 
     return object_to_upload
 
+
 def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """
     Request the commit identifiers stored on the remote repository and return the
@@ -73,6 +76,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
         )
     except Exception as e:
         raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
+
 
 def main(
     c: SCCSConstants,
@@ -121,6 +125,7 @@ def main(
 
     rs.target.reset()
 
+
 def upload_objects(
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
@@ -159,6 +164,7 @@ def upload_objects(
         ) from e
 
     return response
+
 
 def zip_files_to_upload(
     c: SCCSConstants,

@@ -59,6 +59,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_revert_success_message(
     c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
 ) -> None:
@@ -75,6 +76,7 @@ def print_revert_success_message(
             ],
         )
     )
+
 
 def revert(
     c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str

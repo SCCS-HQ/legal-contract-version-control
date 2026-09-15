@@ -33,9 +33,7 @@ class RepositoryData:
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def _matching_commit_files(
-        self, commit_identifier: str, folder: str
-    ) -> list[Path]:
+    def _matching_commit_files(self, commit_identifier: str, folder: str) -> list[Path]:
         """
         Return the commit files in the entered folder whose stems start with the
         entered commit identifier. Raise an SCCSException if no matching commit file
@@ -195,6 +193,7 @@ class RepositoryData:
         )
         return path.stem
 
+
 class RepositoryIO:
     """
     A class to read and write the document, metadata, configuration, and commit data of
@@ -334,9 +333,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
-            self.target.get()
-        ][self.c.BYTE_HASH_DICT_KEY]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
+            self.c.BYTE_HASH_DICT_KEY
+        ]
 
     def read_commit_messages(self) -> dict[str, str]:
         """
@@ -374,9 +373,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
-            self.target.get()
-        ][self.c.HISTORY_DICT_KEY]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
+            self.c.HISTORY_DICT_KEY
+        ]
 
     def read_log(self) -> dict[str, Any]:
         """
@@ -386,9 +385,9 @@ class RepositoryIO:
 
         self.target.require()
 
-        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
-            self.target.get()
-        ][self.c.LOG_DICT_KEY]
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
+            self.c.LOG_DICT_KEY
+        ]
 
     def read_metadata(self) -> dict[str, Any]:
         """
@@ -547,6 +546,7 @@ class RepositoryIO:
 
         self._write_metadata_json(data)
 
+
 class RepositoryPaths:
     """
     A class to resolve the paths of the files and directories within a repository.
@@ -613,6 +613,7 @@ class RepositoryPaths:
         """
 
         return self.objects_path() / self.c.VIEW_HTML_DIRECTORY
+
 
 class RepositoryStatus:
     """
@@ -712,6 +713,7 @@ class RepositoryStatus:
         document_byte_hash = self.io.document_html_byte_hash()
 
         return latest_byte_hash != document_byte_hash
+
 
 class RepositoryWrite:
     """
@@ -957,6 +959,7 @@ class RepositoryWrite:
         config[key] = value
 
         self.io.write_config(config)
+
 
 class TargetBranch:
     """

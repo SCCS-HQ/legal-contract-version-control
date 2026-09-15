@@ -5,6 +5,7 @@ import uuid
 
 import exceptions
 
+
 class ErrorWrappers:
     """
     A class to hold the templates used to wrap expected and unexpected errors raised
@@ -13,6 +14,7 @@ class ErrorWrappers:
 
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
+
 
 class SCCSConstants:
     """
@@ -432,6 +434,7 @@ class SCCSConstants:
     ZIP_EXTENSION = ".zip"
     ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
 
+
 _missing_commands = [
     i
     for i in SCCSConstants.COMMANDS_LIST
@@ -442,4 +445,3 @@ if _missing_commands:
         f"COMMAND_DESCRIPTIONS is missing entries for: "
         f"{', '.join(_missing_commands)}"
     )
-

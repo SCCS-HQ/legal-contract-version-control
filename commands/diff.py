@@ -44,6 +44,7 @@ def delete_tag(
                 ]
     return soup
 
+
 def format_redline_html(
     c: SCCSConstants,
     past_version: list[str],
@@ -75,6 +76,7 @@ def format_redline_html(
 
             redline = delete_tag(c, old_changed_strings, soup)
     return redline
+
 
 def generate_diff_output(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, ri: RepositoryIO
@@ -115,6 +117,7 @@ def generate_diff_output(
         commit_soup,
     )
 
+
 def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
     """
     Retrieve the set of data-number attributes from the provided list of tags. This
@@ -130,6 +133,7 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
             if parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE] is not None:
                 data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
     return data_number
+
 
 def insert_tag(
     c: SCCSConstants,
@@ -171,6 +175,7 @@ def insert_tag(
     )
 
     return soup
+
 
 def main(
     c: SCCSConstants,
@@ -218,6 +223,7 @@ def main(
     print_diff_success_message(c)
     rs.target.reset()
 
+
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Add a data-number attribute to each tag in the provided BeautifulSoup object,
@@ -231,12 +237,14 @@ def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
         tag[c.DATA_NUMBER_HTML_ATTRIBUTE] = str(i)
     return soup
 
+
 def print_diff_success_message(c: SCCSConstants) -> None:
     """
     Print a success message after a successful diff operation.
     """
 
     print(c.DIFF_SUCCESS_MESSAGE)
+
 
 def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulSoup:
     """
@@ -252,6 +260,7 @@ def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulS
         else:
             i.unwrap()
     return soup
+
 
 def replace_tag(
     c: SCCSConstants,
@@ -298,6 +307,7 @@ def replace_tag(
                 i[c.CLASS_HTML_ATTRIBUTE] = [c.DELETED_HTML_ATTRIBUTE_VALUE]
     return soup
 
+
 def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Strip the data-number attribute from all tags in the provided BeautifulSoup object.
@@ -309,6 +319,7 @@ def strip_number_attribute(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSo
             del i[c.DATA_NUMBER_HTML_ATTRIBUTE]
     return soup
 
+
 def tags_to_list(soup: BeautifulSoup) -> list[str]:
     """
     Convert the provided BeautifulSoup object into a list of strings, where each string
@@ -316,6 +327,7 @@ def tags_to_list(soup: BeautifulSoup) -> list[str]:
     returns them as a list of strings."""
 
     return [str(i) for i in soup.find_all()]
+
 
 def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) -> None:
     """

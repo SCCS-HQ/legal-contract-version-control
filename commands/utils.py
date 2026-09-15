@@ -22,6 +22,7 @@ def cleanup_staging(staging_root: Path | None) -> None:
         return
     shutil.rmtree(staging_root, ignore_errors=True)
 
+
 def copy_latest_commit_document(
     rd: Any, branch: str, destination: Path, error_message: str
 ) -> None:
@@ -50,6 +51,7 @@ def copy_latest_commit_document(
     finally:
         rd.target.set(original_target)
 
+
 def create_commit_identifier(c: SCCSConstants, parts: list[str]) -> str:
     """
     Return the SHA-256 commit identifier created by joining the entered commit
@@ -57,6 +59,7 @@ def create_commit_identifier(c: SCCSConstants, parts: list[str]) -> str:
     """
 
     return hashlib.sha256(c.PATH_SEPARATOR.join(parts).encode(c.UTF_8)).hexdigest()
+
 
 def create_staging_directory(
     c: SCCSConstants, sibling_of: Path, prefix: str | None = None
@@ -69,6 +72,7 @@ def create_staging_directory(
     if prefix is None:
         prefix = c.TEMPORARY_DIRECTORY_PREFIX
     return Path(tempfile.mkdtemp(prefix=prefix, dir=sibling_of.parent))
+
 
 def entered_argument(
     c: SCCSConstants, argument: int, raise_on_not_provided: bool = True
@@ -87,6 +91,7 @@ def entered_argument(
 
     return sys.argv[argument].strip()
 
+
 def print_remote_success_message(
     c: SCCSConstants, status_code: int, url: str, message_template: str
 ) -> None:
@@ -97,6 +102,7 @@ def print_remote_success_message(
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=status_code))
     print(message_template.format(url=url))
+
 
 def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> None:
     """
@@ -126,6 +132,7 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
 
     shutil.rmtree(old_root, ignore_errors=True)
 
+
 def raise_if_empty(
     c: SCCSConstants, value: str | None, field: str, *, capitalize: bool = False
 ) -> None:
@@ -138,6 +145,7 @@ def raise_if_empty(
     if not value:
         message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
         raise exceptions.SCCSException(message.capitalize() if capitalize else message)
+
 
 def run_command(main: Callable[..., None], *args: Any) -> None:
     """
@@ -161,6 +169,7 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
             )
         )
         sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
+
 
 def safe_extract_zip(
     c: SCCSConstants,
@@ -199,6 +208,7 @@ def safe_extract_zip(
         with zip_archive.open(member_path) as source, open(target_path, "wb") as f:
             shutil.copyfileobj(source, f)
 
+
 @contextlib.contextmanager
 def staged_repository(
     c: SCCSConstants,
@@ -228,12 +238,14 @@ def staged_repository(
         cleanup_staging(staging_root)
         raise
 
+
 def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
     """
     Wrap the entered HTML with the HTML boilerplate, applying the entered styles.
     """
 
     return c.HTML_BOILERPLATE_TEMPLATE.format(styles=styles, html=html)
+
 
 @contextlib.contextmanager
 def zip_buffer(

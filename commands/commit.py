@@ -43,6 +43,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
     """
     Print a success message after a successful commit operation, including the commit
@@ -54,6 +55,7 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
             commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
     )
+
 
 def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
     """

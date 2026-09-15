@@ -50,6 +50,7 @@ def main(c: SCCSConstants, url: str) -> None:
 
     print_clone_success_message(c, response)
 
+
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
     """
     Print the status code and a success message after a successful clone operation.
@@ -57,6 +58,7 @@ def print_clone_success_message(c: SCCSConstants, response: requests.Response) -
 
     print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
     print(c.CLONE_SUCCESS_MESSAGE)
+
 
 def repository_name_from_url(c: SCCSConstants, url: str) -> str:
     """
@@ -81,6 +83,7 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
 
     return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
 
+
 def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
     """
     Sends a GET request to the specified URL with a timeout and returns the response.
@@ -95,6 +98,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
         raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
+
 
 def unzip_repository_file(
     c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
@@ -119,6 +123,7 @@ def unzip_repository_file(
         for i in zf.namelist():
             utils.safe_extract_zip(c, zf, i, destination)
 
+
 def validate_entered_url(c: SCCSConstants, url: str) -> None:
     """
     Validates the entered URL by checking if it is not empty, starts with an accepted
@@ -134,6 +139,7 @@ def validate_entered_url(c: SCCSConstants, url: str) -> None:
 
     if not url.endswith(c.CLONE_ENDPOINT):
         raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+
 
 def validate_repository_name(c: SCCSConstants, name: str) -> None:
     """

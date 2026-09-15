@@ -44,6 +44,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_reset_success_message(c: SCCSConstants) -> None:
     """
     Print a success message after a successful reset operation.

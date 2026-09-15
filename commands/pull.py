@@ -46,10 +46,14 @@ def main(
         update_repository_files(c, response, staging_rd, staging_rp)
 
     utils.print_remote_success_message(
-        c, response.status_code, rd.config_data(c.REMOTE_KEY), c.PULL_SUCCESS_MESSAGE_TEMPLATE
+        c,
+        response.status_code,
+        rd.config_data(c.REMOTE_KEY),
+        c.PULL_SUCCESS_MESSAGE_TEMPLATE,
     )
 
     rs.target.reset()
+
 
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """
@@ -67,6 +71,7 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
         raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
+
 
 def update_repository_files(
     c: SCCSConstants,

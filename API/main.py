@@ -292,10 +292,9 @@ async def clone(repository_name: str) -> StreamingResponse:
         zip_buffer,
         media_type=CONTENT_TYPE_ZIP,
         headers={
-            CONTENT_DISPOSITION_HEADER_TITLE:
-                CONTENT_DISPOSITION_HEADER_TEMPLATE.format(
-                    repository_name=repository_name
-                )
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_TEMPLATE.format(
+                repository_name=repository_name
+            )
         },
     )
 
@@ -483,10 +482,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         zip_buffer,
         media_type=CONTENT_TYPE_ZIP,
         headers={
-            CONTENT_DISPOSITION_HEADER_TITLE: 
-                CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
-                    repository_name=repository_name
-                )
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
+                repository_name=repository_name
+            )
         },
     )
 

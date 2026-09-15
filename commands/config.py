@@ -53,12 +53,14 @@ def main(
 
     rs.target.reset()
 
+
 def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
     """
     Print a success message after a successful configuration operation, including the
     key and value that were set."""
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
+
 
 def resolve_key_value(
     c: SCCSConstants, repository_name: str, key: str, value: str
@@ -100,6 +102,7 @@ def resolve_key_value(
         )
 
     return value
+
 
 def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     """

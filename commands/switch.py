@@ -59,12 +59,14 @@ def main(
 
     rs.target.reset()
 
+
 def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
     """
     Print a success message indicating that the entered branch has been switched to.
     """
 
     print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
+
 
 def validate_branch_to_switch(
     c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
@@ -82,6 +84,7 @@ def validate_branch_to_switch(
                 branch_name=branch_to_switch
             )
         )
+
 
 def validate_commit_identifier(
     c: SCCSConstants,

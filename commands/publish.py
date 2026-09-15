@@ -61,6 +61,7 @@ def main(
 
     rs.target.reset()
 
+
 def post_repository(
     c: SCCSConstants,
     repository_zip: io.BytesIO,
@@ -92,6 +93,7 @@ def post_repository(
     except Exception as e:
         raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     return response
+
 
 def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
     """

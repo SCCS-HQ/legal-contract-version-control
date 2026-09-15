@@ -32,6 +32,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
     """
     Print the log entries of the entered log data, including the commit identifier,

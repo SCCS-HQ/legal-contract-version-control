@@ -11,6 +11,7 @@ def main(c: SCCSConstants) -> None:
 
     print_help(c)
 
+
 def print_help(c: SCCSConstants) -> None:
     """
     Print the help messages listing the available SCCS commands and their descriptions.

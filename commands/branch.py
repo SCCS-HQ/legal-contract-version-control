@@ -33,6 +33,7 @@ def branch_create_subcommand(
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
 
+
 def branch_delete_subcommand(
     c: SCCSConstants, branch_name: str, rd: RepositoryData, rw: RepositoryWrite
 ) -> None:
@@ -51,6 +52,7 @@ def branch_delete_subcommand(
     rw.remove_branch_metadata(branch_name, rd.current_branch())
     print_branch_delete_success_message(c, branch_name)
 
+
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
     """
     List all branches in the repository, indicating the current branch with a special
@@ -64,6 +66,7 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
             if i == rd.current_branch()
             else print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
         )
+
 
 def main(
     c: SCCSConstants,
@@ -109,6 +112,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_branch_create_success_message(
     c: SCCSConstants, branch_name: str, current_branch_name: str
 ) -> None:
@@ -123,10 +127,12 @@ def print_branch_create_success_message(
         )
     )
 
+
 def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
     """Print a success message indicating that the branch has been deleted."""
 
     print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
+
 
 def run_specified_subcommand(
     c: SCCSConstants,
@@ -152,6 +158,7 @@ def run_specified_subcommand(
         branch_delete_subcommand(c, branch_name, rd, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
+
 
 def validate_subcommand(
     c: SCCSConstants,

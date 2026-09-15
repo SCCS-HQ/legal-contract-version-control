@@ -24,6 +24,7 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
     except Exception as e:
         raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
+
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
@@ -63,6 +64,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_open_success_message(
     c: SCCSConstants, commit_identifier: str, output_file_name: Path
 ) -> None:
@@ -77,6 +79,7 @@ def print_open_success_message(
             output_file=output_file_name,
         )
     )
+
 
 def validate_commit_identifier(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData

@@ -25,6 +25,7 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
 
     rs.target.reset()
 
+
 def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
     """
     Print the status of the current document based on whether uncommitted changes were

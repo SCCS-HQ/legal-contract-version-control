@@ -29,6 +29,7 @@ def ask_config_input(c: SCCSConstants, key: str) -> str:
 
     return data_value
 
+
 def copy_document_to_objects_as_document_and_html(
     c: SCCSConstants, document_path: Path, commit_identifier: str, rp: RepositoryPaths
 ) -> None:
@@ -78,6 +79,7 @@ def copy_document_to_objects_as_document_and_html(
     except Exception as e:
         raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
+
 def copy_document_to_repository_directory(
     repository_path: Path, document_path: Path
 ) -> None:
@@ -86,6 +88,7 @@ def copy_document_to_repository_directory(
     """
 
     shutil.copy2(document_path, repository_path)
+
 
 def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
     """
@@ -97,6 +100,7 @@ def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
         c,
         [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email],
     )
+
 
 def create_sccs_directory_layout(
     c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
@@ -128,6 +132,7 @@ def create_sccs_directory_layout(
 
     rs.target.reset()
 
+
 def finalize_repository_creation(
     c: SCCSConstants,
     document_path: Path,
@@ -150,6 +155,7 @@ def finalize_repository_creation(
                 document_path=document_path, e=e
             )
         )
+
 
 def main(
     c: SCCSConstants,
@@ -207,12 +213,14 @@ def main(
 
     print_init_success_message(c)
 
+
 def print_init_success_message(c: SCCSConstants) -> None:
     """
     Print a success message after a successful init operation.
     """
 
     print(c.INIT_SUCCESS_MESSAGE)
+
 
 def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
     """
@@ -228,6 +236,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
             c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
 
+
 def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
     """
     Validate that the repository has not already been initialized by checking for an
@@ -237,6 +246,7 @@ def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
 
     if (rp.sccs_path()).is_dir():
         raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
+
 
 def write_starting_metadata(
     c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO

@@ -77,6 +77,7 @@ def copy_branch_data(
 
     ri.write_branch_data(merged_branch_data)
 
+
 def main(
     c: SCCSConstants,
     branch: str,
@@ -129,6 +130,7 @@ def main(
 
     rs.target.reset()
 
+
 def print_merge_success_message(
     c: SCCSConstants, branch: str, rd: RepositoryData
 ) -> None:
@@ -142,6 +144,7 @@ def print_merge_success_message(
             branch_name=branch, current_branch=rd.current_branch()
         )
     )
+
 
 def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
     """
