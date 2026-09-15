@@ -16,21 +16,49 @@ from repository_layout import (
 )
 
 
-def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
+def main(
+    c: SCCSConstants,
+    key: str,
+    value: str,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
     """
-    Validates the entered key-value pair by checking if the key is accepted and if the
-    value is not empty.
+    Run the config command by setting the current branch as the target, validating the
+    repository layout, and writing the entered key-value pair to the configuration of a
+    copy of the repository in a staging directory.
 
-    Raises an SCCSException if the key or value is invalid.
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
     """
 
-    if key not in c.ACCEPTED_CONFIG_KEYS:
-        raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
+    rs.target.set(rd.current_branch())
 
-    utils.raise_if_empty(c, value.strip(), key)
+    rs.validate_repository_layout()
 
-    return value.strip()
+    resolved_value = resolve_key_value(
+        c, rp.repository_name, key, validate_entered_value(c, key, value)
+    )
 
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
+
+    print_config_success_message(c, key, value)
+
+    rs.target.reset()
+
+def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
+    """
+    Print a success message after a successful configuration operation, including the
+    key and value that were set."""
+
+    print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
 def resolve_key_value(
     c: SCCSConstants, repository_name: str, key: str, value: str
@@ -73,51 +101,20 @@ def resolve_key_value(
 
     return value
 
-
-def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
+def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     """
-    Print a success message after a successful configuration operation, including the
-    key and value that were set."""
+    Validates the entered key-value pair by checking if the key is accepted and if the
+    value is not empty.
 
-    print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
-
-
-def main(
-    c: SCCSConstants,
-    key: str,
-    value: str,
-    rd: RepositoryData,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the config command by setting the current branch as the target, validating the
-    repository layout, and writing the entered key-value pair to the configuration of a
-    copy of the repository in a staging directory.
-
-    Promote the staging directory to the repository root, print a success message, and
-    reset the target branch when the operation completes.
+    Raises an SCCSException if the key or value is invalid.
     """
 
-    rs.target.set(rd.current_branch())
+    if key not in c.ACCEPTED_CONFIG_KEYS:
+        raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
-    rs.validate_repository_layout()
+    utils.raise_if_empty(c, value.strip(), key)
 
-    resolved_value = resolve_key_value(
-        c, rp.repository_name, key, validate_entered_value(c, key, value)
-    )
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-
-        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
-
-    print_config_success_message(c, key, value)
-
-    rs.target.reset()
+    return value.strip()
 
 
 if __name__ == "__main__":

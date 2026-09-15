@@ -15,57 +15,6 @@ from repository_layout import (
 )
 
 
-def validate_branch_to_switch(
-    c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
-) -> None:
-    """
-    Validate the entered branch by checking that it is not empty and exists in the
-    repository. Raise an SCCSException if any validation fails.
-    """
-
-    utils.raise_if_empty(c, branch_to_switch, c.BRANCH_NAME_FIELD_NAME)
-
-    if not rs.branch_exists(branch_to_switch):
-        raise exceptions.SCCSException(
-            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch_to_switch
-            )
-        )
-
-
-def validate_commit_identifier(
-    c: SCCSConstants,
-    branch_to_switch: str | None,
-    rd: RepositoryData,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Validate the latest commit document of the entered branch by checking that it
-    exists. Raise an SCCSException if the commit document is missing.
-    """
-
-    rs.target.set(branch_to_switch)
-
-    if not rd.commit_identifier_to_full_path(
-        rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-    ).is_file():
-        raise exceptions.SCCSException(
-            c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch_to_switch
-            )
-        )
-
-    rs.target.reset()
-
-
-def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
-    """
-    Print a success message indicating that the entered branch has been switched to.
-    """
-
-    print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
-
-
 def main(
     c: SCCSConstants,
     branch_to_switch: str,
@@ -107,6 +56,54 @@ def main(
         staging_rw.set_current_branch(branch_to_switch)
 
     print_switch_success_message(c, branch_to_switch)
+
+    rs.target.reset()
+
+def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
+    """
+    Print a success message indicating that the entered branch has been switched to.
+    """
+
+    print(c.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_to_switch))
+
+def validate_branch_to_switch(
+    c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
+) -> None:
+    """
+    Validate the entered branch by checking that it is not empty and exists in the
+    repository. Raise an SCCSException if any validation fails.
+    """
+
+    utils.raise_if_empty(c, branch_to_switch, c.BRANCH_NAME_FIELD_NAME)
+
+    if not rs.branch_exists(branch_to_switch):
+        raise exceptions.SCCSException(
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_to_switch
+            )
+        )
+
+def validate_commit_identifier(
+    c: SCCSConstants,
+    branch_to_switch: str | None,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Validate the latest commit document of the entered branch by checking that it
+    exists. Raise an SCCSException if the commit document is missing.
+    """
+
+    rs.target.set(branch_to_switch)
+
+    if not rd.commit_identifier_to_full_path(
+        rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+    ).is_file():
+        raise exceptions.SCCSException(
+            c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_to_switch
+            )
+        )
 
     rs.target.reset()
 

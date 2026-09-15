@@ -18,53 +18,6 @@ from repository_layout import (
 )
 
 
-def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
-    """
-    Zip the contents of the current directory into a buffer and return it. Raise an
-    SCCSException if the files cannot be zipped.
-    """
-
-    with utils.zip_buffer(c) as (zip_buffer, zf):
-        for root, dirs, files in os.walk(c.WALK_ROOT):
-            for i in files:
-                zf.write(Path(root) / i)
-
-    return zip_buffer
-
-
-def post_repository(
-    c: SCCSConstants,
-    repository_zip: io.BytesIO,
-    url: str,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-) -> requests.Response:
-    """
-    Post the zipped repository and the repository remote to the entered URL and return
-    the response. Raise an SCCSException if the request fails.
-    """
-
-    try:
-        response = requests.post(
-            url,
-            files=[
-                (
-                    c.POST_FILE_FIELD_NAME,
-                    (
-                        str(Path(rp.repository_name).with_suffix(c.ZIP_EXTENSION)),
-                        repository_zip,
-                        c.CONTENT_TYPE_ZIP,
-                    ),
-                ),
-            ],
-            data={c.DATA_DATA: json.dumps({c.DATA_REMOTE: rd.base_repository_url()})},
-            timeout=c.HTTP_TIMEOUT_SECONDS,
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
-    return response
-
-
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -107,6 +60,51 @@ def main(
     )
 
     rs.target.reset()
+
+def post_repository(
+    c: SCCSConstants,
+    repository_zip: io.BytesIO,
+    url: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+) -> requests.Response:
+    """
+    Post the zipped repository and the repository remote to the entered URL and return
+    the response. Raise an SCCSException if the request fails.
+    """
+
+    try:
+        response = requests.post(
+            url,
+            files=[
+                (
+                    c.POST_FILE_FIELD_NAME,
+                    (
+                        str(Path(rp.repository_name).with_suffix(c.ZIP_EXTENSION)),
+                        repository_zip,
+                        c.CONTENT_TYPE_ZIP,
+                    ),
+                ),
+            ],
+            data={c.DATA_DATA: json.dumps({c.DATA_REMOTE: rd.base_repository_url()})},
+            timeout=c.HTTP_TIMEOUT_SECONDS,
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+    return response
+
+def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
+    """
+    Zip the contents of the current directory into a buffer and return it. Raise an
+    SCCSException if the files cannot be zipped.
+    """
+
+    with utils.zip_buffer(c) as (zip_buffer, zf):
+        for root, dirs, files in os.walk(c.WALK_ROOT):
+            for i in files:
+                zf.write(Path(root) / i)
+
+    return zip_buffer
 
 
 if __name__ == "__main__":

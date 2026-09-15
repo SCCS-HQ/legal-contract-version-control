@@ -14,45 +14,6 @@ from repository_layout import (
 )
 
 
-def validate_subcommand(
-    c: SCCSConstants,
-    subcommand: str | None,
-    branch_name: str | None,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Validate the subcommand and ensure the proper arguments are provided for each
-    subcommand. Raise an SCCSException if any validation fails.
-    """
-
-    utils.raise_if_empty(c, subcommand, c.SUBCOMMAND_FIELD_NAME)
-
-    if subcommand not in c.ACCEPTED_SUBCOMMANDS:
-        raise exceptions.SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
-
-    if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
-        utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
-
-    if subcommand == c.CREATE_SUBCOMMAND:
-        if rs.branch_exists(branch_name):
-            raise exceptions.SCCSException(
-                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
-                    branch_name=branch_name
-                )
-            )
-
-    if subcommand == c.DELETE_SUBCOMMAND:
-        if rs.is_current_branch(branch_name):
-            raise exceptions.SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
-
-        if not rs.branch_exists(branch_name):
-            raise exceptions.SCCSException(
-                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-                    branch_name=branch_name
-                )
-            )
-
-
 def branch_create_subcommand(
     c: SCCSConstants,
     branch_name: str,
@@ -72,22 +33,6 @@ def branch_create_subcommand(
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
 
-
-def print_branch_create_success_message(
-    c: SCCSConstants, branch_name: str, current_branch_name: str
-) -> None:
-    """
-    Print a success message indicating that the new branch has been created from the
-    current branch.
-    """
-
-    print(
-        c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch_name=branch_name, current_branch_name=current_branch_name
-        )
-    )
-
-
 def branch_delete_subcommand(
     c: SCCSConstants, branch_name: str, rd: RepositoryData, rw: RepositoryWrite
 ) -> None:
@@ -106,13 +51,6 @@ def branch_delete_subcommand(
     rw.remove_branch_metadata(branch_name, rd.current_branch())
     print_branch_delete_success_message(c, branch_name)
 
-
-def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
-    """Print a success message indicating that the branch has been deleted."""
-
-    print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
-
-
 def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
     """
     List all branches in the repository, indicating the current branch with a special
@@ -126,33 +64,6 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
             if i == rd.current_branch()
             else print(c.OTHER_BRANCH_LIST_TEMPLATE.format(branch_name=i))
         )
-
-
-def run_specified_subcommand(
-    c: SCCSConstants,
-    subcommand: str | None,
-    branch_name: str | None,
-    current_branch_name: str,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Delegate the execution of the specified subcommand to the appropriate function based
-    on the subcommand provided. Raise an SCCSException if the subcommand is invalid.
-    """
-
-    if subcommand == c.CREATE_SUBCOMMAND:
-        if branch_name is None:
-            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_create_subcommand(c, branch_name, current_branch_name, rw)
-    elif subcommand == c.DELETE_SUBCOMMAND:
-        if branch_name is None:
-            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_delete_subcommand(c, branch_name, rd, rw)
-    elif subcommand == c.LIST_SUBCOMMAND:
-        branch_list_subcommand(c, rd)
-
 
 def main(
     c: SCCSConstants,
@@ -197,6 +108,88 @@ def main(
         )
 
     rs.target.reset()
+
+def print_branch_create_success_message(
+    c: SCCSConstants, branch_name: str, current_branch_name: str
+) -> None:
+    """
+    Print a success message indicating that the new branch has been created from the
+    current branch.
+    """
+
+    print(
+        c.BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name, current_branch_name=current_branch_name
+        )
+    )
+
+def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> None:
+    """Print a success message indicating that the branch has been deleted."""
+
+    print(c.BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE.format(branch_name=branch_name))
+
+def run_specified_subcommand(
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    current_branch_name: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Delegate the execution of the specified subcommand to the appropriate function based
+    on the subcommand provided. Raise an SCCSException if the subcommand is invalid.
+    """
+
+    if subcommand == c.CREATE_SUBCOMMAND:
+        if branch_name is None:
+            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
+        branch_create_subcommand(c, branch_name, current_branch_name, rw)
+    elif subcommand == c.DELETE_SUBCOMMAND:
+        if branch_name is None:
+            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
+        branch_delete_subcommand(c, branch_name, rd, rw)
+    elif subcommand == c.LIST_SUBCOMMAND:
+        branch_list_subcommand(c, rd)
+
+def validate_subcommand(
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Validate the subcommand and ensure the proper arguments are provided for each
+    subcommand. Raise an SCCSException if any validation fails.
+    """
+
+    utils.raise_if_empty(c, subcommand, c.SUBCOMMAND_FIELD_NAME)
+
+    if subcommand not in c.ACCEPTED_SUBCOMMANDS:
+        raise exceptions.SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
+
+    if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
+        utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
+
+    if subcommand == c.CREATE_SUBCOMMAND:
+        if rs.branch_exists(branch_name):
+            raise exceptions.SCCSException(
+                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
+            )
+
+    if subcommand == c.DELETE_SUBCOMMAND:
+        if rs.is_current_branch(branch_name):
+            raise exceptions.SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
+
+        if not rs.branch_exists(branch_name):
+            raise exceptions.SCCSException(
+                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=branch_name
+                )
+            )
 
 
 if __name__ == "__main__":

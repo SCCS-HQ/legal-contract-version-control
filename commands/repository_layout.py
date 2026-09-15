@@ -12,51 +12,6 @@ import utils
 from constants_classes import SCCSConstants
 
 
-class TargetBranch:
-    """
-    A class to hold the branch that repository read and write operations target.
-    """
-
-    def __init__(self, c: SCCSConstants) -> None:
-        """
-        Initialize the target branch with the entered constants and no branch set.
-        """
-
-        self.c = c
-        self._branch: str | None = None
-
-    def set(self, branch_name: str | None) -> None:
-        """
-        Set the target branch to the entered branch name.
-        """
-
-        self._branch = branch_name
-
-    def get(self) -> str | None:
-        """
-        Return the target branch name, or None if the target branch is not set.
-        """
-
-        return self._branch
-
-    def require(self) -> str:
-        """
-        Return the target branch name. Raise an SCCSException if the target branch is
-        not set.
-        """
-
-        if self._branch is None:
-            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
-        return self._branch
-
-    def reset(self) -> None:
-        """
-        Reset the target branch to None.
-        """
-
-        self._branch = None
-
-
 class RepositoryData:
     """
     A class to access repository data, including the repository root, repository paths,
@@ -77,46 +32,6 @@ class RepositoryData:
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
-
-    def config_data(self, key: str) -> str:
-        """
-        Return the configuration value of the entered key. Raise an SCCSException if the
-        key is not accepted.
-        """
-
-        if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
-        return self.io.read_config()[key]
-
-    def raise_for_commit_identifier_length(self, commit_identifier: str) -> None:
-        """
-        Validate the entered commit identifier by checking that it is not empty and has
-        a valid commit identifier length. Raise an SCCSException if the commit
-        identifier is invalid.
-        """
-
-        if commit_identifier is None:
-            raise exceptions.SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
-                )
-            )
-
-        if (
-            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
-            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-        ):
-            raise exceptions.SCCSException(
-                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
-            )
-
-    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
-        """
-        Return the commit identifier created by hashing the entered commit identifier
-        parts.
-        """
-
-        return utils.create_commit_identifier(self.c, commit_identifier_parts)
 
     def _matching_commit_files(
         self, commit_identifier: str, folder: str
@@ -149,6 +64,35 @@ class RepositoryData:
 
         return matching_files
 
+    def base_repository_url(self) -> str:
+        """
+        Return the remote repository URL without a trailing path separator.
+        """
+
+        return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
+
+    def branches(self) -> list[str]:
+        """
+        Return the list of branches in the repository.
+        """
+
+        return self.io.read_current_branch_data_key(self.c.BRANCHES_DICT_KEY)
+
+    def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
+        """
+        Return the bytes of the commit file matching the entered commit identifier and
+        folder. Raise an SCCSException if the commit identifier is invalid, no matching
+        commit file exists, or multiple commit files match.
+        """
+
+        self.raise_for_commit_identifier_length(commit_identifier)
+
+        matching_file = self._matching_commit_files(commit_identifier, folder)[
+            self.c.FIRST_ELEMENT_INDEX
+        ]
+
+        return self.io.file_bytes(matching_file)
+
     def commit_identifier_to_full_path(
         self, commit_identifier: str, folder: str
     ) -> Path:
@@ -166,30 +110,30 @@ class RepositoryData:
             ]
         )
 
-    def commit_file_bytes(self, commit_identifier: str, folder: str) -> bytes:
+    def config_data(self, key: str) -> str:
         """
-        Return the bytes of the commit file matching the entered commit identifier and
-        folder. Raise an SCCSException if the commit identifier is invalid, no matching
-        commit file exists, or multiple commit files match.
-        """
-
-        self.raise_for_commit_identifier_length(commit_identifier)
-
-        matching_file = self._matching_commit_files(commit_identifier, folder)[
-            self.c.FIRST_ELEMENT_INDEX
-        ]
-
-        return self.io.file_bytes(matching_file)
-
-    def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
-        """
-        Return the full commit identifier matching the entered short commit identifier.
+        Return the configuration value of the entered key. Raise an SCCSException if the
+        key is not accepted.
         """
 
-        path = self.commit_identifier_to_full_path(
-            commit_identifier, self.c.DOCUMENT_DIRECTORY
-        )
-        return path.stem
+        if key not in self.c.ACCEPTED_CONFIG_KEYS:
+            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
+        return self.io.read_config()[key]
+
+    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
+        """
+        Return the commit identifier created by hashing the entered commit identifier
+        parts.
+        """
+
+        return utils.create_commit_identifier(self.c, commit_identifier_parts)
+
+    def current_branch(self) -> str:
+        """
+        Return the current branch of the repository.
+        """
+
+        return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
 
     def latest_commit_identifier(self) -> str:
         """
@@ -206,6 +150,28 @@ class RepositoryData:
 
         return commit_identifier
 
+    def raise_for_commit_identifier_length(self, commit_identifier: str) -> None:
+        """
+        Validate the entered commit identifier by checking that it is not empty and has
+        a valid commit identifier length. Raise an SCCSException if the commit
+        identifier is invalid.
+        """
+
+        if commit_identifier is None:
+            raise exceptions.SCCSException(
+                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
+                )
+            )
+
+        if (
+            len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
+            and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+        ):
+            raise exceptions.SCCSException(
+                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
+            )
+
     def repository_objects(self) -> list[str]:
         """
         Return the commit identifiers stored in the repository objects directory.
@@ -219,27 +185,15 @@ class RepositoryData:
             )
         )
 
-    def base_repository_url(self) -> str:
+    def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
         """
-        Return the remote repository URL without a trailing path separator.
-        """
-
-        return self.config_data(self.c.REMOTE_KEY).rstrip(self.c.PATH_SEPARATOR)
-
-    def current_branch(self) -> str:
-        """
-        Return the current branch of the repository.
+        Return the full commit identifier matching the entered short commit identifier.
         """
 
-        return self.io.read_current_branch_data_key(self.c.CURRENT_BRANCH_DICT_KEY)
-
-    def branches(self) -> list[str]:
-        """
-        Return the list of branches in the repository.
-        """
-
-        return self.io.read_current_branch_data_key(self.c.BRANCHES_DICT_KEY)
-
+        path = self.commit_identifier_to_full_path(
+            commit_identifier, self.c.DOCUMENT_DIRECTORY
+        )
+        return path.stem
 
 class RepositoryIO:
     """
@@ -288,6 +242,60 @@ class RepositoryIO:
             json.dump(data, f, indent=self.c.JSON_INDENT)
             f.truncate()
 
+    def create_document_commit(self, commit_identifier: str) -> None:
+        """
+        Copy the repository document to the document objects directory using the entered
+        commit identifier.
+        """
+
+        name = Path(commit_identifier).with_suffix(self.c.DOCUMENT_EXTENSION)
+        shutil.copy2(
+            self.paths.document_path(), self.paths.document_objects_path() / name
+        )
+
+    def document_byte_hash(self) -> str:
+        """
+        Return the SHA-256 hash of the repository document.
+        """
+
+        with open(self.paths.document_path(), "rb") as f:
+            hasher = hashlib.sha256()
+            for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
+                hasher.update(i)
+        return hasher.hexdigest()
+
+    def document_bytes(self) -> bytes:
+        """
+        Return the bytes of the repository document.
+        """
+
+        return self.file_bytes(self.paths.document_path())
+
+    def document_html(self) -> str:
+        """
+        Return the repository document converted to HTML.
+        """
+
+        with open(self.paths.document_path(), "rb") as f:
+            result = mammoth.convert_to_html(f)
+            return result.value
+
+    def document_html_byte_hash(self) -> str:
+        """
+        Return the SHA-256 hash of the repository document converted to HTML.
+        """
+
+        html = self.document_html()
+        return hashlib.sha256(html.encode(self.c.UTF_8)).hexdigest()
+
+    def file_bytes(self, path: Path) -> bytes:
+        """
+        Return the bytes of the file at the entered path.
+        """
+
+        with open(path, "rb") as f:
+            return f.read()
+
     def mutate_updated_branches(self, mutate: Callable[[list[str]], bool]) -> None:
         """
         Apply the entered mutation to the updated branches list of the current branch
@@ -301,64 +309,6 @@ class RepositoryIO:
         if mutate(data[self.c.UPDATED_BRANCHES_DICT_KEY]):
             self.write_current_branch_data(data)
 
-    def file_bytes(self, path: Path) -> bytes:
-        """
-        Return the bytes of the file at the entered path.
-        """
-
-        with open(path, "rb") as f:
-            return f.read()
-
-    def document_bytes(self) -> bytes:
-        """
-        Return the bytes of the repository document.
-        """
-
-        return self.file_bytes(self.paths.document_path())
-
-    def write_document_bytes(self, data: bytes) -> None:
-        """
-        Write the entered bytes to the repository document.
-        """
-
-        with open(self.paths.document_path(), "wb") as f:
-            f.write(data)
-            f.truncate()
-
-    def read_metadata(self) -> dict[str, Any]:
-        """
-        Return the repository metadata.
-        """
-
-        return self._read_metadata_json()
-
-    def write_metadata(self, data: dict[str, Any]) -> None:
-        """
-        Write the entered repository metadata.
-        """
-
-        self._write_metadata_json(data)
-
-    def read_branches_data(self) -> dict[str, Any]:
-        """
-        Return the branches metadata of the repository.
-        """
-
-        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY]
-
-    def write_branches_data(self, data: dict[str, Any]) -> None:
-        """
-        Write the entered branches metadata to the repository. Raise an SCCSException if
-        the target branch is not set.
-        """
-
-        self.target.require()
-
-        full_metadata = self.read_metadata()
-        full_metadata[self.c.BRANCHES_DICT_KEY] = data
-
-        self._write_metadata_json(full_metadata)
-
     def read_branch_data(self) -> dict[str, Any]:
         """
         Return the metadata of the target branch. Raise an SCCSException if the target
@@ -369,18 +319,38 @@ class RepositoryIO:
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()]
 
-    def write_branch_data(self, data: dict[str, Any]) -> None:
+    def read_branches_data(self) -> dict[str, Any]:
         """
-        Write the entered metadata to the target branch. Raise an SCCSException if the
+        Return the branches metadata of the repository.
+        """
+
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY]
+
+    def read_byte_hash(self) -> dict[str, str]:
+        """
+        Return the byte hash data of the target branch. Raise an SCCSException if the
         target branch is not set.
         """
 
         self.target.require()
 
-        full_metadata = self.read_metadata()
-        full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
+        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
+            self.target.get()
+        ][self.c.BYTE_HASH_DICT_KEY]
 
-        self._write_metadata_json(full_metadata)
+    def read_commit_messages(self) -> dict[str, str]:
+        """
+        Return the commit messages of the repository.
+        """
+
+        return self._read_metadata_json()[self.c.COMMIT_MESSAGES_DICT_KEY]
+
+    def read_config(self) -> dict[str, str]:
+        """
+        Return the configuration of the repository.
+        """
+
+        return self._read_metadata_json().setdefault(self.c.CONFIG_DICT_KEY, {})
 
     def read_current_branch_data(self) -> dict[str, Any]:
         """
@@ -396,33 +366,6 @@ class RepositoryIO:
 
         return self.read_current_branch_data()[key]
 
-    def write_current_branch_data(self, data: dict[str, Any]) -> None:
-        """
-        Write the entered current branch metadata to the repository.
-        """
-
-        full_metadata = self.read_metadata()
-        full_metadata[self.c.CURRENT_BRANCH_DICT_KEY] = data
-
-        self._write_metadata_json(full_metadata)
-
-    def read_config(self) -> dict[str, str]:
-        """
-        Return the configuration of the repository.
-        """
-
-        return self._read_metadata_json().setdefault(self.c.CONFIG_DICT_KEY, {})
-
-    def write_config(self, data: dict[str, str]) -> None:
-        """
-        Write the entered configuration to the repository.
-        """
-
-        full_metadata = self.read_metadata()
-        full_metadata[self.c.CONFIG_DICT_KEY] = data
-
-        self._write_metadata_json(full_metadata)
-
     def read_history(self) -> dict[str, Any]:
         """
         Return the commit history of the target branch. Raise an SCCSException if the
@@ -434,21 +377,6 @@ class RepositoryIO:
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
             self.target.get()
         ][self.c.HISTORY_DICT_KEY]
-
-    def write_history(self, data: dict[str, Any]) -> None:
-        """
-        Write the entered commit history to the target branch. Raise an SCCSException if
-        the target branch is not set.
-        """
-
-        self.target.require()
-
-        full_metadata = self.read_metadata()
-        full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.HISTORY_DICT_KEY
-        ] = data
-
-        self._write_metadata_json(full_metadata)
 
     def read_log(self) -> dict[str, Any]:
         """
@@ -462,32 +390,38 @@ class RepositoryIO:
             self.target.get()
         ][self.c.LOG_DICT_KEY]
 
-    def write_log(self, data: dict[str, Any]) -> None:
+    def read_metadata(self) -> dict[str, Any]:
         """
-        Write the entered log to the target branch. Raise an SCCSException if the target
-        branch is not set.
+        Return the repository metadata.
         """
 
-        self.target.require()
+        return self._read_metadata_json()
 
-        full_metadata = self.read_metadata()
-        full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
-            self.c.LOG_DICT_KEY
-        ] = data
-
-        self._write_metadata_json(full_metadata)
-
-    def read_byte_hash(self) -> dict[str, str]:
+    def write_branch_data(self, data: dict[str, Any]) -> None:
         """
-        Return the byte hash data of the target branch. Raise an SCCSException if the
+        Write the entered metadata to the target branch. Raise an SCCSException if the
         target branch is not set.
         """
 
         self.target.require()
 
-        return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][
-            self.target.get()
-        ][self.c.BYTE_HASH_DICT_KEY]
+        full_metadata = self.read_metadata()
+        full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
+
+        self._write_metadata_json(full_metadata)
+
+    def write_branches_data(self, data: dict[str, Any]) -> None:
+        """
+        Write the entered branches metadata to the repository. Raise an SCCSException if
+        the target branch is not set.
+        """
+
+        self.target.require()
+
+        full_metadata = self.read_metadata()
+        full_metadata[self.c.BRANCHES_DICT_KEY] = data
+
+        self._write_metadata_json(full_metadata)
 
     def write_byte_hash(self, data: dict[str, str]) -> None:
         """
@@ -504,13 +438,6 @@ class RepositoryIO:
 
         self._write_metadata_json(full_metadata)
 
-    def read_commit_messages(self) -> dict[str, str]:
-        """
-        Return the commit messages of the repository.
-        """
-
-        return self._read_metadata_json()[self.c.COMMIT_MESSAGES_DICT_KEY]
-
     def write_commit_messages(self, data: dict[str, str]) -> None:
         """
         Write the entered commit messages to the repository.
@@ -521,44 +448,63 @@ class RepositoryIO:
 
         self._write_metadata_json(full_metadata)
 
-    def document_html_byte_hash(self) -> str:
+    def write_config(self, data: dict[str, str]) -> None:
         """
-        Return the SHA-256 hash of the repository document converted to HTML.
-        """
-
-        html = self.document_html()
-        return hashlib.sha256(html.encode(self.c.UTF_8)).hexdigest()
-
-    def document_byte_hash(self) -> str:
-        """
-        Return the SHA-256 hash of the repository document.
+        Write the entered configuration to the repository.
         """
 
-        with open(self.paths.document_path(), "rb") as f:
-            hasher = hashlib.sha256()
-            for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
-                hasher.update(i)
-        return hasher.hexdigest()
+        full_metadata = self.read_metadata()
+        full_metadata[self.c.CONFIG_DICT_KEY] = data
 
-    def document_html(self) -> str:
-        """
-        Return the repository document converted to HTML.
-        """
+        self._write_metadata_json(full_metadata)
 
-        with open(self.paths.document_path(), "rb") as f:
-            result = mammoth.convert_to_html(f)
-            return result.value
-
-    def create_document_commit(self, commit_identifier: str) -> None:
+    def write_current_branch_data(self, data: dict[str, Any]) -> None:
         """
-        Copy the repository document to the document objects directory using the entered
-        commit identifier.
+        Write the entered current branch metadata to the repository.
         """
 
-        name = Path(commit_identifier).with_suffix(self.c.DOCUMENT_EXTENSION)
-        shutil.copy2(
-            self.paths.document_path(), self.paths.document_objects_path() / name
-        )
+        full_metadata = self.read_metadata()
+        full_metadata[self.c.CURRENT_BRANCH_DICT_KEY] = data
+
+        self._write_metadata_json(full_metadata)
+
+    def write_diff_output(self, diff: str) -> None:
+        """
+        Write the entered diff output to the diff output file in the repository root.
+        """
+
+        with open(
+            self.root / self.c.DIFF_OUTPUT_HTML_FILE,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            f.write(diff)
+            f.truncate()
+
+    def write_document_bytes(self, data: bytes) -> None:
+        """
+        Write the entered bytes to the repository document.
+        """
+
+        with open(self.paths.document_path(), "wb") as f:
+            f.write(data)
+            f.truncate()
+
+    def write_history(self, data: dict[str, Any]) -> None:
+        """
+        Write the entered commit history to the target branch. Raise an SCCSException if
+        the target branch is not set.
+        """
+
+        self.target.require()
+
+        full_metadata = self.read_metadata()
+        full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
+            self.c.HISTORY_DICT_KEY
+        ] = data
+
+        self._write_metadata_json(full_metadata)
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         """
@@ -579,20 +525,27 @@ class RepositoryIO:
             ) as f:
                 f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
-    def write_diff_output(self, diff: str) -> None:
+    def write_log(self, data: dict[str, Any]) -> None:
         """
-        Write the entered diff output to the diff output file in the repository root.
+        Write the entered log to the target branch. Raise an SCCSException if the target
+        branch is not set.
         """
 
-        with open(
-            self.root / self.c.DIFF_OUTPUT_HTML_FILE,
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            f.write(diff)
-            f.truncate()
+        self.target.require()
 
+        full_metadata = self.read_metadata()
+        full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
+            self.c.LOG_DICT_KEY
+        ] = data
+
+        self._write_metadata_json(full_metadata)
+
+    def write_metadata(self, data: dict[str, Any]) -> None:
+        """
+        Write the entered repository metadata.
+        """
+
+        self._write_metadata_json(data)
 
 class RepositoryPaths:
     """
@@ -612,6 +565,13 @@ class RepositoryPaths:
         self.c = c
         self.target = target
 
+    def document_objects_path(self) -> Path:
+        """
+        Return the path of the document objects directory.
+        """
+
+        return self.objects_path() / self.c.DOCUMENT_DIRECTORY
+
     def document_path(self) -> Path:
         """
         Return the path of the repository document.
@@ -619,12 +579,12 @@ class RepositoryPaths:
 
         return (self.root / self.repository_name).with_suffix(self.c.DOCUMENT_EXTENSION)
 
-    def sccs_path(self) -> Path:
+    def html_objects_path(self) -> Path:
         """
-        Return the path of the SCCS directory.
+        Return the path of the HTML objects directory.
         """
 
-        return self.root / self.c.SCCS_DIRECTORY
+        return self.objects_path() / self.c.HTML_DIRECTORY
 
     def metadata_path(self) -> Path:
         """
@@ -640,12 +600,12 @@ class RepositoryPaths:
 
         return self.sccs_path() / self.c.OBJECTS_DIRECTORY
 
-    def document_objects_path(self) -> Path:
+    def sccs_path(self) -> Path:
         """
-        Return the path of the document objects directory.
+        Return the path of the SCCS directory.
         """
 
-        return self.objects_path() / self.c.DOCUMENT_DIRECTORY
+        return self.root / self.c.SCCS_DIRECTORY
 
     def view_html_objects_path(self) -> Path:
         """
@@ -653,14 +613,6 @@ class RepositoryPaths:
         """
 
         return self.objects_path() / self.c.VIEW_HTML_DIRECTORY
-
-    def html_objects_path(self) -> Path:
-        """
-        Return the path of the HTML objects directory.
-        """
-
-        return self.objects_path() / self.c.HTML_DIRECTORY
-
 
 class RepositoryStatus:
     """
@@ -682,6 +634,41 @@ class RepositoryStatus:
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
+
+    def branch_exists(self, branch_name: str | None) -> bool:
+        """
+        Return whether the entered branch exists in the repository.
+        """
+
+        if branch_name is None:
+            return False
+        branches = (
+            i.lower()
+            for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
+        )
+        return branch_name.lower() in branches
+
+    def is_current_branch(self, branch_name: str | None) -> bool:
+        """
+        Return whether the entered branch is the current branch of the repository.
+        """
+
+        if branch_name is None:
+            return False
+        current_branch = self.io.read_current_branch_data()[
+            self.c.CURRENT_BRANCH_DICT_KEY
+        ]
+        return branch_name.lower() == current_branch.lower()
+
+    def raise_for_uncommitted_changes(self) -> None:
+        """
+        Raise an SCCSException if the repository has uncommitted changes.
+        """
+
+        if self.validate_uncommitted_changes():
+            raise exceptions.SCCSException(
+                self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+            )
 
     def validate_repository_layout(self) -> None:
         """
@@ -726,42 +713,6 @@ class RepositoryStatus:
 
         return latest_byte_hash != document_byte_hash
 
-    def raise_for_uncommitted_changes(self) -> None:
-        """
-        Raise an SCCSException if the repository has uncommitted changes.
-        """
-
-        if self.validate_uncommitted_changes():
-            raise exceptions.SCCSException(
-                self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-            )
-
-    def branch_exists(self, branch_name: str | None) -> bool:
-        """
-        Return whether the entered branch exists in the repository.
-        """
-
-        if branch_name is None:
-            return False
-        branches = (
-            i.lower()
-            for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
-        )
-        return branch_name.lower() in branches
-
-    def is_current_branch(self, branch_name: str | None) -> bool:
-        """
-        Return whether the entered branch is the current branch of the repository.
-        """
-
-        if branch_name is None:
-            return False
-        current_branch = self.io.read_current_branch_data()[
-            self.c.CURRENT_BRANCH_DICT_KEY
-        ]
-        return branch_name.lower() == current_branch.lower()
-
-
 class RepositoryWrite:
     """
     A class to modify the configuration, branches, and commit data of a repository.
@@ -782,47 +733,6 @@ class RepositoryWrite:
         self.paths = RepositoryPaths(root, repository_name, c, self.target)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def write_key_to_config(
-        self, key: str, value: str, current_config: dict[str, str]
-    ) -> None:
-        """
-        Write the entered key-value pair to the repository configuration. Raise an
-        SCCSException if the value is empty, contains invalid characters, or the key is
-        not accepted.
-        """
-
-        utils.raise_if_empty(self.c, value.strip(), key)
-
-        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
-            i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
-        ):
-            raise exceptions.SCCSException(
-                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
-            )
-        if key == self.c.REMOTE_KEY and not all(
-            i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
-        ):
-            raise exceptions.SCCSException(
-                self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
-            )
-
-        if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
-
-        config = self.io.read_config()
-        config[key] = value
-
-        self.io.write_config(config)
-
-    def add_to_branches_list(self, branch_name: str) -> None:
-        """
-        Add the entered branch to the list of branches in the current branch metadata.
-        """
-
-        branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
-        self.io.write_current_branch_data(branch_data)
-
     def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
         """
         Add the entered branch by copying the current branch metadata, adding the branch
@@ -842,42 +752,14 @@ class RepositoryWrite:
         self.add_to_updated_branches(branch_name, current_branch_name)
         self.set_current_branch(branch_name)
 
-    def remove_from_branches_list(self, branch_name: str) -> None:
+    def add_to_branches_list(self, branch_name: str) -> None:
         """
-        Remove the entered branch from the list of branches in the current branch
-        metadata. Raise an SCCSException if the branch is not in the branches list.
+        Add the entered branch to the list of branches in the current branch metadata.
         """
-
-        lowercase_branch_name = branch_name.lower()
 
         branch_data = self.io.read_current_branch_data()
-        if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
-            branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
-        else:
-            raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
+        branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
         self.io.write_current_branch_data(branch_data)
-
-    def remove_branch_metadata(
-        self, branch_name: str, current_branch_name: str
-    ) -> None:
-        """
-        Remove the entered branch by deleting its metadata, removing it from the
-        branches list and updated branches, and setting the main branch as the current
-        branch if the removed branch was the current branch.
-        """
-
-        branch_name = branch_name.lower()
-
-        branches_metadata = self.io.read_branches_data()
-        if branch_name in branches_metadata:
-            del branches_metadata[branch_name]
-        self.io.write_branches_data(branches_metadata)
-
-        self.remove_from_branches_list(branch_name)
-        self.remove_from_updated_branch(branch_name)
-
-        if branch_name == current_branch_name:
-            self.set_current_branch(self.c.MAIN_BRANCH_NAME)
 
     def add_to_updated_branches(
         self, branch_name: str, conditional_branch: str | None = None
@@ -896,31 +778,6 @@ class RepositoryWrite:
             return False
 
         self.io.mutate_updated_branches(add)
-
-    def remove_from_updated_branch(self, branch_name: str) -> None:
-        """
-        Remove the entered branch from the updated branches in the current branch
-        metadata.
-        """
-
-        branch_name = branch_name.lower()
-
-        def remove(updated: list[str]) -> bool:
-            if branch_name in updated:
-                updated.remove(branch_name)
-                return True
-            return False
-
-        self.io.mutate_updated_branches(remove)
-
-    def set_current_branch(self, branch_name: str) -> None:
-        """
-        Set the entered branch as the current branch of the repository.
-        """
-
-        branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
-        self.io.write_current_branch_data(branch_data)
 
     def commit_changes(
         self, commit_message: str, allow_empty_commit: bool = False
@@ -1006,3 +863,141 @@ class RepositoryWrite:
         self.io.write_current_branch_data(current_branch_data)
 
         return commit_identifier
+
+    def remove_branch_metadata(
+        self, branch_name: str, current_branch_name: str
+    ) -> None:
+        """
+        Remove the entered branch by deleting its metadata, removing it from the
+        branches list and updated branches, and setting the main branch as the current
+        branch if the removed branch was the current branch.
+        """
+
+        branch_name = branch_name.lower()
+
+        branches_metadata = self.io.read_branches_data()
+        if branch_name in branches_metadata:
+            del branches_metadata[branch_name]
+        self.io.write_branches_data(branches_metadata)
+
+        self.remove_from_branches_list(branch_name)
+        self.remove_from_updated_branch(branch_name)
+
+        if branch_name == current_branch_name:
+            self.set_current_branch(self.c.MAIN_BRANCH_NAME)
+
+    def remove_from_branches_list(self, branch_name: str) -> None:
+        """
+        Remove the entered branch from the list of branches in the current branch
+        metadata. Raise an SCCSException if the branch is not in the branches list.
+        """
+
+        lowercase_branch_name = branch_name.lower()
+
+        branch_data = self.io.read_current_branch_data()
+        if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
+            branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
+        else:
+            raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
+        self.io.write_current_branch_data(branch_data)
+
+    def remove_from_updated_branch(self, branch_name: str) -> None:
+        """
+        Remove the entered branch from the updated branches in the current branch
+        metadata.
+        """
+
+        branch_name = branch_name.lower()
+
+        def remove(updated: list[str]) -> bool:
+            if branch_name in updated:
+                updated.remove(branch_name)
+                return True
+            return False
+
+        self.io.mutate_updated_branches(remove)
+
+    def set_current_branch(self, branch_name: str) -> None:
+        """
+        Set the entered branch as the current branch of the repository.
+        """
+
+        branch_data = self.io.read_current_branch_data()
+        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
+        self.io.write_current_branch_data(branch_data)
+
+    def write_key_to_config(
+        self, key: str, value: str, current_config: dict[str, str]
+    ) -> None:
+        """
+        Write the entered key-value pair to the repository configuration. Raise an
+        SCCSException if the value is empty, contains invalid characters, or the key is
+        not accepted.
+        """
+
+        utils.raise_if_empty(self.c, value.strip(), key)
+
+        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
+            i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
+        ):
+            raise exceptions.SCCSException(
+                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
+            )
+        if key == self.c.REMOTE_KEY and not all(
+            i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
+        ):
+            raise exceptions.SCCSException(
+                self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
+            )
+
+        if key not in self.c.ACCEPTED_CONFIG_KEYS:
+            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
+
+        config = self.io.read_config()
+        config[key] = value
+
+        self.io.write_config(config)
+
+class TargetBranch:
+    """
+    A class to hold the branch that repository read and write operations target.
+    """
+
+    def __init__(self, c: SCCSConstants) -> None:
+        """
+        Initialize the target branch with the entered constants and no branch set.
+        """
+
+        self.c = c
+        self._branch: str | None = None
+
+    def get(self) -> str | None:
+        """
+        Return the target branch name, or None if the target branch is not set.
+        """
+
+        return self._branch
+
+    def require(self) -> str:
+        """
+        Return the target branch name. Raise an SCCSException if the target branch is
+        not set.
+        """
+
+        if self._branch is None:
+            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
+        return self._branch
+
+    def reset(self) -> None:
+        """
+        Reset the target branch to None.
+        """
+
+        self._branch = None
+
+    def set(self, branch_name: str | None) -> None:
+        """
+        Set the target branch to the entered branch name.
+        """
+
+        self._branch = branch_name

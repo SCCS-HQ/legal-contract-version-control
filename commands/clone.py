@@ -13,110 +13,6 @@ import utils
 from constants_classes import SCCSConstants
 
 
-def validate_entered_url(c: SCCSConstants, url: str) -> None:
-    """
-    Validates the entered URL by checking if it is not empty, starts with an accepted
-    scheme, and ends with the expected clone endpoint.
-
-    Raises an SCCSException if the URL is invalid.
-    """
-
-    utils.raise_if_empty(c, url, c.URL_FIELD_NAME)
-
-    if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
-        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
-
-    if not url.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
-
-
-def validate_repository_name(c: SCCSConstants, name: str) -> None:
-    """
-    Validate the entered repository name by checking that it contains only allowed
-    characters and is not a single or double period. Raise an SCCSException if the
-    repository name is invalid.
-    """
-
-    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", name) or name in (
-        c.SINGLE_PERIOD,
-        c.DOUBLE_PERIOD,
-    ):
-        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
-
-
-def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
-    """
-    Sends a GET request to the specified URL with a timeout and returns the response.
-
-    Raises an SCCSException if the request fails.
-    """
-
-    try:
-        response = requests.get(url, timeout=timeout)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
-
-    return response
-
-
-def repository_name_from_url(c: SCCSConstants, url: str) -> str:
-    """
-    Extracts the repository name from the provided URL by splitting the path and
-    validating the last two parts of the path.
-
-    Raises an SCCSException if the URL is invalid or does not contain a valid repository
-    name.
-    """
-
-    path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
-
-    if not path_parts or not urlsplit(url).path.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
-
-    if len(path_parts) < c.MINIMUM_PATH_PARTS:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.REPOSITORY_NAME_FIELD_NAME
-            )
-        )
-
-    return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
-
-
-def unzip_repository_file(
-    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
-) -> None:
-    """
-    Unzip the repository file from the provided zip buffer into the staging root
-    directory.
-
-    Raises an SCCSException if the repository name is invalid or if the extraction
-    fails.
-    """
-
-    repository_name = repository_name_from_url(c, url)
-
-    destination = Path(staging_root / repository_name)
-
-    print(destination)
-
-    validate_repository_name(c, destination.name)
-
-    with zipfile.ZipFile(zip_buffer, "r") as zf:
-        for i in zf.namelist():
-            utils.safe_extract_zip(c, zf, i, destination)
-
-
-def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
-    """
-    Print the status code and a success message after a successful clone operation.
-    """
-
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.CLONE_SUCCESS_MESSAGE)
-
-
 def main(c: SCCSConstants, url: str) -> None:
     """
     Run the clone command by validating the entered URL, requesting the repository from
@@ -153,6 +49,104 @@ def main(c: SCCSConstants, url: str) -> None:
         raise
 
     print_clone_success_message(c, response)
+
+def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
+    """
+    Print the status code and a success message after a successful clone operation.
+    """
+
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(c.CLONE_SUCCESS_MESSAGE)
+
+def repository_name_from_url(c: SCCSConstants, url: str) -> str:
+    """
+    Extracts the repository name from the provided URL by splitting the path and
+    validating the last two parts of the path.
+
+    Raises an SCCSException if the URL is invalid or does not contain a valid repository
+    name.
+    """
+
+    path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
+
+    if not path_parts or not urlsplit(url).path.endswith(c.CLONE_ENDPOINT):
+        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+
+    if len(path_parts) < c.MINIMUM_PATH_PARTS:
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.REPOSITORY_NAME_FIELD_NAME
+            )
+        )
+
+    return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
+
+def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+    """
+    Sends a GET request to the specified URL with a timeout and returns the response.
+
+    Raises an SCCSException if the request fails.
+    """
+
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+
+    return response
+
+def unzip_repository_file(
+    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
+) -> None:
+    """
+    Unzip the repository file from the provided zip buffer into the staging root
+    directory.
+
+    Raises an SCCSException if the repository name is invalid or if the extraction
+    fails.
+    """
+
+    repository_name = repository_name_from_url(c, url)
+
+    destination = Path(staging_root / repository_name)
+
+    print(destination)
+
+    validate_repository_name(c, destination.name)
+
+    with zipfile.ZipFile(zip_buffer, "r") as zf:
+        for i in zf.namelist():
+            utils.safe_extract_zip(c, zf, i, destination)
+
+def validate_entered_url(c: SCCSConstants, url: str) -> None:
+    """
+    Validates the entered URL by checking if it is not empty, starts with an accepted
+    scheme, and ends with the expected clone endpoint.
+
+    Raises an SCCSException if the URL is invalid.
+    """
+
+    utils.raise_if_empty(c, url, c.URL_FIELD_NAME)
+
+    if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
+        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
+
+    if not url.endswith(c.CLONE_ENDPOINT):
+        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+
+def validate_repository_name(c: SCCSConstants, name: str) -> None:
+    """
+    Validate the entered repository name by checking that it contains only allowed
+    characters and is not a single or double period. Raise an SCCSException if the
+    repository name is invalid.
+    """
+
+    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", name) or name in (
+        c.SINGLE_PERIOD,
+        c.DOUBLE_PERIOD,
+    ):
+        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
 
 if __name__ == "__main__":
