@@ -6,6 +6,7 @@ This documentation covers all available commands in the **SCCS (Specialized Cont
 
 ## 📋 Table of Contents
 
+1. [Warnings](#-warnings) - Documented fallacies of SCCS
 1. [Branch](#-branch) — Create, delete, and manage branches
 2. [Clone](#-clone) — Clone a hosted repository
 3. [Commit](#-commit) — Commit changes to the repository
@@ -20,31 +21,16 @@ This documentation covers all available commands in the **SCCS (Specialized Cont
 12. [Pull](#-pull) — Pull changes from remote repository
 13. [Push](#-push) — Push changes to remote repository
 14. [Reset](#-reset) — Discard uncommitted changes
-15. [Revert](#-revert) — Revert to a previous commit
-16. [Status](#-status) — Check for uncommitted changes
-17. [Switch](#-switch) — Switch between branches
+15. [Revert](#-revert) — Revert to a previous commit**Arguments:**
 
----
+## ⚠️ Warnings
+
+- All mutating SCCS commands are fully atomic, except for a micro second period where the repository only exists at '<repository_name>.old-<uuid.uuid4().hex>' as a sibling folder to the repository between two atomic renames. 
+- If power is lost or the process is aborted in between the two atomic renames, to repository may be unrecoverable. 
+- Be sure to backup your repository to ensure no data will be lost.
+- This will be addressed in a future update.
 
 ## 🌿 Branch
-
-**Create, delete, and list branches within your repository.**
-
-### Usage
-
-```bash
-sccs branch <subcommand> [branch-name]
-```
-
-### Subcommands
-
-#### create
-
-Creates a new branch based on the current branch.
-
-**Usage:** `sccs branch create <branch-name>`
-
-**Arguments:**
 
 - `<branch-name>` — The name of the new branch to create
 
@@ -247,11 +233,11 @@ sccs diff <commit-hash>
 - Compares the historical commit with the current document
 - Creates an HTML file named `diff.html` in the current directory
 - Color-codes changes:
+
   - Deleted content appears with a `"deleted"` class (typically red strikethrough)
   - Inserted content appears with an `"inserted"` class (typically green highlight)
 - Removes inline formatting tags to avoid duplication in the diff
 - Can be opened in any web browser
-
 - Requires no uncommitted changes (commit or reset first)
 - Fails if the current document is identical to the specified commit (no differences to show)
 
