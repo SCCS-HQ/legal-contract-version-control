@@ -3,8 +3,9 @@
 import hashlib
 import json
 import shutil
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import exceptions
 import mammoth
@@ -215,18 +216,17 @@ class RepositoryData:
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
-    def repository_objects(self) -> list[str]:
+    def repository_objects(self) -> set[str]:
         """
         Return the commit identifiers stored in the repository objects directory.
         """
 
-        return list(
-            set(
-                i.stem
-                for i in self.paths.objects_path().rglob(self.c.RGLOB_ALL_FILES_PATTERN)
-                if i.is_file()
-            )
-        )
+        return {
+            i.stem
+            for i in self.paths.objects_path().rglob(self.c.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
+        }
+        
 
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
         """
@@ -846,8 +846,7 @@ class RepositoryWrite:
         latest_byte_hash = byte_hash_data[latest_commit_identifier]
         document_byte_hash = self.io.document_html_byte_hash()
 
-        if not allow_empty_commit:
-            if latest_byte_hash == document_byte_hash:
+        if not allow_empty_commit or latest_byte_hash == document_byte_hash:
                 raise exceptions.SCCSException(
                     self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
                 )

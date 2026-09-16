@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from types import MappingProxyType
 
 import exceptions
 
@@ -59,7 +60,7 @@ class SCCSConstants:
         "A directory with the repository name already exists in the current directory."
     )
     COMMAND_ARGUMENT_INDEX = 1
-    COMMAND_DESCRIPTIONS = {
+    COMMAND_DESCRIPTIONS = MappingProxyType({
         "branch": "Create a new branch, delete, or list branches.",
         "clone": "Clone a hosted SCCS repository with a URL.",
         "commit": "Commit changes to the repository.",
@@ -78,7 +79,7 @@ class SCCSConstants:
         "reset": "Delete all uncommitted changes.",
         "switch": "Switch between document branches.",
         "status": "Check the status of the current document for uncommitted changes.",
-    }
+    })
     COMMANDS_LIST = (
         "branch",
         "clone",
@@ -323,7 +324,7 @@ class SCCSConstants:
     )
     PATH_SEPARATOR = "/"
     POST_FILE_FIELD_NAME = "file"
-    PROGRAM_START_TIME = datetime.datetime.now().isoformat()
+    PROGRAM_START_TIME = datetime.datetime.now(datetime.timezone.utc).isoformat()
     PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
     PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
     PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
@@ -415,11 +416,11 @@ class SCCSConstants:
     )
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
     # DEFAULT_BRANCH_DATA out of order to not error
-    DEFAULT_BRANCH_DATA = {
+    DEFAULT_BRANCH_DATA = MappingProxyType({
         CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
         BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
         UPDATED_BRANCHES_DICT_KEY: [],
-    }
+    })
     URL_FIELD_NAME = "URL"
     UTILS_ARGUMENT_ERROR_MESSAGE = (
         "Required argument missing. Please provide the required argument."

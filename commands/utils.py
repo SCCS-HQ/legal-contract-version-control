@@ -8,8 +8,9 @@ import shutil
 import sys
 import tempfile
 import zipfile
+from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any, Callable, Iterator
+from typing import Any
 
 import exceptions
 from constants_classes import ErrorWrappers, SCCSConstants

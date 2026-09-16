@@ -100,7 +100,6 @@ def main(
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
         staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
 
         run_specified_subcommand(
@@ -178,13 +177,12 @@ def validate_subcommand(
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
 
-    if subcommand == c.CREATE_SUBCOMMAND:
-        if rs.branch_exists(branch_name):
-            raise exceptions.SCCSException(
-                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
-                    branch_name=branch_name
-                )
+    if subcommand == c.CREATE_SUBCOMMAND and rs.branch_exists(branch_name):
+        raise exceptions.SCCSException(
+            c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+                branch_name=branch_name
             )
+        )
 
     if subcommand == c.DELETE_SUBCOMMAND:
         if rs.is_current_branch(branch_name):
