@@ -330,13 +330,11 @@ async def push(repository_name: str) -> dict:
         )
 
     return {
-        OBJECTS_DICT_KEY: list(
-            set(
-                i.stem
-                for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN)
-                if i.is_file()
-            )
-        )
+        OBJECTS_DICT_KEY: {
+            i.stem
+            for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
+        }
     }
 
 
@@ -458,9 +456,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
         ) from e
 
-    remote_objects = set(
+    remote_objects = {
         i.stem for i in (objects_paths).rglob(RGLOB_ALL_FILES_PATTERN) if i.is_file()
-    )
+    }
 
     if local_objects - remote_objects:
         raise HTTPException(
