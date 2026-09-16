@@ -50,6 +50,7 @@ Creates a new branch based on the current branch.
 
 **Behavior:**
 
+- Requires no uncommitted changes (commit or reset first)
 - The new branch inherits all commits and history from the current branch
 - The newly created branch becomes the current branch
 - Branch names are sanitized to be valid directory names
@@ -74,6 +75,7 @@ Deletes an existing branch.
 **Behavior:**
 
 - Cannot delete the current branch (switch branches first)
+- Cannot delete the `main` branch
 - Removes the branch from all metadata files
 - Fails if the branch does not exist
 - Changes are rolled back if deletion fails partway through
@@ -126,9 +128,10 @@ sccs clone <url>
 
 ### Behavior
 
-- Automatically appends `/clone` to the URL if not present
+- The URL must already end with `/clone`; otherwise the command fails with an error (the suffix is not appended automatically)
 - Downloads and extracts the repository as a zip file
 - Creates a folder named after the repository in the current directory
+- Fails if a directory with the repository's name already exists
 - Requires internet connectivity
 
 ### Example
@@ -156,6 +159,7 @@ sccs commit "<commit-message>"
 ### Behavior
 
 - Creates a snapshot of the current document state
+- Fails if there are no uncommitted changes (empty commits are not allowed)
 - Generates a unique SHA-256 commit hash
 - Stores both `.docx` and `.html` versions
 - Commits are immutable once created
@@ -241,12 +245,15 @@ sccs diff <commit-hash>
 ### Behavior
 
 - Compares the historical commit with the current document
-- Creates an HTML file named `redline.html` in the current directory
+- Creates an HTML file named `diff.html` in the current directory
 - Color-codes changes:
   - Deleted content appears with a `"deleted"` class (typically red strikethrough)
   - Inserted content appears with an `"inserted"` class (typically green highlight)
 - Removes inline formatting tags to avoid duplication in the diff
 - Can be opened in any web browser
+
+- Requires no uncommitted changes (commit or reset first)
+- Fails if the current document is identical to the specified commit (no differences to show)
 
 ### Example
 
@@ -397,7 +404,7 @@ Successfully merged branch 'feature-update' into branch 'main'.
 
 ## 🗂️ Open
 
-Open a historical commit and update the current document to that version.
+Copy a historical commit's document into the current directory as a new file.
 
 ### Usage
 
@@ -411,10 +418,11 @@ sccs open <commit-hash>
 
 ### Behavior
 
-- Displays a confirmation prompt before overwriting the current document
-- Replaces the current document with the selected historical version
+- Copies the document from the specified commit into a **new file** in the current directory
+- The new file is named `Opened_DOCX_Commit_<hash>.docx`
+- Does **not** modify or overwrite the current document
 - Does not create a new commit (use after this if you want to save changes)
-- Fails if the commit does not exist
+- Fails if the commit identifier is not a valid-length hexadecimal hash or the commit does not exist
 - Requires no uncommitted changes
 
 ### Example
@@ -423,11 +431,10 @@ sccs open <commit-hash>
 sccs open 5a3b2c1d9e
 ```
 
-### Confirmation Prompt
+### Output
 
 ```
-Are you sure you want to overwrite './contract.docx' with the contents of 'commit_5a3b2c1d9e'?
-This action will replace the current content of the .docx file. (Y/N):
+Commit '5a3b2c1d9e' has been successfully opened in Opened_DOCX_Commit_5a3b2c1d9e.docx. It is safe to delete this file. No changes will be lost unless Opened_DOCX_Commit_5a3b2c1d9e.docx is modified after this point.
 ```
 
 ---
@@ -451,7 +458,8 @@ None
 - Requires a remote URL configured via `sccs config remote`
 - Compresses the entire repository into a zip file
 - Sends the zip to the remote server via HTTP POST
-- Resets the current branch to main before publishing
+- Sets the current branch to `main` in the zipped repository copy only (your local current branch is unchanged)
+- Requires no uncommitted changes
 - Provides status code and confirmation message
 
 ### Example
@@ -493,6 +501,7 @@ None
 - Downloads only the missing commit objects
 - Merges remote history into the local repository
 - Updates the current document to match the remote
+- Requires no uncommitted changes
 
 ### Example
 
@@ -547,7 +556,7 @@ Pushing changes to remote repository at https://api.example.com/repos/contract..
 
 Status code: 200
 
-Changes pushed successfully to https://api.example.com/repos/contract/push
+Repository pushed successfully to https://api.example.com/repos/contract.
 ```
 
 ---
@@ -569,7 +578,7 @@ None
 ### Behavior
 
 - Replaces the current document with the latest commit on the current branch
-- Fails if there are no uncommitted changes to reset
+- Always performs the reset, even if there are no uncommitted changes (no warning is given in that case)
 - Irreversible operation (use with caution)
 
 ### Example
@@ -603,11 +612,9 @@ sccs revert <commit-hash>
 ### Behavior
 
 - Reverts the document to the state of the specified commit
-- Automatically creates a new commit with message `Revert to commit '<hash>'`
-- The revert is saved as a new commit in the history
-- Different from reset because it preserves history (creates a new commit)
+- Automatically creates a new commit preserving history
+- The revert commit message is `Reverted document to commit '<hash>'.`
 - Fails if the specified commit does not exist
-- Requires no uncommitted changes
 
 ### Example
 
