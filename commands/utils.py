@@ -157,7 +157,6 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
     error_wrappers = ErrorWrappers()
     try:
         main(c, *args)
-
     except exceptions.SCCSException as e:
         print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
         sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
