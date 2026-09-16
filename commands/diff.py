@@ -359,5 +359,3 @@ def main(
 
     print_diff_success_message(c)
     rs.target.reset()
-
-

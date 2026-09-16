@@ -63,5 +63,3 @@ def main(
     print_log(c, ri.read_log())
 
     rs.target.reset()
-
-

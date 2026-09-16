@@ -62,5 +62,3 @@ def main(
     print_reset_success_message(c)
 
     rs.target.reset()
-
-

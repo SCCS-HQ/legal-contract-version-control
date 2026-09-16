@@ -122,5 +122,3 @@ def main(
     print_switch_success_message(c, branch_to_switch)
 
     rs.target.reset()
-
-

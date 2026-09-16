@@ -134,5 +134,3 @@ def main(
     print_config_success_message(c, key, value)
 
     rs.target.reset()
-
-

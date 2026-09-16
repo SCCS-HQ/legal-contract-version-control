@@ -306,5 +306,3 @@ def main(
         raise
 
     print_init_success_message(c)
-
-

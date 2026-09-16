@@ -157,5 +157,3 @@ def main(c: SCCSConstants, url: str) -> None:
         raise
 
     print_clone_success_message(c, response)
-
-

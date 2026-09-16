@@ -113,5 +113,3 @@ def main(
     )
 
     rs.target.reset()
-
-

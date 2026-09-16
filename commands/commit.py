@@ -83,5 +83,3 @@ def main(
     print_commit_success_message(c, commit_identifier)
 
     rs.target.reset()
-
-

@@ -25,5 +25,3 @@ def main(c: SCCSConstants) -> None:
     """
 
     print_help(c)
-
-

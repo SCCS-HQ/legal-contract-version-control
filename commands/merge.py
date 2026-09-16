@@ -177,5 +177,3 @@ def main(
     print_merge_success_message(c, branch, rd)
 
     rs.target.reset()
-
-

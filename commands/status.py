@@ -47,5 +47,3 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     print_status_success_message(c, rs.validate_uncommitted_changes())
 
     rs.target.reset()
-
-
