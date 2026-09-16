@@ -116,11 +116,6 @@ def validate_repository_name(c: SCCSConstants, name: str) -> None:
         raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
-
-
 def main(c: SCCSConstants, url: str) -> None:
     """
     Run the clone command by validating the entered URL, requesting the repository from
@@ -157,3 +152,8 @@ def main(c: SCCSConstants, url: str) -> None:
         raise
 
     print_clone_success_message(c, response)
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))

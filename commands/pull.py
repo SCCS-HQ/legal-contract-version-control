@@ -26,7 +26,7 @@ def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     try:
         response = requests.post(
             c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
-            json={c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()},
+            json={c.HTTP_OBJECTS_DICT_KEY: sorted(rd.repository_objects())},
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
@@ -55,18 +55,6 @@ def update_repository_files(
             rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
         ),
         rp.document_path(),
-    )
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
 
 
@@ -106,3 +94,15 @@ def main(
     )
 
     rs.target.reset()
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )

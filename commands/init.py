@@ -235,22 +235,6 @@ def write_starting_metadata(
     )
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
-    repository_root = document_path.with_suffix(c.EMPTY_STRING)
-    repository_name = repository_root.name
-    utils.run_command(
-        main,
-        document_path,
-        RepositoryIO(repository_root, repository_name, c, target),
-        RepositoryPaths(repository_root, repository_name, c, target),
-        RepositoryStatus(repository_root, repository_name, c, target),
-        RepositoryWrite(repository_root, repository_name, c, target),
-    )
-
-
 def main(
     c: SCCSConstants,
     document_path: Path,
@@ -306,3 +290,19 @@ def main(
         raise
 
     print_init_success_message(c)
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
+    repository_root = document_path.with_suffix(c.EMPTY_STRING)
+    repository_name = repository_root.name
+    utils.run_command(
+        main,
+        document_path,
+        RepositoryIO(repository_root, repository_name, c, target),
+        RepositoryPaths(repository_root, repository_name, c, target),
+        RepositoryStatus(repository_root, repository_name, c, target),
+        RepositoryWrite(repository_root, repository_name, c, target),
+    )

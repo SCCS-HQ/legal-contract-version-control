@@ -301,19 +301,6 @@ def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) 
         raise exceptions.SCCSException(c.DIFF_ERROR_MESSAGE)
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )
-
-
 def main(
     c: SCCSConstants,
     commit_identifier: str,
@@ -359,3 +346,16 @@ def main(
 
     print_diff_success_message(c)
     rs.target.reset()
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )

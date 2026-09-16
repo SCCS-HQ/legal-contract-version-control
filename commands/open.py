@@ -56,18 +56,6 @@ def validate_commit_identifier(
         raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )
-
-
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
@@ -106,3 +94,15 @@ def main(
     print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )

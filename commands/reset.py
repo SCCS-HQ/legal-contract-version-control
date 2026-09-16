@@ -20,18 +20,6 @@ def print_reset_success_message(c: SCCSConstants) -> None:
     print(c.RESET_SUCCESS_MESSAGE)
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )
-
-
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -62,3 +50,15 @@ def main(
     print_reset_success_message(c)
 
     rs.target.reset()
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )

@@ -23,17 +23,6 @@ def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) ->
         print(c.NO_UNCOMMITTED_CHANGES)
 
 
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )
-
-
 def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     """
     Run the status command by setting the current branch as the target, validating the
@@ -47,3 +36,14 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     print_status_success_message(c, rs.validate_uncommitted_changes())
 
     rs.target.reset()
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )

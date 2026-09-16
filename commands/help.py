@@ -13,15 +13,15 @@ def print_help(c: SCCSConstants) -> None:
         print(i)
 
 
-if __name__ == "__main__":
-    utils.run_command(
-        main,
-    )
-
-
 def main(c: SCCSConstants) -> None:
     """
     Run the help command by printing the help messages.
     """
 
     print_help(c)
+
+
+if __name__ == "__main__":
+    utils.run_command(
+        main,
+    )
