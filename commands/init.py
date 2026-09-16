@@ -230,7 +230,7 @@ def write_starting_metadata(
                 }
             },
             c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
-            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
+            c.CURRENT_BRANCH_DICT_KEY: dict(c.DEFAULT_BRANCH_DATA),
         }
     )
 
