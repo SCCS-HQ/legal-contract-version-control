@@ -13,13 +13,6 @@ def get_script_directory() -> Path:
     """Return the absolute path of the parent directory of this file."""
     return Path(__file__).parent.resolve()
 
-def main(c: SCCSConstants, entered_command: str) -> None:
-    """
-    Run the entered command by validating it and running it as a subprocess, and exit
-    with the exit code of the subprocess.
-    """
-    validate_command(c, entered_command)
-    run_command(c, entered_command)
 
 def run_command(c: SCCSConstants, entered_command: str) -> None:
     """
@@ -38,6 +31,7 @@ def run_command(c: SCCSConstants, entered_command: str) -> None:
         ).returncode
     )
 
+
 def validate_command(c: SCCSConstants, entered_command: str) -> None:
     """
     Validate the entered command by checking that it is included in the accepted
@@ -50,6 +44,16 @@ def validate_command(c: SCCSConstants, entered_command: str) -> None:
                 entered_command=entered_command
             )
         )
+
+
+def main(c: SCCSConstants, entered_command: str) -> None:
+    """
+    Run the entered command by validating it and running it as a subprocess, and exit
+    with the exit code of the subprocess.
+    """
+    validate_command(c, entered_command)
+    run_command(c, entered_command)
+
 
 if __name__ == "__main__":
     c = SCCSConstants()

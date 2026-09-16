@@ -71,48 +71,6 @@ def branch_list_subcommand(c: SCCSConstants, rd: RepositoryData) -> None:
         )
 
 
-def main(
-    c: SCCSConstants,
-    subcommand: str | None,
-    branch_name: str | None,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the branch command by setting the current branch as the target, validating the
-    repository layout, and delegating execution of the entered subcommand to a copy of
-    the repository in a staging directory.
-
-    Promote the staging directory to the repository root and reset the target branch
-    when the operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
-    validate_subcommand(c, subcommand, branch_name, rs)
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
-
-        run_specified_subcommand(
-            c,
-            subcommand,
-            branch_name,
-            staging_rd,
-            staging_rw,
-        )
-
-    rs.target.reset()
-
-
 def print_branch_create_success_message(
     c: SCCSConstants, branch_name: str, current_branch_name: str
 ) -> None:
@@ -194,6 +152,48 @@ def validate_subcommand(
                     branch_name=branch_name
                 )
             )
+
+
+def main(
+    c: SCCSConstants,
+    subcommand: str | None,
+    branch_name: str | None,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the branch command by setting the current branch as the target, validating the
+    repository layout, and delegating execution of the entered subcommand to a copy of
+    the repository in a staging directory.
+
+    Promote the staging directory to the repository root and reset the target branch
+    when the operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    validate_subcommand(c, subcommand, branch_name, rs)
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+        staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
+
+        run_specified_subcommand(
+            c,
+            subcommand,
+            branch_name,
+            staging_rd,
+            staging_rw,
+        )
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

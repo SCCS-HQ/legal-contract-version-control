@@ -13,6 +13,34 @@ from repository_layout import (
 )
 
 
+def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
+    """
+    Print a success message after a successful commit operation, including the commit
+    identifier of the new commit.
+    """
+
+    print(
+        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+        )
+    )
+
+
+def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
+    """
+    Validates the entered commit message by checking if it is not empty.
+
+    Raises an SCCSException if the commit message is invalid.
+    """
+
+    if not commit_message:
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_MESSAGE_FIELD_NAME
+            )
+        )
+
+
 def main(
     c: SCCSConstants,
     commit_message: str,
@@ -42,34 +70,6 @@ def main(
     print_commit_success_message(c, commit_identifier)
 
     rs.target.reset()
-
-
-def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
-    """
-    Print a success message after a successful commit operation, including the commit
-    identifier of the new commit.
-    """
-
-    print(
-        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
-        )
-    )
-
-
-def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
-    """
-    Validates the entered commit message by checking if it is not empty.
-
-    Raises an SCCSException if the commit message is invalid.
-    """
-
-    if not commit_message:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_MESSAGE_FIELD_NAME
-            )
-        )
 
 
 if __name__ == "__main__":

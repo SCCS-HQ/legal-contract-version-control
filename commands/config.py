@@ -16,44 +16,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants,
-    key: str,
-    value: str,
-    rd: RepositoryData,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the config command by setting the current branch as the target, validating the
-    repository layout, and writing the entered key-value pair to the configuration of a
-    copy of the repository in a staging directory.
-
-    Promote the staging directory to the repository root, print a success message, and
-    reset the target branch when the operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    resolved_value = resolve_key_value(
-        c, rp.repository_name, key, validate_entered_value(c, key, value)
-    )
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-
-        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
-
-    print_config_success_message(c, key, value)
-
-    rs.target.reset()
-
-
 def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
     """
     Print a success message after a successful configuration operation, including the
@@ -118,6 +80,44 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     utils.raise_if_empty(c, value.strip(), key)
 
     return value.strip()
+
+
+def main(
+    c: SCCSConstants,
+    key: str,
+    value: str,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the config command by setting the current branch as the target, validating the
+    repository layout, and writing the entered key-value pair to the configuration of a
+    copy of the repository in a staging directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    resolved_value = resolve_key_value(
+        c, rp.repository_name, key, validate_entered_value(c, key, value)
+    )
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
+
+    print_config_success_message(c, key, value)
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

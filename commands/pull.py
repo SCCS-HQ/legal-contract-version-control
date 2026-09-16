@@ -17,6 +17,47 @@ from repository_layout import (
 )
 
 
+def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+    """
+    Post the local repository objects to the pull endpoint of the remote repository and
+    return the response. Raise an SCCSException if the request fails.
+    """
+
+    try:
+        response = requests.post(
+            c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            json={c.HTTP_OBJECTS_DICT_KEY: sorted(rd.repository_objects())},
+            timeout=c.HTTP_TIMEOUT_SECONDS,
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+
+    return response
+
+
+def update_repository_files(
+    c: SCCSConstants,
+    response: requests.Response,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+) -> None:
+    """
+    Extract the files from the response into the repository root and copy the latest
+    commit document to the repository document path.
+    """
+
+    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
+        for i in zf.namelist():
+            utils.safe_extract_zip(c, zf, i, rd.root)
+
+    shutil.copy2(
+        rd.commit_identifier_to_full_path(
+            rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
+        ),
+        rp.document_path(),
+    )
+
+
 def main(
     c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
@@ -53,47 +94,6 @@ def main(
     )
 
     rs.target.reset()
-
-
-def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
-    """
-    Post the local repository objects to the pull endpoint of the remote repository and
-    return the response. Raise an SCCSException if the request fails.
-    """
-
-    try:
-        response = requests.post(
-            c.PULL_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
-            json={c.HTTP_OBJECTS_DICT_KEY: rd.repository_objects()},
-            timeout=c.HTTP_TIMEOUT_SECONDS,
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
-
-    return response
-
-
-def update_repository_files(
-    c: SCCSConstants,
-    response: requests.Response,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-) -> None:
-    """
-    Extract the files from the response into the repository root and copy the latest
-    commit document to the repository document path.
-    """
-
-    with zipfile.ZipFile(io.BytesIO(response.content), "r") as zf:
-        for i in zf.namelist():
-            utils.safe_extract_zip(c, zf, i, rd.root)
-
-    shutil.copy2(
-        rd.commit_identifier_to_full_path(
-            rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-        ),
-        rp.document_path(),
-    )
 
 
 if __name__ == "__main__":

@@ -12,6 +12,14 @@ from repository_layout import (
 )
 
 
+def print_reset_success_message(c: SCCSConstants) -> None:
+    """
+    Print a success message after a successful reset operation.
+    """
+
+    print(c.RESET_SUCCESS_MESSAGE)
+
+
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -42,14 +50,6 @@ def main(
     print_reset_success_message(c)
 
     rs.target.reset()
-
-
-def print_reset_success_message(c: SCCSConstants) -> None:
-    """
-    Print a success message after a successful reset operation.
-    """
-
-    print(c.RESET_SUCCESS_MESSAGE)
 
 
 if __name__ == "__main__":

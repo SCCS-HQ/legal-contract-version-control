@@ -25,6 +25,37 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
         raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
+def print_open_success_message(
+    c: SCCSConstants, commit_identifier: str, output_file_name: Path
+) -> None:
+    """
+    Print a success message indicating that the entered commit has been opened as the
+    output file.
+    """
+
+    print(
+        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            output_file=output_file_name,
+        )
+    )
+
+
+def validate_commit_identifier(
+    c: SCCSConstants, commit_identifier: str, rd: RepositoryData
+) -> None:
+    """
+    Validate the entered commit identifier by checking that it has a valid commit
+    identifier length and contains only hexadecimal digits. Raise an SCCSException if
+    the commit identifier is invalid.
+    """
+
+    rd.raise_for_commit_identifier_length(commit_identifier)
+
+    if not all(i in c.HEX_DIGITS for i in commit_identifier):
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
+
+
 def main(
     c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
 ) -> None:
@@ -63,37 +94,6 @@ def main(
     print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
-
-
-def print_open_success_message(
-    c: SCCSConstants, commit_identifier: str, output_file_name: Path
-) -> None:
-    """
-    Print a success message indicating that the entered commit has been opened as the
-    output file.
-    """
-
-    print(
-        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            output_file=output_file_name,
-        )
-    )
-
-
-def validate_commit_identifier(
-    c: SCCSConstants, commit_identifier: str, rd: RepositoryData
-) -> None:
-    """
-    Validate the entered commit identifier by checking that it has a valid commit
-    identifier length and contains only hexadecimal digits. Raise an SCCSException if
-    the commit identifier is invalid.
-    """
-
-    rd.raise_for_commit_identifier_length(commit_identifier)
-
-    if not all(i in c.HEX_DIGITS for i in commit_identifier):
-        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 
 if __name__ == "__main__":

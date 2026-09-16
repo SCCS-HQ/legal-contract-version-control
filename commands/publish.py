@@ -18,50 +18,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the publish command by setting the current branch as the target, validating the
-    repository layout, and posting the zipped repository to the hosting service with the
-    main branch set as the current branch of a copy of the repository in a staging
-    directory.
-
-    Promote the staging directory to the repository root, print a success message, and
-    reset the target branch when the operation completes.
-    """
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
-        response = post_repository(
-            c,
-            zip_current_directory(c),
-            url,
-            rd,
-            rp,
-        )
-        response.raise_for_status()
-
-    utils.print_remote_success_message(
-        c, response.status_code, url, c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE
-    )
-
-    rs.target.reset()
-
-
 def post_repository(
     c: SCCSConstants,
     repository_zip: io.BytesIO,
@@ -107,6 +63,50 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
                 zf.write(Path(root) / i)
 
     return zip_buffer
+
+
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the publish command by setting the current branch as the target, validating the
+    repository layout, and posting the zipped repository to the hosting service with the
+    main branch set as the current branch of a copy of the repository in a staging
+    directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
+        response = post_repository(
+            c,
+            zip_current_directory(c),
+            url,
+            rd,
+            rp,
+        )
+        response.raise_for_status()
+
+    utils.print_remote_success_message(
+        c, response.status_code, url, c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE
+    )
+
+    rs.target.reset()
 
 
 if __name__ == "__main__":

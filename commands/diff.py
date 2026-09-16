@@ -179,53 +179,6 @@ def insert_tag(
     return soup
 
 
-def main(
-    c: SCCSConstants,
-    commit_identifier: str,
-    rd: RepositoryData,
-    ri: RepositoryIO,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Run the diff command by setting the current branch as the target, validating the
-    repository layout and entered commit identifier, and generating the diff output
-    between the entered commit and the current document.
-
-    Write the diff output to the repository, print a success message, and reset the
-    target branch when the operation completes.
-    """
-    rs.target.set(rd.current_branch())
-    rs.validate_repository_layout()
-    rs.raise_for_uncommitted_changes()
-
-    validate_diff(c, rd, commit_identifier)
-
-    with utils.staged_repository(c, ri.root, ri.root) as staging_root:
-
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-
-        staging_ri.write_diff_output(
-            utils.wrap_html(
-                c,
-                str(
-                    strip_number_attribute(
-                        c,
-                        generate_diff_output(
-                            c,
-                            rd.short_commit_identifier_to_full(commit_identifier),
-                            rd,
-                            ri,
-                        ),
-                    )
-                ),
-                c.DEFAULT_HTML_STYLES,
-            )
-        )
-
-    print_diff_success_message(c)
-    rs.target.reset()
-
-
 def number_tags(c: SCCSConstants, soup: BeautifulSoup) -> BeautifulSoup:
     """
     Add a data-number attribute to each tag in the provided BeautifulSoup object,
@@ -346,6 +299,53 @@ def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) 
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
         raise exceptions.SCCSException(c.DIFF_ERROR_MESSAGE)
+
+
+def main(
+    c: SCCSConstants,
+    commit_identifier: str,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Run the diff command by setting the current branch as the target, validating the
+    repository layout and entered commit identifier, and generating the diff output
+    between the entered commit and the current document.
+
+    Write the diff output to the repository, print a success message, and reset the
+    target branch when the operation completes.
+    """
+    rs.target.set(rd.current_branch())
+    rs.validate_repository_layout()
+    rs.raise_for_uncommitted_changes()
+
+    validate_diff(c, rd, commit_identifier)
+
+    with utils.staged_repository(c, ri.root, ri.root) as staging_root:
+
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+
+        staging_ri.write_diff_output(
+            utils.wrap_html(
+                c,
+                str(
+                    strip_number_attribute(
+                        c,
+                        generate_diff_output(
+                            c,
+                            rd.short_commit_identifier_to_full(commit_identifier),
+                            rd,
+                            ri,
+                        ),
+                    )
+                ),
+                c.DEFAULT_HTML_STYLES,
+            )
+        )
+
+    print_diff_success_message(c)
+    rs.target.reset()
 
 
 if __name__ == "__main__":
