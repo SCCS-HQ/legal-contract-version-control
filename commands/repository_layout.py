@@ -12,6 +12,51 @@ import utils
 from constants_classes import SCCSConstants
 
 
+class TargetBranch:
+    """
+    A class to hold the branch that repository read and write operations target.
+    """
+
+    def __init__(self, c: SCCSConstants) -> None:
+        """
+        Initialize the target branch with the entered constants and no branch set.
+        """
+
+        self.c = c
+        self._branch: str | None = None
+
+    def get(self) -> str | None:
+        """
+        Return the target branch name, or None if the target branch is not set.
+        """
+
+        return self._branch
+
+    def require(self) -> str:
+        """
+        Return the target branch name. Raise an SCCSException if the target branch is
+        not set.
+        """
+
+        if self._branch is None:
+            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
+        return self._branch
+
+    def reset(self) -> None:
+        """
+        Reset the target branch to None.
+        """
+
+        self._branch = None
+
+    def set(self, branch_name: str | None) -> None:
+        """
+        Set the target branch to the entered branch name.
+        """
+
+        self._branch = branch_name
+
+
 class RepositoryData:
     """
     A class to access repository data, including the repository root, repository paths,
@@ -960,47 +1005,3 @@ class RepositoryWrite:
 
         self.io.write_config(config)
 
-
-class TargetBranch:
-    """
-    A class to hold the branch that repository read and write operations target.
-    """
-
-    def __init__(self, c: SCCSConstants) -> None:
-        """
-        Initialize the target branch with the entered constants and no branch set.
-        """
-
-        self.c = c
-        self._branch: str | None = None
-
-    def get(self) -> str | None:
-        """
-        Return the target branch name, or None if the target branch is not set.
-        """
-
-        return self._branch
-
-    def require(self) -> str:
-        """
-        Return the target branch name. Raise an SCCSException if the target branch is
-        not set.
-        """
-
-        if self._branch is None:
-            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
-        return self._branch
-
-    def reset(self) -> None:
-        """
-        Reset the target branch to None.
-        """
-
-        self._branch = None
-
-    def set(self, branch_name: str | None) -> None:
-        """
-        Set the target branch to the entered branch name.
-        """
-
-        self._branch = branch_name
