@@ -81,7 +81,10 @@ class ValidatedRepositoryName:
     value: str
 
     def __post_init__(self) -> None:
-
+        """
+        Validate the repository name and reject empty names, names containing
+        characters outside the allowed pattern, and relative path shorthands.
+        """
         if (
             not self.value
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
@@ -93,7 +96,7 @@ class ValidatedRepositoryName:
             )
 
     def __str__(self) -> str:
-
+        """Return the validated repository name as its string representation."""
         return self.value
 
 
@@ -117,7 +120,7 @@ def repository_directory(repository_name: str) -> Path:
 
     safe = validate_repository_name(repository_name)  # returns ValidatedRepositoryName
     base_directory = repository_base_directory()
-    repository_path = (base_directory / str(safe)).resolve()  #
+    repository_path = (base_directory / str(safe)).resolve()
 
     try:
         repository_path.relative_to(base_directory)
@@ -145,6 +148,15 @@ def ensure_repository_exists(repository_path: Path) -> None:
 def safe_extract_zip(
     zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
 ) -> None:
+    """
+    Safely extract a single member from a zip archive into the destination
+    directory.
+
+    Guards against zip slip attacks by rejecting absolute paths and any path
+    containing parent-directory components, and by verifying the resolved
+    target path stays inside the destination directory. Creates intermediate
+    directories as needed for directory and file members.
+    """
 
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
@@ -331,9 +343,13 @@ async def push(repository_name: str) -> dict:
 @app.post(PUSH_ENDPOINT_TEMPLATE)
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
     """
-    Accept a zip archives of new objects to upload to the selected repository, and a zip
-    archive of the updated metadata files. Extract the files from the archives, defend
-    against zip slip attacks, and copy the files to the repository atomically.
+    Accept a zip archive of new objects to upload to the selected repository.
+
+    The uploaded zip must be named after the repository. Its contents are
+    extracted into a staging copy of the repository (defending against zip
+    slip attacks), the metadata file's updated-branches list is reset, and the
+    staging copy replaces the repository atomically. On failure, the original
+    repository is left untouched.
     """
 
     repository_path = repository_directory(repository_name)
@@ -494,4 +510,3 @@ app.mount(
     StaticFiles(directory=REPOSITORIES_BASE_DIRECTORY),
     name=STATIC_FILES_NAME,
 )
-"""Mount all repositories as static files on the /repos endpoint."""
