@@ -60,26 +60,28 @@ class SCCSConstants:
         "A directory with the repository name already exists in the current directory."
     )
     COMMAND_ARGUMENT_INDEX = 1
-    COMMAND_DESCRIPTIONS = MappingProxyType({
-        "branch": "Create a new branch, delete, or list branches.",
-        "clone": "Clone a hosted SCCS repository with a URL.",
-        "commit": "Commit changes to the repository.",
-        "config": "Configure a repository's data value (remote, name, email)",
-        "diff": "Show differences between the current document and a past commit.",
-        "help": "Print this help message.",
-        "init": "Initialize a new SCCS repository.",
-        "log": "Print a list of past commits for the current branch.",
-        "merge": "Merge the entered branch into the current branch.",
-        "open": "Open a commit file and update the current document.",
-        "publish": "Publish a local repository to a hosting service.",
-        "pull": "Pull changes from a remote repository and merge them "
-        "into the local repository.",
-        "push": "Push changes from the local repository to a remote repository.",
-        "revert": "Revert the current document to the specified commit.",
-        "reset": "Delete all uncommitted changes.",
-        "switch": "Switch between document branches.",
-        "status": "Check the status of the current document for uncommitted changes.",
-    })
+    COMMAND_DESCRIPTIONS = MappingProxyType(
+        {
+            "branch": "Create a new branch, delete, or list branches.",
+            "clone": "Clone a hosted SCCS repository with a URL.",
+            "commit": "Commit changes to the repository.",
+            "config": "Configure a repository's data value (remote, name, email)",
+            "diff": "Show differences between the current document and a past commit.",
+            "help": "Print this help message.",
+            "init": "Initialize a new SCCS repository.",
+            "log": "Print a list of past commits for the current branch.",
+            "merge": "Merge the entered branch into the current branch.",
+            "open": "Open a commit file and update the current document.",
+            "publish": "Publish a local repository to a hosting service.",
+            "pull": "Pull changes from a remote repository and merge them "
+            "into the local repository.",
+            "push": "Push changes from the local repository to a remote repository.",
+            "revert": "Revert the current document to the specified commit.",
+            "reset": "Delete all uncommitted changes.",
+            "switch": "Switch between document branches.",
+            "status": "Check the status of the current document for uncommitted changes.",
+        }
+    )
     COMMANDS_LIST = (
         "branch",
         "clone",
@@ -416,11 +418,13 @@ class SCCSConstants:
     )
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
     # DEFAULT_BRANCH_DATA out of order to not error
-    DEFAULT_BRANCH_DATA = MappingProxyType({
-        CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
-        BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
-        UPDATED_BRANCHES_DICT_KEY: [],
-    })
+    DEFAULT_BRANCH_DATA = MappingProxyType(
+        {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
+            UPDATED_BRANCHES_DICT_KEY: [],
+        }
+    )
     URL_FIELD_NAME = "URL"
     UTILS_ARGUMENT_ERROR_MESSAGE = (
         "Required argument missing. Please provide the required argument."

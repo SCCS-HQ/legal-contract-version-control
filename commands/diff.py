@@ -129,7 +129,10 @@ def get_data_number(c: SCCSConstants, tag_list: list[str]) -> set[str]:
     data_number = set()
     for i in tag_list:
         parsed_tag = BeautifulSoup(i, c.HTML_PARSER).find()
-        if parsed_tag is not None and parsed_tag.get(c.DATA_NUMBER_HTML_ATTRIBUTE) is not None:
+        if (
+            parsed_tag is not None
+            and parsed_tag.get(c.DATA_NUMBER_HTML_ATTRIBUTE) is not None
+        ):
             data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
     return data_number
 

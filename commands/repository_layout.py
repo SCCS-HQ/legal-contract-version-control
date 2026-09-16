@@ -226,7 +226,6 @@ class RepositoryData:
             for i in self.paths.objects_path().rglob(self.c.RGLOB_ALL_FILES_PATTERN)
             if i.is_file()
         }
-        
 
     def short_commit_identifier_to_full(self, commit_identifier: str) -> str:
         """
@@ -847,9 +846,9 @@ class RepositoryWrite:
         document_byte_hash = self.io.document_html_byte_hash()
 
         if not allow_empty_commit or latest_byte_hash == document_byte_hash:
-                raise exceptions.SCCSException(
-                    self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-                )
+            raise exceptions.SCCSException(
+                self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+            )
 
         config = self.io.read_config()
         name = config[self.c.NAME_KEY]
