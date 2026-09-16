@@ -154,21 +154,20 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
     """
 
     c = SCCSConstants()
-    # error_wrappers = ErrorWrappers()
-    # try:
-    main(c, *args)
+    error_wrappers = ErrorWrappers()
+    try:
+        main(c, *args)
+    except exceptions.SCCSException as e:
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
 
-    # except exceptions.SCCSException as e:
-    #     print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-    #     sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
-
-    # except Exception as e:
-    #     print(
-    #         error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-    #             type_name=type(e).__name__, e=e
-    #         )
-    #     )
-    #     sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
+    except Exception as e:
+        print(
+            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+                type_name=type(e).__name__, e=e
+            )
+        )
+        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
 
 def safe_extract_zip(
