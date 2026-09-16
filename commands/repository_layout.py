@@ -1004,4 +1004,3 @@ class RepositoryWrite:
         config[key] = value
 
         self.io.write_config(config)
-
