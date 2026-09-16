@@ -13,40 +13,51 @@ import utils
 from constants_classes import SCCSConstants
 
 
-def validate_entered_url(c: SCCSConstants, url: str | None) -> None:
+def main(c: SCCSConstants, url: str) -> None:
     """
-    Validates the entered URL by checking if it is not empty, starts with an accepted
-    scheme, and ends with the expected clone endpoint.
+    Run the clone command by validating the entered URL, requesting the repository from
+    the remote URL, and extracting it into a staging directory.
 
-    Raises an SCCSException if the URL is invalid.
+    Promote the staging directory to the destination directory and print a success
+    message when the operation completes.
     """
 
-    if not url:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.URL_FIELD_NAME)
-        )
+    validate_entered_url(c, url)
 
-    if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
-        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
+    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
 
-    if not url.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+    zip_buffer = io.BytesIO(response.content)
 
+    repository_name = repository_name_from_url(c, url)
 
-def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
-    """
-    Sends a GET request to the specified URL with a timeout and returns the response.
+    validate_repository_name(c, repository_name)
 
-    Raises an SCCSException if the request fails.
-    """
+    destination = Path.cwd() / repository_name
+
+    if destination.exists():
+        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
+
+    staging_root = utils.create_staging_directory(c, destination)
+
+    print(staging_root)
 
     try:
-        response = requests.get(url, timeout=timeout)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        unzip_repository_file(c, zip_buffer, url, staging_root)
+        utils.promote_staging(c, staging_root, destination)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
 
-    return response
+    print_clone_success_message(c, response)
+
+
+def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
+    """
+    Print the status code and a success message after a successful clone operation.
+    """
+
+    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
+    print(c.CLONE_SUCCESS_MESSAGE)
 
 
 def repository_name_from_url(c: SCCSConstants, url: str) -> str:
@@ -70,7 +81,23 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
             )
         )
 
-    return path_parts[-2]
+    return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
+
+
+def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+    """
+    Sends a GET request to the specified URL with a timeout and returns the response.
+
+    Raises an SCCSException if the request fails.
+    """
+
+    try:
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+
+    return response
 
 
 def unzip_repository_file(
@@ -90,68 +117,44 @@ def unzip_repository_file(
 
     print(destination)
 
-    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", destination.name) or destination.name in (
-        c.SINGLE_PERIOD,
-        c.DOUBLE_PERIOD,
-    ):
-        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+    validate_repository_name(c, destination.name)
 
     with zipfile.ZipFile(zip_buffer, "r") as zf:
         for i in zf.namelist():
             utils.safe_extract_zip(c, zf, i, destination)
 
 
-def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
+def validate_entered_url(c: SCCSConstants, url: str) -> None:
     """
-    Print the status code and a success message after a successful clone operation.
-    """
+    Validates the entered URL by checking if it is not empty, starts with an accepted
+    scheme, and ends with the expected clone endpoint.
 
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.CLONE_SUCCESS_MESSAGE)
-
-
-def main(c: SCCSConstants, url: str) -> None:
-    """
-    Run the clone command by validating the entered URL, requesting the repository from
-    the remote URL, and extracting it into a staging directory.
-
-    Promote the staging directory to the destination directory and print a success
-    message when the operation completes.
+    Raises an SCCSException if the URL is invalid.
     """
 
-    validate_entered_url(c, url)
+    utils.raise_if_empty(c, url, c.URL_FIELD_NAME)
 
-    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
+    if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
+        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
-    zip_buffer = io.BytesIO(response.content)
+    if not url.endswith(c.CLONE_ENDPOINT):
+        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
-    repository_name = repository_name_from_url(c, url)
 
-    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", repository_name) or repository_name in (
+def validate_repository_name(c: SCCSConstants, name: str) -> None:
+    """
+    Validate the entered repository name by checking that it contains only allowed
+    characters and is not a single or double period. Raise an SCCSException if the
+    repository name is invalid.
+    """
+
+    if not re.fullmatch(r"^[A-Za-z0-9._-]+$", name) or name in (
         c.SINGLE_PERIOD,
         c.DOUBLE_PERIOD,
     ):
         raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
-    destination = Path.cwd() / repository_name
-
-    if destination.exists():
-        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
-
-    staging_root = utils.create_staging_directory(c, destination)
-
-    print(staging_root)
-
-    try:
-        unzip_repository_file(c, zip_buffer, url, staging_root)
-        utils.promote_staging(c, staging_root, destination)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
-
-    print_clone_success_message(c, response)
-
 
 if __name__ == "__main__":
     c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, 2))
+    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))

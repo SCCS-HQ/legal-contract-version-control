@@ -13,26 +13,6 @@ from repository_layout import (
 )
 
 
-def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
-    """
-    Print the log entries of the entered log data, including the commit identifier,
-    author, timestamp, and commit message of each commit.
-    """
-
-    for i in log_data:
-        print(
-            c.LOG_SEPARATOR + c.NEWLINE,
-            c.LOG_COMMIT_FILE_LABEL
-            + i[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
-            + c.NEWLINE,
-            (c.LOG_AUTHOR_LABEL + log_data[i][c.AUTHOR_DICT_KEY] + c.NEWLINE),
-            (c.LOG_DATE_LABEL + log_data[i][c.TIMESTAMP_DICT_KEY] + c.NEWLINE),
-            (c.LOG_MESSAGE_LABEL + log_data[i][c.MESSAGE_DICT_KEY] + c.NEWLINE),
-            c.LOG_SEPARATOR,
-            sep=c.EMPTY_STRING,
-        )
-
-
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -51,6 +31,26 @@ def main(
     print_log(c, ri.read_log())
 
     rs.target.reset()
+
+
+def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
+    """
+    Print the log entries of the entered log data, including the commit identifier,
+    author, timestamp, and commit message of each commit.
+    """
+
+    for i in log_data:
+        print(
+            c.LOG_SEPARATOR + c.NEWLINE,
+            c.LOG_COMMIT_FILE_LABEL
+            + i[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            + c.NEWLINE,
+            (c.LOG_AUTHOR_LABEL + log_data[i][c.AUTHOR_DICT_KEY] + c.NEWLINE),
+            (c.LOG_DATE_LABEL + log_data[i][c.TIMESTAMP_DICT_KEY] + c.NEWLINE),
+            (c.LOG_MESSAGE_LABEL + log_data[i][c.MESSAGE_DICT_KEY] + c.NEWLINE),
+            c.LOG_SEPARATOR,
+            sep=c.EMPTY_STRING,
+        )
 
 
 if __name__ == "__main__":

@@ -13,22 +13,6 @@ from repository_layout import (
 )
 
 
-def validate_commit_identifier(c: SCCSConstants, commit_identifier: str | None) -> None:
-    """
-    Validate the entered commit identifier by checking that it is not empty, has the
-    full commit identifier length, and contains only hexadecimal digits. Raise an
-    SCCSException if the commit identifier is invalid.
-    """
-
-    if not commit_identifier:
-        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
-
-    if len(commit_identifier) != c.FULL_COMMIT_IDENTIFIER_LENGTH or not all(
-        i in c.HEX_DIGITS for i in commit_identifier
-    ):
-        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
-
-
 def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
     """
     Copy the commit file to the output file name. Raise an SCCSException if the commit
@@ -39,22 +23,6 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
         shutil.copy2(commit_path, output_file_name)
     except Exception as e:
         raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
-
-
-def print_open_success_message(
-    c: SCCSConstants, commit_identifier: str, output_file_name: Path
-) -> None:
-    """
-    Print a success message indicating that the entered commit has been opened as the
-    output file.
-    """
-
-    print(
-        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            output_file=output_file_name,
-        )
-    )
 
 
 def main(
@@ -89,18 +57,43 @@ def main(
         )
     ).with_suffix(c.DOCUMENT_EXTENSION)
 
-    staging_root = utils.create_staging_directory(c, Path.cwd())
-
-    try:
+    with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
         copy_commit_file(commit_path, staging_root / output_file_name.name)
-        utils.promote_staging(c, staging_root, Path.cwd())
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
+
+
+def print_open_success_message(
+    c: SCCSConstants, commit_identifier: str, output_file_name: Path
+) -> None:
+    """
+    Print a success message indicating that the entered commit has been opened as the
+    output file.
+    """
+
+    print(
+        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            output_file=output_file_name,
+        )
+    )
+
+
+def validate_commit_identifier(
+    c: SCCSConstants, commit_identifier: str, rd: RepositoryData
+) -> None:
+    """
+    Validate the entered commit identifier by checking that it has a valid commit
+    identifier length and contains only hexadecimal digits. Raise an SCCSException if
+    the commit identifier is invalid.
+    """
+
+    rd.raise_for_commit_identifier_length(commit_identifier)
+
+    if not all(i in c.HEX_DIGITS for i in commit_identifier):
+        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 
 if __name__ == "__main__":
@@ -109,7 +102,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )

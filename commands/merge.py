@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -14,25 +13,6 @@ from repository_layout import (
     RepositoryWrite,
     TargetBranch,
 )
-
-
-def validate_branch(c: SCCSConstants, branch: str | None, rd: RepositoryData) -> None:
-    """
-    Validate the entered branch by checking that it is not empty, is not the current
-    branch, and exists in the repository. Raise an SCCSException if any validation
-    fails.
-    """
-
-    if not branch:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=c.BRANCH_NAME_FIELD_NAME)
-        )
-    if branch.lower() == rd.current_branch().lower():
-        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
-    if branch.lower() not in (i.lower() for i in rd.branches()):
-        raise exceptions.SCCSException(
-            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
-        )
 
 
 def copy_branch_data(
@@ -78,7 +58,7 @@ def copy_branch_data(
     for i in sorted(source_commit_order, key=int):
         commit_identifier = source_commit_order[i]
         if commit_identifier not in seen_commit_identifiers:
-            latest_commit_number += 1
+            latest_commit_number += c.COMMIT_NUMBER_INCREMENT
             commit_order[str(latest_commit_number)] = commit_identifier
             seen_commit_identifiers.add(commit_identifier)
 
@@ -96,45 +76,6 @@ def copy_branch_data(
     }
 
     ri.write_branch_data(merged_branch_data)
-
-
-def copy_repository_document(
-    c: SCCSConstants, branch: str, rd: RepositoryData, rp: RepositoryPaths
-) -> None:
-    """
-    Copy the latest commit document of the entered branch to the repository document
-    path. Raise an SCCSException if the document cannot be copied.
-    """
-
-    original_target = rd.target.get()
-    rd.target.set(branch.lower())
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-            ),
-            rp.document_path(),
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE) from e
-    finally:
-        rd.target.set(original_target)
-
-
-def print_merge_success_message(
-    c: SCCSConstants, branch: str, rd: RepositoryData
-) -> None:
-    """
-    Print a success message indicating that the entered branch has been merged into the
-    current branch.
-    """
-
-    print(
-        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch_name=branch, current_branch=rd.current_branch()
-        )
-    )
 
 
 def main(
@@ -161,18 +102,20 @@ def main(
 
     rs.raise_for_uncommitted_changes()
 
-    validate_branch(c, branch, rd)
+    validate_branch(c, branch, rs)
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        copy_repository_document(c, branch, rd, staging_rp)
+        utils.copy_latest_commit_document(
+            rd,
+            branch,
+            staging_rp.document_path(),
+            c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE,
+        )
 
         copy_branch_data(c, branch, rd, staging_ri)
 
@@ -183,14 +126,42 @@ def main(
             allow_empty_commit=True,
         )
 
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
-
     print_merge_success_message(c, branch, rd)
 
     rs.target.reset()
+
+
+def print_merge_success_message(
+    c: SCCSConstants, branch: str, rd: RepositoryData
+) -> None:
+    """
+    Print a success message indicating that the entered branch has been merged into the
+    current branch.
+    """
+
+    print(
+        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch, current_branch=rd.current_branch()
+        )
+    )
+
+
+def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
+    """
+    Validate the entered branch by checking that it is not empty, is not the current
+    branch, and exists in the repository. Raise an SCCSException if any validation
+    fails.
+    """
+
+    utils.raise_if_empty(c, branch, c.BRANCH_NAME_FIELD_NAME)
+
+    if rs.is_current_branch(branch):
+        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+
+    if not rs.branch_exists(branch):
+        raise exceptions.SCCSException(
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
+        )
 
 
 if __name__ == "__main__":
@@ -199,7 +170,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryIO(Path.cwd(), repository_name, c, target),
         RepositoryPaths(Path.cwd(), repository_name, c, target),

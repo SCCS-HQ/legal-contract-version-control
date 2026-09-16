@@ -15,47 +15,6 @@ from repository_layout import (
 )
 
 
-def revert(
-    c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str
-) -> None:
-    """
-    Copy the entered commit document to the staging directory. Raise an SCCSException if
-    the commit file does not exist or cannot be copied.
-    """
-
-    if not commit_path.is_file():
-        raise exceptions.SCCSException(
-            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-                file_name=commit_path.stem
-            )
-        )
-
-    try:
-        shutil.copy2(
-            commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION)
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
-
-
-def print_revert_success_message(
-    c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
-) -> None:
-    """
-    Print a success message indicating that the document has been reverted to the
-    entered commit.
-    """
-
-    print(
-        c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            new_commit_identifier=new_commit_identifier[
-                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-            ],
-        )
-    )
-
-
 def main(
     c: SCCSConstants,
     commit_identifier: str,
@@ -81,12 +40,7 @@ def main(
         commit_identifier, c.DOCUMENT_DIRECTORY
     )
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    new_commit_identifier = None
-
-    try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         revert(c, commit_path, staging_root, staging_rw.repository_name)
@@ -98,10 +52,6 @@ def main(
             ),
             allow_empty_commit=True,
         )
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_revert_success_message(
         c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
@@ -110,13 +60,54 @@ def main(
     rs.target.reset()
 
 
+def print_revert_success_message(
+    c: SCCSConstants, commit_identifier: str, new_commit_identifier: str
+) -> None:
+    """
+    Print a success message indicating that the document has been reverted to the
+    entered commit.
+    """
+
+    print(
+        c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            new_commit_identifier=new_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ],
+        )
+    )
+
+
+def revert(
+    c: SCCSConstants, commit_path: Path, staging_root: Path, repo_name: str
+) -> None:
+    """
+    Copy the entered commit document to the staging directory. Raise an SCCSException if
+    the commit file does not exist or cannot be copied.
+    """
+
+    if not commit_path.is_file():
+        raise exceptions.SCCSException(
+            c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+                file_name=commit_path.stem
+            )
+        )
+
+    try:
+        shutil.copy2(
+            commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION)
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
+
+
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryPaths(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),

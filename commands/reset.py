@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -12,37 +11,6 @@ from repository_layout import (
     RepositoryStatus,
     TargetBranch,
 )
-
-
-def reset(
-    c: SCCSConstants, rd: RepositoryData, staging_root: Path, rs: RepositoryStatus
-) -> None:
-    """
-    Copy the latest commit document to the staging directory. Raise an SCCSException if
-    the document cannot be copied.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
-            ),
-            staging_root / rd.paths.document_path().name,
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.RESET_ERROR_MESSAGE) from e
-
-    rs.target.reset()
-
-
-def print_reset_success_message(c: SCCSConstants) -> None:
-    """
-    Print a success message after a successful reset operation.
-    """
-
-    print(c.RESET_SUCCESS_MESSAGE)
 
 
 def main(
@@ -64,18 +32,25 @@ def main(
 
     rs.validate_repository_layout()
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        reset(c, rd, staging_root, rs)
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
+    with utils.staged_repository(c, rp.root, rp.root) as staging_root:
+        utils.copy_latest_commit_document(
+            rd,
+            rd.current_branch(),
+            staging_root / rd.paths.document_path().name,
+            c.RESET_ERROR_MESSAGE,
+        )
 
     print_reset_success_message(c)
 
     rs.target.reset()
+
+
+def print_reset_success_message(c: SCCSConstants) -> None:
+    """
+    Print a success message after a successful reset operation.
+    """
+
+    print(c.RESET_SUCCESS_MESSAGE)
 
 
 if __name__ == "__main__":

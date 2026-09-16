@@ -17,30 +17,35 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 BRANCHES_DIRECTORY = "branches"
+BYTES_PER_MEGABYTE = 1024 * 1024
 CLONE_ENDPOINT_TEMPLATE = "/repos/{repository_name}/clone"
 CONTENT_DISPOSITION_HEADER_TITLE = "Content-Disposition"
-CONTENT_DISPOSITION_HEADER = "attachment;filename={repository_name}.zip"
-CONTENT_DISPOSITION_HEADER_SPACED = "attachment; filename={repository_name}.zip"
+CONTENT_DISPOSITION_HEADER_TEMPLATE = "attachment;filename={repository_name}.zip"
+CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE = (
+    "attachment; filename={repository_name}.zip"
+)
 CURRENT_BRANCH_DICT_KEY = "current_branch"
 DOUBLE_PERIOD = ".."
 EASTER_EGG_MESSAGE = "Boo!"
 FILE_PUBLISHED_MESSAGE = "File published successfully"
-FILE_TOO_LARGE_ERROR_MESSAGE = "File {filename} is too large"
+FILE_START_POSITION = 0
+FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
+HTTP_BAD_REQUEST_STATUS_CODE = 400
+HTTP_NOT_FOUND_STATUS_CODE = 404
 INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
 INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
 INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
-JSON_KEY_MESSAGE = "message"
-JSON_KEY_OBJECTS = "objects"
-JSON_KEY_REPOSITORY_URL = "repository_url"
 LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
     "Local repository has objects that the remote does not have. Run 'sccs push"
     "' to upload these objects before pulling."
 )
 MAX_FILES_IN_ZIP = 1000
-MAX_INDIVIDUAL_FILE_SIZE = 10 * 1024 * 1024
-MAX_TOTAL_UPLOAD_SIZE = 100 * 1024 * 1024
+MAX_INDIVIDUAL_FILE_SIZE = 10 * BYTES_PER_MEGABYTE
+MAX_TOTAL_UPLOAD_SIZE = 100 * BYTES_PER_MEGABYTE
+MESSAGES_DICT_KEY = "message"
 METADATA_JSON = "metadata.json"
 NEWLINE = "\n"
+OBJECTS_DICT_KEY = "objects"
 OBJECTS_DIRECTORY = "objects"
 OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
 OLD_ROOT_TEMPLATE = f"{{repository_name}}.old-{uuid.uuid4().hex}"
@@ -52,8 +57,9 @@ REMOTE_KEY = "remote"
 REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
 REPOSITORIES_BASE_DIRECTORY = "API/repos"
 REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
-REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name dos not match file name"
-REPOSITORY_NOT_FOUND_ERROR_MESSAGE = "Repository not found: {repository_name}"
+REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
+REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Repository not found: {repository_name}"
+REPOSITORY_URL_DICT_KEY = "repository_url"
 RGLOB_ALL_FILES_PATTERN = "*"
 REPOS_MOUNT_ENDPOINT = "/repos"
 ROOT_ENDPOINT = "/"
@@ -63,9 +69,9 @@ STATIC_FILES_NAME = "repos"
 TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
 TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
 UPDATED_BRANCHES_DICT_KEY = "updated_branches"
-UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded fie is too large"
+UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded file is too large"
 UTF_8 = "utf-8"
-ZIP_MEDIA_TYPE = "application/zip"
+CONTENT_TYPE_ZIP = "application/zip"
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,7 +88,8 @@ class ValidatedRepositoryName:
             or self.value in (SINGLE_PERIOD, DOUBLE_PERIOD)
         ):
             raise HTTPException(
-                status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
             )
 
     def __str__(self) -> str:
@@ -116,7 +123,8 @@ def repository_directory(repository_name: str) -> Path:
         repository_path.relative_to(base_directory)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
         ) from e
 
     return repository_path
@@ -127,8 +135,8 @@ def ensure_repository_exists(repository_path: Path) -> None:
 
     if not repository_path.exists() or not repository_path.is_dir():
         raise HTTPException(
-            status_code=404,
-            detail=REPOSITORY_NOT_FOUND_ERROR_MESSAGE.format(
+            status_code=HTTP_NOT_FOUND_STATUS_CODE,
+            detail=REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                 repository_name=repository_path.name
             ),
         )
@@ -141,13 +149,17 @@ def safe_extract_zip(
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or DOUBLE_PERIOD in entry_path.parts:
-        raise HTTPException(status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=INVALID_ZIP_PATH_ERROR_MESSAGE,
+        )
     target_path = Path(os.path.normpath(destination_directory / entry_path)).resolve()
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=INVALID_ZIP_PATH_ERROR_MESSAGE
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=INVALID_ZIP_PATH_ERROR_MESSAGE,
         ) from e
     if zip_archive.getinfo(member_path).is_dir():
         target_path.mkdir(parents=True, exist_ok=True)
@@ -164,7 +176,7 @@ app = FastAPI()
 async def root() -> dict:
     """Easter Egg Endpoint - Do Not Remove"""
 
-    return {JSON_KEY_MESSAGE: EASTER_EGG_MESSAGE}
+    return {MESSAGES_DICT_KEY: EASTER_EGG_MESSAGE}
 
 
 @app.post(PUBLISH_ENDPOINT_TEMPLATE)
@@ -176,7 +188,10 @@ async def publish(
     repository_path = repository_directory(repository_name)
 
     if repository_path.exists():
-        raise HTTPException(status_code=400, detail=REPOSITORY_EXISTS_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=REPOSITORY_EXISTS_ERROR_MESSAGE,
+        )
 
     staging_root = Path(
         tempfile.mkdtemp(prefix=TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
@@ -187,34 +202,41 @@ async def publish(
             remote = json.loads(data)[REMOTE_KEY]
         except (json.JSONDecodeError, KeyError) as e:
             raise HTTPException(
-                status_code=400, detail=INVALID_JSON_ERROR_MESSAGE
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=INVALID_JSON_ERROR_MESSAGE,
             ) from e
 
         if not remote:
             raise HTTPException(
-                status_code=400, detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=REMOTE_URL_REQUIRED_ERROR_MESSAGE,
             )
 
         if not file.filename or Path(file.filename).stem != repository_name:
             raise HTTPException(
-                status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE,
             )
 
         with zipfile.ZipFile(file.file, "r") as zf:
             if len(zf.infolist()) > MAX_FILES_IN_ZIP:
                 raise HTTPException(
-                    status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE
+                    status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=TOO_MANY_FILES_ERROR_MESSAGE,
                 )
             if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
                 raise HTTPException(
-                    status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE
+                    status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE,
                 )
 
             for i in zf.infolist():
                 if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                     raise HTTPException(
-                        status_code=400,
-                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                        status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                            filename=i.filename
+                        ),
                     )
 
                 safe_extract_zip(zf, i.filename, staging_root)
@@ -226,7 +248,7 @@ async def publish(
 
         raise
 
-    return {JSON_KEY_MESSAGE: FILE_PUBLISHED_MESSAGE, JSON_KEY_REPOSITORY_URL: remote}
+    return {MESSAGES_DICT_KEY: FILE_PUBLISHED_MESSAGE, REPOSITORY_URL_DICT_KEY: remote}
 
 
 @app.get(CLONE_ENDPOINT_TEMPLATE)
@@ -246,23 +268,31 @@ async def clone(repository_name: str) -> StreamingResponse:
                 )
 
         if len(zf.infolist()) > MAX_FILES_IN_ZIP:
-            raise HTTPException(status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE)
+            raise HTTPException(
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=TOO_MANY_FILES_ERROR_MESSAGE,
+            )
         if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
-            raise HTTPException(status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+            raise HTTPException(
+                status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+            )
 
         for i in zf.infolist():
             if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
-                    status_code=400,
-                    detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                    status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                        filename=i.filename
+                    ),
                 )
 
-    zip_buffer.seek(0)
+    zip_buffer.seek(FILE_START_POSITION)
     return StreamingResponse(
         zip_buffer,
-        media_type=ZIP_MEDIA_TYPE,
+        media_type=CONTENT_TYPE_ZIP,
         headers={
-            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER.format(
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_TEMPLATE.format(
                 repository_name=repository_name
             )
         },
@@ -282,10 +312,13 @@ async def push(repository_name: str) -> dict:
     objects_directory = (repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
-        raise HTTPException(status_code=404, detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=HTTP_NOT_FOUND_STATUS_CODE,
+            detail=OBJECTS_NOT_FOUND_ERROR_MESSAGE,
+        )
 
     return {
-        JSON_KEY_OBJECTS: list(
+        OBJECTS_DICT_KEY: list(
             set(
                 i.stem
                 for i in objects_directory.rglob(RGLOB_ALL_FILES_PATTERN)
@@ -308,7 +341,8 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(
-            status_code=400, detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE,
         )
 
     staging_root = Path(
@@ -321,17 +355,21 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         with zipfile.ZipFile(file.file, "r") as zf:
             if sum(i.file_size for i in zf.infolist()) > MAX_TOTAL_UPLOAD_SIZE:
                 raise HTTPException(
-                    status_code=400, detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE
+                    status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=UPLOAD_TOO_LARGE_ERROR_MESSAGE,
                 )
             if len(zf.infolist()) > MAX_FILES_IN_ZIP:
                 raise HTTPException(
-                    status_code=400, detail=TOO_MANY_FILES_ERROR_MESSAGE
+                    status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=TOO_MANY_FILES_ERROR_MESSAGE,
                 )
             for i in zf.infolist():
                 if i.file_size > MAX_INDIVIDUAL_FILE_SIZE:
                     raise HTTPException(
-                        status_code=400,
-                        detail=FILE_TOO_LARGE_ERROR_MESSAGE.format(filename=i.filename),
+                        status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+                        detail=FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                            filename=i.filename
+                        ),
                     )
 
             for i in zf.infolist():
@@ -345,7 +383,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         ) as f:
             data = json.load(f)
             data[CURRENT_BRANCH_DICT_KEY][UPDATED_BRANCHES_DICT_KEY] = []
-            f.seek(0)
+            f.seek(FILE_START_POSITION)
             json.dump(data, f)
             f.truncate()
 
@@ -367,7 +405,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
         raise
 
-    return {JSON_KEY_MESSAGE: PUSH_SUCCESS_MESSAGE}
+    return {MESSAGES_DICT_KEY: PUSH_SUCCESS_MESSAGE}
 
 
 @app.post(PULL_ENDPOINT_TEMPLATE)
@@ -383,14 +421,16 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
     if (
         not isinstance(data, dict)
-        or JSON_KEY_OBJECTS not in data
-        or not isinstance(data[JSON_KEY_OBJECTS], list)
-        or not all(isinstance(i, str) for i in data[JSON_KEY_OBJECTS])
-        or not data[JSON_KEY_OBJECTS]
+        or OBJECTS_DICT_KEY not in data
+        or not isinstance(data[OBJECTS_DICT_KEY], list)
+        or not all(isinstance(i, str) for i in data[OBJECTS_DICT_KEY])
+        or not data[OBJECTS_DICT_KEY]
     ):
-        raise HTTPException(status_code=400, detail=INVALID_JSON_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE, detail=INVALID_JSON_ERROR_MESSAGE
+        )
 
-    local_objects = set(data[JSON_KEY_OBJECTS])
+    local_objects = set(data[OBJECTS_DICT_KEY])
 
     objects_paths = (repository_path / SCCS_DIRECTORY / OBJECTS_DIRECTORY).resolve()
 
@@ -398,7 +438,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         objects_paths.relative_to(repository_path)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
         ) from e
 
     remote_objects = set(
@@ -407,7 +448,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
     if local_objects - remote_objects:
         raise HTTPException(
-            status_code=400,
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
             detail=LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
         )
 
@@ -417,7 +458,8 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         branches_path.relative_to(repository_path)
     except ValueError as e:
         raise HTTPException(
-            status_code=400, detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+            status_code=HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
         ) from e
 
     files_to_upload = [
@@ -435,12 +477,12 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for i in files_to_upload:
             zf.write(filename=i, arcname=i.relative_to(repository_path))
-    zip_buffer.seek(0)
+    zip_buffer.seek(FILE_START_POSITION)
     return StreamingResponse(
         zip_buffer,
-        media_type=ZIP_MEDIA_TYPE,
+        media_type=CONTENT_TYPE_ZIP,
         headers={
-            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_SPACED.format(
+            CONTENT_DISPOSITION_HEADER_TITLE: CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
                 repository_name=repository_name
             )
         },

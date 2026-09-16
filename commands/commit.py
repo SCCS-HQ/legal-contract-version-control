@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import shutil
 from pathlib import Path
 
 import exceptions
@@ -12,34 +11,6 @@ from repository_layout import (
     RepositoryWrite,
     TargetBranch,
 )
-
-
-def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
-    """
-    Validates the entered commit message by checking if it is not empty.
-
-    Raises an SCCSException if the commit message is invalid.
-    """
-
-    if not commit_message:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_MESSAGE_FIELD_NAME
-            )
-        )
-
-
-def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
-    """
-    Print a success message after a successful commit operation, including the commit
-    identifier of the new commit.
-    """
-
-    print(
-        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
-        )
-    )
 
 
 def main(
@@ -64,23 +35,41 @@ def main(
 
     validate_commit_message(c, commit_message)
 
-    staging_root = utils.create_staging_directory(c, rd.root)
-
-    try:
-        shutil.copytree(rd.root, staging_root, dirs_exist_ok=True)
-
+    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
         commit_identifier = staging_rw.commit_changes(commit_message)
-
-        utils.promote_staging(c, staging_rw.root, rw.root)
-
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
 
     print_commit_success_message(c, commit_identifier)
 
     rs.target.reset()
+
+
+def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
+    """
+    Print a success message after a successful commit operation, including the commit
+    identifier of the new commit.
+    """
+
+    print(
+        c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+        )
+    )
+
+
+def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
+    """
+    Validates the entered commit message by checking if it is not empty.
+
+    Raises an SCCSException if the commit message is invalid.
+    """
+
+    if not commit_message:
+        raise exceptions.SCCSException(
+            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=c.COMMIT_MESSAGE_FIELD_NAME
+            )
+        )
 
 
 if __name__ == "__main__":
@@ -89,7 +78,7 @@ if __name__ == "__main__":
     repository_name = Path.cwd().name
     utils.run_command(
         main,
-        utils.entered_argument(c, 2),
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
         RepositoryWrite(Path.cwd(), repository_name, c, target),

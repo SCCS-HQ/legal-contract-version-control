@@ -20,19 +20,28 @@ from repository_layout import (
 )
 
 
-def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
+def _snapshot_file(src: Path, dst: Path) -> None:
+    """Mirror `src` to `dst` cheaply.
+
+    Tries a hardlink first (O(1), same filesystem, no extra disk usage);
+    falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
     """
-    Request the commit identifiers stored on the remote repository and return the
-    response. Raise an SCCSException if the request fails.
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def clear_updated_branches(ri: RepositoryIO) -> None:
+    """
+    Clear the list of updated branches in the current branch metadata.
     """
 
-    try:
-        return requests.get(
-            c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
-            timeout=c.HTTP_TIMEOUT_SECONDS,
-        )
-    except Exception as e:
-        raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
+    def clear(updated: list[str]) -> bool:
+        updated.clear()
+        return True
+
+    ri.mutate_updated_branches(clear)
 
 
 def compare_commit_identifier_lists(
@@ -54,66 +63,67 @@ def compare_commit_identifier_lists(
     return object_to_upload
 
 
-def _snapshot_file(src: Path, dst: Path) -> None:
-    """Mirror `src` to `dst` cheaply.
-
-    Tries a hardlink first (O(1), same filesystem, no extra disk usage);
-    falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
+def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """
+    Request the commit identifiers stored on the remote repository and return the
+    response. Raise an SCCSException if the request fails.
+    """
+
     try:
-        os.link(src, dst)
-    except OSError:
-        shutil.copy2(src, dst)
+        return requests.get(
+            c.PUSH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+            timeout=c.HTTP_TIMEOUT_SECONDS,
+        )
+    except Exception as e:
+        raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
 
 
-def zip_files_to_upload(
+def main(
     c: SCCSConstants,
-    remote_objects: list[str],
     rd: RepositoryData,
+    ri: RepositoryIO,
     rp: RepositoryPaths,
-) -> io.BytesIO:
+    rs: RepositoryStatus,
+) -> None:
     """
-    Zip the local objects that are missing from the remote repository, along with the
-    document and metadata files, into a buffer and return it. Raise an SCCSException if
-    the files cannot be zipped or the buffer position cannot be reset.
+    Run the push command by setting the current branch as the target, validating the
+    repository layout, comparing the local and remote objects, and uploading the missing
+    objects to the remote repository.
+
+    Clear the updated branches in the current branch metadata of a copy of the
+    repository in a staging directory, promote the staging directory to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
     """
 
-    files_to_upload = (
-        [
-            i.resolve()
-            for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
-            if i.is_file()
-            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
-        ]
-        + [rp.document_path()]
-        + [rp.metadata_path()]
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    remote = rd.base_repository_url()
+
+    remote_objects_response = fetch_remote_objects(c, rd)
+
+    remote_objects_response.raise_for_status()
+
+    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
+
+    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
+
+    upload_response = upload_objects(c, buffer, rd, rp)
+
+    upload_response.raise_for_status()
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        clear_updated_branches(staging_ri)
+
+    utils.print_remote_success_message(
+        c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
     )
 
-    staging_root = utils.create_staging_directory(c, rp.root)
-    try:
-        for i in files_to_upload:
-            dst = staging_root / i.relative_to(rp.root)
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            _snapshot_file(i, dst)
-
-        buffer = io.BytesIO()
-
-        try:
-            with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-                for i in files_to_upload:
-                    snapshot_path = staging_root / i.relative_to(rp.root)
-                    zf.write(snapshot_path, arcname=i.relative_to(rp.root))
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
-
-        try:
-            buffer.seek(0)
-        except Exception as e:
-            raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
-    finally:
-        utils.cleanup_staging(staging_root)
-
-    return buffer
+    rs.target.reset()
 
 
 def upload_objects(
@@ -156,80 +166,44 @@ def upload_objects(
     return response
 
 
-def clear_updated_branches(
-    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths
-) -> None:
-    """
-    Clear the list of updated branches in the current branch metadata.
-    """
-
-    data = ri.read_current_branch_data()
-    data[c.UPDATED_BRANCHES_DICT_KEY] = []
-    ri.write_current_branch_data(data)
-
-
-def print_push_success_message(
-    c: SCCSConstants, response: requests.Response, url: str
-) -> None:
-    """
-    Print the status code and a success message after a successful push operation.
-    """
-
-    print(c.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code))
-    print(c.PUSH_SUCCESS_MESSAGE_TEMPLATE.format(url=url))
-
-
-def main(
+def zip_files_to_upload(
     c: SCCSConstants,
+    remote_objects: list[str],
     rd: RepositoryData,
-    ri: RepositoryIO,
     rp: RepositoryPaths,
-    rs: RepositoryStatus,
-) -> None:
+) -> io.BytesIO:
     """
-    Run the push command by setting the current branch as the target, validating the
-    repository layout, comparing the local and remote objects, and uploading the missing
-    objects to the remote repository.
-
-    Clear the updated branches in the current branch metadata of a copy of the
-    repository in a staging directory, promote the staging directory to the repository
-    root, print a success message, and reset the target branch when the operation
-    completes.
+    Zip the local objects that are missing from the remote repository, along with the
+    document and metadata files, into a buffer and return it. Raise an SCCSException if
+    the files cannot be zipped or the buffer position cannot be reset.
     """
 
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    remote = rd.base_repository_url()
-
-    remote_objects_response = fetch_remote_objects(c, rd)
-
-    remote_objects_response.raise_for_status()
-
-    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
-
-    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
-
-    upload_response = upload_objects(c, buffer, rd, rp)
-
-    upload_response.raise_for_status()
+    files_to_upload = (
+        [
+            i.resolve()
+            for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
+            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
+        ]
+        + [rp.document_path()]
+        + [rp.metadata_path()]
+    )
 
     staging_root = utils.create_staging_directory(c, rp.root)
-
     try:
-        shutil.copytree(rp.root, staging_root, dirs_exist_ok=True)
+        for i in files_to_upload:
+            dst = staging_root / i.relative_to(rp.root)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            _snapshot_file(i, dst)
 
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        clear_updated_branches(c, staging_ri, rp)
-        utils.promote_staging(c, staging_root, rp.root)
-    except Exception:
+        with utils.zip_buffer(c, zipfile.ZIP_DEFLATED) as (buffer, zf):
+            for i in files_to_upload:
+                snapshot_path = staging_root / i.relative_to(rp.root)
+                zf.write(snapshot_path, arcname=i.relative_to(rp.root))
+    finally:
         utils.cleanup_staging(staging_root)
-        raise
 
-    print_push_success_message(c, upload_response, remote)
-
-    rs.target.reset()
+    return buffer
 
 
 if __name__ == "__main__":

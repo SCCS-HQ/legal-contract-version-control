@@ -18,63 +18,6 @@ from repository_layout import (
 )
 
 
-def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
-    """
-    Validate that the repository has not already been initialized by checking for an
-    existing SCCS directory. Raise an SCCSException if the repository is already
-    initialized.
-    """
-
-    if (rp.sccs_path()).is_dir():
-        raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
-
-
-def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
-    """
-    Validate the entered document by checking that it has the expected document
-    extension and exists. Raise an SCCSException if the file type or path is invalid.
-    """
-
-    if file.suffix.lower() != c.DOCUMENT_EXTENSION:
-        raise exceptions.SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
-
-    if not file.is_file():
-        raise exceptions.SCCSException(
-            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
-        )
-
-
-def create_sccs_directory_layout(
-    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
-) -> None:
-    """
-    Create the SCCS directory layout for the repository, including the objects,
-    document, and HTML directories. Raise an SCCSException if the directories cannot be
-    created.
-    """
-
-    rs.target.set(c.MAIN_BRANCH_NAME)
-
-    paths = [
-        rp.sccs_path(),
-        rp.objects_path(),
-        rp.document_objects_path(),
-        rp.html_objects_path(),
-        rp.view_html_objects_path(),
-    ]
-
-    try:
-        rp.root.mkdir(parents=True, exist_ok=True)
-
-        for i in paths:
-            (i).mkdir(parents=True, exist_ok=True)
-
-    except Exception as e:
-        raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
-
-    rs.target.reset()
-
-
 def ask_config_input(c: SCCSConstants, key: str) -> str:
     """
     Prompt the user for the entered configuration key and return the entered value.
@@ -82,30 +25,9 @@ def ask_config_input(c: SCCSConstants, key: str) -> str:
     """
 
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
-    if not data_value:
-        raise exceptions.SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key).capitalize()
-        )
+    utils.raise_if_empty(c, data_value, key, capitalize=True)
 
     return data_value
-
-
-def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
-    """
-    Return the initial commit identifier created by hashing the program start time,
-    initial version commit message, name, and email.
-    """
-
-    return hashlib.sha256(
-        c.PATH_SEPARATOR.join(
-            [
-                c.PROGRAM_START_TIME,
-                c.INITIAL_VERSION_COMMIT_MESSAGE,
-                name,
-                email,
-            ]
-        ).encode(c.UTF_8)
-    ).hexdigest()
 
 
 def copy_document_to_objects_as_document_and_html(
@@ -158,50 +80,6 @@ def copy_document_to_objects_as_document_and_html(
         raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
-def write_starting_metadata(
-    c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
-) -> None:
-    """
-    Write the starting metadata of the repository, including the initial commit history,
-    log, byte hash, commit messages, and default branch data.
-    """
-
-    ri.target.set(c.MAIN_BRANCH_NAME)
-
-    ri.write_metadata(
-        {
-            c.BRANCHES_DICT_KEY: {
-                c.MAIN_BRANCH_NAME: {
-                    c.HISTORY_DICT_KEY: {
-                        c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
-                        c.LATEST_COMMIT_DICT_KEY: commit_identifier,
-                        c.LATEST_COMMIT_NUMBER_DICT_KEY: 1,
-                        c.COMMIT_ORDER_DICT_KEY: {
-                            c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
-                        },
-                    },
-                    c.LOG_DICT_KEY: {
-                        commit_identifier: {
-                            c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
-                            c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
-                                name=name, email=email
-                            ),
-                            c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
-                        }
-                    },
-                    c.BYTE_HASH_DICT_KEY: {
-                        commit_identifier: hashlib.sha256(
-                            (ri.document_html()).encode(c.UTF_8)
-                        ).hexdigest()
-                    },
-                }
-            },
-            c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
-            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
-        }
-    )
-
-
 def copy_document_to_repository_directory(
     repository_path: Path, document_path: Path
 ) -> None:
@@ -210,6 +88,49 @@ def copy_document_to_repository_directory(
     """
 
     shutil.copy2(document_path, repository_path)
+
+
+def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
+    """
+    Return the initial commit identifier created by hashing the program start time,
+    initial version commit message, name, and email.
+    """
+
+    return utils.create_commit_identifier(
+        c,
+        [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email],
+    )
+
+
+def create_sccs_directory_layout(
+    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
+    """
+    Create the SCCS directory layout for the repository, including the objects,
+    document, and HTML directories. Raise an SCCSException if the directories cannot be
+    created.
+    """
+
+    rs.target.set(c.MAIN_BRANCH_NAME)
+
+    paths = [
+        rp.sccs_path(),
+        rp.objects_path(),
+        rp.document_objects_path(),
+        rp.html_objects_path(),
+        rp.view_html_objects_path(),
+    ]
+
+    try:
+        rp.root.mkdir(parents=True, exist_ok=True)
+
+        for i in paths:
+            (i).mkdir(parents=True, exist_ok=True)
+
+    except Exception as e:
+        raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
+
+    rs.target.reset()
 
 
 def finalize_repository_creation(
@@ -234,14 +155,6 @@ def finalize_repository_creation(
                 document_path=document_path, e=e
             )
         )
-
-
-def print_init_success_message(c: SCCSConstants) -> None:
-    """
-    Print a success message after a successful init operation.
-    """
-
-    print(c.INIT_SUCCESS_MESSAGE)
 
 
 def main(
@@ -301,10 +214,88 @@ def main(
     print_init_success_message(c)
 
 
+def print_init_success_message(c: SCCSConstants) -> None:
+    """
+    Print a success message after a successful init operation.
+    """
+
+    print(c.INIT_SUCCESS_MESSAGE)
+
+
+def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
+    """
+    Validate the entered document by checking that it has the expected document
+    extension and exists. Raise an SCCSException if the file type or path is invalid.
+    """
+
+    if file.suffix.lower() != c.DOCUMENT_EXTENSION:
+        raise exceptions.SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
+
+    if not file.is_file():
+        raise exceptions.SCCSException(
+            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
+        )
+
+
+def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
+    """
+    Validate that the repository has not already been initialized by checking for an
+    existing SCCS directory. Raise an SCCSException if the repository is already
+    initialized.
+    """
+
+    if (rp.sccs_path()).is_dir():
+        raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
+
+
+def write_starting_metadata(
+    c: SCCSConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
+) -> None:
+    """
+    Write the starting metadata of the repository, including the initial commit history,
+    log, byte hash, commit messages, and default branch data.
+    """
+
+    ri.target.set(c.MAIN_BRANCH_NAME)
+
+    ri.write_metadata(
+        {
+            c.BRANCHES_DICT_KEY: {
+                c.MAIN_BRANCH_NAME: {
+                    c.HISTORY_DICT_KEY: {
+                        c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
+                        c.LATEST_COMMIT_DICT_KEY: commit_identifier,
+                        c.LATEST_COMMIT_NUMBER_DICT_KEY: c.INITIAL_COMMIT_NUMBER,
+                        c.COMMIT_ORDER_DICT_KEY: {
+                            c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+                        },
+                    },
+                    c.LOG_DICT_KEY: {
+                        commit_identifier: {
+                            c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
+                            c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                                name=name, email=email
+                            ),
+                            c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
+                        }
+                    },
+                    c.BYTE_HASH_DICT_KEY: {
+                        commit_identifier: hashlib.sha256(
+                            (ri.document_html()).encode(c.UTF_8)
+                        ).hexdigest()
+                    },
+                }
+            },
+            c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
+            c.CURRENT_BRANCH_DICT_KEY: c.DEFAULT_BRANCH_DATA,
+        }
+    )
+
+
 if __name__ == "__main__":
     c = SCCSConstants()
     target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(c, 2))
+    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
     repository_name = repository_root.name
     utils.run_command(
