@@ -338,6 +338,7 @@ class SCCSConstants:
         "again later or check your internet connection."
     )
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
+    PWD_ENVIRONMENT_VARIABLE = "PWD"
     PYTHON_EXTENSION = ".py"
     REMOTE_KEY = "remote"
     REPLACE_OPCODE = "replace"

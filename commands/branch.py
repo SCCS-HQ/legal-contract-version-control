@@ -198,14 +198,15 @@ def main(
 
 if __name__ == "__main__":
     c = SCCSConstants()
+    wd = utils.working_directory(c)
     target = TargetBranch(c)
-    repository_name = Path.cwd().name
+    repository_name = wd.name
     utils.run_command(
         main,
         utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX, raise_on_not_provided=False),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
+        RepositoryData(wd, repository_name, c, target),
+        RepositoryPaths(wd, repository_name, c, target),
+        RepositoryStatus(wd, repository_name, c, target),
+        RepositoryWrite(wd, repository_name, c, target),
     )

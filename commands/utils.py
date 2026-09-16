@@ -92,6 +92,27 @@ def entered_argument(
     return sys.argv[argument].strip()
 
 
+def working_directory(c: SCCSConstants) -> Path:
+    """
+    Return the current working directory, recovering automatically when the shell's
+    original directory inode has been replaced by `promote_staging` (which renames the
+    repository directory into place, leaving the parent shell parked inside a deleted
+    inode so `os.getcwd()` fails with FileNotFoundError).
+
+    In that case, re-resolve the path recorded in the inherited `$PWD` environment
+    variable, verify it is a real directory (the newly promoted inode), chdir into it
+    so this process and its children have a valid working directory, and return it.
+    """
+    try:
+        return Path.cwd()
+    except OSError:
+        fallback = os.environ.get(c.PWD_ENVIRONMENT_VARIABLE)
+        if not fallback or not Path(fallback).is_dir():
+            raise
+        os.chdir(fallback)
+        return Path.cwd()
+
+
 def print_remote_success_message(
     c: SCCSConstants, status_code: int, url: str, message_template: str
 ) -> None:

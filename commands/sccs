@@ -57,6 +57,7 @@ def main(c: SCCSConstants, entered_command: str) -> None:
 
 if __name__ == "__main__":
     c = SCCSConstants()
+    utils.working_directory(c)
     utils.run_command(main, utils.entered_argument(c, c.COMMAND_ARGUMENT_INDEX))
 
 # If on MacOS / Linux, move all files in commands/, and make this file executable
