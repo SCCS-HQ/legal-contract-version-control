@@ -14,51 +14,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants,
-    branch_to_switch: str,
-    rd: RepositoryData,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the switch command by setting the current branch as the target, validating the
-    repository layout and entered branch, and copying the latest commit document of the
-    branch to the repository on a copy of the repository in a staging directory.
-
-    Set the entered branch as the current branch, promote the staging directory to the
-    repository root, print a success message, and reset the target branch when the
-    operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
-    validate_branch_to_switch(c, branch_to_switch, rs)
-
-    validate_commit_identifier(c, branch_to_switch, rd, rs)
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        utils.copy_latest_commit_document(
-            rd,
-            branch_to_switch,
-            staging_root / rd.paths.document_path().name,
-            c.SWITCH_COPY_ERROR_MESSAGE,
-        )
-
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        staging_rw.set_current_branch(branch_to_switch)
-
-    print_switch_success_message(c, branch_to_switch)
-
-    rs.target.reset()
-
-
 def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> None:
     """
     Print a success message indicating that the entered branch has been switched to.
@@ -122,3 +77,50 @@ if __name__ == "__main__":
         RepositoryStatus(Path.cwd(), repository_name, c, target),
         RepositoryWrite(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants,
+    branch_to_switch: str,
+    rd: RepositoryData,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the switch command by setting the current branch as the target, validating the
+    repository layout and entered branch, and copying the latest commit document of the
+    branch to the repository on a copy of the repository in a staging directory.
+
+    Set the entered branch as the current branch, promote the staging directory to the
+    repository root, print a success message, and reset the target branch when the
+    operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    validate_branch_to_switch(c, branch_to_switch, rs)
+
+    validate_commit_identifier(c, branch_to_switch, rd, rs)
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        utils.copy_latest_commit_document(
+            rd,
+            branch_to_switch,
+            staging_root / rd.paths.document_path().name,
+            c.SWITCH_COPY_ERROR_MESSAGE,
+        )
+
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        staging_rw.set_current_branch(branch_to_switch)
+
+    print_switch_success_message(c, branch_to_switch)
+
+    rs.target.reset()
+
+

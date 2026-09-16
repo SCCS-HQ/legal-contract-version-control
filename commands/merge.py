@@ -78,6 +78,54 @@ def copy_branch_data(
     ri.write_branch_data(merged_branch_data)
 
 
+def print_merge_success_message(
+    c: SCCSConstants, branch: str, rd: RepositoryData
+) -> None:
+    """
+    Print a success message indicating that the entered branch has been merged into the
+    current branch.
+    """
+
+    print(
+        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+            branch_name=branch, current_branch=rd.current_branch()
+        )
+    )
+
+
+def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
+    """
+    Validate the entered branch by checking that it is not empty, is not the current
+    branch, and exists in the repository. Raise an SCCSException if any validation
+    fails.
+    """
+
+    utils.raise_if_empty(c, branch, c.BRANCH_NAME_FIELD_NAME)
+
+    if rs.is_current_branch(branch):
+        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+
+    if not rs.branch_exists(branch):
+        raise exceptions.SCCSException(
+            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
+        )
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryIO(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+        RepositoryWrite(Path.cwd(), repository_name, c, target),
+    )
+
+
 def main(
     c: SCCSConstants,
     branch: str,
@@ -131,49 +179,3 @@ def main(
     rs.target.reset()
 
 
-def print_merge_success_message(
-    c: SCCSConstants, branch: str, rd: RepositoryData
-) -> None:
-    """
-    Print a success message indicating that the entered branch has been merged into the
-    current branch.
-    """
-
-    print(
-        c.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
-            branch_name=branch, current_branch=rd.current_branch()
-        )
-    )
-
-
-def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
-    """
-    Validate the entered branch by checking that it is not empty, is not the current
-    branch, and exists in the repository. Raise an SCCSException if any validation
-    fails.
-    """
-
-    utils.raise_if_empty(c, branch, c.BRANCH_NAME_FIELD_NAME)
-
-    if rs.is_current_branch(branch):
-        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
-
-    if not rs.branch_exists(branch):
-        raise exceptions.SCCSException(
-            c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
-        )
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
-    )

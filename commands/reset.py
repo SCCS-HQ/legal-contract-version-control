@@ -12,6 +12,26 @@ from repository_layout import (
 )
 
 
+def print_reset_success_message(c: SCCSConstants) -> None:
+    """
+    Print a success message after a successful reset operation.
+    """
+
+    print(c.RESET_SUCCESS_MESSAGE)
+
+
+if __name__ == "__main__":
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    repository_name = Path.cwd().name
+    utils.run_command(
+        main,
+        RepositoryData(Path.cwd(), repository_name, c, target),
+        RepositoryPaths(Path.cwd(), repository_name, c, target),
+        RepositoryStatus(Path.cwd(), repository_name, c, target),
+    )
+
+
 def main(
     c: SCCSConstants,
     rd: RepositoryData,
@@ -44,21 +64,3 @@ def main(
     rs.target.reset()
 
 
-def print_reset_success_message(c: SCCSConstants) -> None:
-    """
-    Print a success message after a successful reset operation.
-    """
-
-    print(c.RESET_SUCCESS_MESSAGE)
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

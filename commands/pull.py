@@ -17,44 +17,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
-) -> None:
-    """
-    Run the pull command by setting the current branch as the target, validating the
-    repository layout, and requesting the remote repository from the pull endpoint.
-
-    Update the files of a copy of the repository in a staging directory, promote the
-    staging directory to the repository root, print a success message, and reset the
-    target branch when the operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
-    response = pull(c, rd)
-    response.raise_for_status()
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
-
-        update_repository_files(c, response, staging_rd, staging_rp)
-
-    utils.print_remote_success_message(
-        c,
-        response.status_code,
-        rd.config_data(c.REMOTE_KEY),
-        c.PULL_SUCCESS_MESSAGE_TEMPLATE,
-    )
-
-    rs.target.reset()
-
-
 def pull(c: SCCSConstants, rd: RepositoryData) -> requests.Response:
     """
     Post the local repository objects to the pull endpoint of the remote repository and
@@ -106,3 +68,43 @@ if __name__ == "__main__":
         RepositoryPaths(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants, rd: RepositoryData, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
+    """
+    Run the pull command by setting the current branch as the target, validating the
+    repository layout, and requesting the remote repository from the pull endpoint.
+
+    Update the files of a copy of the repository in a staging directory, promote the
+    staging directory to the repository root, print a success message, and reset the
+    target branch when the operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    response = pull(c, rd)
+    response.raise_for_status()
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+
+        update_repository_files(c, response, staging_rd, staging_rp)
+
+    utils.print_remote_success_message(
+        c,
+        response.status_code,
+        rd.config_data(c.REMOTE_KEY),
+        c.PULL_SUCCESS_MESSAGE_TEMPLATE,
+    )
+
+    rs.target.reset()
+
+

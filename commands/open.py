@@ -25,46 +25,6 @@ def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
         raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
-def main(
-    c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
-) -> None:
-    """
-    Run the open command by setting the current branch as the target, validating the
-    repository layout and entered commit identifier, and copying the commit document to
-    the current directory.
-
-    Promote the staging directory to the current directory, print a success message, and
-    reset the target branch when the operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    rs.raise_for_uncommitted_changes()
-
-    commit_path = rd.commit_identifier_to_full_path(
-        commit_identifier, c.DOCUMENT_DIRECTORY
-    )
-
-    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
-
-    output_file_name = Path(
-        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_identifier=full_commit_identifier[
-                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-            ]
-        )
-    ).with_suffix(c.DOCUMENT_EXTENSION)
-
-    with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
-        copy_commit_file(commit_path, staging_root / output_file_name.name)
-
-    print_open_success_message(c, full_commit_identifier, output_file_name)
-
-    rs.target.reset()
-
-
 def print_open_success_message(
     c: SCCSConstants, commit_identifier: str, output_file_name: Path
 ) -> None:
@@ -106,3 +66,45 @@ if __name__ == "__main__":
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
+) -> None:
+    """
+    Run the open command by setting the current branch as the target, validating the
+    repository layout and entered commit identifier, and copying the commit document to
+    the current directory.
+
+    Promote the staging directory to the current directory, print a success message, and
+    reset the target branch when the operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    rs.raise_for_uncommitted_changes()
+
+    commit_path = rd.commit_identifier_to_full_path(
+        commit_identifier, c.DOCUMENT_DIRECTORY
+    )
+
+    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
+
+    output_file_name = Path(
+        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
+            commit_identifier=full_commit_identifier[
+                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ]
+        )
+    ).with_suffix(c.DOCUMENT_EXTENSION)
+
+    with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
+        copy_commit_file(commit_path, staging_root / output_file_name.name)
+
+    print_open_success_message(c, full_commit_identifier, output_file_name)
+
+    rs.target.reset()
+
+

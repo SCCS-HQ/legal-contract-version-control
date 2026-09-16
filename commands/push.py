@@ -78,54 +78,6 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
         raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
 
 
-def main(
-    c: SCCSConstants,
-    rd: RepositoryData,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Run the push command by setting the current branch as the target, validating the
-    repository layout, comparing the local and remote objects, and uploading the missing
-    objects to the remote repository.
-
-    Clear the updated branches in the current branch metadata of a copy of the
-    repository in a staging directory, promote the staging directory to the repository
-    root, print a success message, and reset the target branch when the operation
-    completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    remote = rd.base_repository_url()
-
-    remote_objects_response = fetch_remote_objects(c, rd)
-
-    remote_objects_response.raise_for_status()
-
-    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
-
-    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
-
-    upload_response = upload_objects(c, buffer, rd, rp)
-
-    upload_response.raise_for_status()
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        clear_updated_branches(staging_ri)
-
-    utils.print_remote_success_message(
-        c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
-    )
-
-    rs.target.reset()
-
-
 def upload_objects(
     c: SCCSConstants, buffer: io.BytesIO, rd: RepositoryData, rp: RepositoryPaths
 ) -> requests.Response:
@@ -217,3 +169,53 @@ if __name__ == "__main__":
         RepositoryPaths(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Run the push command by setting the current branch as the target, validating the
+    repository layout, comparing the local and remote objects, and uploading the missing
+    objects to the remote repository.
+
+    Clear the updated branches in the current branch metadata of a copy of the
+    repository in a staging directory, promote the staging directory to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    remote = rd.base_repository_url()
+
+    remote_objects_response = fetch_remote_objects(c, rd)
+
+    remote_objects_response.raise_for_status()
+
+    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
+
+    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
+
+    upload_response = upload_objects(c, buffer, rd, rp)
+
+    upload_response.raise_for_status()
+
+    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        clear_updated_branches(staging_ri)
+
+    utils.print_remote_success_message(
+        c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
+    )
+
+    rs.target.reset()
+
+

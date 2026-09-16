@@ -12,44 +12,6 @@ import utils
 from constants_classes import SCCSConstants
 
 
-def main(c: SCCSConstants, url: str) -> None:
-    """
-    Run the clone command by validating the entered URL, requesting the repository from
-    the remote URL, and extracting it into a staging directory.
-
-    Promote the staging directory to the destination directory and print a success
-    message when the operation completes.
-    """
-
-    validate_entered_url(c, url)
-
-    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
-
-    zip_buffer = io.BytesIO(response.content)
-
-    repository_name = repository_name_from_url(c, url)
-
-    validate_repository_name(c, repository_name)
-
-    destination = Path.cwd() / repository_name
-
-    if destination.exists():
-        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
-
-    staging_root = utils.create_staging_directory(c, destination)
-
-    print(staging_root)
-
-    try:
-        unzip_repository_file(c, zip_buffer, url, staging_root)
-        utils.promote_staging(c, staging_root, destination)
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
-
-    print_clone_success_message(c, response)
-
-
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
     """
     Print the status code and a success message after a successful clone operation.
@@ -157,3 +119,43 @@ def validate_repository_name(c: SCCSConstants, name: str) -> None:
 if __name__ == "__main__":
     c = SCCSConstants()
     utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
+
+
+def main(c: SCCSConstants, url: str) -> None:
+    """
+    Run the clone command by validating the entered URL, requesting the repository from
+    the remote URL, and extracting it into a staging directory.
+
+    Promote the staging directory to the destination directory and print a success
+    message when the operation completes.
+    """
+
+    validate_entered_url(c, url)
+
+    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
+
+    zip_buffer = io.BytesIO(response.content)
+
+    repository_name = repository_name_from_url(c, url)
+
+    validate_repository_name(c, repository_name)
+
+    destination = Path.cwd() / repository_name
+
+    if destination.exists():
+        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
+
+    staging_root = utils.create_staging_directory(c, destination)
+
+    print(staging_root)
+
+    try:
+        unzip_repository_file(c, zip_buffer, url, staging_root)
+        utils.promote_staging(c, staging_root, destination)
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
+    print_clone_success_message(c, response)
+
+

@@ -11,21 +11,6 @@ from repository_layout import (
 )
 
 
-def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
-    """
-    Run the status command by setting the current branch as the target, validating the
-    repository layout, and printing the status of the current document.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    print_status_success_message(c, rs.validate_uncommitted_changes())
-
-    rs.target.reset()
-
-
 def print_status_success_message(c: SCCSConstants, uncommitted_changes: bool) -> None:
     """
     Print the status of the current document based on whether uncommitted changes were
@@ -47,3 +32,20 @@ if __name__ == "__main__":
         RepositoryData(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
+    """
+    Run the status command by setting the current branch as the target, validating the
+    repository layout, and printing the status of the current document.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    print_status_success_message(c, rs.validate_uncommitted_changes())
+
+    rs.target.reset()
+
+

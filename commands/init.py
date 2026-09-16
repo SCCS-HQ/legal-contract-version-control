@@ -157,63 +157,6 @@ def finalize_repository_creation(
         )
 
 
-def main(
-    c: SCCSConstants,
-    document_path: Path,
-    ri: RepositoryIO,
-    rp: RepositoryPaths,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the init command by validating that the repository is not already initialized
-    and that the entered document exists, and by prompting for the name and email
-    configuration values.
-
-    Create the repository on a copy in a staging directory, promote it to the repository
-    root, print a success message, and reset the target branch when the operation
-    completes.
-    """
-
-    validate_no_prev_init(c, rp)
-
-    validate_file_requirements(c, document_path)
-
-    name = ask_config_input(c, c.NAME_KEY)
-    email = ask_config_input(c, c.EMAIL_KEY)
-
-    staging_root = utils.create_staging_directory(c, rp.root)
-
-    try:
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
-        staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-
-        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
-
-        commit_identifier = create_commit_identifier(c, name, email)
-
-        copy_document_to_objects_as_document_and_html(
-            c, document_path, commit_identifier, staging_rp
-        )
-
-        copy_document_to_repository_directory(staging_rp.root, document_path)
-
-        write_starting_metadata(c, commit_identifier, name, email, staging_ri)
-
-        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
-        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
-
-        finalize_repository_creation(c, document_path, rp, staging_rp)
-
-    except Exception:
-        utils.cleanup_staging(staging_root)
-        raise
-
-    print_init_success_message(c)
-
-
 def print_init_success_message(c: SCCSConstants) -> None:
     """
     Print a success message after a successful init operation.
@@ -306,3 +249,62 @@ if __name__ == "__main__":
         RepositoryStatus(repository_root, repository_name, c, target),
         RepositoryWrite(repository_root, repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants,
+    document_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the init command by validating that the repository is not already initialized
+    and that the entered document exists, and by prompting for the name and email
+    configuration values.
+
+    Create the repository on a copy in a staging directory, promote it to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
+    """
+
+    validate_no_prev_init(c, rp)
+
+    validate_file_requirements(c, document_path)
+
+    name = ask_config_input(c, c.NAME_KEY)
+    email = ask_config_input(c, c.EMAIL_KEY)
+
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
+
+        commit_identifier = create_commit_identifier(c, name, email)
+
+        copy_document_to_objects_as_document_and_html(
+            c, document_path, commit_identifier, staging_rp
+        )
+
+        copy_document_to_repository_directory(staging_rp.root, document_path)
+
+        write_starting_metadata(c, commit_identifier, name, email, staging_ri)
+
+        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
+
+        finalize_repository_creation(c, document_path, rp, staging_rp)
+
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
+    print_init_success_message(c)
+
+

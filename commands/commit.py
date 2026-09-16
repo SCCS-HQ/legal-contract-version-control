@@ -13,37 +13,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants,
-    commit_message: str,
-    rd: RepositoryData,
-    rs: RepositoryStatus,
-    rw: RepositoryWrite,
-) -> None:
-    """
-    Run the commit command by setting the current branch as the target, validating the
-    repository layout and commit message, and committing the changes to a copy of the
-    repository in a staging directory.
-
-    Promote the staging directory to the repository root, print a success message, and
-    reset the target branch when the operation completes.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    validate_commit_message(c, commit_message)
-
-    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        commit_identifier = staging_rw.commit_changes(commit_message)
-
-    print_commit_success_message(c, commit_identifier)
-
-    rs.target.reset()
-
-
 def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> None:
     """
     Print a success message after a successful commit operation, including the commit
@@ -83,3 +52,36 @@ if __name__ == "__main__":
         RepositoryStatus(Path.cwd(), repository_name, c, target),
         RepositoryWrite(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants,
+    commit_message: str,
+    rd: RepositoryData,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the commit command by setting the current branch as the target, validating the
+    repository layout and commit message, and committing the changes to a copy of the
+    repository in a staging directory.
+
+    Promote the staging directory to the repository root, print a success message, and
+    reset the target branch when the operation completes.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    validate_commit_message(c, commit_message)
+
+    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        commit_identifier = staging_rw.commit_changes(commit_message)
+
+    print_commit_success_message(c, commit_identifier)
+
+    rs.target.reset()
+
+

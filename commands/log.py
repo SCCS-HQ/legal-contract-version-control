@@ -13,26 +13,6 @@ from repository_layout import (
 )
 
 
-def main(
-    c: SCCSConstants,
-    rd: RepositoryData,
-    ri: RepositoryIO,
-    rs: RepositoryStatus,
-) -> None:
-    """
-    Run the log command by setting the current branch as the target, validating the
-    repository layout, and printing the log entries of the current branch.
-    """
-
-    rs.target.set(rd.current_branch())
-
-    rs.validate_repository_layout()
-
-    print_log(c, ri.read_log())
-
-    rs.target.reset()
-
-
 def print_log(c: SCCSConstants, log_data: dict[str, Any]) -> None:
     """
     Print the log entries of the entered log data, including the commit identifier,
@@ -63,3 +43,25 @@ if __name__ == "__main__":
         RepositoryIO(Path.cwd(), repository_name, c, target),
         RepositoryStatus(Path.cwd(), repository_name, c, target),
     )
+
+
+def main(
+    c: SCCSConstants,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Run the log command by setting the current branch as the target, validating the
+    repository layout, and printing the log entries of the current branch.
+    """
+
+    rs.target.set(rd.current_branch())
+
+    rs.validate_repository_layout()
+
+    print_log(c, ri.read_log())
+
+    rs.target.reset()
+
+
