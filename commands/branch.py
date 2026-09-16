@@ -17,7 +17,7 @@ from repository_layout import (
 def branch_create_subcommand(
     c: SCCSConstants,
     branch_name: str,
-    current_branch_name: str,
+    rd: RepositoryData,
     rw: RepositoryWrite,
 ) -> None:
     """
@@ -29,6 +29,9 @@ def branch_create_subcommand(
     """
 
     rw.target.set(branch_name)
+
+    current_branch_name = rd.current_branch()
+
     rw.add_branch_metadata(branch_name, current_branch_name)
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
@@ -104,9 +107,7 @@ def main(
             c,
             subcommand,
             branch_name,
-            staging_rd.current_branch(),
             staging_rd,
-            staging_rp,
             staging_rw,
         )
 
@@ -138,9 +139,7 @@ def run_specified_subcommand(
     c: SCCSConstants,
     subcommand: str | None,
     branch_name: str | None,
-    current_branch_name: str,
     rd: RepositoryData,
-    rp: RepositoryPaths,
     rw: RepositoryWrite,
 ) -> None:
     """
@@ -151,7 +150,7 @@ def run_specified_subcommand(
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
             raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
-        branch_create_subcommand(c, branch_name, current_branch_name, rw)
+        branch_create_subcommand(c, branch_name, rd, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
             raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
