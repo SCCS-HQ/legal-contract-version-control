@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-import src.commands.utils as utils
-from src.commands.constants_classes import SCCSConstants
-from src.commands.repository_layout import (
+import src.local_sccs.utils as utils
+from src.local_sccs.constants_classes import SCCSConstants
+from src.local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
