@@ -10,7 +10,6 @@ import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any, Callable, Iterator
-from zipfile import ZipFile
 
 import exceptions
 from constants_classes import ErrorWrappers, SCCSConstants
@@ -173,7 +172,7 @@ def run_command(main: Callable[..., None], *args: Any) -> None:
 
 def safe_extract_zip(
     c: SCCSConstants,
-    zip_archive: ZipFile,
+    zip_archive: zipfile.ZipFile,
     member_path: str,
     destination_directory: Path,
 ) -> None:
@@ -250,7 +249,7 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 @contextlib.contextmanager
 def zip_buffer(
     c: SCCSConstants, compression: int = zipfile.ZIP_STORED
-) -> Iterator[tuple[io.BytesIO, ZipFile]]:
+) -> Iterator[tuple[io.BytesIO, zipfile.ZipFile]]:
     """
     Create a zip archive in an in-memory buffer and yield the buffer together with the
     zip file object. Raise an SCCSException if the buffer cannot be created, the files
