@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import src.local_sccs.utils as utils
-from src.local_sccs.constants_classes import SCCSConstants
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
 
 
 def print_help(c: SCCSConstants) -> None:

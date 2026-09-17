@@ -7,10 +7,10 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import src.local_sccs.exceptions as exceptions
+import local_sccs.exceptions as exceptions
 import mammoth
-import src.local_sccs.utils as utils
-from src.local_sccs.constants_classes import SCCSConstants
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
 
 
 class TargetBranch:

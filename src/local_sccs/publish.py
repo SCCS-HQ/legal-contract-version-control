@@ -5,11 +5,11 @@ import json
 import os
 from pathlib import Path
 
-import src.local_sccs.exceptions as exceptions
+import local_sccs.exceptions as exceptions
 import requests
-import src.local_sccs.utils as utils
-from src.local_sccs.constants_classes import SCCSConstants
-from src.local_sccs.repository_layout import (
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
