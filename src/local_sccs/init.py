@@ -5,11 +5,11 @@ import os
 import shutil
 from pathlib import Path
 
-import local_sccs.exceptions as exceptions
+import exceptions as exceptions
 import mammoth
-import local_sccs.utils as utils
-from local_sccs.constants_classes import SCCSConstants
-from local_sccs.repository_layout import (
+import utils as utils
+from constants_classes import SCCSConstants
+from repository_layout import (
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
