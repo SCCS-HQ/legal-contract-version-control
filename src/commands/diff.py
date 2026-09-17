@@ -5,11 +5,11 @@ import difflib
 import filecmp
 from pathlib import Path
 
-import exceptions
-import utils
+import src.commands.exceptions as exceptions
+import src.commands.utils as utils
 from bs4 import BeautifulSoup
-from constants_classes import SCCSConstants
-from repository_layout import (
+from src.commands.constants_classes import SCCSConstants
+from src.commands.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,

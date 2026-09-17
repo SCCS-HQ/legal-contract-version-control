@@ -4,7 +4,7 @@ import datetime
 import uuid
 from types import MappingProxyType
 
-import exceptions
+import src.commands.exceptions as exceptions
 
 
 class ErrorWrappers:

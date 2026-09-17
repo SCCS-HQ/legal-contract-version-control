@@ -3,10 +3,10 @@
 from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
-import exceptions
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import src.commands.exceptions as exceptions
+import src.commands.utils as utils
+from src.commands.constants_classes import SCCSConstants
+from src.commands.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,

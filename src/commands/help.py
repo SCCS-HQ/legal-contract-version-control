@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import utils
-from constants_classes import SCCSConstants
+import src.commands.utils as utils
+from src.commands.constants_classes import SCCSConstants
 
 
 def print_help(c: SCCSConstants) -> None:

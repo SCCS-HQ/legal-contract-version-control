@@ -6,10 +6,10 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import exceptions
+import src.commands.exceptions as exceptions
 import requests
-import utils
-from constants_classes import SCCSConstants
+import src.commands.utils as utils
+from src.commands.constants_classes import SCCSConstants
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
