@@ -3,9 +3,9 @@
 from pathlib import Path
 from typing import Any
 
-import utils as utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
