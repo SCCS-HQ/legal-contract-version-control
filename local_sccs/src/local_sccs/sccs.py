@@ -1,25 +1,9 @@
 import sys
 
-from local_sccs.src import (
-    branch,
-    clone,
-    commit,
-    config,
-    constants_classes,
-    diff,
-    help,
-    init,
-    log,
-    merge,
-    open,
-    publish,
-    pull,
-    push,
-    reset,
-    revert,
-    status,
+from local_sccs import (
     switch
 )
+from local_sccs import branch, clone, commit, config, constants_classes, diff, help, init, log, merge, open, publish, pull, push, reset, revert, status
 
 COMMANDS =  {
     "branch": branch.main,
