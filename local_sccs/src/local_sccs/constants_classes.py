@@ -21,6 +21,23 @@ class SCCSConstants:
     messages, field names, directory names, and other static values that are referenced
     in multiple places in the codebase."""
 
+    BRANCH_COMMAND_NAME = "branch"
+    CLONE_COMMAND_NAME = "clone"
+    COMMIT_COMMAND_NAME = "commit"
+    CONFIG_COMMAND_NAME = "config"
+    DIFF_COMMAND_NAME = "diff"
+    HELP_COMMAND_NAME = "help"
+    INIT_COMMAND_NAME = "init"
+    LOG_COMMAND_NAME = "log"
+    MERGE_COMMAND_NAME = "merge"
+    OPEN_COMMAND_NAME = "open"
+    PUBLISH_COMMAND_NAME = "publish"
+    PULL_COMMAND_NAME = "pull"
+    PUSH_COMMAND_NAME = "push"
+    RESET_COMMAND_NAME = "reset"
+    REVERT_COMMAND_NAME = "revert"
+    STATUS_COMMAND_NAME = "status"
+    SWITCH_COMMAND_NAME = "switch"
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     ACCEPTED_SCHEMES = ("http", "https")
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -59,24 +76,24 @@ class SCCSConstants:
     )
     COMMAND_DESCRIPTIONS = MappingProxyType(
         {
-            "branch": "Create a new branch, delete, or list branches.",
-            "clone": "Clone a hosted SCCS repository with a URL.",
-            "commit": "Commit changes to the repository.",
-            "config": "Configure a repository's data value (remote, name, email)",
-            "diff": "Show differences between the current document and a past commit.",
-            "help": "Print this help message.",
-            "init": "Initialize a new SCCS repository.",
-            "log": "Print a list of past commits for the current branch.",
-            "merge": "Merge the entered branch into the current branch.",
-            "open": "Open a commit file and update the current document.",
-            "publish": "Publish a local repository to a hosting service.",
-            "pull": "Pull changes from a remote repository and merge them "
+            BRANCH_COMMAND_NAME: "Create a new branch, delete, or list branches.",
+            CLONE_COMMAND_NAME: "Clone a hosted SCCS repository with a URL.",
+            COMMIT_COMMAND_NAME: "Commit changes to the repository.",
+            CONFIG_COMMAND_NAME: "Configure a repository's data value (remote, name, email)",
+            DIFF_COMMAND_NAME: "Show differences between the current document and a past commit.",
+            HELP_COMMAND_NAME: "Print this help message.",
+            INIT_COMMAND_NAME: "Initialize a new SCCS repository.",
+            LOG_COMMAND_NAME: "Print a list of past commits for the current branch.",
+            MERGE_COMMAND_NAME: "Merge the entered branch into the current branch.",
+            OPEN_COMMAND_NAME: "Open a commit file and update the current document.",
+            PUBLISH_COMMAND_NAME: "Publish a local repository to a hosting service.",
+            PULL_COMMAND_NAME: "Pull changes from a remote repository and merge them "
             "into the local repository.",
-            "push": "Push changes from the local repository to a remote repository.",
-            "revert": "Revert the current document to the specified commit.",
-            "reset": "Delete all uncommitted changes.",
-            "switch": "Switch between document branches.",
-            "status": "Check the status of the current document for uncommitted changes.",
+            PUSH_COMMAND_NAME: "Push changes from the local repository to a remote repository.",
+            REVERT_COMMAND_NAME: "Revert the current document to the specified commit.",
+            RESET_COMMAND_NAME: "Delete all uncommitted changes.",
+            SWITCH_COMMAND_NAME: "Switch between document branches.",
+            STATUS_COMMAND_NAME: "Check the status of the current document for uncommitted changes.",
         }
     )
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
@@ -170,23 +187,23 @@ class SCCSConstants:
         ) + tuple(
             f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
             for i in (
-                "branch",
-                "clone",
-                "commit",
-                "config",
-                "diff",
-                "help",
-                "init",
-                "log",
-                "merge",
-                "open",
-                "publish",
-                "pull",
-                "push",
-                "reset",
-                "revert",
-                "status",
-                "switch"
+                self.BRANCH_COMMAND_NAME,
+                self.CLONE_COMMAND_NAME,
+                self.COMMIT_COMMAND_NAME,
+                self.CONFIG_COMMAND_NAME,
+                self.DIFF_COMMAND_NAME,
+                self.HELP_COMMAND_NAME,
+                self.INIT_COMMAND_NAME,
+                self.LOG_COMMAND_NAME,
+                self.MERGE_COMMAND_NAME,
+                self.OPEN_COMMAND_NAME,
+                self.PUBLISH_COMMAND_NAME,
+                self.PULL_COMMAND_NAME,
+                self.PUSH_COMMAND_NAME,
+                self.RESET_COMMAND_NAME,
+                self.REVERT_COMMAND_NAME,
+                self.STATUS_COMMAND_NAME,
+                self.SWITCH_COMMAND_NAME
             )
         )
 
