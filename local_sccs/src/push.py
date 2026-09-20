@@ -7,11 +7,11 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import local_sccs.exceptions as exceptions
+import local_sccs.src.exceptions as exceptions
 import requests
-import local_sccs.utils as utils
-from local_sccs.constants_classes import SCCSConstants
-from local_sccs.repository_layout import (
+import local_sccs.src.utils as utils
+from local_sccs.src.constants_classes import SCCSConstants
+from local_sccs.src.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
