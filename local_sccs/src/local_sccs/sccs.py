@@ -61,9 +61,11 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
         description=c.ARG_PARSER_DESCRIPTION,
     )
 
-    subparsers = parser.add_subparsers(dest=c.COMMAND_FIELD_NAME, required=True)
+    parser.add_argument("--debug", "-d", action="store_true", help="Does not except Exception or SCCSException")
 
-    branch_parser = subparsers.add_parser(c.BRANCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.BRANCH_COMMAND_NAME])
+    command_parser = parser.add_subparsers(dest=c.COMMAND_FIELD_NAME, required=True)
+
+    branch_parser = command_parser.add_parser(c.BRANCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.BRANCH_COMMAND_NAME])
 
     branch_subcommand_parser = branch_parser.add_subparsers(dest=c.SUBCOMMAND_FIELD_NAME, required=True)
 
@@ -77,15 +79,15 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
 
     branch_subcommand_parser.add_parser(c.LIST_SUBCOMMAND, help=c.BRANCH_LIST_SUBCOMMAND_HELP)
 
-    clone_parser = subparsers.add_parser(c.CLONE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CLONE_COMMAND_NAME])
+    clone_parser = command_parser.add_parser(c.CLONE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CLONE_COMMAND_NAME])
 
     clone_parser.add_argument(c.URL_ARGUMENT_NAME, help=c.URL_ARGUMENT_HELP)
 
-    commit_parser = subparsers.add_parser(c.COMMIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.COMMIT_COMMAND_NAME])
+    commit_parser = command_parser.add_parser(c.COMMIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.COMMIT_COMMAND_NAME])
 
     commit_parser.add_argument(c.COMMIT_MESSAGE_ARGUMENT_NAME, help=c.COMMIT_MESSAGE_ARGUMENT_HELP)
 
-    config_parser = subparsers.add_parser(c.CONFIG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CONFIG_COMMAND_NAME])
+    config_parser = command_parser.add_parser(c.CONFIG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CONFIG_COMMAND_NAME])
 
     config_parser.add_argument(
         c.CONFIG_KEY_ARGUMENT_NAME,
@@ -94,41 +96,41 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
 
     config_parser.add_argument(c.CONFIG_VALUE_ARGUMENT_NAME, help=c.CONFIG_VALUE_ARGUMENT_HELP)
 
-    diff_parser = subparsers.add_parser(c.DIFF_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.DIFF_COMMAND_NAME])
+    diff_parser = command_parser.add_parser(c.DIFF_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.DIFF_COMMAND_NAME])
 
     diff_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP)
 
-    subparsers.add_parser(c.HELP_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.HELP_COMMAND_NAME])
+    command_parser.add_parser(c.HELP_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.HELP_COMMAND_NAME])
 
-    init_parser = subparsers.add_parser(c.INIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.INIT_COMMAND_NAME])
+    init_parser = command_parser.add_parser(c.INIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.INIT_COMMAND_NAME])
 
     init_parser.add_argument(c.DOCUMENT_PATH_ARGUMENT_NAME, help=c.DOCUMENT_PATH_ARGUMENT_HELP)
 
-    subparsers.add_parser(c.LOG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.LOG_COMMAND_NAME])
+    command_parser.add_parser(c.LOG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.LOG_COMMAND_NAME])
 
-    merge_parser = subparsers.add_parser(c.MERGE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.MERGE_COMMAND_NAME])
+    merge_parser = command_parser.add_parser(c.MERGE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.MERGE_COMMAND_NAME])
 
     merge_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_MERGE_ARGUMENT_HELP)
 
-    open_parser = subparsers.add_parser(c.OPEN_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.OPEN_COMMAND_NAME])
+    open_parser = command_parser.add_parser(c.OPEN_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.OPEN_COMMAND_NAME])
 
     open_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP)
 
-    subparsers.add_parser(c.PUBLISH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUBLISH_COMMAND_NAME])
+    command_parser.add_parser(c.PUBLISH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUBLISH_COMMAND_NAME])
 
-    subparsers.add_parser(c.PULL_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PULL_COMMAND_NAME])
+    command_parser.add_parser(c.PULL_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PULL_COMMAND_NAME])
 
-    subparsers.add_parser(c.PUSH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUSH_COMMAND_NAME])
+    command_parser.add_parser(c.PUSH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUSH_COMMAND_NAME])
 
-    subparsers.add_parser(c.RESET_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.RESET_COMMAND_NAME])
+    command_parser.add_parser(c.RESET_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.RESET_COMMAND_NAME])
 
-    revert_parser = subparsers.add_parser(c.REVERT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.REVERT_COMMAND_NAME])
+    revert_parser = command_parser.add_parser(c.REVERT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.REVERT_COMMAND_NAME])
 
     revert_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP)
 
-    subparsers.add_parser(c.STATUS_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.STATUS_COMMAND_NAME])
+    command_parser.add_parser(c.STATUS_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.STATUS_COMMAND_NAME])
 
-    switch_parser = subparsers.add_parser(c.SWITCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.SWITCH_COMMAND_NAME])
+    switch_parser = command_parser.add_parser(c.SWITCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.SWITCH_COMMAND_NAME])
 
     switch_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_SWITCH_ARGUMENT_HELP)
 
@@ -162,8 +164,6 @@ def run_command(arguments: argparse.Namespace) -> None:
     cwd_rw = RepositoryWrite(Path.cwd(), wd_repository_name, c, target)
     wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
     root_rw = RepositoryWrite(repository_root, root_repository_name, c, target)
-
-    print(repository_root)
 
     COMMAND_ARGUMENTS = {
         c.BRANCH_COMMAND_NAME: lambda: [
@@ -284,19 +284,23 @@ def run_command(arguments: argparse.Namespace) -> None:
         ],
     }    
 
-    try:
-        COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
-    except exceptions.SCCSException as e:
-            print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-            sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
-    
-    except Exception as e:
-        print(
-            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-                type_name=type(e).__name__, e=e
+    if not arguments.debug:
+        try:
+            COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
+        except exceptions.SCCSException as e:
+                print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+                sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
+        
+        except Exception as e:
+            print(
+                error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+                    type_name=type(e).__name__, e=e
+                )
             )
-        )
-        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
+            sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
+
+    else:
+        COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
 
 
 def main() -> None:
