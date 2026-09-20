@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "remote_sccs"
+version = "0.1.0.dev1"
+description = "Remote API for Self-Hosting of SCCS"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+   "fastapi[standard]"
+]
+
+[project.scripts]
+remote_sccs = "remote_sccs.sccs:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
