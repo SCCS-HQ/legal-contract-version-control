@@ -9,7 +9,6 @@ description = "Simple Contracts Communication System"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "python-docx",
     "mammoth",
     "requests",
     "beautifulsoup4",
