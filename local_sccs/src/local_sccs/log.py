@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 from typing import Any
 
-import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
-    TargetBranch,
 )
 
 

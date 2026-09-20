@@ -11,7 +11,6 @@ from local_sccs.repository_layout import (
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 

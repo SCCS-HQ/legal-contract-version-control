@@ -3,7 +3,6 @@
 import io
 import shutil
 import zipfile
-from pathlib import Path
 
 import local_sccs.exceptions as exceptions
 import requests
@@ -13,7 +12,6 @@ from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 

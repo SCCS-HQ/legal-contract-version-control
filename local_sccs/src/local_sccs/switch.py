@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-
 import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
@@ -10,7 +8,6 @@ from local_sccs.repository_layout import (
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 

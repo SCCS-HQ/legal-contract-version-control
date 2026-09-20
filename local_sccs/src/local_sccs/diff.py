@@ -13,7 +13,6 @@ from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
-    TargetBranch,
 )
 
 

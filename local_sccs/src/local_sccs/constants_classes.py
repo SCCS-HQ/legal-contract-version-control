@@ -4,8 +4,6 @@ import datetime
 import uuid
 from types import MappingProxyType
 
-import local_sccs.exceptions as exceptions
-
 
 class ErrorWrappers:
     """

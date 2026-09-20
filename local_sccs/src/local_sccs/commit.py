@@ -9,7 +9,6 @@ from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 

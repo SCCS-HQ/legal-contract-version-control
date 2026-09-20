@@ -16,7 +16,6 @@ from local_sccs.repository_layout import (
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -45,7 +44,7 @@ def clear_updated_branches(ri: RepositoryIO) -> None:
 
 
 def compare_commit_identifier_lists(
-    remote_objects: list[str], rd: RepositoryData
+    c: SCCSConstants, remote_objects: list[str], rd: RepositoryData
 ) -> list[str]:
     """
     Compare the remote commit identifiers to the local commit identifiers and return the
@@ -135,7 +134,7 @@ def zip_files_to_upload(
             i.resolve()
             for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
             if i.is_file()
-            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
+            and i.stem in set(compare_commit_identifier_lists(c, remote_objects, rd))
         ]
         + [rp.document_path()]
         + [rp.metadata_path()]
