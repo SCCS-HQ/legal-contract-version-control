@@ -64,21 +64,24 @@ def run_command(command: str) -> None:
     error_wrappers = ErrorWrappers()
     wd = utils.working_directory(c)
     target = TargetBranch(c)
-    repository_name = wd.name
+    wd_repository_name = wd.name
     document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
-    wd_rd = RepositoryData(wd, repository_name, c, target)
-    rwd_ri = RepositoryIO(Path.cwd(), repository_name, c, target)
-    root_ri = RepositoryIO(repository_root, repository_name, c, target)
-    cwd_rp = RepositoryPaths(Path.cwd(), repository_name, c, target)
-    wd_rp = RepositoryPaths(wd, repository_name, c, target)
-    root_rp = RepositoryPaths(repository_root, repository_name, c, target)
-    cwd_rs = RepositoryStatus(Path.cwd(), repository_name, c, target)
-    wd_rs = RepositoryStatus(wd, repository_name, c, target)
-    root_rs = RepositoryStatus(repository_root, repository_name, c, target)
-    cwd_rw = RepositoryWrite(Path.cwd(), repository_name, c, target)
-    wd_rw = RepositoryWrite(wd, repository_name, c, target)
-    root_rw = RepositoryWrite(repository_root, repository_name, c, target)
+    root_repository_name = repository_root.name
+    wd_rd = RepositoryData(wd, wd_repository_name, c, target)
+    rwd_ri = RepositoryIO(Path.cwd(), wd_repository_name, c, target)
+    root_ri = RepositoryIO(repository_root, root_repository_name, c, target)
+    cwd_rp = RepositoryPaths(Path.cwd(), wd_repository_name, c, target)
+    wd_rp = RepositoryPaths(wd, wd_repository_name, c, target)
+    root_rp = RepositoryPaths(repository_root, root_repository_name, c, target)
+    cwd_rs = RepositoryStatus(Path.cwd(), wd_repository_name, c, target)
+    wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
+    root_rs = RepositoryStatus(repository_root, root_repository_name, c, target)
+    cwd_rw = RepositoryWrite(Path.cwd(), wd_repository_name, c, target)
+    wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
+    root_rw = RepositoryWrite(repository_root, root_repository_name, c, target)
+
+    print(repository_root)
 
     COMMAND_ARGUMENTS = {
         c.BRANCH_COMMAND_NAME: lambda: [
