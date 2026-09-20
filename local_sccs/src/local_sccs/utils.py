@@ -168,29 +168,6 @@ def raise_if_empty(
         raise exceptions.SCCSException(message.capitalize() if capitalize else message)
 
 
-def run_command(main: Callable[..., None], *args: Any) -> None:
-    """
-    Run the entered command function with the constants and provided arguments, printing
-    the wrapped error and exiting when the command raises an exception.
-    """
-
-    c = SCCSConstants()
-    error_wrappers = ErrorWrappers()
-    try:
-        main(c, *args)
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
-
-    except Exception as e:
-        print(
-            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-                type_name=type(e).__name__, e=e
-            )
-        )
-        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
-
-
 def safe_extract_zip(
     c: SCCSConstants,
     zip_archive: zipfile.ZipFile,

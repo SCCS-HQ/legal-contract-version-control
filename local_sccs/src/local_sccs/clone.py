@@ -152,8 +152,3 @@ def main(c: SCCSConstants, url: str) -> None:
         raise
 
     print_clone_success_message(c, response)
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))

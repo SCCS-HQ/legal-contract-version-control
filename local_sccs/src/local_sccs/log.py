@@ -51,15 +51,3 @@ def main(
     print_log(c, ri.read_log())
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

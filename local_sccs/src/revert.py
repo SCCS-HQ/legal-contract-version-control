@@ -99,17 +99,3 @@ def main(
     )
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
-    )

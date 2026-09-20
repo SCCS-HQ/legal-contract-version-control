@@ -19,9 +19,3 @@ def main(c: SCCSConstants) -> None:
     """
 
     print_help(c)
-
-
-if __name__ == "__main__":
-    utils.run_command(
-        main,
-    )
