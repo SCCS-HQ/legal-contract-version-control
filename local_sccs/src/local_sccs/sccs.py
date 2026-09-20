@@ -81,7 +81,7 @@ def run_command(command: str) -> None:
     root_rw = RepositoryWrite(repository_root, repository_name, c, target)
 
     COMMAND_ARGUMENTS = {
-        c.BRANCH_COMMAND_NAME: [
+        c.BRANCH_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX, raise_on_not_provided=False),
@@ -90,18 +90,18 @@ def run_command(command: str) -> None:
             wd_rs,
             wd_rw,
         ],
-        c.CLONE_COMMAND_NAME: [
+        c.CLONE_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
         ],
-        c.COMMIT_COMMAND_NAME: [
+        c.COMMIT_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
             cwd_rs,
             cwd_rw,
         ],
-        c.CONFIG_COMMAND_NAME: [
+        c.CONFIG_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX),
@@ -111,17 +111,17 @@ def run_command(command: str) -> None:
             cwd_rs,
             cwd_rw,
         ],
-        c.DIFF_COMMAND_NAME: [
+        c.DIFF_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
             rwd_ri,
             cwd_rs,
         ],
-        c.HELP_COMMAND_NAME: [
+        c.HELP_COMMAND_NAME: lambda: [
             c,
         ],
-        c.INIT_COMMAND_NAME: [
+        c.INIT_COMMAND_NAME: lambda: [
             c,
             document_path,
             root_ri,
@@ -129,13 +129,13 @@ def run_command(command: str) -> None:
             root_rs,
             root_rw,
         ],
-        c.LOG_COMMAND_NAME: [
+        c.LOG_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             rwd_ri,
             cwd_rs,
         ],
-        c.MERGE_COMMAND_NAME: [
+        c.MERGE_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
@@ -144,39 +144,39 @@ def run_command(command: str) -> None:
             cwd_rs,
             cwd_rw,
         ],
-        c.OPEN_COMMAND_NAME: [
+        c.OPEN_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
             cwd_rs,
         ],
-        c.PUBLISH_COMMAND_NAME: [
+        c.PUBLISH_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             cwd_rp,
             cwd_rs,
             cwd_rw,
         ],
-        c.PULL_COMMAND_NAME: [
+        c.PULL_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             cwd_rp,
             cwd_rs,
         ],
-        c.PUSH_COMMAND_NAME: [
+        c.PUSH_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             rwd_ri,
             cwd_rp,
             cwd_rs,
         ],
-        c.RESET_COMMAND_NAME: [
+        c.RESET_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             cwd_rp,
             cwd_rs,
         ],
-        c.REVERT_COMMAND_NAME: [
+        c.REVERT_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
@@ -184,12 +184,12 @@ def run_command(command: str) -> None:
             cwd_rs,
             cwd_rw,
         ],
-        c.STATUS_COMMAND_NAME: [
+        c.STATUS_COMMAND_NAME: lambda: [
             c,
             wd_rd,
             cwd_rs,
         ],
-        c.SWITCH_COMMAND_NAME: [
+        c.SWITCH_COMMAND_NAME: lambda: [
             c,
             utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
             wd_rd,
@@ -200,7 +200,7 @@ def run_command(command: str) -> None:
     }    
 
     try:
-        COMMANDS[command](*COMMAND_ARGUMENTS[command])
+        COMMANDS[command](*COMMAND_ARGUMENTS[command]())
     except exceptions.SCCSException as e:
             print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
             sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
