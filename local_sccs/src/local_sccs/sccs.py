@@ -3,7 +3,26 @@ import sys
 from local_sccs import (
     switch
 )
-from local_sccs import branch, clone, commit, config, constants_classes, diff, help, init, log, merge, open, publish, pull, push, reset, revert, status
+from local_sccs import (
+    branch, 
+    clone,
+    commit,
+    config,
+    constants_classes,
+    diff,
+    help,
+    init,
+    log,
+    merge,
+    open,
+    publish,
+    pull,
+    push,
+    reset,
+    revert,
+    status,
+    exceptions
+)
 
 COMMANDS =  {
     "branch": branch.main,
@@ -27,6 +46,7 @@ COMMANDS =  {
 
 def main() -> None:
     c = constants_classes.SCCSConstants()
+    error_wrappers = constants_classes.ErrorWrappers()
     if len(sys.argv) < 2:
         help.main(c)
         return
@@ -37,7 +57,19 @@ def main() -> None:
         help.main(c)
         return
 
-    COMMANDS[command]()
+    try:
+        COMMANDS[command]()
+    except exceptions.SCCSException as e:
+        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
+
+    except Exception as e:
+        print(
+            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+                type_name=type(e).__name__, e=e
+            )
+        )
+        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
 if __name__ == "__main__":
     main()
