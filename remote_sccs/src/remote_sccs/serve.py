@@ -1,6 +1,8 @@
 from remote_sccs.main import app
+from remote_sccs.constants_classes import RemoteSCCSConstants
+
 
 import uvicorn
 
-def main() -> None:
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+def main(rc: RemoteSCCSConstants) -> None:
+    uvicorn.run(app, host=rc.LOCALHOST_IP, port=8000)

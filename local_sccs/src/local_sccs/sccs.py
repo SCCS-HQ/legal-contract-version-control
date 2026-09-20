@@ -34,31 +34,32 @@ from local_sccs.repository_layout import (
     RepositoryWrite,
 )
 
+c = SCCSConstants()
 COMMANDS =  {
-    SCCSConstants.BRANCH_COMMAND_NAME: branch.main,
-    SCCSConstants.CLONE_COMMAND_NAME: clone.main,
-    SCCSConstants.COMMIT_COMMAND_NAME: commit.main,
-    SCCSConstants.CONFIG_COMMAND_NAME: config.main,
-    SCCSConstants.DIFF_COMMAND_NAME: diff.main,
-    SCCSConstants.HELP_COMMAND_NAME: help.main,
-    SCCSConstants.INIT_COMMAND_NAME: init.main,
-    SCCSConstants.LOG_COMMAND_NAME: log.main,
-    SCCSConstants.MERGE_COMMAND_NAME: merge.main,
-    SCCSConstants.OPEN_COMMAND_NAME: open.main,
-    SCCSConstants.PUBLISH_COMMAND_NAME: publish.main,
-    SCCSConstants.PULL_COMMAND_NAME: pull.main,
-    SCCSConstants.PUSH_COMMAND_NAME: push.main,
-    SCCSConstants.RESET_COMMAND_NAME: reset.main,
-    SCCSConstants.REVERT_COMMAND_NAME: revert.main,
-    SCCSConstants.STATUS_COMMAND_NAME: status.main,
-    SCCSConstants.SWITCH_COMMAND_NAME: switch.main
+    c.BRANCH_COMMAND_NAME: branch.main,
+    c.CLONE_COMMAND_NAME: clone.main,
+    c.COMMIT_COMMAND_NAME: commit.main,
+    c.CONFIG_COMMAND_NAME: config.main,
+    c.DIFF_COMMAND_NAME: diff.main,
+    c.HELP_COMMAND_NAME: help.main,
+    c.INIT_COMMAND_NAME: init.main,
+    c.LOG_COMMAND_NAME: log.main,
+    c.MERGE_COMMAND_NAME: merge.main,
+    c.OPEN_COMMAND_NAME: open.main,
+    c.PUBLISH_COMMAND_NAME: publish.main,
+    c.PULL_COMMAND_NAME: pull.main,
+    c.PUSH_COMMAND_NAME: push.main,
+    c.RESET_COMMAND_NAME: reset.main,
+    c.REVERT_COMMAND_NAME: revert.main,
+    c.STATUS_COMMAND_NAME: status.main,
+    c.SWITCH_COMMAND_NAME: switch.main
 }
 
 
 def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog=c.ARG_PARSER_PROG,
-        description=c.ARG_PARSER_DESCRIPTION,
+        prog=c.LOCAL_SCCS,
+        description=c.LOCAL_SCCS_DESCRIPTION,
     )
 
     parser.add_argument("--debug", "-d", action="store_true", help="Does not except Exception or SCCSException")
@@ -303,8 +304,7 @@ def run_command(arguments: argparse.Namespace) -> None:
         COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
 
 
-def main() -> None:
-    c = SCCSConstants()
+def main(c: SCCSConstants) -> None:
     if len(sys.argv) < 2:
         help.main(c)
         return
@@ -314,4 +314,5 @@ def main() -> None:
     run_command(arguments)
 
 if __name__ == "__main__":
-    main()
+    c = SCCSConstants()
+    main(c)
