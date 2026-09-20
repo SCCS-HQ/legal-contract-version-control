@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import argparse
 
 from local_sccs import (
     branch,
@@ -53,10 +54,91 @@ COMMANDS =  {
     SCCSConstants.SWITCH_COMMAND_NAME: switch.main
 }
 
-def run_command(command: str) -> None:
-    if command not in COMMANDS:
+
+def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog=c.ARG_PARSER_PROG,
+        description=c.ARG_PARSER_DESCRIPTION,
+    )
+
+    subparsers = parser.add_subparsers(dest=c.COMMAND_FIELD_NAME, required=True)
+
+    branch_parser = subparsers.add_parser(c.BRANCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.BRANCH_COMMAND_NAME])
+
+    branch_subcommand_parser = branch_parser.add_subparsers(dest=c.SUBCOMMAND_FIELD_NAME, required=True)
+
+    branch_create_parser = branch_subcommand_parser.add_parser(c.CREATE_SUBCOMMAND, help=c.BRANCH_CREATE_SUBCOMMAND_HELP)
+
+    branch_create_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_CREATE_ARGUMENT_HELP)
+
+    branch_delete_parser = branch_subcommand_parser.add_parser(c.DELETE_SUBCOMMAND, help=c.BRANCH_DELETE_SUBCOMMAND_HELP)
+
+    branch_delete_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_DELETE_ARGUMENT_HELP)
+
+    branch_subcommand_parser.add_parser(c.LIST_SUBCOMMAND, help=c.BRANCH_LIST_SUBCOMMAND_HELP)
+
+    clone_parser = subparsers.add_parser(c.CLONE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CLONE_COMMAND_NAME])
+
+    clone_parser.add_argument(c.URL_ARGUMENT_NAME, help=c.URL_ARGUMENT_HELP)
+
+    commit_parser = subparsers.add_parser(c.COMMIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.COMMIT_COMMAND_NAME])
+
+    commit_parser.add_argument(c.COMMIT_MESSAGE_ARGUMENT_NAME, help=c.COMMIT_MESSAGE_ARGUMENT_HELP)
+
+    config_parser = subparsers.add_parser(c.CONFIG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CONFIG_COMMAND_NAME])
+
+    config_parser.add_argument(
+        c.CONFIG_KEY_ARGUMENT_NAME,
+        help=c.CONFIG_KEY_ARGUMENT_HELP_TEMPLATE.format(keys=", ".join(c.ACCEPTED_CONFIG_KEYS)),
+    )
+
+    config_parser.add_argument(c.CONFIG_VALUE_ARGUMENT_NAME, help=c.CONFIG_VALUE_ARGUMENT_HELP)
+
+    diff_parser = subparsers.add_parser(c.DIFF_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.DIFF_COMMAND_NAME])
+
+    diff_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP)
+
+    subparsers.add_parser(c.HELP_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.HELP_COMMAND_NAME])
+
+    init_parser = subparsers.add_parser(c.INIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.INIT_COMMAND_NAME])
+
+    init_parser.add_argument(c.DOCUMENT_PATH_ARGUMENT_NAME, help=c.DOCUMENT_PATH_ARGUMENT_HELP)
+
+    subparsers.add_parser(c.LOG_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.LOG_COMMAND_NAME])
+
+    merge_parser = subparsers.add_parser(c.MERGE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.MERGE_COMMAND_NAME])
+
+    merge_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_MERGE_ARGUMENT_HELP)
+
+    open_parser = subparsers.add_parser(c.OPEN_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.OPEN_COMMAND_NAME])
+
+    open_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP)
+
+    subparsers.add_parser(c.PUBLISH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUBLISH_COMMAND_NAME])
+
+    subparsers.add_parser(c.PULL_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PULL_COMMAND_NAME])
+
+    subparsers.add_parser(c.PUSH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.PUSH_COMMAND_NAME])
+
+    subparsers.add_parser(c.RESET_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.RESET_COMMAND_NAME])
+
+    revert_parser = subparsers.add_parser(c.REVERT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.REVERT_COMMAND_NAME])
+
+    revert_parser.add_argument(c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP)
+
+    subparsers.add_parser(c.STATUS_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.STATUS_COMMAND_NAME])
+
+    switch_parser = subparsers.add_parser(c.SWITCH_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.SWITCH_COMMAND_NAME])
+
+    switch_parser.add_argument(c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_SWITCH_ARGUMENT_HELP)
+
+    return parser
+
+
+def run_command(arguments: argparse.Namespace) -> None:
+    if arguments.command not in COMMANDS:
         c = SCCSConstants()
-        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
+        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command))
         help.main(c)
         return
 
@@ -65,7 +147,7 @@ def run_command(command: str) -> None:
     wd = utils.working_directory(c)
     target = TargetBranch(c)
     wd_repository_name = wd.name
-    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
+    document_path = Path(arguments.document_path)
     repository_root = document_path.with_suffix(c.EMPTY_STRING)
     root_repository_name = repository_root.name
     wd_rd = RepositoryData(wd, wd_repository_name, c, target)
@@ -86,8 +168,8 @@ def run_command(command: str) -> None:
     COMMAND_ARGUMENTS = {
         c.BRANCH_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-            utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX, raise_on_not_provided=False),
+            arguments.subcommand,
+            arguments.branch_name,
             wd_rd,
             wd_rp,
             wd_rs,
@@ -95,19 +177,19 @@ def run_command(command: str) -> None:
         ],
         c.CLONE_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.url
         ],
         c.COMMIT_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.commit_message,
             wd_rd,
             cwd_rs,
             cwd_rw,
         ],
         c.CONFIG_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-            utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX),
+            arguments.key,
+            arguments.value,
             wd_rd,
             rwd_ri,
             cwd_rp,
@@ -116,7 +198,7 @@ def run_command(command: str) -> None:
         ],
         c.DIFF_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.commit_identifier,
             wd_rd,
             rwd_ri,
             cwd_rs,
@@ -140,7 +222,7 @@ def run_command(command: str) -> None:
         ],
         c.MERGE_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.branch_name,
             wd_rd,
             rwd_ri,
             cwd_rp,
@@ -149,7 +231,7 @@ def run_command(command: str) -> None:
         ],
         c.OPEN_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.commit_identifier,
             wd_rd,
             cwd_rs,
         ],
@@ -181,7 +263,7 @@ def run_command(command: str) -> None:
         ],
         c.REVERT_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.commit_identifier,
             wd_rd,
             cwd_rp,
             cwd_rs,
@@ -194,7 +276,7 @@ def run_command(command: str) -> None:
         ],
         c.SWITCH_COMMAND_NAME: lambda: [
             c,
-            utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
+            arguments.branch_name,
             wd_rd,
             cwd_rp,
             cwd_rs,
@@ -203,7 +285,7 @@ def run_command(command: str) -> None:
     }    
 
     try:
-        COMMANDS[command](*COMMAND_ARGUMENTS[command]())
+        COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
     except exceptions.SCCSException as e:
             print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
             sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
@@ -216,13 +298,16 @@ def run_command(command: str) -> None:
         )
         sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
+
 def main() -> None:
     c = SCCSConstants()
     if len(sys.argv) < 2:
         help.main(c)
         return
 
-    run_command(sys.argv[1])
+    arguments = create_argument_parser(c).parse_args()
+
+    run_command(arguments)
 
 if __name__ == "__main__":
     main()

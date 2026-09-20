@@ -38,6 +38,35 @@ class SCCSConstants:
     REVERT_COMMAND_NAME = "revert"
     STATUS_COMMAND_NAME = "status"
     SWITCH_COMMAND_NAME = "switch"
+    ARG_PARSER_PROG = "local_sccs"
+    ARG_PARSER_DESCRIPTION = "Simple Contracts Communication System"
+    BRANCH_CREATE_ARGUMENT_HELP = "The branch to create."
+    BRANCH_CREATE_SUBCOMMAND_HELP = "Create a new branch."
+    BRANCH_DELETE_ARGUMENT_HELP = "The branch to delete."
+    BRANCH_DELETE_SUBCOMMAND_HELP = "Delete an existing branch."
+    BRANCH_LIST_SUBCOMMAND_HELP = "List all branches."
+    BRANCH_MERGE_ARGUMENT_HELP = "The branch to merge into the current branch."
+    BRANCH_NAME_ARGUMENT_NAME = "branch_name"
+    BRANCH_SWITCH_ARGUMENT_HELP = "The branch to switch to."
+    COMMIT_IDENTIFIER_ARGUMENT_NAME = "commit_identifier"
+    COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP = "The commit identifier to diff against."
+    COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP = "The commit identifier to open."
+    COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP = (
+        "The commit identifier to revert the document to."
+    )
+    COMMIT_MESSAGE_ARGUMENT_HELP = "The message describing the commit."
+    COMMIT_MESSAGE_ARGUMENT_NAME = "commit_message"
+    COMMAND_FIELD_NAME = "command"
+    CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = (
+        "The configuration key to set. One of: {keys}."
+    )
+    CONFIG_KEY_ARGUMENT_NAME = "key"
+    CONFIG_VALUE_ARGUMENT_HELP = "The value to set the configuration key to."
+    CONFIG_VALUE_ARGUMENT_NAME = "value"
+    DOCUMENT_PATH_ARGUMENT_HELP = "The path to the document to initialize with SCCS."
+    DOCUMENT_PATH_ARGUMENT_NAME = "document_path"
+    URL_ARGUMENT_HELP = "The URL of the hosted repository to clone."
+    URL_ARGUMENT_NAME = "url"
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     ACCEPTED_SCHEMES = ("http", "https")
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -81,7 +110,7 @@ class SCCSConstants:
             COMMIT_COMMAND_NAME: "Commit changes to the repository.",
             CONFIG_COMMAND_NAME: "Configure a repository's data value (remote, name, email)",
             DIFF_COMMAND_NAME: "Show differences between the current document and a past commit.",
-            HELP_COMMAND_NAME: "Print this help message.",
+            HELP_COMMAND_NAME: "Prints a help message listing the available commands and their descriptions.",
             INIT_COMMAND_NAME: "Initialize a new SCCS repository.",
             LOG_COMMAND_NAME: "Print a list of past commits for the current branch.",
             MERGE_COMMAND_NAME: "Merge the entered branch into the current branch.",
