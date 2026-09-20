@@ -1,64 +1,59 @@
-#!/usr/bin/env python3 
-
-import subprocess
 import sys
-from pathlib import Path
 
-import local_sccs.src.exceptions as exceptions
-import local_sccs.src.utils as utils
-from local_sccs.src.constants_classes import SCCSConstants
+from local_sccs.src import (
+    branch,
+    clone,
+    commit,
+    config,
+    constants_classes,
+    diff,
+    help,
+    init,
+    log,
+    merge,
+    open,
+    publish,
+    pull,
+    push,
+    reset,
+    revert,
+    status,
+    switch
+)
 
+COMMANDS =  {
+    "branch": branch.main,
+    "clone": clone.main,
+    "commit": commit.main,
+    "config": config.main,
+    "diff": diff.main,
+    "help": help.main,
+    "init": init.main,
+    "log": log.main,
+    "merge": merge.main,
+    "open": open.main,
+    "publish": publish.main,
+    "pull": pull.main,
+    "push": push.main,
+    "reset": reset.main,
+    "revert": revert.main,
+    "status": status.main,
+    "switch": switch.main
+}
 
-def get_script_directory() -> Path:
-    """Return the absolute path of the parent directory of this file."""
-    return Path(__file__).parent.resolve()
+def main() -> None:
+    c = constants_classes.SCCSConstants()
+    if len(sys.argv) < 2:
+        help.main(c)
+        return
 
+    command = sys.argv[1]
+    if command not in COMMANDS:
+        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
+        help.main(c)
+        return
 
-def run_command(c: SCCSConstants, entered_command: str) -> None:
-    """
-    Run the entered command by running a subprocess of the command and exiting with the
-    exit code of the subprocess.
-    """
-    sys.exit(
-        subprocess.run(
-            [
-                sys.executable,
-                Path(
-                    get_script_directory() / entered_command
-                ).with_suffix(c.PYTHON_EXTENSION),
-            ]
-            + sys.argv[c.COMMAND_ARGUMENT_INDEX:]
-        ).returncode
-    )
-
-
-def validate_command(c: SCCSConstants, entered_command: str) -> None:
-    """
-    Validate the entered command by checking that it is included in the accepted
-    commands. Raise an SCCSException if the command is unknown.
-    """
-
-    if entered_command not in c.COMMANDS_LIST:
-        raise exceptions.SCCSException(
-            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(
-                entered_command=entered_command
-            )
-        )
-
-
-def main(c: SCCSConstants, entered_command: str) -> None:
-    """
-    Run the entered command by validating it and running it as a subprocess, and exit
-    with the exit code of the subprocess.
-    """
-    validate_command(c, entered_command)
-    run_command(c, entered_command)
-
+    COMMANDS[command]()
 
 if __name__ == "__main__":
-    c = SCCSConstants()
-    utils.working_directory(c)
-    utils.run_command(main, utils.entered_argument(c, c.COMMAND_ARGUMENT_INDEX))
-
-# If on MacOS / Linux, move all files in commands/, and make this file executable
-# with 'chmod +x /usr/local/bin/sccs'.
+    main()

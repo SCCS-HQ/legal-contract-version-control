@@ -59,7 +59,6 @@ class SCCSConstants:
     CLONE_DESTINATION_EXISTS_ERROR_MESSAGE = (
         "A directory with the repository name already exists in the current directory."
     )
-    COMMAND_ARGUMENT_INDEX = 1
     COMMAND_DESCRIPTIONS = MappingProxyType(
         {
             "branch": "Create a new branch, delete, or list branches.",
@@ -81,25 +80,6 @@ class SCCSConstants:
             "switch": "Switch between document branches.",
             "status": "Check the status of the current document for uncommitted changes.",
         }
-    )
-    COMMANDS_LIST = (
-        "branch",
-        "clone",
-        "commit",
-        "config",
-        "diff",
-        "help",
-        "init",
-        "log",
-        "merge",
-        "open",
-        "publish",
-        "pull",
-        "push",
-        "reset",
-        "revert",
-        "status",
-        "switch",
     )
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
@@ -191,7 +171,25 @@ class SCCSConstants:
             "Available commands:",
         ) + tuple(
             f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
-            for i in self.COMMANDS_LIST
+            for i in (
+                "branch",
+                "clone",
+                "commit",
+                "config",
+                "diff",
+                "help",
+                "init",
+                "log",
+                "merge",
+                "open",
+                "publish",
+                "pull",
+                "push",
+                "reset",
+                "revert",
+                "status",
+                "switch"
+            )
         )
 
     HTML_BOILERPLATE_TEMPLATE = (
@@ -339,7 +337,6 @@ class SCCSConstants:
     )
     PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
     PWD_ENVIRONMENT_VARIABLE = "PWD"
-    PYTHON_EXTENSION = ".py"
     REMOTE_KEY = "remote"
     REPLACE_OPCODE = "replace"
     REPOSITORY_NAME_FIELD_NAME = "repository name"
@@ -412,11 +409,7 @@ class SCCSConstants:
     )
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
     UNEXPECTED_ERROR_EXIT_CODE = 2
-    UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = (
-        f"Unknown command: {{entered_command}}. "
-        f"Please use {', '.join(COMMANDS_LIST)} "
-        f"along with required arguments."
-    )
+    UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
     # DEFAULT_BRANCH_DATA out of order to not error
     DEFAULT_BRANCH_DATA = MappingProxyType(
@@ -439,15 +432,3 @@ class SCCSConstants:
     ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
     ZIP_EXTENSION = ".zip"
     ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
-
-
-_missing_commands = [
-    i
-    for i in SCCSConstants.COMMANDS_LIST
-    if i not in SCCSConstants.COMMAND_DESCRIPTIONS
-]
-if _missing_commands:
-    raise exceptions.SCCSException(
-        f"COMMAND_DESCRIPTIONS is missing entries for: "
-        f"{', '.join(_missing_commands)}"
-    )
