@@ -31,7 +31,7 @@ class RemoteSCCSConstants:
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
     INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
-    LOCALHOST_IP = "127.0.0.1"
+    NETWORK_IP = "0.0.0.0"
     LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
         "Local repository has objects that the remote does not have. Run 'sccs push"
         "' to upload these objects before pulling."
