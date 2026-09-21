@@ -23,7 +23,7 @@ def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
 
 
 def run_command(arguments: argparse.Namespace) -> None:
-    rc = RemoteSCCSConstants
+    rc = RemoteSCCSConstants()
     error_wrappers = RemoteErrorWrappers()
     COMMAND_ARGUMENTS = {
         rc.SERVE_COMMAND_NAME: lambda: [rc]
