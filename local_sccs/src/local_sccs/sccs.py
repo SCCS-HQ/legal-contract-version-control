@@ -55,7 +55,6 @@ COMMANDS =  {
     c.SWITCH_COMMAND_NAME: switch.main
 }
 
-
 def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=c.LOCAL_SCCS,
@@ -304,15 +303,11 @@ def run_command(arguments: argparse.Namespace) -> None:
         COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
 
 
-def main(c: SCCSConstants) -> None:
+def main() -> None:
     if len(sys.argv) < 2:
         help.main(c)
         return
 
-    arguments = create_argument_parser(c).parse_args()
+    arguments = create_argument_parser(SCCSConstants()).parse_args()
 
     run_command(arguments)
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    main(c)

@@ -17,7 +17,7 @@ def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
         description=rc.REMOTE_SCCS_DESCRIPTION
     )
 
-    parser.add_argument(dest=rc.COMMAND_FIELD_NAME, required=True)
+    parser.add_argument(dest=rc.COMMAND_FIELD_NAME)
 
     return parser
 
@@ -36,14 +36,12 @@ def run_command(arguments: argparse.Namespace) -> None:
         )
         sys.exit(rc.UNEXPECTED_ERROR_EXIT_CODE)
 
-def main(rc: RemoteSCCSConstants) -> None:
+
+def main() -> None:
     if len(sys.argv) < 2:
         return
 
-    arguments = create_argument_parser(rc).parse_args()
+    arguments = create_argument_parser(RemoteSCCSConstants()).parse_args()
 
     run_command(arguments)
 
-if __name__ == "__main__":
-    rc = RemoteSCCSConstants()
-    main(rc)
