@@ -126,8 +126,17 @@ def safe_extract_zip(
             shutil.copyfileobj(source, f)
 
 
+def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
+
+    Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
+
+    print(Path(rc.REPOSITORIES_BASE_DIRECTORY).absolute())
+
+
 app = FastAPI()
 rc = RemoteSCCSConstants()
+
+create_repositories_directory(rc)
 
 @app.get(rc.ROOT_ENDPOINT)
 async def root() -> dict:
