@@ -1,4 +1,5 @@
 import uuid
+from types import MappingProxyType
 
 class RemoteErrorWrappers:
     """
@@ -9,6 +10,8 @@ class RemoteErrorWrappers:
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
 
 class RemoteSCCSConstants:
+    HELP_COMMAND_NAME = "help"
+
     UNEXPECTED_ERROR_EXIT_CODE = 2
     COMMAND_FIELD_NAME = "command"
     SERVE_COMMAND_NAME = "serve"
@@ -71,3 +74,27 @@ class RemoteSCCSConstants:
     UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded file is too large"
     UTF_8 = "utf-8"
     CONTENT_TYPE_ZIP = "application/zip"
+    COMMAND_DESCRIPTIONS = MappingProxyType(
+        {
+            SERVE_COMMAND_NAME: "Prints a help message listing the available commands and their descriptions.",
+            HELP_COMMAND_NAME: "Prints a help message listing the available commands and their descriptions."
+        }
+    )
+
+    @property
+    def HELP_MESSAGES(self) -> tuple[str, ...]:
+        """
+        Return the help messages listing the available SCCS commands and their
+        descriptions.
+        """
+
+        return (
+            "Remote SCCS Help",
+            "Available commands:",
+        ) + tuple(
+            f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
+            for i in (
+                self.HELP_COMMAND_NAME,
+                self.SERVE_COMMAND_NAME
+            )
+        )
