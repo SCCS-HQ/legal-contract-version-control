@@ -81,6 +81,8 @@ class RemoteSCCSConstants:
         }
     )
 
+    UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
+
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
