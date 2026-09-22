@@ -6,7 +6,7 @@ import sys
 
 import argparse
 
-rc = RemoteSCCSConstants
+rc = RemoteSCCSConstants()
 COMMANDS = {
     rc.SERVE_COMMAND_NAME: serve.main,
     rc.HELP_COMMAND_NAME: help.main
