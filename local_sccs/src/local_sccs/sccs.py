@@ -2,27 +2,25 @@ import sys
 from pathlib import Path
 import argparse
 
-from local_sccs import (
-    branch,
-    clone,
-    commit,
-    config,
-    diff,
-    help,
-    init,
-    log,
-    merge,
-    open,
-    publish,
-    pull,
-    push,
-    reset,
-    revert,
-    status,
-    switch,
-    utils,
-    exceptions,
-)
+import local_sccs.branch as branch
+import local_sccs.clone as clone
+import local_sccs.commit as commit
+import local_sccs.config as config
+import local_sccs.diff as diff
+import local_sccs.help as help
+import local_sccs.init as init
+import local_sccs.log as log
+import local_sccs.merge as merge
+import local_sccs.open as open
+import local_sccs.publish as publish
+import local_sccs.pull as pull
+import local_sccs.push as push
+import local_sccs.reset as reset
+import local_sccs.revert as revert
+import local_sccs.status as status
+import local_sccs.switch as switch
+import local_sccs.utils as utils
+import local_sccs.exceptions as exceptions
 
 from local_sccs.constants_classes import SCCSConstants, ErrorWrappers
 from local_sccs.repository_layout import (

@@ -1,6 +1,7 @@
 
 from remote_sccs.main import app
-from remote_sccs import serve, help
+import remote_sccs.serve as serve
+import remote_sccs.help as help
 from remote_sccs.constants_classes import RemoteSCCSConstants, RemoteErrorWrappers
 import sys
 
