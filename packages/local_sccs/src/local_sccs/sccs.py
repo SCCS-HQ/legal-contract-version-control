@@ -85,7 +85,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     branch_create_parser.add_argument(
-        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_CREATE_ARGUMENT_HELP
+        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_CREATE_ARGUMENT_HELP, required=True
     )
 
     branch_delete_parser = branch_subcommand_parser.add_parser(
@@ -93,7 +93,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     branch_delete_parser.add_argument(
-        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_DELETE_ARGUMENT_HELP
+        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_DELETE_ARGUMENT_HELP, required=True
     )
 
     branch_subcommand_parser.add_parser(
@@ -104,14 +104,18 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
         c.CLONE_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.CLONE_COMMAND_NAME]
     )
 
-    clone_parser.add_argument(c.URL_ARGUMENT_NAME, help=c.URL_ARGUMENT_HELP)
+    clone_parser.add_argument(
+        c.URL_ARGUMENT_NAME, help=c.URL_ARGUMENT_HELP, required=True
+    )
 
     commit_parser = command_parser.add_parser(
         c.COMMIT_COMMAND_NAME, help=c.COMMAND_DESCRIPTIONS[c.COMMIT_COMMAND_NAME]
     )
 
     commit_parser.add_argument(
-        c.COMMIT_MESSAGE_ARGUMENT_NAME, help=c.COMMIT_MESSAGE_ARGUMENT_HELP
+        c.COMMIT_MESSAGE_ARGUMENT_NAME,
+        help=c.COMMIT_MESSAGE_ARGUMENT_HELP,
+        required=True
     )
 
     config_parser = command_parser.add_parser(
@@ -123,10 +127,12 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
         help=c.CONFIG_KEY_ARGUMENT_HELP_TEMPLATE.format(
             keys=", ".join(c.ACCEPTED_CONFIG_KEYS)
         ),
+        required=True
     )
 
     config_parser.add_argument(
-        c.CONFIG_VALUE_ARGUMENT_NAME, help=c.CONFIG_VALUE_ARGUMENT_HELP
+        c.CONFIG_VALUE_ARGUMENT_NAME,
+        help=c.CONFIG_VALUE_ARGUMENT_HELP,required=True
     )
 
     diff_parser = command_parser.add_parser(
@@ -134,7 +140,8 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     diff_parser.add_argument(
-        c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP
+        c.COMMIT_IDENTIFIER_ARGUMENT_NAME,
+        help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP,required=True
     )
 
     command_parser.add_parser(
@@ -146,7 +153,9 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     init_parser.add_argument(
-        c.DOCUMENT_PATH_ARGUMENT_NAME, help=c.DOCUMENT_PATH_ARGUMENT_HELP
+        c.DOCUMENT_PATH_ARGUMENT_NAME,
+        help=c.DOCUMENT_PATH_ARGUMENT_HELP,
+        required=True
     )
 
     command_parser.add_parser(
@@ -158,7 +167,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     merge_parser.add_argument(
-        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_MERGE_ARGUMENT_HELP
+        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_MERGE_ARGUMENT_HELP, required=True
     )
 
     open_parser = command_parser.add_parser(
@@ -166,7 +175,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     open_parser.add_argument(
-        c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP
+        c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP, required=True
     )
 
     command_parser.add_parser(
@@ -192,6 +201,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     revert_parser.add_argument(
         c.COMMIT_IDENTIFIER_ARGUMENT_NAME,
         help=c.COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP,
+        required=True
     )
 
     command_parser.add_parser(
@@ -203,7 +213,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     switch_parser.add_argument(
-        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_SWITCH_ARGUMENT_HELP
+        c.BRANCH_NAME_ARGUMENT_NAME, help=c.BRANCH_SWITCH_ARGUMENT_HELP, required=True
     )
 
     return parser
