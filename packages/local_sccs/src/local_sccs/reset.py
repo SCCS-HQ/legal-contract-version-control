@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
-
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -50,15 +47,3 @@ def main(
     print_reset_success_message(c)
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

@@ -7,16 +7,15 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import exceptions
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
 import requests
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -26,6 +25,7 @@ def _snapshot_file(src: Path, dst: Path) -> None:
     Tries a hardlink first (O(1), same filesystem, no extra disk usage);
     falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
     """
+
     try:
         os.link(src, dst)
     except OSError:
@@ -45,7 +45,7 @@ def clear_updated_branches(ri: RepositoryIO) -> None:
 
 
 def compare_commit_identifier_lists(
-    remote_objects: list[str], rd: RepositoryData
+    c: SCCSConstants, remote_objects: list[str], rd: RepositoryData
 ) -> list[str]:
     """
     Compare the remote commit identifiers to the local commit identifiers and return the
@@ -135,7 +135,7 @@ def zip_files_to_upload(
             i.resolve()
             for i in (rp.objects_path()).rglob(c.RGLOB_ALL_FILES_PATTERN)
             if i.is_file()
-            and i.stem in set(compare_commit_identifier_lists(remote_objects, rd))
+            and i.stem in set(compare_commit_identifier_lists(c, remote_objects, rd))
         ]
         + [rp.document_path()]
         + [rp.metadata_path()]
@@ -204,16 +204,3 @@ def main(
     )
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

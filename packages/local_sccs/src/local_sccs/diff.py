@@ -3,17 +3,15 @@
 import copy
 import difflib
 import filecmp
-from pathlib import Path
 
-import exceptions
-import utils
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
 from bs4 import BeautifulSoup
-from constants_classes import SCCSConstants
-from repository_layout import (
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -316,6 +314,7 @@ def main(
     Write the diff output to the repository, print a success message, and reset the
     target branch when the operation completes.
     """
+
     rs.target.set(rd.current_branch())
     rs.validate_repository_layout()
     rs.raise_for_uncommitted_changes()
@@ -346,16 +345,3 @@ def main(
 
     print_diff_success_message(c)
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

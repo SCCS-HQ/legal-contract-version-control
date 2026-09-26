@@ -3,17 +3,15 @@
 import io
 import shutil
 import zipfile
-from pathlib import Path
 
-import exceptions
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
 import requests
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
@@ -94,15 +92,3 @@ def main(
     )
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

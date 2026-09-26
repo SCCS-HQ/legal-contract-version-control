@@ -5,16 +5,15 @@ import os
 import shutil
 from pathlib import Path
 
-import exceptions
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
 import mammoth
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 
@@ -290,19 +289,3 @@ def main(
         raise
 
     print_init_success_message(c)
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    document_path = Path(utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))
-    repository_root = document_path.with_suffix(c.EMPTY_STRING)
-    repository_name = repository_root.name
-    utils.run_command(
-        main,
-        document_path,
-        RepositoryIO(repository_root, repository_name, c, target),
-        RepositoryPaths(repository_root, repository_name, c, target),
-        RepositoryStatus(repository_root, repository_name, c, target),
-        RepositoryWrite(repository_root, repository_name, c, target),
-    )

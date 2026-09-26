@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import utils
-from constants_classes import SCCSConstants
+from local_sccs.constants_classes import SCCSConstants
 
 
 def print_help(c: SCCSConstants) -> None:
@@ -19,9 +18,3 @@ def main(c: SCCSConstants) -> None:
     """
 
     print_help(c)
-
-
-if __name__ == "__main__":
-    utils.run_command(
-        main,
-    )

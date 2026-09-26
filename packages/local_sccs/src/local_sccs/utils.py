@@ -8,16 +8,17 @@ import shutil
 import sys
 import tempfile
 import zipfile
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-import exceptions
-from constants_classes import ErrorWrappers, SCCSConstants
+import local_sccs.exceptions as exceptions
+from local_sccs.constants_classes import SCCSConstants
 
 
 def cleanup_staging(staging_root: Path | None) -> None:
     """Best-effort removal of a staging directory. Safe to call multiple times."""
+
     if staging_root is None:
         return
     shutil.rmtree(staging_root, ignore_errors=True)
@@ -69,6 +70,7 @@ def create_staging_directory(
     Placement as a sibling of `sibling_of` guarantees same-filesystem
     placement so a subsequent rename is atomic on POSIX/macOS.
     """
+
     if prefix is None:
         prefix = c.TEMPORARY_DIRECTORY_PREFIX
     return Path(tempfile.mkdtemp(prefix=prefix, dir=sibling_of.parent))
@@ -103,6 +105,7 @@ def working_directory(c: SCCSConstants) -> Path:
     variable, verify it is a real directory (the newly promoted inode), chdir into it
     so this process and its children have a valid working directory, and return it.
     """
+
     try:
         return Path.cwd()
     except OSError:
@@ -166,29 +169,6 @@ def raise_if_empty(
     if not value:
         message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
         raise exceptions.SCCSException(message.capitalize() if capitalize else message)
-
-
-def run_command(main: Callable[..., None], *args: Any) -> None:
-    """
-    Run the entered command function with the constants and provided arguments, printing
-    the wrapped error and exiting when the command raises an exception.
-    """
-
-    c = SCCSConstants()
-    error_wrappers = ErrorWrappers()
-    try:
-        main(c, *args)
-    except exceptions.SCCSException as e:
-        print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
-
-    except Exception as e:
-        print(
-            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-                type_name=type(e).__name__, e=e
-            )
-        )
-        sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
 
 def safe_extract_zip(

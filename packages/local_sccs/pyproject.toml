@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sccs"
+version = "0.1.0.dev1"
+description = "Local Simple Contracts Communication System"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mammoth",
+    "requests",
+    "beautifulsoup4",
+]
+
+[project.scripts]
+sccs = "local_sccs.sccs:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

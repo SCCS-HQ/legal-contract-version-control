@@ -6,10 +6,10 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import exceptions
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
 import requests
-import utils
-from constants_classes import SCCSConstants
+from local_sccs.constants_classes import SCCSConstants
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
@@ -62,7 +62,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
 
 
 def unzip_repository_file(
-    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
+    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root: Path
 ) -> None:
     """
     Unzip the repository file from the provided zip buffer into the staging root
@@ -152,8 +152,3 @@ def main(c: SCCSConstants, url: str) -> None:
         raise
 
     print_clone_success_message(c, response)
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    utils.run_command(main, utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX))

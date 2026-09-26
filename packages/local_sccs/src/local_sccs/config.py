@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
-import exceptions
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 
 def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
     """
     Print a success message after a successful configuration operation, including the
-    key and value that were set."""
+    key and value that were set.
+    """
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 
@@ -118,19 +117,3 @@ def main(
     print_config_success_message(c, key, value)
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        utils.entered_argument(c, c.SECOND_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryIO(Path.cwd(), repository_name, c, target),
-        RepositoryPaths(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
-    )

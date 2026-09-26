@@ -3,17 +3,18 @@
 import shutil
 from pathlib import Path
 
-import exceptions
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryStatus,
-    TargetBranch,
 )
 
 
-def copy_commit_file(commit_path: Path, output_file_name: Path) -> None:
+def copy_commit_file(
+    c: SCCSConstants, commit_path: Path, output_file_name: Path
+) -> None:
     """
     Copy the commit file to the output file name. Raise an SCCSException if the commit
     file cannot be copied.
@@ -89,20 +90,8 @@ def main(
     ).with_suffix(c.DOCUMENT_EXTENSION)
 
     with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
-        copy_commit_file(commit_path, staging_root / output_file_name.name)
+        copy_commit_file(c, commit_path, staging_root / output_file_name.name)
 
     print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-    )

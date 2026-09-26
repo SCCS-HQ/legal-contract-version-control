@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 
-import exceptions
-import utils
-from constants_classes import SCCSConstants
-from repository_layout import (
+import local_sccs.exceptions as exceptions
+import local_sccs.utils as utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch,
 )
 
 
@@ -70,16 +68,3 @@ def main(
     print_commit_success_message(c, commit_identifier)
 
     rs.target.reset()
-
-
-if __name__ == "__main__":
-    c = SCCSConstants()
-    target = TargetBranch(c)
-    repository_name = Path.cwd().name
-    utils.run_command(
-        main,
-        utils.entered_argument(c, c.FIRST_ARGUMENT_INDEX),
-        RepositoryData(Path.cwd(), repository_name, c, target),
-        RepositoryStatus(Path.cwd(), repository_name, c, target),
-        RepositoryWrite(Path.cwd(), repository_name, c, target),
-    )
