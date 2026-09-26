@@ -115,7 +115,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     commit_parser.add_argument(
         c.COMMIT_MESSAGE_ARGUMENT_NAME,
         help=c.COMMIT_MESSAGE_ARGUMENT_HELP,
-        required=True
+        required=True,
     )
 
     config_parser = command_parser.add_parser(
@@ -127,12 +127,11 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
         help=c.CONFIG_KEY_ARGUMENT_HELP_TEMPLATE.format(
             keys=", ".join(c.ACCEPTED_CONFIG_KEYS)
         ),
-        required=True
+        required=True,
     )
 
     config_parser.add_argument(
-        c.CONFIG_VALUE_ARGUMENT_NAME,
-        help=c.CONFIG_VALUE_ARGUMENT_HELP,required=True
+        c.CONFIG_VALUE_ARGUMENT_NAME, help=c.CONFIG_VALUE_ARGUMENT_HELP, required=True
     )
 
     diff_parser = command_parser.add_parser(
@@ -141,7 +140,8 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
 
     diff_parser.add_argument(
         c.COMMIT_IDENTIFIER_ARGUMENT_NAME,
-        help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP,required=True
+        help=c.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP,
+        required=True,
     )
 
     command_parser.add_parser(
@@ -153,9 +153,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     init_parser.add_argument(
-        c.DOCUMENT_PATH_ARGUMENT_NAME,
-        help=c.DOCUMENT_PATH_ARGUMENT_HELP,
-        required=True
+        c.DOCUMENT_PATH_ARGUMENT_NAME, help=c.DOCUMENT_PATH_ARGUMENT_HELP, required=True
     )
 
     command_parser.add_parser(
@@ -175,7 +173,9 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     open_parser.add_argument(
-        c.COMMIT_IDENTIFIER_ARGUMENT_NAME, help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP, required=True
+        c.COMMIT_IDENTIFIER_ARGUMENT_NAME,
+        help=c.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP,
+        required=True,
     )
 
     command_parser.add_parser(
@@ -201,7 +201,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     revert_parser.add_argument(
         c.COMMIT_IDENTIFIER_ARGUMENT_NAME,
         help=c.COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP,
-        required=True
+        required=True,
     )
 
     command_parser.add_parser(

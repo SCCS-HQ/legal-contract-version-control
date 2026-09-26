@@ -6,7 +6,6 @@ from remote_sccs.constants_classes import RemoteSCCSConstants
 from remote_sccs.main import app
 
 
-
 def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
     """
     Create the /repos directory inside the current working directory, which is required
@@ -14,7 +13,6 @@ def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
     """
 
     Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
-
 
 
 def print_SCCS_server_startup(rc: RemoteSCCSConstants) -> None:
