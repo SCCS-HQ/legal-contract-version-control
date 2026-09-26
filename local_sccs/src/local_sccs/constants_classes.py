@@ -114,7 +114,7 @@ class SCCSConstants:
     DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
     DATA_REMOTE = "remote"
     DEBUG_FLAG = "--debug"
-    DEBUG_FLAG_HELP_MESSAGE = "Does not except Exception or SCCSException."
+    DEBUG_FLAG_GENERAL = "debug"
     DEBUG_FLAG_SHORT = "-d"
     DEFAULT_HTML_STYLES = """
     <style>
@@ -166,9 +166,14 @@ class SCCSConstants:
         "path to an existing file."
     )
     EXPECTED_ERROR_EXIT_CODE = 1
-
+    
     FILE_START_POSITION = 0
     FIRST_ELEMENT_INDEX = 0
+    FLAG_DESCRIPTIONS = MappingProxyType(
+        {
+            DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."
+        }
+    )
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
 
     HELP_COMMAND_NAME = "help"
@@ -203,6 +208,13 @@ class SCCSConstants:
                 self.REVERT_COMMAND_NAME,
                 self.STATUS_COMMAND_NAME,
                 self.SWITCH_COMMAND_NAME
+            )
+        ) + (
+            "Available flags:",
+        ) + tuple(
+            f"  {i[0]}, {i[1]} - {self.FLAG_DESCRIPTIONS[i[2]]}"
+            for i in (
+                (self.DEBUG_FLAG, self.DEBUG_FLAG_SHORT, self.DEBUG_FLAG_GENERAL),
             )
         )
 

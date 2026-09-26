@@ -64,10 +64,10 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        c.DEBUG_FLAG,
         c.DEBUG_FLAG_SHORT,
+        c.DEBUG_FLAG,
         action=c.STORE_TRUE_ACTION,
-        help=c.DEBUG_FLAG_HELP_MESSAGE
+        help=c.FLAG_DESCRIPTIONS[c.DEBUG_FLAG_GENERAL]
     )
 
     command_parser = parser.add_subparsers(dest=c.COMMAND_FIELD_NAME)
