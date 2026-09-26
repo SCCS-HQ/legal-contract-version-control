@@ -246,10 +246,10 @@ def run_command(arguments: argparse.Namespace) -> None:
     wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
     wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
 
-    cwd_ri = RepositoryIO(Path.cwd(), wd_repository_name, c, target)
-    cwd_rp = RepositoryPaths(Path.cwd(), wd_repository_name, c, target)
-    cwd_rs = RepositoryStatus(Path.cwd(), wd_repository_name, c, target)
-    cwd_rw = RepositoryWrite(Path.cwd(), wd_repository_name, c, target)
+    cwd_ri = RepositoryIO(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rs = RepositoryStatus(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rw = RepositoryWrite(utils.working_directory(c), wd_repository_name, c, target)
 
     COMMAND_ARGUMENTS = {
         c.BRANCH_COMMAND_NAME: lambda: [
