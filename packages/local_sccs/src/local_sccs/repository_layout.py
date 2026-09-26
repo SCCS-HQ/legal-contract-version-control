@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any
 
 import local_sccs.exceptions as exceptions
-import mammoth
 import local_sccs.utils as utils
+import mammoth
 from local_sccs.constants_classes import SCCSConstants
 
 

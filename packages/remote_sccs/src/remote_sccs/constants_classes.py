@@ -26,9 +26,7 @@ class RemoteSCCSConstants:
     CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE = (
         "attachment; filename={repository_name}.zip"
     )
-    CONTENT_DISPOSITION_HEADER_TEMPLATE = (
-        "attachment;filename={repository_name}.zip"
-    )
+    CONTENT_DISPOSITION_HEADER_TEMPLATE = "attachment;filename={repository_name}.zip"
     CONTENT_DISPOSITION_HEADER_TITLE = "Content-Disposition"
     CONTENT_TYPE_ZIP = "application/zip"
     CURRENT_BRANCH_DICT_KEY = "current_branch"
@@ -39,9 +37,7 @@ class RemoteSCCSConstants:
 
     FILE_PUBLISHED_MESSAGE = "File published successfully"
     FILE_START_POSITION = 0
-    FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = (
-        "File {filename} is too large"
-    )
+    FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
     FIRST_ITEM_INDEX = 0
 
     HELP_COMMAND_NAME = "help"
@@ -105,9 +101,7 @@ class RemoteSCCSConstants:
     REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
-    REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = (
-        "Repository name does not match file name"
-    )
+    REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
         "Repository not found: {repository_name}"
     )

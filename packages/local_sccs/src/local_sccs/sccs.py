@@ -1,12 +1,13 @@
+import argparse
 import sys
 from pathlib import Path
-import argparse
 
 import local_sccs.branch as branch
 import local_sccs.clone as clone
 import local_sccs.commit as commit
 import local_sccs.config as config
 import local_sccs.diff as diff
+import local_sccs.exceptions as exceptions
 import local_sccs.help as help
 import local_sccs.init as init
 import local_sccs.log as log
@@ -20,20 +21,18 @@ import local_sccs.revert as revert
 import local_sccs.status as status
 import local_sccs.switch as switch
 import local_sccs.utils as utils
-import local_sccs.exceptions as exceptions
-
-from local_sccs.constants_classes import SCCSConstants, ErrorWrappers
+from local_sccs.constants_classes import ErrorWrappers, SCCSConstants
 from local_sccs.repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
+    TargetBranch,
 )
 
 c = SCCSConstants()
-COMMANDS =  {
+COMMANDS = {
     c.BRANCH_COMMAND_NAME: branch.main,
     c.CLONE_COMMAND_NAME: clone.main,
     c.COMMIT_COMMAND_NAME: commit.main,
@@ -50,8 +49,9 @@ COMMANDS =  {
     c.RESET_COMMAND_NAME: reset.main,
     c.REVERT_COMMAND_NAME: revert.main,
     c.STATUS_COMMAND_NAME: status.main,
-    c.SWITCH_COMMAND_NAME: switch.main
+    c.SWITCH_COMMAND_NAME: switch.main,
 }
+
 
 def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     """
@@ -67,7 +67,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
         c.DEBUG_FLAG_SHORT,
         c.DEBUG_FLAG,
         action=c.STORE_TRUE_ACTION,
-        help=c.FLAG_DESCRIPTIONS[c.DEBUG_FLAG_GENERAL]
+        help=c.FLAG_DESCRIPTIONS[c.DEBUG_FLAG_GENERAL],
     )
 
     command_parser = parser.add_subparsers(dest=c.COMMAND_FIELD_NAME)
@@ -211,12 +211,12 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
 
 def run_command(arguments: argparse.Namespace) -> None:
     """
-    Run the specified SCCS command by using an ArgumentParser object and reading what 
+    Run the specified SCCS command by using an ArgumentParser object and reading what
     command was called.
 
     If and invalid command is provided, inform the user and run SCCS help.
     """
-    
+
     if arguments.command not in COMMANDS:
         c = SCCSConstants()
         print(
@@ -251,10 +251,7 @@ def run_command(arguments: argparse.Namespace) -> None:
             wd_rs,
             wd_rw,
         ],
-        c.CLONE_COMMAND_NAME: lambda: [
-            c,
-            arguments.url
-        ],
+        c.CLONE_COMMAND_NAME: lambda: [c, arguments.url],
         c.COMMIT_COMMAND_NAME: lambda: [
             c,
             arguments.commit_message,
@@ -289,7 +286,7 @@ def run_command(arguments: argparse.Namespace) -> None:
                 repository_root := document_path.with_suffix(c.EMPTY_STRING),
                 root_repository_name := repository_root.name,
                 c,
-                target
+                target,
             ),
             RepositoryPaths(repository_root, root_repository_name, c, target),
             RepositoryStatus(repository_root, root_repository_name, c, target),
@@ -363,15 +360,15 @@ def run_command(arguments: argparse.Namespace) -> None:
             cwd_rs,
             cwd_rw,
         ],
-    }    
+    }
 
     if not arguments.debug:
         try:
             COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
         except exceptions.SCCSException as e:
-                print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
-                sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
-        
+            print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
+            sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
+
         except Exception as e:
             print(
                 error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
@@ -387,7 +384,7 @@ def run_command(arguments: argparse.Namespace) -> None:
 def main() -> None:
     """
     Run the specified SCCS command by reading and parsing the entered arguments.
-    
+
     If no arguments are provided, run SCCS help.
     """
 
@@ -400,9 +397,7 @@ def main() -> None:
     command = utils.entered_argument(c, 1)
 
     if command not in COMMANDS:
-        print(
-            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command)
-        )
+        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
         help.main(c)
         return
 

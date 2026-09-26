@@ -1,16 +1,13 @@
-
-import remote_sccs.serve as serve
-import remote_sccs.help as help
-from remote_sccs.constants_classes import RemoteSCCSConstants, RemoteErrorWrappers
+import argparse
 import sys
 
-import argparse
+import remote_sccs.help as help
+import remote_sccs.serve as serve
+from remote_sccs.constants_classes import RemoteErrorWrappers, RemoteSCCSConstants
 
 rc = RemoteSCCSConstants()
-COMMANDS = {
-    rc.SERVE_COMMAND_NAME: serve.main,
-    rc.HELP_COMMAND_NAME: help.main
-}
+COMMANDS = {rc.SERVE_COMMAND_NAME: serve.main, rc.HELP_COMMAND_NAME: help.main}
+
 
 def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
     """
@@ -18,8 +15,7 @@ def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
     """
 
     parser = argparse.ArgumentParser(
-        prog=rc.REMOTE_SCCS,
-        description=rc.REMOTE_SCCS_DESCRIPTION
+        prog=rc.REMOTE_SCCS, description=rc.REMOTE_SCCS_DESCRIPTION
     )
 
     parser.add_argument(dest=rc.COMMAND_FIELD_NAME)
@@ -29,7 +25,7 @@ def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
 
 def run_command(arguments: argparse.Namespace) -> None:
     """
-    Run the specified Remote-SCCS command by using an ArgumentParser object and reading what 
+    Run the specified Remote-SCCS command by using an ArgumentParser object and reading what
     command was called.
 
     If and invalid command is provided, inform the user and run Remote-SCCS help.
@@ -47,11 +43,11 @@ def run_command(arguments: argparse.Namespace) -> None:
     error_wrappers = RemoteErrorWrappers()
     COMMAND_ARGUMENTS = {
         rc.SERVE_COMMAND_NAME: lambda: [rc],
-        rc.HELP_COMMAND_NAME: lambda: [rc]
+        rc.HELP_COMMAND_NAME: lambda: [rc],
     }
     try:
         COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
-    
+
     except Exception as e:
         print(
             error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
@@ -64,7 +60,7 @@ def run_command(arguments: argparse.Namespace) -> None:
 def main() -> None:
     """
     Run the specified Remote-SCCS command by reading and parsing the entered arguments.
-    
+
     If no arguments are provided, run Remote-SCCS help.
     """
 
@@ -77,4 +73,3 @@ def main() -> None:
     arguments = create_argument_parser(rc).parse_args()
 
     run_command(arguments)
-

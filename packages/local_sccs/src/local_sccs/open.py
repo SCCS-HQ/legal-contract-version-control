@@ -95,4 +95,3 @@ def main(
     print_open_success_message(c, full_commit_identifier, output_file_name)
 
     rs.target.reset()
-

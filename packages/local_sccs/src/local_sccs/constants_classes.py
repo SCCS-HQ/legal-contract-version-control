@@ -92,9 +92,7 @@ class SCCSConstants:
     COMMIT_ORDER_DICT_KEY = "commit_order"
     CONFIG_COMMAND_NAME = "config"
     CONFIG_DICT_KEY = "config"
-    CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = (
-        "The configuration key to set. One of: {keys}."
-    )
+    CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
     CONFIG_KEY_ARGUMENT_NAME = "key"
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
@@ -166,13 +164,11 @@ class SCCSConstants:
         "path to an existing file."
     )
     EXPECTED_ERROR_EXIT_CODE = 1
-    
+
     FILE_START_POSITION = 0
     FIRST_ELEMENT_INDEX = 0
     FLAG_DESCRIPTIONS = MappingProxyType(
-        {
-            DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."
-        }
+        {DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."}
     )
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
 
@@ -186,35 +182,38 @@ class SCCSConstants:
         """
 
         return (
-            "SCCS Help",
-            "Available commands:",
-        ) + tuple(
-            f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
-            for i in (
-                self.BRANCH_COMMAND_NAME,
-                self.CLONE_COMMAND_NAME,
-                self.COMMIT_COMMAND_NAME,
-                self.CONFIG_COMMAND_NAME,
-                self.DIFF_COMMAND_NAME,
-                self.HELP_COMMAND_NAME,
-                self.INIT_COMMAND_NAME,
-                self.LOG_COMMAND_NAME,
-                self.MERGE_COMMAND_NAME,
-                self.OPEN_COMMAND_NAME,
-                self.PUBLISH_COMMAND_NAME,
-                self.PULL_COMMAND_NAME,
-                self.PUSH_COMMAND_NAME,
-                self.RESET_COMMAND_NAME,
-                self.REVERT_COMMAND_NAME,
-                self.STATUS_COMMAND_NAME,
-                self.SWITCH_COMMAND_NAME
+            (
+                "SCCS Help",
+                "Available commands:",
             )
-        ) + (
-            "Available flags:",
-        ) + tuple(
-            f"  {i[0]}, {i[1]} - {self.FLAG_DESCRIPTIONS[i[2]]}"
-            for i in (
-                (self.DEBUG_FLAG, self.DEBUG_FLAG_SHORT, self.DEBUG_FLAG_GENERAL),
+            + tuple(
+                f"  sccs {i}" f" - {self.COMMAND_DESCRIPTIONS[i]}"
+                for i in (
+                    self.BRANCH_COMMAND_NAME,
+                    self.CLONE_COMMAND_NAME,
+                    self.COMMIT_COMMAND_NAME,
+                    self.CONFIG_COMMAND_NAME,
+                    self.DIFF_COMMAND_NAME,
+                    self.HELP_COMMAND_NAME,
+                    self.INIT_COMMAND_NAME,
+                    self.LOG_COMMAND_NAME,
+                    self.MERGE_COMMAND_NAME,
+                    self.OPEN_COMMAND_NAME,
+                    self.PUBLISH_COMMAND_NAME,
+                    self.PULL_COMMAND_NAME,
+                    self.PUSH_COMMAND_NAME,
+                    self.RESET_COMMAND_NAME,
+                    self.REVERT_COMMAND_NAME,
+                    self.STATUS_COMMAND_NAME,
+                    self.SWITCH_COMMAND_NAME,
+                )
+            )
+            + ("Available flags:",)
+            + tuple(
+                f"  {i[0]}, {i[1]} - {self.FLAG_DESCRIPTIONS[i[2]]}"
+                for i in (
+                    (self.DEBUG_FLAG, self.DEBUG_FLAG_SHORT, self.DEBUG_FLAG_GENERAL),
+                )
             )
         )
 
@@ -239,8 +238,7 @@ class SCCSConstants:
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
     INIT_COMMAND_NAME = "init"
     INIT_COMMIT_MESSAGE = (
-        "Initial commit (This is a default commit message "
-        "for initial version)"
+        "Initial commit (This is a default commit message " "for initial version)"
     )
     INIT_COPY_ERROR_MESSAGE = (
         "Failed to copy document or write HTML during initialization."
@@ -478,9 +476,7 @@ class SCCSConstants:
     ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = (
         "Failed to create a buffer for the zipped repository. Please try again."
     )
-    ZIP_BUFFER_SEEK_ERROR_MESSAGE = (
-        "Failed to reset buffer position. Please try again."
-    )
+    ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
     ZIP_EXTENSION = ".zip"
 
     # Next constants out of alphabetical order as they use constants that would be

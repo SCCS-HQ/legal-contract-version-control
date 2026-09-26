@@ -14,13 +14,11 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-
 from remote_sccs.constants_classes import RemoteSCCSConstants
 
 
 @dataclass(frozen=True, slots=True)
-class ValidatedRepositoryName():
-
+class ValidatedRepositoryName:
     """A repository name validated against the allowed pattern."""
 
     value: str
@@ -133,7 +131,7 @@ def safe_extract_zip(
 
 def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
     """
-    Create the /repos directory inside the current working directory, which is required 
+    Create the /repos directory inside the current working directory, which is required
     to start the FastAPI application.
     """
 
@@ -144,6 +142,7 @@ app = FastAPI()
 rc = RemoteSCCSConstants()
 
 create_repositories_directory(rc)
+
 
 @app.get(rc.ROOT_ENDPOINT)
 async def root() -> dict:

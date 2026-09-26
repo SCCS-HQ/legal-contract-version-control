@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 
 import local_sccs.exceptions as exceptions
-import requests
 import local_sccs.utils as utils
+import requests
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
     RepositoryData,
