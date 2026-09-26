@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 import local_sccs.exceptions as exceptions
@@ -18,7 +17,8 @@ from local_sccs.repository_layout import (
 def print_config_success_message(c: SCCSConstants, key: str, value: str) -> None:
     """
     Print a success message after a successful configuration operation, including the
-    key and value that were set."""
+    key and value that were set.
+    """
 
     print(c.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value))
 

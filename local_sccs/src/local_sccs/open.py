@@ -12,7 +12,9 @@ from local_sccs.repository_layout import (
 )
 
 
-def copy_commit_file(c: SCCSConstants, commit_path: Path, output_file_name: Path) -> None:
+def copy_commit_file(
+    c: SCCSConstants, commit_path: Path, output_file_name: Path
+) -> None:
     """
     Copy the commit file to the output file name. Raise an SCCSException if the commit
     file cannot be copied.

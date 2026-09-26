@@ -3,7 +3,6 @@
 import copy
 import difflib
 import filecmp
-from pathlib import Path
 
 import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
@@ -315,6 +314,7 @@ def main(
     Write the diff output to the repository, print a success message, and reset the
     target branch when the operation completes.
     """
+
     rs.target.set(rd.current_branch())
     rs.validate_repository_layout()
     rs.raise_for_uncommitted_changes()

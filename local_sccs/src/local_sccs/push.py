@@ -25,6 +25,7 @@ def _snapshot_file(src: Path, dst: Path) -> None:
     Tries a hardlink first (O(1), same filesystem, no extra disk usage);
     falls back to shutil.copy2 on any failure (cross-filesystem, EPERM, etc.).
     """
+
     try:
         os.link(src, dst)
     except OSError:

@@ -80,6 +80,7 @@ def main(
     Promote the staging directory to the repository root, print a success message, and
     reset the target branch when the operation completes.
     """
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()

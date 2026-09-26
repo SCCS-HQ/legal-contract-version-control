@@ -30,6 +30,7 @@ class ValidatedRepositoryName():
         Validate the repository name and reject empty names, names containing
         characters outside the allowed pattern, and relative path shorthands.
         """
+
         if (
             not self.value
             or not re.fullmatch(r"^[A-Za-z0-9._-]+$", self.value)
@@ -42,6 +43,7 @@ class ValidatedRepositoryName():
 
     def __str__(self) -> str:
         """Return the validated repository name as its string representation."""
+
         return self.value
 
 
@@ -91,7 +93,10 @@ def ensure_repository_exists(rc: RemoteSCCSConstants, repository_path: Path) -> 
 
 
 def safe_extract_zip(
-    rc: RemoteSCCSConstants, zip_archive: zipfile.ZipFile, member_path: str, destination_directory: Path
+    rc: RemoteSCCSConstants,
+    zip_archive: zipfile.ZipFile,
+    member_path: str,
+    destination_directory: Path,
 ) -> None:
     """
     Safely extract a single member from a zip archive into the destination
@@ -127,6 +132,10 @@ def safe_extract_zip(
 
 
 def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
+    """
+    Create the /repos directory inside the current working directory, which is required 
+    to start the FastAPI application.
+    """
 
     Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
 
@@ -140,7 +149,7 @@ create_repositories_directory(rc)
 async def root() -> dict:
     """Easter Egg Endpoint - Do Not Remove"""
 
-    return {rc.MESSAGES_DICT_KEY: rc.EASTER_EGG_MESSAGE}
+    return {rc.MESSAGE_DICT_KEY: rc.EASTER_EGG_MESSAGE}
 
 
 @app.post(rc.PUBLISH_ENDPOINT_TEMPLATE)
@@ -158,7 +167,9 @@ async def publish(
         )
 
     staging_root = Path(
-        tempfile.mkdtemp(prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
+        tempfile.mkdtemp(
+            prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent
+        )
     )
 
     try:
@@ -212,7 +223,10 @@ async def publish(
 
         raise
 
-    return {rc.MESSAGES_DICT_KEY: rc.FILE_PUBLISHED_MESSAGE, rc.REPOSITORY_URL_DICT_KEY: remote}
+    return {
+        rc.MESSAGE_DICT_KEY: rc.FILE_PUBLISHED_MESSAGE,
+        rc.REPOSITORY_URL_DICT_KEY: remote,
+    }
 
 
 @app.get(rc.CLONE_ENDPOINT_TEMPLATE)
@@ -256,8 +270,10 @@ async def clone(repository_name: str) -> StreamingResponse:
         zip_buffer,
         media_type=rc.CONTENT_TYPE_ZIP,
         headers={
-            rc.CONTENT_DISPOSITION_HEADER_TITLE: rc.CONTENT_DISPOSITION_HEADER_TEMPLATE.format(
-                repository_name=repository_name
+            rc.CONTENT_DISPOSITION_HEADER_TITLE: (
+                rc.CONTENT_DISPOSITION_HEADER_TEMPLATE.format(
+                    repository_name=repository_name
+                )
             )
         },
     )
@@ -273,7 +289,9 @@ async def push(repository_name: str) -> dict:
     repository_path = repository_directory(rc, repository_name)
     ensure_repository_exists(rc, repository_path)
 
-    objects_directory = (repository_path / rc.SCCS_DIRECTORY / rc.OBJECTS_DIRECTORY).resolve()
+    objects_directory = (
+        repository_path / rc.SCCS_DIRECTORY / rc.OBJECTS_DIRECTORY
+    ).resolve()
 
     if not objects_directory.exists() or not objects_directory.is_dir():
         raise HTTPException(
@@ -312,7 +330,9 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         )
 
     staging_root = Path(
-        tempfile.mkdtemp(prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
+        tempfile.mkdtemp(
+            prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent
+        )
     )
 
     try:
@@ -371,7 +391,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
         raise
 
-    return {rc.MESSAGES_DICT_KEY: rc.PUSH_SUCCESS_MESSAGE}
+    return {rc.MESSAGE_DICT_KEY: rc.PUSH_SUCCESS_MESSAGE}
 
 
 @app.post(rc.PULL_ENDPOINT_TEMPLATE)
@@ -393,12 +413,15 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         or not data[rc.OBJECTS_DICT_KEY]
     ):
         raise HTTPException(
-            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.INVALID_JSON_ERROR_MESSAGE
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.INVALID_JSON_ERROR_MESSAGE,
         )
 
     local_objects = set(data[rc.OBJECTS_DICT_KEY])
 
-    objects_paths = (repository_path / rc.SCCS_DIRECTORY / rc.OBJECTS_DIRECTORY).resolve()
+    objects_paths = (
+        repository_path / rc.SCCS_DIRECTORY / rc.OBJECTS_DIRECTORY
+    ).resolve()
 
     try:
         objects_paths.relative_to(repository_path)
@@ -418,7 +441,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             detail=rc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
         )
 
-    branches_path = (repository_path / rc.SCCS_DIRECTORY / rc.BRANCHES_DIRECTORY).resolve()
+    branches_path = (
+        repository_path / rc.SCCS_DIRECTORY / rc.BRANCHES_DIRECTORY
+    ).resolve()
 
     try:
         branches_path.relative_to(repository_path)
@@ -448,8 +473,10 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         zip_buffer,
         media_type=rc.CONTENT_TYPE_ZIP,
         headers={
-            rc.CONTENT_DISPOSITION_HEADER_TITLE: rc.CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
-                repository_name=repository_name
+            rc.CONTENT_DISPOSITION_HEADER_TITLE: (
+                rc.CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
+                    repository_name=repository_name
+                )
             )
         },
     )

@@ -1,5 +1,4 @@
 
-from remote_sccs.main import app
 import remote_sccs.serve as serve
 import remote_sccs.help as help
 from remote_sccs.constants_classes import RemoteSCCSConstants, RemoteErrorWrappers
@@ -14,6 +13,10 @@ COMMANDS = {
 }
 
 def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
+    """
+    Creates and returns a ArgumentParser object to parse Remote-SCCS commands and arguments.
+    """
+
     parser = argparse.ArgumentParser(
         prog=rc.REMOTE_SCCS,
         description=rc.REMOTE_SCCS_DESCRIPTION
@@ -25,9 +28,18 @@ def create_argument_parser(rc: RemoteSCCSConstants) -> argparse.ArgumentParser:
 
 
 def run_command(arguments: argparse.Namespace) -> None:
+    """
+    Run the specified Remote-SCCS command by using an ArgumentParser object and reading what 
+    command was called.
+
+    If and invalid command is provided, inform the user and run Remote-SCCS help.
+    """
+
     if arguments.command not in COMMANDS:
         rc = RemoteSCCSConstants()
-        print(rc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command))
+        print(
+            rc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
+        )
         help.main(rc)
         return
 
@@ -39,19 +51,30 @@ def run_command(arguments: argparse.Namespace) -> None:
     }
     try:
         COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
+    
     except Exception as e:
-        error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
-            type_name=type(e).__name__, e=e
+        print(
+            error_wrappers.UNEXPECTED_ERROR_TEMPLATE.format(
+                type_name=type(e).__name__, e=e
+            )
         )
         sys.exit(rc.UNEXPECTED_ERROR_EXIT_CODE)
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
+    """
+    Run the specified Remote-SCCS command by reading and parsing the entered arguments.
+    
+    If no arguments are provided, run Remote-SCCS help.
+    """
+
+    rc = RemoteSCCSConstants()
+
+    if len(sys.argv) < rc.MINIMUM_ARGUMENTS:
         help.main(rc)
         return
 
-    arguments = create_argument_parser(RemoteSCCSConstants()).parse_args()
+    arguments = create_argument_parser(rc).parse_args()
 
     run_command(arguments)
 

@@ -62,7 +62,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
 
 
 def unzip_repository_file(
-    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root
+    c: SCCSConstants, zip_buffer: io.BytesIO, url: str, staging_root: Path
 ) -> None:
     """
     Unzip the repository file from the provided zip buffer into the staging root

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
 
 import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
