@@ -1,8 +1,20 @@
 import socket
+from pathlib import Path
 
 import uvicorn
 from remote_sccs.constants_classes import RemoteSCCSConstants
 from remote_sccs.main import app
+
+
+
+def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
+    """
+    Create the /repos directory inside the current working directory, which is required
+    to start the FastAPI application.
+    """
+
+    Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
+
 
 
 def print_SCCS_server_startup(rc: RemoteSCCSConstants) -> None:
@@ -28,6 +40,7 @@ def main(rc: RemoteSCCSConstants) -> None:
     Print informational messages and start the Remote-SCCS Server.
     """
 
+    create_repositories_directory(rc)
     print_SCCS_server_startup(rc)
 
     uvicorn.run(app, host=rc.NETWORK_IP, port=rc.PORT_8000)

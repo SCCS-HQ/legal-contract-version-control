@@ -129,19 +129,8 @@ def safe_extract_zip(
             shutil.copyfileobj(source, f)
 
 
-def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
-    """
-    Create the /repos directory inside the current working directory, which is required
-    to start the FastAPI application.
-    """
-
-    Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
-
-
 app = FastAPI()
 rc = RemoteSCCSConstants()
-
-create_repositories_directory(rc)
 
 
 @app.get(rc.ROOT_ENDPOINT)
