@@ -4,10 +4,10 @@ import copy
 import difflib
 import filecmp
 
-from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from bs4 import BeautifulSoup
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,

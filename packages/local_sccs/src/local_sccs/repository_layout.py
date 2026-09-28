@@ -7,10 +7,10 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 import mammoth
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 
 
 class TargetBranch:
@@ -212,9 +212,7 @@ class RepositoryData:
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
             and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
-            raise SCCSException(
-                self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
-            )
+            raise SCCSException(self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
     def repository_objects(self) -> set[str]:
         """
@@ -711,9 +709,7 @@ class RepositoryStatus:
         """
 
         if self.validate_uncommitted_changes():
-            raise SCCSException(
-                self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-            )
+            raise SCCSException(self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
 
     def validate_repository_layout(self) -> None:
         """
@@ -846,9 +842,7 @@ class RepositoryWrite:
         document_byte_hash = self.io.document_html_byte_hash()
 
         if not allow_empty_commit or latest_byte_hash == document_byte_hash:
-            raise SCCSException(
-                self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
-            )
+            raise SCCSException(self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
 
         config = self.io.read_config()
         name = config[self.c.NAME_KEY]
@@ -985,15 +979,11 @@ class RepositoryWrite:
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
             i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
-            raise SCCSException(
-                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
-            )
+            raise SCCSException(self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE)
         if key == self.c.REMOTE_KEY and not all(
             i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):
-            raise SCCSException(
-                self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
-            )
+            raise SCCSException(self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE)
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)

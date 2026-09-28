@@ -7,7 +7,6 @@ import local_sccs.clone as clone
 import local_sccs.commit as commit
 import local_sccs.config as config
 import local_sccs.diff as diff
-from local_sccs.exceptions import SCCSException
 import local_sccs.help as help
 import local_sccs.init as init
 import local_sccs.log as log
@@ -22,6 +21,7 @@ import local_sccs.status as status
 import local_sccs.switch as switch
 import local_sccs.utils as utils
 from local_sccs.constants_classes import ErrorWrappers, SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,

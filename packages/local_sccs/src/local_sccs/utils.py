@@ -12,8 +12,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-from local_sccs.exceptions import SCCSException
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 
 
 def cleanup_staging(staging_root: Path | None) -> None:
@@ -260,9 +260,7 @@ def zip_buffer(
     try:
         buffer = io.BytesIO()
     except Exception as e:
-        raise SCCSException(
-            c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
-        ) from e
+        raise SCCSException(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
         with zipfile.ZipFile(buffer, "w", compression) as zf:

@@ -5,10 +5,10 @@ import os
 import shutil
 from pathlib import Path
 
-from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 import mammoth
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryIO,
     RepositoryPaths,
