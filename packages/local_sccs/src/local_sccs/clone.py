@@ -6,10 +6,10 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
 import requests
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 
 
 def print_clone_success_message(c: SCCSConstants, response: requests.Response) -> None:
@@ -33,10 +33,10 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
     path_parts = [i for i in urlsplit(url).path.split(c.PATH_SEPARATOR) if i]
 
     if not path_parts or not urlsplit(url).path.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
     if len(path_parts) < c.MINIMUM_PATH_PARTS:
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.REPOSITORY_NAME_FIELD_NAME
             )
@@ -56,7 +56,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
         response = requests.get(url, timeout=timeout)
         response.raise_for_status()
     except requests.RequestException as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
 
     return response
 
@@ -96,10 +96,10 @@ def validate_entered_url(c: SCCSConstants, url: str) -> None:
     utils.raise_if_empty(c, url, c.URL_FIELD_NAME)
 
     if not any(url.startswith(i) for i in c.ACCEPTED_SCHEMES):
-        raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
     if not url.endswith(c.CLONE_ENDPOINT):
-        raise exceptions.SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_ENDING_ERROR_MESSAGE)
 
 
 def validate_repository_name(c: SCCSConstants, name: str) -> None:
@@ -113,7 +113,7 @@ def validate_repository_name(c: SCCSConstants, name: str) -> None:
         c.SINGLE_PERIOD,
         c.DOUBLE_PERIOD,
     ):
-        raise exceptions.SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
 
 def main(c: SCCSConstants, url: str) -> None:
@@ -138,7 +138,7 @@ def main(c: SCCSConstants, url: str) -> None:
     destination = Path.cwd() / repository_name
 
     if destination.exists():
-        raise exceptions.SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
+        raise SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
 
     staging_root = utils.create_staging_directory(c, destination)
 

@@ -7,7 +7,6 @@ import local_sccs.clone as clone
 import local_sccs.commit as commit
 import local_sccs.config as config
 import local_sccs.diff as diff
-import local_sccs.exceptions as exceptions
 import local_sccs.help as help
 import local_sccs.init as init
 import local_sccs.log as log
@@ -22,6 +21,7 @@ import local_sccs.status as status
 import local_sccs.switch as switch
 import local_sccs.utils as utils
 from local_sccs.constants_classes import ErrorWrappers, SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
@@ -368,7 +368,7 @@ def run_command(arguments: argparse.Namespace) -> None:
     if not arguments.debug:
         try:
             COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
-        except exceptions.SCCSException as e:
+        except SCCSException as e:
             print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
             sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
 

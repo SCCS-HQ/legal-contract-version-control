@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 
-import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryStatus,
@@ -32,7 +32,7 @@ def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
     """
 
     if not commit_message:
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                 field=c.COMMIT_MESSAGE_FIELD_NAME
             )

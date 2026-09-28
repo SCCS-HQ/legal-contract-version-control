@@ -3,9 +3,9 @@
 import shutil
 from pathlib import Path
 
-import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryPaths,
@@ -41,7 +41,7 @@ def revert(
     """
 
     if not commit_path.is_file():
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
                 file_name=commit_path.stem
             )
@@ -52,7 +52,7 @@ def revert(
             commit_path, (staging_root / repo_name).with_suffix(c.DOCUMENT_EXTENSION)
         )
     except Exception as e:
-        raise exceptions.SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.REVERT_COPY_ERROR_MESSAGE) from e
 
 
 def main(

@@ -12,8 +12,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-import local_sccs.exceptions as exceptions
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 
 
 def cleanup_staging(staging_root: Path | None) -> None:
@@ -48,7 +48,7 @@ def copy_latest_commit_document(
             destination,
         )
     except Exception as e:
-        raise exceptions.SCCSException(error_message) from e
+        raise SCCSException(error_message) from e
     finally:
         rd.target.set(original_target)
 
@@ -87,7 +87,7 @@ def entered_argument(
 
     if not len(sys.argv) > argument:
         if raise_on_not_provided:
-            raise exceptions.SCCSException(c.UTILS_ARGUMENT_ERROR_MESSAGE)
+            raise SCCSException(c.UTILS_ARGUMENT_ERROR_MESSAGE)
         else:
             return None
 
@@ -168,7 +168,7 @@ def raise_if_empty(
 
     if not value:
         message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
-        raise exceptions.SCCSException(message.capitalize() if capitalize else message)
+        raise SCCSException(message.capitalize() if capitalize else message)
 
 
 def safe_extract_zip(
@@ -187,7 +187,7 @@ def safe_extract_zip(
     destination_resolved = Path(destination_directory).resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or c.DOUBLE_PERIOD in entry_path.parts:
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
                 entry_path=entry_path
             )
@@ -196,7 +196,7 @@ def safe_extract_zip(
     try:
         target_path.relative_to(destination_resolved)
     except ValueError as e:
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
                 target_path=target_path, destination_resolved=destination_resolved
             )
@@ -260,17 +260,15 @@ def zip_buffer(
     try:
         buffer = io.BytesIO()
     except Exception as e:
-        raise exceptions.SCCSException(
-            c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
-        ) from e
+        raise SCCSException(c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE) from e
 
     try:
         with zipfile.ZipFile(buffer, "w", compression) as zf:
             yield buffer, zf
     except Exception as e:
-        raise exceptions.SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
+        raise SCCSException(c.ZIPPING_FILE_ERROR_MESSAGE) from e
 
     try:
         buffer.seek(c.FILE_START_POSITION)
     except Exception as e:
-        raise exceptions.SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e
+        raise SCCSException(c.ZIP_BUFFER_SEEK_ERROR_MESSAGE) from e

@@ -7,10 +7,10 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import local_sccs.exceptions as exceptions
 import local_sccs.utils as utils
 import requests
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
@@ -58,7 +58,7 @@ def compare_commit_identifier_lists(
 
     object_to_upload = list(set(local_objects) - set(remote_objects))
     if list(set(remote_objects) - set(local_objects)):
-        raise exceptions.SCCSException(c.MISSING_REMOTE_OBJECTS_ERROR_MESSAGE)
+        raise SCCSException(c.MISSING_REMOTE_OBJECTS_ERROR_MESSAGE)
 
     return object_to_upload
 
@@ -75,7 +75,7 @@ def fetch_remote_objects(c: SCCSConstants, rd: RepositoryData) -> requests.Respo
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
 
 
 def upload_objects(
@@ -93,7 +93,7 @@ def upload_objects(
     if not remote_path.endswith(
         c.REQUIRED_PATH_ENDING_TEMPLATE.format(repo_name=rp.repository_name)
     ):
-        raise exceptions.SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_PATH_ENDING_ERROR_MESSAGE)
 
     try:
         response = requests.post(
@@ -111,7 +111,7 @@ def upload_objects(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE.format(url=remote)
         ) from e
 
