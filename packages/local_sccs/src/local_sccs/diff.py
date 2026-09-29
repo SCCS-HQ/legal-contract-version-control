@@ -4,7 +4,7 @@ import copy
 import difflib
 import filecmp
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from bs4 import BeautifulSoup
 from local_sccs.constants_classes import SCCSConstants
@@ -296,7 +296,7 @@ def validate_diff(c: SCCSConstants, rd: RepositoryData, commit_identifier: str) 
     )
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
-        raise exceptions.SCCSException(c.DIFF_ERROR_MESSAGE)
+        raise SCCSException(c.DIFF_ERROR_MESSAGE)
 
 
 def main(

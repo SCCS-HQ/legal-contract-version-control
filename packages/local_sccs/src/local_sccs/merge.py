@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -100,10 +100,10 @@ def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) 
     utils.raise_if_empty(c, branch, c.BRANCH_NAME_FIELD_NAME)
 
     if rs.is_current_branch(branch):
-        raise exceptions.SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
+        raise SCCSException(c.CURRENT_BRANCH_MERGE_ERROR_MESSAGE)
 
     if not rs.branch_exists(branch):
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch)
         )
 

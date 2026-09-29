@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -48,7 +48,7 @@ def branch_delete_subcommand(
     """
 
     if branch_name.lower() == c.MAIN_BRANCH_NAME:
-        raise exceptions.SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
+        raise SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
 
     rw.remove_branch_metadata(branch_name, rd.current_branch())
     print_branch_delete_success_message(c, branch_name)
@@ -104,11 +104,11 @@ def run_specified_subcommand(
 
     if subcommand == c.CREATE_SUBCOMMAND:
         if branch_name is None:
-            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
+            raise SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
         branch_create_subcommand(c, branch_name, rd, rw)
     elif subcommand == c.DELETE_SUBCOMMAND:
         if branch_name is None:
-            raise exceptions.SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
+            raise SCCSException(c.INVALID_BRANCH_NAME_ERROR_MESSAGE)
         branch_delete_subcommand(c, branch_name, rd, rw)
     elif subcommand == c.LIST_SUBCOMMAND:
         branch_list_subcommand(c, rd)
@@ -128,13 +128,13 @@ def validate_subcommand(
     utils.raise_if_empty(c, subcommand, c.SUBCOMMAND_FIELD_NAME)
 
     if subcommand not in c.ACCEPTED_SUBCOMMANDS:
-        raise exceptions.SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
 
     if subcommand == c.CREATE_SUBCOMMAND and rs.branch_exists(branch_name):
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_name
             )
@@ -142,10 +142,10 @@ def validate_subcommand(
 
     if subcommand == c.DELETE_SUBCOMMAND:
         if rs.is_current_branch(branch_name):
-            raise exceptions.SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
+            raise SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
 
         if not rs.branch_exists(branch_name):
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     branch_name=branch_name
                 )

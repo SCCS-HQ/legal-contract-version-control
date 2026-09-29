@@ -2,7 +2,7 @@
 
 from urllib.parse import urljoin, urlsplit
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -47,7 +47,7 @@ def resolve_key_value(
             or parsed_url.query
             or parsed_url.fragment
         ):
-            raise exceptions.SCCSException(c.INVALID_URL_ERROR_MESSAGE)
+            raise SCCSException(c.INVALID_URL_ERROR_MESSAGE)
 
         required_path_ending = (
             c.REPOSITORIES_PATH_SEGMENT
@@ -74,7 +74,7 @@ def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
     """
 
     if key not in c.ACCEPTED_CONFIG_KEYS:
-        raise exceptions.SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
 
     utils.raise_if_empty(c, value.strip(), key)
 

@@ -5,7 +5,7 @@ import os
 import shutil
 from pathlib import Path
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 import mammoth
 from local_sccs.constants_classes import SCCSConstants
@@ -42,7 +42,7 @@ def copy_document_to_objects_as_document_and_html(
         with open(document_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
     except Exception as e:
-        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         shutil.copy2(
@@ -52,7 +52,7 @@ def copy_document_to_objects_as_document_and_html(
             ),
         )
     except Exception as e:
-        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -63,7 +63,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(c.DEFAULT_HTML_STYLES + result)
     except Exception as e:
-        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
     try:
         with open(
@@ -76,7 +76,7 @@ def copy_document_to_objects_as_document_and_html(
         ) as f:
             f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
-        raise exceptions.SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
 def copy_document_to_repository_directory(
@@ -127,7 +127,7 @@ def create_sccs_directory_layout(
             (i).mkdir(parents=True, exist_ok=True)
 
     except Exception as e:
-        raise exceptions.SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
+        raise SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
 
     rs.target.reset()
 
@@ -171,10 +171,10 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
     """
 
     if file.suffix.lower() != c.DOCUMENT_EXTENSION:
-        raise exceptions.SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
     if not file.is_file():
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
 
@@ -187,7 +187,7 @@ def validate_no_prev_init(c: SCCSConstants, rp: RepositoryPaths) -> None:
     """
 
     if (rp.sccs_path()).is_dir():
-        raise exceptions.SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
+        raise SCCSException(c.ALREADY_INIT_ERROR_MESSAGE)
 
 
 def write_starting_metadata(

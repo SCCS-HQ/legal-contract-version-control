@@ -7,7 +7,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 import mammoth
 from local_sccs.constants_classes import SCCSConstants
@@ -40,7 +40,7 @@ class TargetBranch:
         """
 
         if self._branch is None:
-            raise exceptions.SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
+            raise SCCSException(self.c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE)
         return self._branch
 
     def reset(self) -> None:
@@ -93,14 +93,14 @@ class RepositoryData:
         ]
 
         if not matching_files:
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
                     file_path=commit_identifier
                 )
             )
 
         if len(matching_files) > self.c.MAXIMUM_COMMIT_FILE_MATCHES:
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                     commit_identifier=commit_identifier
                 )
@@ -161,7 +161,7 @@ class RepositoryData:
         """
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
+            raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
     def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
@@ -188,7 +188,7 @@ class RepositoryData:
 
         commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
         if not commit_identifier:
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
             )
 
@@ -202,7 +202,7 @@ class RepositoryData:
         """
 
         if commit_identifier is None:
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
                     field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
                 )
@@ -212,7 +212,7 @@ class RepositoryData:
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
             and len(commit_identifier) != self.c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ):
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
             )
 
@@ -711,7 +711,7 @@ class RepositoryStatus:
         """
 
         if self.validate_uncommitted_changes():
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
 
@@ -732,14 +732,14 @@ class RepositoryStatus:
 
         for i in dirs:
             if not i.is_dir():
-                raise exceptions.SCCSException(
+                raise SCCSException(
                     self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
                         resource_name=i
                     )
                 )
         for i in files:
             if not i.is_file():
-                raise exceptions.SCCSException(
+                raise SCCSException(
                     self.c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
                         resource_name=i
                     )
@@ -846,7 +846,7 @@ class RepositoryWrite:
         document_byte_hash = self.io.document_html_byte_hash()
 
         if not allow_empty_commit or latest_byte_hash == document_byte_hash:
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
             )
 
@@ -943,7 +943,7 @@ class RepositoryWrite:
         if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
             branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
         else:
-            raise exceptions.SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
+            raise SCCSException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
         self.io.write_current_branch_data(branch_data)
 
     def remove_from_updated_branch(self, branch_name: str) -> None:
@@ -985,18 +985,18 @@ class RepositoryWrite:
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
             i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
             )
         if key == self.c.REMOTE_KEY and not all(
             i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):
-            raise exceptions.SCCSException(
+            raise SCCSException(
                 self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
             )
 
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise exceptions.SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
+            raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
 
         config = self.io.read_config()
         config[key] = value

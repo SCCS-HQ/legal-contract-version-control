@@ -3,7 +3,7 @@
 import shutil
 from pathlib import Path
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -23,7 +23,7 @@ def copy_commit_file(
     try:
         shutil.copy2(commit_path, output_file_name)
     except Exception as e:
-        raise exceptions.SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
+        raise SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
 def print_open_success_message(
@@ -54,7 +54,7 @@ def validate_commit_identifier(
     rd.raise_for_commit_identifier_length(commit_identifier)
 
     if not all(i in c.HEX_DIGITS for i in commit_identifier):
-        raise exceptions.SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
+        raise SCCSException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
 
 
 def main(

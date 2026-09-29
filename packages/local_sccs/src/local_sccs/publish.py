@@ -5,7 +5,7 @@ import json
 import os
 from pathlib import Path
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 import requests
 from local_sccs.constants_classes import SCCSConstants
@@ -46,7 +46,7 @@ def post_repository(
             timeout=c.HTTP_TIMEOUT_SECONDS,
         )
     except Exception as e:
-        raise exceptions.SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+        raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     return response
 
 

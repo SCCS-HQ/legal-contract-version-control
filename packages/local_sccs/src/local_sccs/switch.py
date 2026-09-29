@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import local_sccs.exceptions as exceptions
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -30,7 +30,7 @@ def validate_branch_to_switch(
     utils.raise_if_empty(c, branch_to_switch, c.BRANCH_NAME_FIELD_NAME)
 
     if not rs.branch_exists(branch_to_switch):
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_to_switch
             )
@@ -53,7 +53,7 @@ def validate_commit_identifier(
     if not rd.commit_identifier_to_full_path(
         rd.latest_commit_identifier(), c.DOCUMENT_DIRECTORY
     ).is_file():
-        raise exceptions.SCCSException(
+        raise SCCSException(
             c.SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE.format(
                 branch_name=branch_to_switch
             )
