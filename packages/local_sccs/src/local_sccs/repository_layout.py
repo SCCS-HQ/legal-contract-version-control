@@ -841,7 +841,7 @@ class RepositoryWrite:
         latest_byte_hash = byte_hash_data[latest_commit_identifier]
         document_byte_hash = self.io.document_html_byte_hash()
 
-        if not allow_empty_commit or latest_byte_hash == document_byte_hash:
+        if not allow_empty_commit and latest_byte_hash == document_byte_hash:
             raise SCCSException(self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
 
         config = self.io.read_config()
