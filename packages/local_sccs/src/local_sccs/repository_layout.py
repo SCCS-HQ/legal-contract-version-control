@@ -294,24 +294,6 @@ class RepositoryIO:
             self.paths.document_path(), self.paths.document_objects_path() / name
         )
 
-    def document_byte_hash(self) -> str:
-        """
-        Return the SHA-256 hash of the repository document.
-        """
-
-        with open(self.paths.document_path(), "rb") as f:
-            hasher = hashlib.sha256()
-            for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
-                hasher.update(i)
-        return hasher.hexdigest()
-
-    def document_bytes(self) -> bytes:
-        """
-        Return the bytes of the repository document.
-        """
-
-        return self.file_bytes(self.paths.document_path())
-
     def document_html(self) -> str:
         """
         Return the repository document converted to HTML.
@@ -521,15 +503,6 @@ class RepositoryIO:
             newline=self.c.NEWLINE,
         ) as f:
             f.write(diff)
-            f.truncate()
-
-    def write_document_bytes(self, data: bytes) -> None:
-        """
-        Write the entered bytes to the repository document.
-        """
-
-        with open(self.paths.document_path(), "wb") as f:
-            f.write(data)
             f.truncate()
 
     def write_history(self, data: dict[str, Any]) -> None:
