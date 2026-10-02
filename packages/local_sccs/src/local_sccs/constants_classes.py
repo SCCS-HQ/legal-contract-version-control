@@ -238,7 +238,7 @@ class SCCSConstants:
     INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
     INIT_COMMAND_NAME = "init"
     INIT_COMMIT_MESSAGE = (
-        "Initial commit (This is a default commit message " "for initial version)"
+        "Initial commit (This is a default commit message for the initial version)"
     )
     INIT_COPY_ERROR_MESSAGE = (
         "Failed to copy document or write HTML during initialization."
@@ -313,7 +313,6 @@ class SCCSConstants:
 
     MAIN_BRANCH_NAME = "main"
     MAXIMUM_COMMIT_FILE_MATCHES = 1
-    MAX_FILE_READ_SIZE = 64 * 1024
     MERGE_COMMAND_NAME = "merge"
     MERGE_COMMIT_MESSAGE_TEMPLATE = (
         "Merged branch '{branch_name}' into '{current_branch}'."

@@ -112,7 +112,7 @@ def main(
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        staging_rw.write_key_to_config(key, resolved_value, staging_ri.read_config())
+        staging_rw.write_key_to_config(key, resolved_value)
 
     print_config_success_message(c, key, value)
 

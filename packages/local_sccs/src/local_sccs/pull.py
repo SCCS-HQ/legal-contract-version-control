@@ -80,7 +80,7 @@ def main(
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
 
         update_repository_files(c, response, staging_rd, staging_rp)
 

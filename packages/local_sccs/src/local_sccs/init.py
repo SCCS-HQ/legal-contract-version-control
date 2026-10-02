@@ -5,6 +5,7 @@ import os
 import shutil
 from pathlib import Path
 
+import datetime
 import local_sccs.utils as utils
 import mammoth
 from local_sccs.constants_classes import SCCSConstants
@@ -87,18 +88,6 @@ def copy_document_to_repository_directory(
     """
 
     shutil.copy2(document_path, repository_path)
-
-
-def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
-    """
-    Return the initial commit identifier created by hashing the program start time,
-    initial version commit message, name, and email.
-    """
-
-    return utils.create_commit_identifier(
-        c,
-        [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email],
-    )
 
 
 def create_sccs_directory_layout(
@@ -222,9 +211,7 @@ def write_starting_metadata(
                         }
                     },
                     c.BYTE_HASH_DICT_KEY: {
-                        commit_identifier: hashlib.sha256(
-                            (ri.document_html()).encode(c.UTF_8)
-                        ).hexdigest()
+                        commit_identifier: ri.document_html_byte_hash()
                     },
                 }
             },
@@ -263,13 +250,16 @@ def main(
 
     try:
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
         staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
 
-        commit_identifier = create_commit_identifier(c, name, email)
+        commit_identifier = utils.create_commit_identifier(
+            c,
+            [c.PROGRAM_START_TIME, c.INIT_COMMIT_MESSAGE, name, email],
+        )
 
         copy_document_to_objects_as_document_and_html(
             c, document_path, commit_identifier, staging_rp
@@ -279,8 +269,8 @@ def main(
 
         write_starting_metadata(c, commit_identifier, name, email, staging_ri)
 
-        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
-        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
+        staging_rw.write_key_to_config(c.NAME_KEY, name)
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email)
 
         finalize_repository_creation(c, document_path, rp, staging_rp)
 

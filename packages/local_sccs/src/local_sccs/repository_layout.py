@@ -76,7 +76,7 @@ class RepositoryData:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
     def _matching_commit_files(self, commit_identifier: str, folder: str) -> list[Path]:
@@ -164,14 +164,6 @@ class RepositoryData:
             raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
-    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
-        """
-        Return the commit identifier created by hashing the entered commit identifier
-        parts.
-        """
-
-        return utils.create_commit_identifier(self.c, commit_identifier_parts)
-
     def current_branch(self) -> str:
         """
         Return the current branch of the repository.
@@ -200,13 +192,6 @@ class RepositoryData:
         a valid commit identifier length. Raise an SCCSException if the commit
         identifier is invalid.
         """
-
-        if commit_identifier is None:
-            raise SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
-                )
-            )
 
         if (
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
@@ -254,7 +239,7 @@ class RepositoryIO:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
 
     def _read_metadata_json(self) -> dict[str, Any]:
         """
@@ -568,7 +553,7 @@ class RepositoryPaths:
     """
 
     def __init__(
-        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
+        self, root: Path, repository_name: str, c: SCCSConstants
     ) -> None:
         """
         Initialize the repository paths with the entered root, repository name,
@@ -578,7 +563,6 @@ class RepositoryPaths:
         self.root = root
         self.repository_name = repository_name
         self.c = c
-        self.target = target
 
     def document_objects_path(self) -> Path:
         """
@@ -648,7 +632,7 @@ class RepositoryStatus:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
     def branch_exists(self, branch_name: str | None) -> bool:
@@ -745,7 +729,7 @@ class RepositoryWrite:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
     def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
@@ -939,7 +923,7 @@ class RepositoryWrite:
         self.io.write_current_branch_data(branch_data)
 
     def write_key_to_config(
-        self, key: str, value: str, current_config: dict[str, str]
+        self, key: str, value: str
     ) -> None:
         """
         Write the entered key-value pair to the repository configuration. Raise an

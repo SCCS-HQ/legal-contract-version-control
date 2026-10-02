@@ -137,7 +137,7 @@ def main(
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
         utils.copy_latest_commit_document(

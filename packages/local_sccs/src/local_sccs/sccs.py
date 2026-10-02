@@ -235,12 +235,12 @@ def run_command(arguments: argparse.Namespace) -> None:
     wd_repository_name = wd.name
 
     wd_rd = RepositoryData(wd, wd_repository_name, c, target)
-    wd_rp = RepositoryPaths(wd, wd_repository_name, c, target)
+    wd_rp = RepositoryPaths(wd, wd_repository_name, c)
     wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
     wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
 
     cwd_ri = RepositoryIO(utils.working_directory(c), wd_repository_name, c, target)
-    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c)
     cwd_rs = RepositoryStatus(utils.working_directory(c), wd_repository_name, c, target)
     cwd_rw = RepositoryWrite(utils.working_directory(c), wd_repository_name, c, target)
 
@@ -291,7 +291,7 @@ def run_command(arguments: argparse.Namespace) -> None:
                 c,
                 target,
             ),
-            RepositoryPaths(repository_root, root_repository_name, c, target),
+            RepositoryPaths(repository_root, root_repository_name, c),
             RepositoryStatus(repository_root, root_repository_name, c, target),
             RepositoryWrite(repository_root, root_repository_name, c, target),
         ],
