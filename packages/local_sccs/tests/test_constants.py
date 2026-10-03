@@ -451,3 +451,4 @@ class SCCSTestConstants():
         "needs and jurisdiction.</em></p>"
     )
     REMOTE_KEY = "remote"
+    ALLOWED_HASH_CHARACTERS = "0123456789abcdef"

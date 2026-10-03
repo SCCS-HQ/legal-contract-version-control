@@ -1,5 +1,3 @@
-from local_sccs.init import main
-
 from local_sccs.repository_layout import (
     TargetBranch, RepositoryData, RepositoryIO, RepositoryPaths, RepositoryStatus, RepositoryWrite
 )
@@ -256,6 +254,164 @@ def test_repository_data_commit_identifier_to_full_path_returns_correct_path(
     )
 
 
+def test_repository_data_commit_file_bytes_raises_if_commit_identifier_length_invalid(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_file_bytes(tc.TEST_STRING, "docx")
+
+    assert str(e.value) == c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
+
+
+def test_repository_data_commit_file_bytes_raises_if_no_matching_commit_file_found(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_file_bytes(tc.SECOND_COMMIT_HASH, "docx")
+
+    assert str(e.value) == c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+        file_path=tc.SECOND_COMMIT_HASH
+    )
+
+
+def test_repository_data_commit_file_bytes_raises_if_multiple_matching_commit_files_found(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    (
+        initialized_repository
+        / tc.SCCS_PATH_SEGMENT
+        / tc.OBJECTS_PATH_SEGMENT
+        / tc.DOCX_OBJECTS_PATH_SEGMENT
+        / (tc.TEST_COMMIT_HASH + "2" + tc.DOCX_EXTENSION)
+    ).write_text(
+        tc.TEST_STRING,
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_file_bytes(tc.TEST_COMMIT_HASH, "docx")
+
+    assert str(e.value) == c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+        commit_identifier=tc.TEST_COMMIT_HASH
+    )
+
+
+def test_repository_data_commit_file_bytes_raises_for_display_length_multiple_matches(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    (
+        initialized_repository
+        / tc.SCCS_PATH_SEGMENT
+        / tc.OBJECTS_PATH_SEGMENT
+        / tc.DOCX_OBJECTS_PATH_SEGMENT
+        / (tc.TEST_COMMIT_HASH + "2" + tc.DOCX_EXTENSION)
+    ).write_text(
+        tc.TEST_STRING,
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_file_bytes(tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH], "docx")
+
+    assert str(e.value) == c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+        commit_identifier=tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+    )
+
+
+def test_repository_data_commit_identifier_to_full_path_raises_if_commit_identifier_length_invalid(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_identifier_to_full_path(tc.TEST_STRING, "docx")
+
+    assert str(e.value) == c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
+
+
+def test_repository_data_commit_identifier_to_full_path_raises_if_no_matching_commit_file_found(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_identifier_to_full_path(tc.SECOND_COMMIT_HASH, "docx")
+
+    assert str(e.value) == c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+        file_path=tc.SECOND_COMMIT_HASH
+    )
+
+
+def test_repository_data_commit_identifier_to_full_path_raises_if_multiple_matching_commit_files_found(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    (
+        initialized_repository
+        / tc.SCCS_PATH_SEGMENT
+        / tc.OBJECTS_PATH_SEGMENT
+        / tc.DOCX_OBJECTS_PATH_SEGMENT
+        / (tc.TEST_COMMIT_HASH + "2" + tc.DOCX_EXTENSION)
+    ).write_text(
+        tc.TEST_STRING,
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rd.commit_identifier_to_full_path(tc.TEST_COMMIT_HASH, "docx")
+
+    assert str(e.value) == c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+        commit_identifier=tc.TEST_COMMIT_HASH
+    )
+
+
 def test_repository_data_config_data_returns_correct_config_data(initialized_repository: Path) -> None:
     tc = SCCSTestConstants()
     c = SCCSConstants()
@@ -306,6 +462,33 @@ def test_repository_data_latest_commit_identifier_returns_correct_commit_identif
     assert rd.latest_commit_identifier() == tc.TEST_COMMIT_HASH
 
 
+def test_repository_data_latest_commit_identifier_raises_if_latest_commit_identifier_is_missing(
+    initialized_repository: Path
+) -> None:
+    tc = SCCSTestConstants()
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    target.set(tc.MAIN_BRANCH_NAME)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME, "r+", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        metadata = json.load(f)
+        metadata[
+            tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_KEY][tc.LATEST_COMMIT_KEY
+        ] = ""
+
+        f.seek(0)
+        json.dump(metadata, f, indent=tc.JSON_INDENT)
+        f.truncate()
+
+    with pytest.raises(SCCSException):
+        rd.latest_commit_identifier()
+
+
 def test_repository_data_raise_for_commit_identifier_length_raises_if_invalid_length(
     initialized_repository: Path
 ) -> None:
@@ -318,7 +501,23 @@ def test_repository_data_raise_for_commit_identifier_length_raises_if_invalid_le
 
     with pytest.raises(SCCSException):
         rd.raise_for_commit_identifier_length(tc.TEST_STRING)
+    with pytest.raises(SCCSException):
+        rd.raise_for_commit_identifier_length("")
 
+
+def test_repository_data_raise_for_commit_identifier_length_does_not_raise_on_valid_lengths(
+    initialized_repository: Path
+) -> None:
+    tc = SCCSTestConstants()
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    rd.raise_for_commit_identifier_length(tc.TEST_COMMIT_HASH)
+    rd.raise_for_commit_identifier_length(tc.TEST_COMMIT_HASH[:10])
+    
 
 def test_repository_data_short_commit_identifier_to_full_returns_full_commit_identifier(
     initialized_repository: Path
@@ -632,6 +831,21 @@ def test_repository_io_read_branch_data_returns_target_branch_metadata(
     )
 
 
+def test_repository_io_read_branch_data_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.read_branch_data()
+
+
 def test_repository_io_read_branches_data_returns_branches_metadata(
     initialized_repository: Path,
 ) -> None:
@@ -671,6 +885,21 @@ def test_repository_io_read_byte_hash_returns_target_branch_byte_hash(
     )
 
     assert ri.read_byte_hash() == {tc.TEST_COMMIT_HASH: tc.TEST_DOCUMENT_HTML_HASH}
+
+
+def test_repository_io_read_byte_hash_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.read_byte_hash()
 
 
 def test_repository_io_read_commit_messages_returns_commit_messages(
@@ -761,6 +990,21 @@ def test_repository_io_read_history_returns_target_branch_history(
     )
 
 
+def test_repository_io_read_history_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.read_history()
+
+
 def test_repository_io_read_log_raises_if_target_branch_not_set(
     initialized_repository: Path,
 ) -> None:
@@ -792,6 +1036,21 @@ def test_repository_io_read_log_returns_target_branch_log(
             tc.LOG_KEY
         ]
     )
+
+
+def test_repository_io_read_log_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.read_log()
 
 
 def test_repository_io_read_metadata_returns_repository_metadata(
@@ -840,6 +1099,21 @@ def test_repository_io_write_branch_data_writes_to_target_branch(
         assert json.load(f)[tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME] == tc.TEST_DICTIONARY
 
 
+def test_repository_io_write_branch_data_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.write_branch_data(tc.TEST_DICTIONARY)
+
+
 def test_repository_io_write_branches_data_raises_if_target_branch_not_set(
     initialized_repository: Path,
 ) -> None:
@@ -871,6 +1145,21 @@ def test_repository_io_write_branches_data_writes_branches_data(
         initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
     ) as f:
         assert json.load(f)[tc.BRANCHES_KEY] == tc.TEST_DICTIONARY
+
+
+def test_repository_io_write_branches_data_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.write_branches_data(tc.TEST_DICTIONARY)
 
 
 def test_repository_io_write_byte_hash_raises_if_target_branch_not_set(
@@ -906,6 +1195,21 @@ def test_repository_io_write_byte_hash_writes_to_target_branch(
         assert json.load(f)[tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME][
             tc.BYTE_HASH_KEY
         ] == tc.TEST_DICTIONARY
+
+
+def test_repository_io_write_byte_hash_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.write_byte_hash(tc.TEST_DICTIONARY)
 
 
 def test_repository_io_write_commit_messages_writes_commit_messages(
@@ -1015,6 +1319,21 @@ def test_repository_io_write_history_writes_to_target_branch(
         ] == tc.TEST_DICTIONARY
 
 
+def test_repository_io_write_history_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.write_history(tc.TEST_DICTIONARY)
+
+
 def test_repository_io_write_html_commit_writes_html_and_view_html_objects(
     initialized_repository: Path,
 ) -> None:
@@ -1089,6 +1408,21 @@ def test_repository_io_write_log_writes_to_target_branch(
         assert json.load(f)[tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME][
             tc.LOG_KEY
         ] == tc.TEST_DICTIONARY
+
+
+def test_repository_io_write_log_raises_if_set_branch_does_not_exist(
+    initialized_repository: Path,
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.TEST_STRING)
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException):
+        ri.write_log(tc.TEST_DICTIONARY)
 
 
 def test_repository_io_write_metadata_writes_repository_metadata(
@@ -1256,8 +1590,21 @@ def test_repository_status_raise_for_uncommitted_changes_raises_correctly(
         rs.raise_for_uncommitted_changes()
 
 
-def test_repository_status_validate_repository_layout_raises_correctly(
-    initialized_repository: Path
+@pytest.mark.parametrize(
+    ("missing_resource_path_name", "expected_reported_resource_path_name"),
+    [
+        ("view_html_objects_path", "view_html_objects_path"),
+        ("html_objects_path", "html_objects_path"),
+        ("sccs_path", "view_html_objects_path"),
+        ("document_objects_path", "document_objects_path"),
+        ("document_path", "document_path"),
+        ("metadata_path", "metadata_path"),
+    ],
+)
+def test_repository_status_validate_repository_layout_raises_for_each_missing_resource(
+    initialized_repository: Path,
+    missing_resource_path_name: str,
+    expected_reported_resource_path_name: str,
 ) -> None:
     c = SCCSConstants()
     target = TargetBranch(c)
@@ -1266,13 +1613,22 @@ def test_repository_status_validate_repository_layout_raises_correctly(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
     )
 
-    rs.validate_repository_layout()  # Should not raise
+    missing_resource = getattr(rs.paths, missing_resource_path_name)()
+    expected_reported_resource = getattr(rs.paths, expected_reported_resource_path_name)()
 
-    shutil.rmtree(initialized_repository / tc.SCCS_PATH_SEGMENT)
+    assert missing_resource.exists()
 
-    with pytest.raises(SCCSException):
-        rs.validate_repository_layout(
-)
+    if missing_resource.is_dir():
+        shutil.rmtree(missing_resource)
+    else:
+        missing_resource.unlink()
+
+    with pytest.raises(SCCSException) as e:
+        rs.validate_repository_layout()
+
+    assert str(e.value) == c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+        resource_name=expected_reported_resource
+    )
 
 
 def test_repository_status_validate_uncommitted_changes_returns_correct_bool(
@@ -1368,6 +1724,40 @@ def test_repository_write_add_to_updated_branches_adds_branch_to_updated_branche
         ]
 
 
+def test_repository_write_add_to_updated_branches_does_not_duplicate(
+    initialized_repository: Path
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME,
+        "r+",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        metadata = json.load(f)
+        metadata[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY].append(
+            tc.MAIN_BRANCH_NAME
+        )
+        f.seek(0)
+        json.dump(metadata, f, indent=tc.JSON_INDENT)
+        f.truncate()
+
+    rw.add_to_updated_branches(tc.MAIN_BRANCH_NAME)
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        updated_branches = json.load(f)[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY]
+
+    assert updated_branches == [tc.MAIN_BRANCH_NAME]
+
+
 def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
     initialized_repository: Path
 ) -> None:
@@ -1435,6 +1825,7 @@ def test_repository_write_commit_changes_raises_if_no_changes(
     )
 
     with pytest.raises(SCCSException):
+        target.set(tc.MAIN_BRANCH_NAME)
         rw.commit_changes(tc.TEST_STRING)
 
 
@@ -1478,6 +1869,72 @@ def test_repository_write_commit_changes_raises_if_target_branch_does_not_exist(
         rw.commit_changes(tc.TEST_STRING)
 
 
+def test_repository_write_commit_changes_commits_when_allow_empty_commit_is_true(
+    initialized_repository: Path
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.MAIN_BRANCH_NAME)
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    identifier = rw.commit_changes(tc.TEST_STRING, allow_empty_commit=True)
+
+    assert len(identifier) == 64
+    assert all(i in tc.ALLOWED_HASH_CHARACTERS for i in identifier)
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        metadata = json.load(f)
+        assert metadata[
+            tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_KEY][tc.LATEST_COMMIT_KEY
+        ] == identifier
+
+        assert metadata[tc.BRANCHES_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_KEY][tc.LATEST_COMMIT_NUMBER_KEY] == 2
+
+
+def test_repository_write_commit_changes_when_updated_branches_is_missing(
+    initialized_repository: Path
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.MAIN_BRANCH_NAME)
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME,
+        "r+",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        metadata = json.load(f)
+        del metadata[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY]
+        f.seek(0)
+        json.dump(metadata, f, indent=tc.JSON_INDENT)
+        f.truncate()
+
+    shutil.copy(
+        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME, 
+        initialized_repository / tc.TEST_DOCUMENT_FILENAME
+    )
+
+    rw.commit_changes(tc.TEST_STRING)
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        metadata = json.load(f)
+        assert (
+            tc.MAIN_BRANCH_NAME
+            in metadata[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY]
+        )
+
+
 def test_repository_write_remove_branch_metadata_removes_branch_metadata(
     initialized_repository: Path
 ) -> None:
@@ -1503,6 +1960,47 @@ def test_repository_write_remove_branch_metadata_removes_branch_metadata(
         assert metadata[tc.CURRENT_BRANCH_KEY][tc.CURRENT_BRANCH_KEY] == tc.MAIN_BRANCH_NAME
 
 
+def test_repository_write_remove_branch_metadata_keeps_current_branch_when_removing_another(
+    initialized_repository: Path
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    target.set(tc.MAIN_BRANCH_NAME)
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING + "2", tc.MAIN_BRANCH_NAME)
+
+    target.set(tc.TEST_STRING + "2")
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        metadata_before = json.load(f)
+
+    rw.remove_branch_metadata(tc.TEST_STRING, tc.TEST_STRING + "2")
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        metadata = json.load(f)
+        assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY]
+        assert tc.TEST_STRING not in metadata[tc.BRANCHES_KEY]
+        assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_KEY][tc.BRANCHES_KEY]
+        assert (
+            metadata[tc.CURRENT_BRANCH_KEY][tc.CURRENT_BRANCH_KEY]
+            == tc.TEST_STRING + "2"
+        )
+        assert (
+            metadata[tc.BRANCHES_KEY][tc.TEST_STRING + "2"]
+            == metadata_before[tc.BRANCHES_KEY][tc.TEST_STRING + "2"]
+        )
+        assert metadata[tc.CURRENT_BRANCH_KEY][tc.CURRENT_BRANCH_KEY] == tc.TEST_STRING + "2"
+
+
 def test_repository_write_remove_from_branches_list_removes_branch_from_branches_list(
     initialized_repository: Path
 ) -> None:
@@ -1523,6 +2021,26 @@ def test_repository_write_remove_from_branches_list_removes_branch_from_branches
         assert branch_to_remove not in json.load(f)[tc.CURRENT_BRANCH_KEY][tc.BRANCHES_KEY]
 
 
+def test_repository_write_remove_from_branches_list_raises_if_branch_not_in_list(
+    initialized_repository: Path
+) -> None:
+    c = SCCSConstants()
+    target = TargetBranch(c)
+    tc = SCCSTestConstants()
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target,
+    )
+
+    metadata_json_path = initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    metadata_before_removal = metadata_json_path.read_bytes()
+
+    with pytest.raises(SCCSException) as e:
+        rw.remove_from_branches_list(tc.TEST_STRING)
+
+    assert str(e.value) == c.INVALID_BRANCH_DATA_ERROR_MESSAGE
+    assert metadata_json_path.read_bytes() == metadata_before_removal
+
+
 def test_repository_write_remove_from_updated_branch_removes_branch_from_updated_branches(
     initialized_repository: Path    
 ) -> None:
@@ -1534,6 +2052,19 @@ def test_repository_write_remove_from_updated_branch_removes_branch_from_updated
     )
 
     branch_to_remove = tc.MAIN_BRANCH_NAME
+
+    with open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME
+    ) as f:
+        json_data = json.load(f)
+        json_data[tc.CURRENT_BRANCH_KEY][tc.UPDATED_BRANCHES_KEY].append(branch_to_remove)
+
+    json.dump(json_data, open(
+        initialized_repository / tc.SCCS_PATH_SEGMENT / tc.METADATA_JSON_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE
+    ))
 
     rw.remove_from_updated_branch(branch_to_remove)
 
