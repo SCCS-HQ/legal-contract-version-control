@@ -5,14 +5,14 @@ class SCCSTestConstants():
     TEST_DOCUMENT_REPOSITORY_NAME = "test_document"
 
     PROGRAM_START_TIME_SCCS_CONSTANTS_ATTRIBUTE_NAME = "PROGRAM_START_TIME"
-    SCCS_PATH_SEGMENT = ".sccs"
-    OBJECTS_PATH_SEGMENT = "objects"
+    SCCS_DIRECTORY = ".sccs"
+    OBJECTS_DIRECTORY = "objects"
     TEST_STRING = "test"
-    DOCX_OBJECTS_PATH_SEGMENT = "docx"
-    HTML_OBJECTS_PATH_SEGMENT = "html"
-    VIEW_HTML_OBJECTS_PATH_SEGMENT = "view_html"
+    DOCUMENT_DIRECTORY = "docx"
+    HTML_DIRECTORY = "html"
+    VIEW_HTML_DIRECTORY = "view_html"
     PATH_SEPARATOR = "/"
-    INITIAL_COMMIT_MESSAGE = "Initial commit (This is a default commit message for the initial version)"
+    INIT_COMMIT_MESSAGE = "Initial commit (This is a default commit message for the initial version)"
     UTF_8 = "utf-8"
     DEFAULT_HTML_STYLES = """
     <style>
@@ -43,42 +43,43 @@ class SCCSTestConstants():
         "<div class='center'><div id='target'>{html}</div></div></body></html>"
     )
     TEST_DOCUMENT_FILENAME = "test_document.docx"
-    METADATA_JSON_FILENAME = "metadata.json"
+    METADATA_JSON = "metadata.json"
     HTML_EXTENSION = ".html"
 
-    BRANCHES_KEY = "branches"
+    BRANCHES_DICT_KEY = "branches"
     MAIN_BRANCH_NAME = "main"
-    HISTORY_KEY = "history"
-    INITIAL_COMMIT_KEY = "initial_commit"
-    LATEST_COMMIT_KEY = "latest_commit"
-    LATEST_COMMIT_NUMBER_KEY = "latest_commit_number"
-    COMMIT_ORDER_KEY = "commit_order"
-    LOG_KEY = "log"
-    TIMESTAMP_KEY = "timestamp"
-    AUTHOR_KEY = "author"
-    MESSAGE_KEY = "message"
-    BYTE_HASH_KEY = "byte_hash"
-    COMMIT_MESSAGES_KEY = "commit_messages"
-    CURRENT_BRANCH_KEY = "current_branch"
-    UPDATED_BRANCHES_KEY = "updated_branches"
-    CONFIG_KEY = "config"
+    HISTORY_DICT_KEY = "history"
+    INITIAL_COMMIT_DICT_KEY = "initial_commit"
+    LATEST_COMMIT_DICT_KEY = "latest_commit"
+    LATEST_COMMIT_NUMBER_DICT_KEY = "latest_commit_number"
+    COMMIT_ORDER_DICT_KEY = "commit_order"
+    LOG_DICT_KEY = "log"
+    TIMESTAMP_DICT_KEY = "timestamp"
+    AUTHOR_DICT_KEY = "author"
+    MESSAGE_DICT_KEY = "message"
+    BYTE_HASH_DICT_KEY = "byte_hash"
+    COMMIT_MESSAGES_DICT_KEY = "commit_messages"
+    CURRENT_BRANCH_DICT_KEY = "current_branch"
+    UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+    CONFIG_DICT_KEY = "config"
     NAME_KEY = "name"
     EMAIL_KEY = "email"
-    AUTHOR_TEMPLATE = f"{TEST_STRING} <{TEST_STRING}>"
-    FIRST_COMMIT_NUMBER = 1
+    COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
+    TEST_AUTHOR = COMMIT_AUTHOR_TEMPLATE.format(name=TEST_STRING, email=TEST_STRING)
+    INITIAL_COMMIT_NUMBER = 1
     NEWLINE = "\n"
     JSON_INDENT = 4
     SECOND_COMMIT_TEST_DOCUMENT_FILENAME = "second_commit_test_document.docx"
     EPOCH_ISO_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0).isoformat()
-    DOCX_EXTENSION = ".docx"
+    DOCUMENT_EXTENSION = ".docx"
     REMOTE_KEY = "remote"
-    ALLOWED_HASH_CHARACTERS = "0123456789abcdef"
+    HEX_DIGITS = "0123456789abcdef"
     SECOND_COMMIT_NUMBER = 2
     TEST_COMMIT_HASH = hashlib.sha256(
         PATH_SEPARATOR.join(
             [
                 EPOCH_ISO_DATETIME,
-                INITIAL_COMMIT_MESSAGE,
+                INIT_COMMIT_MESSAGE,
                 TEST_STRING,
                 TEST_STRING
             ]
@@ -376,88 +377,88 @@ class SCCSTestConstants():
     ).hexdigest()
 
     TEST_INITIALIZATION_METADATA = {
-        BRANCHES_KEY: {
+        BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
-                HISTORY_KEY: {
-                    INITIAL_COMMIT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_NUMBER_KEY: FIRST_COMMIT_NUMBER,
-                    COMMIT_ORDER_KEY: {
-                        str(FIRST_COMMIT_NUMBER): TEST_COMMIT_HASH
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: INITIAL_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH
                     }
                 },
-                LOG_KEY: {
+                LOG_DICT_KEY: {
                     TEST_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     }
                 },
-                BYTE_HASH_KEY: {
+                BYTE_HASH_DICT_KEY: {
                     TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
                 }
             }
         },
-        COMMIT_MESSAGES_KEY: {
-            TEST_COMMIT_HASH: INITIAL_COMMIT_MESSAGE
+        COMMIT_MESSAGES_DICT_KEY: {
+            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE
         },
-        CURRENT_BRANCH_KEY: {
-            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
-            BRANCHES_KEY: [
+        CURRENT_BRANCH_DICT_KEY: {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [
                 MAIN_BRANCH_NAME
             ],
-            UPDATED_BRANCHES_KEY: []
+            UPDATED_BRANCHES_DICT_KEY: []
         },
-        CONFIG_KEY: {
+        CONFIG_DICT_KEY: {
             NAME_KEY: TEST_STRING,
             EMAIL_KEY: TEST_STRING
         }
     }
 
     SECOND_COMMIT_TEST_METADATA = {
-        BRANCHES_KEY: {
+        BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
-                HISTORY_KEY: {
-                    INITIAL_COMMIT_KEY: TEST_INITIAL_COMMIT_HASH,
-                    LATEST_COMMIT_KEY: SECOND_COMMIT_HASH,
-                    LATEST_COMMIT_NUMBER_KEY: SECOND_COMMIT_NUMBER,
-                    COMMIT_ORDER_KEY: {
-                        str(FIRST_COMMIT_NUMBER): TEST_INITIAL_COMMIT_HASH,
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_INITIAL_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_INITIAL_COMMIT_HASH,
                         str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
                     }
                 },
-                LOG_KEY: {
+                LOG_DICT_KEY: {
                     TEST_INITIAL_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     },
                     SECOND_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: TEST_STRING
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING
                     }
                 },
-                BYTE_HASH_KEY: {
+                BYTE_HASH_DICT_KEY: {
                     TEST_INITIAL_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
                     SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
                 }
             }
         },
-        COMMIT_MESSAGES_KEY: {
-            TEST_INITIAL_COMMIT_HASH: INITIAL_COMMIT_MESSAGE,
+        COMMIT_MESSAGES_DICT_KEY: {
+            TEST_INITIAL_COMMIT_HASH: INIT_COMMIT_MESSAGE,
             SECOND_COMMIT_HASH: TEST_STRING
         },
-        CURRENT_BRANCH_KEY: {
-            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
-            BRANCHES_KEY: [
+        CURRENT_BRANCH_DICT_KEY: {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [
                 MAIN_BRANCH_NAME
             ],
-            UPDATED_BRANCHES_KEY: [
+            UPDATED_BRANCHES_DICT_KEY: [
                 MAIN_BRANCH_NAME
             ]
         },
-        CONFIG_KEY: {
+        CONFIG_DICT_KEY: {
             NAME_KEY: TEST_STRING,
             EMAIL_KEY: TEST_STRING
         }
