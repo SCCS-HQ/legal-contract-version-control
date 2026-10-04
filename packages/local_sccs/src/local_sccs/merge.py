@@ -90,7 +90,7 @@ def print_merge_success_message(
     )
 
 
-def validate_branch(c: SCCSConstants, branch: str | None, rs: RepositoryStatus) -> None:
+def validate_branch(c: SCCSConstants, branch: str, rs: RepositoryStatus) -> None:
     """
     Validate the entered branch by checking that it is not empty, is not the current
     branch, and exists in the repository. Raise an SCCSException if any validation

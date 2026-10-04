@@ -723,26 +723,22 @@ class RepositoryStatus:
         self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def branch_exists(self, branch_name: str | None) -> bool:
+    def branch_exists(self, branch_name: str) -> bool:
         """
         Return whether the entered branch exists in the repository.
         """
 
-        if branch_name is None:
-            return False
         branches = (
             i.lower()
             for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
         )
         return branch_name.lower() in branches
 
-    def is_current_branch(self, branch_name: str | None) -> bool:
+    def is_current_branch(self, branch_name: str) -> bool:
         """
         Return whether the entered branch is the current branch of the repository.
         """
 
-        if branch_name is None:
-            return False
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]

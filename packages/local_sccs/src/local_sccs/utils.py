@@ -16,7 +16,7 @@ from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 
 
-def cleanup_staging(staging_root: Path | None) -> None:
+def cleanup_staging(staging_root: Path) -> None:
     """Best-effort removal of a staging directory. Safe to call multiple times."""
 
     if staging_root is None:

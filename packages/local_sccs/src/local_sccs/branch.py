@@ -92,7 +92,7 @@ def print_branch_delete_success_message(c: SCCSConstants, branch_name: str) -> N
 
 def run_specified_subcommand(
     c: SCCSConstants,
-    subcommand: str | None,
+    subcommand: str,
     branch_name: str | None,
     rd: RepositoryData,
     rw: RepositoryWrite,
@@ -116,7 +116,7 @@ def run_specified_subcommand(
 
 def validate_subcommand(
     c: SCCSConstants,
-    subcommand: str | None,
+    subcommand: str,
     branch_name: str | None,
     rs: RepositoryStatus,
 ) -> None:
@@ -133,28 +133,30 @@ def validate_subcommand(
     if subcommand in [c.CREATE_SUBCOMMAND, c.DELETE_SUBCOMMAND]:
         utils.raise_if_empty(c, branch_name, c.BRANCH_NAME_FIELD_NAME)
 
-    if subcommand == c.CREATE_SUBCOMMAND and rs.branch_exists(branch_name):
-        raise SCCSException(
-            c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
-                branch_name=branch_name
-            )
-        )
-
-    if subcommand == c.DELETE_SUBCOMMAND:
-        if rs.is_current_branch(branch_name):
-            raise SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
-
-        if not rs.branch_exists(branch_name):
+    if branch_name:
+        if subcommand == c.CREATE_SUBCOMMAND and rs.branch_exists(branch_name):
             raise SCCSException(
-                c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                c.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
                     branch_name=branch_name
                 )
             )
 
+    if branch_name:
+        if subcommand == c.DELETE_SUBCOMMAND:
+            if rs.is_current_branch(branch_name):
+                raise SCCSException(c.CURRENT_BRANCH_DELETION_ERROR_MESSAGE)
+
+            if not rs.branch_exists(branch_name):
+                raise SCCSException(
+                    c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                        branch_name=branch_name
+                    )
+                )
+
 
 def main(
     c: SCCSConstants,
-    subcommand: str | None,
+    subcommand: str,
     branch_name: str | None,
     rd: RepositoryData,
     rp: RepositoryPaths,

@@ -20,7 +20,7 @@ def print_switch_success_message(c: SCCSConstants, branch_to_switch: str) -> Non
 
 
 def validate_branch_to_switch(
-    c: SCCSConstants, branch_to_switch: str | None, rs: RepositoryStatus
+    c: SCCSConstants, branch_to_switch: str, rs: RepositoryStatus
 ) -> None:
     """
     Validate the entered branch by checking that it is not empty and exists in the
@@ -39,7 +39,7 @@ def validate_branch_to_switch(
 
 def validate_commit_identifier(
     c: SCCSConstants,
-    branch_to_switch: str | None,
+    branch_to_switch: str,
     rd: RepositoryData,
     rs: RepositoryStatus,
 ) -> None:
