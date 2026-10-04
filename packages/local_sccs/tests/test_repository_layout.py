@@ -3,7 +3,7 @@ import json
 import shutil
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import pytest
 
@@ -275,6 +275,58 @@ def test_repository_data_config_data_raises_if_invalid_key(
 
     assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
 
+
+def test_repository_data_copy_latest_commit_document_copies_latest_commit(
+    initialized_repository: Path,
+    c: SCCSConstants, 
+    target: TargetBranch,
+    tc: SCCSTestConstants
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    repository_document_path = initialized_repository / tc.TEST_DOCUMENT_FILENAME
+
+    with open(repository_document_path, "rb") as f:
+        latest_commit = f.read()
+
+    shutil.copy(
+        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        repository_document_path
+    )
+
+    rd.copy_latest_commit_document(
+        tc.MAIN_BRANCH_NAME, repository_document_path, tc.TEST_STRING
+    )
+
+    with open(repository_document_path, "rb") as f:
+        assert f.read() == latest_commit
+
+
+def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
+    monkeypatch: pytest.MonkeyPatch,
+    initialized_repository: Path,
+    c: SCCSConstants, 
+    target: TargetBranch,
+    tc: SCCSTestConstants
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    def raise_error() -> NoReturn:
+        raise Exception
+
+    monkeypatch.setattr(shutil, "copy2", raise_error)
+
+    with pytest.raises(SCCSException):
+        rd.copy_latest_commit_document(
+            tc.MAIN_BRANCH_NAME,
+            initialized_repository / tc.TEST_DOCUMENT_FILENAME,
+            tc.TEST_STRING
+        )
+    
 
 def test_repository_data_current_branch_returns_correct_branch(
     initialized_repository: Path,

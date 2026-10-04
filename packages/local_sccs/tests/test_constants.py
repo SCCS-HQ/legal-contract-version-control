@@ -487,3 +487,5 @@ class SCCSTestConstants():
     TEST_FOLDER_DIRECTORY = "folder"
     TEST_SYMLINK_DIRECTORY = "link"
     ZIPFILE_MODULE_NAME = "zipfile"
+    RENAME_FUNCTION_NAME = "rename"
+    COPY_FROM_DIRECTORY = "copy_from"

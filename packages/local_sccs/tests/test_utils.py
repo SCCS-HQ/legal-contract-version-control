@@ -248,6 +248,47 @@ def test_promote_staging_allows_non_empty_final_root(tmp_path: Path) -> None:
         assert f.read() == tc.TEST_STRING
 
 
+def test_promote_staging_restores_final_root_if_promotion_raises(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    c = SCCSConstants()
+    tc = SCCSTestConstants()
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    final_root.mkdir()
+    staging_root.mkdir()
+
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.SECOND_TEST_STRING)
+
+    original_rename = os.rename
+
+    def rename(source: Any, destination: Any) -> None:
+        if Path(source) == staging_root:
+            raise OSError
+
+        original_rename(source, destination)
+
+    monkeypatch.setattr(os, tc.RENAME_FUNCTION_NAME, rename)
+
+    with pytest.raises(OSError):
+        utils.promote_staging(c, staging_root, final_root)
+
+    assert {path.name for path in tmp_path.iterdir()} == {
+        final_root.name,
+        staging_root.name
+    }
+
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.SECOND_TEST_STRING
+
+
 def test_raise_if_empty_raises_if_value_is_empty() -> None:
     c = SCCSConstants()
     tc = SCCSTestConstants()
@@ -475,6 +516,56 @@ def test_staged_repository_raises(tmp_path: Path) -> None:
 
     assert staging_root is not None
     assert not staging_root.exists()
+
+
+def test_staged_repository_copies_copy_from_into_final_root(tmp_path: Path) -> None:
+    c = SCCSConstants()
+    tc = SCCSTestConstants()
+
+    sibling_root = tmp_path / tc.TEST_STRING
+    copy_from = tmp_path / tc.COPY_FROM_DIRECTORY
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+
+    (copy_from / tc.TEST_FOLDER_DIRECTORY).mkdir(parents=True)
+
+    with open(
+        copy_from / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.SECOND_TEST_STRING)
+
+    with open(
+        copy_from / tc.TEST_FOLDER_DIRECTORY / tc.TEST_TEXT_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    with utils.staged_repository(
+        c, sibling_root, final_root, copy_from=copy_from
+    ) as staging_root:
+        with open(
+            staging_root / tc.TEST_TEXT_FILENAME,
+            "r",
+            encoding=tc.UTF_8,
+            newline=tc.NEWLINE
+        ) as f:
+            assert f.read() == tc.SECOND_TEST_STRING
+
+        assert (staging_root / tc.TEST_FOLDER_DIRECTORY).is_dir()
+
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.SECOND_TEST_STRING
+
+    with open(
+        final_root / tc.TEST_FOLDER_DIRECTORY / tc.TEST_TEXT_FILENAME,
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.TEST_STRING
 
 
 def test_wrap_html_returns_correct_html() -> None:
