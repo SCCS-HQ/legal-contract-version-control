@@ -56,12 +56,12 @@ def zip_current_directory(c: SCCSConstants) -> io.BytesIO:
     SCCSException if the files cannot be zipped.
     """
 
-    with utils.zip_buffer(c) as (zip_buffer, zf):
+    with utils.zip_buffer(c) as (buffer, zf):
         for root, dirs, files in os.walk(c.WALK_ROOT):
             for i in files:
                 zf.write(Path(root) / i)
 
-    return zip_buffer
+    return buffer
 
 
 def main(

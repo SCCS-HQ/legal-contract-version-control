@@ -14,13 +14,12 @@ from typing import Any
 
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
+from collections.abc import Generator
 
 
 def cleanup_staging(staging_root: Path) -> None:
     """Best-effort removal of a staging directory. Safe to call multiple times."""
 
-    if staging_root is None:
-        return
     shutil.rmtree(staging_root, ignore_errors=True)
 
 
@@ -215,7 +214,7 @@ def staged_repository(
     sibling_root: Path,
     final_root: Path,
     copy_from: Path | None = None,
-) -> Iterator[Path]:
+) -> Generator[Path]:
     """
     Create a staging directory as a sibling of `sibling_root`, optionally copying the
     repository at `copy_from` into it, and yield the staging root.
@@ -250,7 +249,7 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 @contextlib.contextmanager
 def zip_buffer(
     c: SCCSConstants, compression: int = zipfile.ZIP_STORED
-) -> Iterator[tuple[io.BytesIO, zipfile.ZipFile]]:
+) -> Generator[tuple[io.BytesIO, zipfile.ZipFile]]:
     """
     Create a zip archive in an in-memory buffer and yield the buffer together with the
     zip file object. Raise an SCCSException if the buffer cannot be created, the files
