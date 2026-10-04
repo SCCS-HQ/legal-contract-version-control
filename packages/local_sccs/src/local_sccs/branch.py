@@ -155,7 +155,7 @@ def validate_subcommand(
 
 
 def main(
-    c: SCCSConstants,
+    c: SCCSConstants, 
     subcommand: str,
     branch_name: str | None,
     rd: RepositoryData,
