@@ -632,7 +632,7 @@ def test_repository_io_create_document_commit_creates_document_commit_file(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_STRING + tc.DOCUMENT_EXTENSION)
+        / tc.TEST_DOCX_FILENAME
     )
 
     assert new_commit_path.exists()
@@ -1910,14 +1910,14 @@ def test_repository_write_remove_branch_metadata_keeps_current_branch_when_remov
     )
 
     rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING + "2", tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.SECOND_TEST_STRING, tc.MAIN_BRANCH_NAME)
 
-    target.set(tc.TEST_STRING + "2")
+    target.set(tc.SECOND_TEST_STRING)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata_before = json.load(f)
 
-    rw.remove_branch_metadata(tc.TEST_STRING, tc.TEST_STRING + "2")
+    rw.remove_branch_metadata(tc.TEST_STRING, tc.SECOND_TEST_STRING)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -1931,15 +1931,15 @@ def test_repository_write_remove_branch_metadata_keeps_current_branch_when_remov
     ]
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
-        == tc.TEST_STRING + "2"
+        == tc.SECOND_TEST_STRING
     )
     assert (
-        metadata[tc.BRANCHES_DICT_KEY][tc.TEST_STRING + "2"]
-        == metadata_before[tc.BRANCHES_DICT_KEY][tc.TEST_STRING + "2"]
+        metadata[tc.BRANCHES_DICT_KEY][tc.SECOND_TEST_STRING]
+        == metadata_before[tc.BRANCHES_DICT_KEY][tc.SECOND_TEST_STRING]
     )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
-        == tc.TEST_STRING + "2"
+        == tc.SECOND_TEST_STRING
     )
 
 

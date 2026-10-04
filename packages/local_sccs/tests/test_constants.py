@@ -67,7 +67,6 @@ class SCCSTestConstants():
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
     TEST_AUTHOR = COMMIT_AUTHOR_TEMPLATE.format(name=TEST_STRING, email=TEST_STRING)
     INITIAL_COMMIT_NUMBER = 1
-    NEWLINE = "\n"
     JSON_INDENT = 4
     SECOND_COMMIT_TEST_DOCUMENT_FILENAME = "second_commit_test_document.docx"
     EPOCH_ISO_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0).isoformat()
@@ -463,3 +462,28 @@ class SCCSTestConstants():
             EMAIL_KEY: TEST_STRING
         }
     }
+    TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
+    ARGV_OBJECT_NAME = "argv"
+    CWD_OBJECT_NAME = "cwd"
+    PWD_ENVIRONMENT_VARIABLE = "PWD"
+    EMPTY_STRING = ""
+    STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
+    TEST_MESSAGE_TEMPLATE = "Test {url}"
+    SECOND_ELEMENT_INDEX = 1
+    INCREMENT_ONE = 1
+    ONE_CALL = 1
+    STATUS_CODE_ONE_HUNDRED = 100
+    NEWLINE = "\n"
+    TEST_URL = "http://127.0.0.1:8000"
+    FIRST_ELEMENT_INDEX = 0
+    INITIAL_CALL_COUNTER_VALUE = 0
+    TEST_FINAL_ROOT = "test_final_root"
+    TEST_STAGING_ROOT = "test_staging_root"
+    TEST_TEXT_FILENAME = "test.txt"
+    SECOND_TEST_STRING = "test2"
+    TEST_DOCX_FILENAME = "test.docx"
+    TEST_ZIP_FILENAME = "test.zip"
+    DESTINATION_DIRECTORY = "destination"
+    TEST_FOLDER_DIRECTORY = "folder"
+    TEST_SYMLINK_DIRECTORY = "link"
+    ZIPFILE_MODULE_NAME = "zipfile"
