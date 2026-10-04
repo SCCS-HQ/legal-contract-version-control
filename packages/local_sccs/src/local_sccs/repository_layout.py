@@ -165,6 +165,33 @@ class RepositoryData:
             raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
+    def copy_latest_commit_document(
+        self, branch: str, destination: Path, error_message: str
+    ) -> None:
+        """
+        Copy the latest commit document of the entered branch to the destination path,
+        temporarily setting the target branch to the entered branch and restoring the
+        original target afterwards.
+
+        Raise an SCCSException with the entered error message if the commit document
+        cannot be resolved or copied.
+        """
+
+        original_target = self.target.get()
+        self.target.set(branch)
+
+        try:
+            shutil.copy2(
+                self.commit_identifier_to_full_path(
+                    self.latest_commit_identifier(), self.c.DOCUMENT_DIRECTORY
+                ),
+                destination,
+            )
+        except Exception as e:
+            raise SCCSException(error_message) from e
+        finally:
+            self.target.set(original_target)
+
     def current_branch(self) -> str:
         """
         Return the current branch of the repository.

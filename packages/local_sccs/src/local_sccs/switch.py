@@ -92,8 +92,7 @@ def main(
 
     with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-        utils.copy_latest_commit_document(
-            rd,
+        rd.copy_latest_commit_document(
             branch_to_switch,
             staging_root / rd.paths.document_path().name,
             c.SWITCH_COPY_ERROR_MESSAGE,

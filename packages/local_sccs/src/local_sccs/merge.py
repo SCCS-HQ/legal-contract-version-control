@@ -140,8 +140,7 @@ def main(
         staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        utils.copy_latest_commit_document(
-            rd,
+        rd.copy_latest_commit_document( 
             branch,
             staging_rp.document_path(),
             c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE,

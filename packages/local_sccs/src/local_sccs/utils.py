@@ -8,7 +8,6 @@ import shutil
 import sys
 import tempfile
 import zipfile
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -21,35 +20,6 @@ def cleanup_staging(staging_root: Path) -> None:
     """Best-effort removal of a staging directory. Safe to call multiple times."""
 
     shutil.rmtree(staging_root, ignore_errors=True)
-
-
-def copy_latest_commit_document(
-    rd: Any, branch: str, destination: Path, error_message: str
-) -> None:
-    """
-    Copy the latest commit document of the entered branch to the destination path,
-    temporarily setting the target branch of `rd` (a duck-typed RepositoryData-like
-    object sharing a TargetBranch with the caller's status object) to the entered
-    branch and restoring the original target afterwards.
-
-    Raise an SCCSException with the entered error message if the commit document
-    cannot be resolved or copied.
-    """
-
-    original_target = rd.target.get()
-    rd.target.set(branch)
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), rd.c.DOCUMENT_DIRECTORY
-            ),
-            destination,
-        )
-    except Exception as e:
-        raise SCCSException(error_message) from e
-    finally:
-        rd.target.set(original_target)
 
 
 def create_commit_identifier(c: SCCSConstants, parts: list[str]) -> str:

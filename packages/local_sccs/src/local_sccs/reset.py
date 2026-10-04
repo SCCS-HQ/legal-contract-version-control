@@ -37,8 +37,7 @@ def main(
     rs.validate_repository_layout()
 
     with utils.staged_repository(c, rp.root, rp.root) as staging_root:
-        utils.copy_latest_commit_document(
-            rd,
+        rd.copy_latest_commit_document(
             rd.current_branch(),
             staging_root / rd.paths.document_path().name,
             c.RESET_ERROR_MESSAGE,
