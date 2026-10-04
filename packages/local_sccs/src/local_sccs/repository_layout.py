@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 import hashlib
 import json
 import shutil
@@ -324,6 +325,15 @@ class RepositoryIO:
         """
 
         self.target.require()
+        
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()]
 
@@ -341,6 +351,15 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.BYTE_HASH_DICT_KEY
@@ -382,6 +401,15 @@ class RepositoryIO:
 
         self.target.require()
 
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.HISTORY_DICT_KEY
         ]
@@ -393,6 +421,15 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.LOG_DICT_KEY
@@ -413,6 +450,15 @@ class RepositoryIO:
 
         self.target.require()
 
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         full_metadata = self.read_metadata()
         full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
 
@@ -426,6 +472,15 @@ class RepositoryIO:
 
         self.target.require()
 
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY] = data
 
@@ -438,6 +493,15 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
@@ -498,6 +562,15 @@ class RepositoryIO:
 
         self.target.require()
 
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+        
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.HISTORY_DICT_KEY
@@ -507,22 +580,28 @@ class RepositoryIO:
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         """
-        Write the entered HTML to the HTML and view HTML objects directories using the
-        entered commit hash.
+        Write the entered HTML to the HTML objects directory prefixed with the default
+        HTML styles and to the view HTML objects directory wrapped in the HTML
+        boilerplate, using the entered commit hash.
         """
 
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
-        for i in (
-            self.paths.html_objects_path(),
-            self.paths.view_html_objects_path(),
-        ):
-            with open(
-                i / name,
-                "w",
-                encoding=self.c.UTF_8,
-                newline=self.c.NEWLINE,
-            ) as f:
-                f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
+
+        with open(
+            self.paths.html_objects_path() / name,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            f.write(self.c.DEFAULT_HTML_STYLES + html)
+
+        with open(
+            self.paths.view_html_objects_path() / name,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
     def write_log(self, data: dict[str, Any]) -> None:
         """
@@ -531,6 +610,15 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if not self.target.get() in self._read_metadata_json()[
+            self.c.CURRENT_BRANCH_DICT_KEY][self.c.BRANCHES_DICT_KEY
+        ]:
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
@@ -739,16 +827,18 @@ class RepositoryWrite:
         """
 
         branch_name = branch_name.lower()
+        current_branch_name = current_branch_name.lower()
 
         branches_metadata = self.io.read_branches_data()
         current_branch_metadata = branches_metadata[current_branch_name]
 
-        branches_metadata[branch_name] = current_branch_metadata
+        branches_metadata[branch_name] = copy.deepcopy(current_branch_metadata)
 
-        self.io.write_branch_data(branches_metadata[branch_name])
+        self.io.write_branches_data(branches_metadata)
 
         self.add_to_branches_list(branch_name)
-        self.add_to_updated_branches(branch_name, current_branch_name)
+        self.add_to_updated_branches(branch_name)
+        self.add_to_updated_branches(current_branch_name)
         self.set_current_branch(branch_name)
 
     def add_to_branches_list(self, branch_name: str) -> None:
@@ -756,22 +846,22 @@ class RepositoryWrite:
         Add the entered branch to the list of branches in the current branch metadata.
         """
 
+        branch_name = branch_name.lower()
+
         branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
+        if branch_name not in branch_data[self.c.BRANCHES_DICT_KEY]:
+            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
         self.io.write_current_branch_data(branch_data)
 
-    def add_to_updated_branches(
-        self, branch_name: str, conditional_branch: str | None = None
-    ) -> None:
+    def add_to_updated_branches(self, branch_name: str) -> None:
         """
-        Add the entered branch to the updated branches in the current branch metadata
-        when the conditional branch is None or is already marked as updated.
+        Add the entered branch to the updated branches in the current branch metadata.
         """
 
         branch_name = branch_name.lower()
 
         def add(updated: list[str]) -> bool:
-            if conditional_branch in updated or conditional_branch is None:
+            if branch_name not in updated:
                 updated.append(branch_name)
                 return True
             return False
@@ -934,11 +1024,11 @@ class RepositoryWrite:
         utils.raise_if_empty(self.c, value.strip(), key)
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
-            i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
+            i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
             raise SCCSException(self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE)
         if key == self.c.REMOTE_KEY and not all(
-            i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
+            i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):
             raise SCCSException(self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE)
 
