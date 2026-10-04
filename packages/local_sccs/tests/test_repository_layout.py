@@ -460,7 +460,6 @@ def test_repository_data_repository_objects_returns_correct_objects(
 
 
 def test_target_branch_set_sets_target_branch(
-    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
@@ -472,7 +471,6 @@ def test_target_branch_set_sets_target_branch(
 
 
 def test_target_branch_get_returns_target_branch(
-    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
@@ -484,7 +482,6 @@ def test_target_branch_get_returns_target_branch(
 
 
 def test_target_branch_reset_sets_target_branch_to_none(
-    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
@@ -506,7 +503,6 @@ def test_target_branch_require_raises_if_target_branch_is_none(
 
 
 def test_target_branch_require_returns_target_branch(
-    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
