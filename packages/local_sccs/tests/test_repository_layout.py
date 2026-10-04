@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, NoReturn
 
 import pytest
-
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
@@ -17,6 +16,7 @@ from local_sccs.repository_layout import (
     RepositoryWrite,
     TargetBranch,
 )
+
 from test_constants import SCCSTestConstants
 
 

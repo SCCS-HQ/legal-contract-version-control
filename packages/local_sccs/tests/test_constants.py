@@ -1,7 +1,8 @@
-import hashlib
 import datetime
+import hashlib
 
-class SCCSTestConstants():
+
+class SCCSTestConstants:
     TEST_DOCUMENT_REPOSITORY_NAME = "test_document"
 
     PROGRAM_START_TIME_SCCS_CONSTANTS_ATTRIBUTE_NAME = "PROGRAM_START_TIME"

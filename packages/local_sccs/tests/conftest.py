@@ -1,10 +1,12 @@
-from local_sccs.constants_classes import SCCSConstants
-from local_sccs.repository_layout import (TargetBranch)
-import pytest
-from test_constants import SCCSTestConstants
-from pathlib import Path
-import shutil
 import json
+import shutil
+from pathlib import Path
+
+import pytest
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.repository_layout import TargetBranch
+
+from test_constants import SCCSTestConstants
 
 
 @pytest.fixture

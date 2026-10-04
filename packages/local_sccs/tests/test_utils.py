@@ -1,19 +1,21 @@
+import hashlib
 import io
 import os
+import re
+import sys
+import unittest
+import unittest.mock
+import zipfile
 from pathlib import Path
 from typing import Any, NoReturn
-import unittest.mock
 
-import local_sccs.utils as utils
 import pytest
-from local_sccs.exceptions import SCCSException
-from test_constants import SCCSTestConstants
-import hashlib
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
-import sys
-import zipfile
-import unittest
-import re
+from local_sccs.exceptions import SCCSException
+
+from test_constants import SCCSTestConstants
+
 
 def test_cleanup_staging_deletes_staging_root(tmp_path: Path) -> None:
     tc = SCCSTestConstants()
@@ -142,7 +144,7 @@ def test_working_directory_sets_cwd_to_pwd_if_cwd_raises(
 
     original_cwd = Path.cwd
     call_counter = tc.INITIAL_CALL_COUNTER_VALUE
-    def raise_error_on_first_call() -> Path | NoReturn:
+    def raise_error_on_first_call() -> Path:
         nonlocal call_counter
         call_counter += tc.INCREMENT_ONE
 
@@ -410,14 +412,13 @@ def test_safe_extract_zip_missing_member(tmp_path: Path) -> None:
 
     destination_path.mkdir()
 
-    with zipfile.ZipFile(zip_path, "w") as zf:
-        with pytest.raises(KeyError):
-            utils.safe_extract_zip(
-                c,
-                zf,
-                tc.TEST_TEXT_FILENAME,
-                destination_path
-            )
+    with zipfile.ZipFile(zip_path, "w") as zf, pytest.raises(KeyError):
+        utils.safe_extract_zip(
+            c,
+            zf,
+            tc.TEST_TEXT_FILENAME,
+            destination_path
+        )
 
 
 def test_safe_extract_zip_creates_parent_directories(tmp_path: Path) -> None:
@@ -478,14 +479,13 @@ def test_staged_repository_promotes_staging_root_to_final_root(tmp_path: Path) -
     sibling_root = tmp_path / tc.TEST_STRING
     final_root = tmp_path / tc.TEST_FINAL_ROOT
 
-    with utils.staged_repository(c, sibling_root, final_root) as staging_root:
-        with open(
-            staging_root / tc.TEST_TEXT_FILENAME,
-            "w",
-            encoding=tc.UTF_8,
-            newline=tc.NEWLINE
-        ) as f:
-            f.write(tc.TEST_STRING)
+    with utils.staged_repository(c, sibling_root, final_root) as staging_root, open(
+        staging_root / tc.TEST_TEXT_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
 
     with open(
         final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
@@ -609,17 +609,15 @@ def test_zip_buffer_raises_if_buffer_creation_fails(
 
     monkeypatch.setattr(io, "BytesIO", raise_error)
 
-    with pytest.raises(SCCSException):
-        with utils.zip_buffer(c):
-            pass
+    with pytest.raises(SCCSException), utils.zip_buffer(c):
+        pass
 
 
 def test_zip_buffer_raises_if_error_occurs_during_zipping() -> None:
     c = SCCSConstants()
 
-    with pytest.raises(SCCSException):
-        with utils.zip_buffer(c) as (buffer, zf):
-            raise Exception
+    with pytest.raises(SCCSException), utils.zip_buffer(c) as (buffer, zf):
+        raise Exception
 
 
 def test_zip_buffer_raises_if_buffer_seek_fails(
@@ -636,6 +634,5 @@ def test_zip_buffer_raises_if_buffer_seek_fails(
 
     monkeypatch.setattr(io, "BytesIO", FailingSeekBuffer)
 
-    with pytest.raises(SCCSException):
-        with utils.zip_buffer(c) as (buffer, zf):
-            zf.writestr(tc.TEST_STRING, tc.TEST_STRING)
+    with pytest.raises(SCCSException), utils.zip_buffer(c) as (buffer, zf):
+        zf.writestr(tc.TEST_STRING, tc.TEST_STRING)
