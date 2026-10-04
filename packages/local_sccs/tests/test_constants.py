@@ -46,7 +46,6 @@ class SCCSTestConstants():
     METADATA_JSON_FILENAME = "metadata.json"
     HTML_EXTENSION = ".html"
 
-    TEST_DOCUMENT_HTML_HASH = "daf65bd44755eee379d835d36ce8eb15e6b8fecfdd7decc90822045c50c4164f"
     BRANCHES_KEY = "branches"
     MAIN_BRANCH_NAME = "main"
     HISTORY_KEY = "history"
@@ -70,16 +69,11 @@ class SCCSTestConstants():
     NEWLINE = "\n"
     JSON_INDENT = 4
     SECOND_COMMIT_TEST_DOCUMENT_FILENAME = "second_commit_test_document.docx"
-    SECOND_COMMIT_HASH = "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45"
     EPOCH_ISO_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0).isoformat()
     DOCX_EXTENSION = ".docx"
+    REMOTE_KEY = "remote"
+    ALLOWED_HASH_CHARACTERS = "0123456789abcdef"
     SECOND_COMMIT_NUMBER = 2
-    TEST_INITIAL_COMMIT_HASH = (
-        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
-    )
-    SECOND_COMMIT_TEST_HTML_HASH = (
-        "baf1da7b7dcc1f061fa35633b16adb4d374708c84c0ee38dbbea9f5eb8307be6"
-    )
     TEST_COMMIT_HASH = hashlib.sha256(
         PATH_SEPARATOR.join(
             [
@@ -90,44 +84,17 @@ class SCCSTestConstants():
             ]
         ).encode(UTF_8)
     ).hexdigest()
-    TEST_INITIALIZATION_METADATA = {
-        BRANCHES_KEY: {
-            MAIN_BRANCH_NAME: {
-                HISTORY_KEY: {
-                    INITIAL_COMMIT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_NUMBER_KEY: FIRST_COMMIT_NUMBER,
-                    COMMIT_ORDER_KEY: {
-                        str(FIRST_COMMIT_NUMBER): TEST_COMMIT_HASH
-                    }
-                },
-                LOG_KEY: {
-                    TEST_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
-                    }
-                },
-                BYTE_HASH_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
-                }
-            }
-        },
-        COMMIT_MESSAGES_KEY: {
-            TEST_COMMIT_HASH: INITIAL_COMMIT_MESSAGE
-        },
-        CURRENT_BRANCH_KEY: {
-            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
-            BRANCHES_KEY: [
-                MAIN_BRANCH_NAME
-            ],
-            UPDATED_BRANCHES_KEY: []
-        },
-        CONFIG_KEY: {
-            NAME_KEY: TEST_STRING,
-            EMAIL_KEY: TEST_STRING
-        }
-    }
+    TEST_INITIAL_COMMIT_HASH = TEST_COMMIT_HASH
+    SECOND_COMMIT_HASH = hashlib.sha256(
+        PATH_SEPARATOR.join(
+            [
+                EPOCH_ISO_DATETIME,
+                TEST_STRING,
+                TEST_STRING,
+                TEST_STRING
+            ]
+        ).encode(UTF_8)
+    ).hexdigest()
     TEST_DOCUMENT_HTML = (
         "<p><strong>GENERAL CONTRACT AGREEMENT</strong></p>"
         "<p><em>This Agreement is entered into as of the date last signed below</em></p>"
@@ -299,55 +266,9 @@ class SCCSTestConstants():
         "to ensure this Agreement meets your specific needs and jurisdiction."
         "</em></p>"
     )
-    SECOND_COMMIT_TEST_METADATA = {
-        BRANCHES_KEY: {
-            MAIN_BRANCH_NAME: {
-                HISTORY_KEY: {
-                    INITIAL_COMMIT_KEY: TEST_INITIAL_COMMIT_HASH,
-                    LATEST_COMMIT_KEY: SECOND_COMMIT_HASH,
-                    LATEST_COMMIT_NUMBER_KEY: SECOND_COMMIT_NUMBER,
-                    COMMIT_ORDER_KEY: {
-                        str(FIRST_COMMIT_NUMBER): TEST_INITIAL_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
-                    }
-                },
-                LOG_KEY: {
-                    TEST_INITIAL_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
-                    },
-                    SECOND_COMMIT_HASH: {
-                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
-                        AUTHOR_KEY: AUTHOR_TEMPLATE,
-                        MESSAGE_KEY: TEST_STRING
-                    }
-                },
-                BYTE_HASH_KEY: {
-                    TEST_INITIAL_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
-                }
-            }
-        },
-        COMMIT_MESSAGES_KEY: {
-            TEST_INITIAL_COMMIT_HASH: INITIAL_COMMIT_MESSAGE,
-            SECOND_COMMIT_HASH: TEST_STRING
-        },
-        CURRENT_BRANCH_KEY: {
-            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
-            BRANCHES_KEY: [
-                MAIN_BRANCH_NAME
-            ],
-            UPDATED_BRANCHES_KEY: [
-                MAIN_BRANCH_NAME
-            ]
-        },
-        CONFIG_KEY: {
-            NAME_KEY: TEST_STRING,
-            EMAIL_KEY: TEST_STRING
-        }
-    }
-
+    TEST_DOCUMENT_HTML_HASH = hashlib.sha256(
+        TEST_DOCUMENT_HTML.encode(UTF_8)
+    ).hexdigest()
     TEST_DICTIONARY = {TEST_STRING: TEST_STRING}
 
     SECOND_COMMIT_TEST_DOCUMENT_HTML = (
@@ -450,5 +371,94 @@ class SCCSTestConstants():
         "Consult a legal professional to ensure this Agreement meets your specific "
         "needs and jurisdiction.</em></p>"
     )
-    REMOTE_KEY = "remote"
-    ALLOWED_HASH_CHARACTERS = "0123456789abcdef"
+    SECOND_COMMIT_TEST_HTML_HASH = hashlib.sha256(
+        SECOND_COMMIT_TEST_DOCUMENT_HTML.encode(UTF_8)
+    ).hexdigest()
+
+    TEST_INITIALIZATION_METADATA = {
+        BRANCHES_KEY: {
+            MAIN_BRANCH_NAME: {
+                HISTORY_KEY: {
+                    INITIAL_COMMIT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_KEY: FIRST_COMMIT_NUMBER,
+                    COMMIT_ORDER_KEY: {
+                        str(FIRST_COMMIT_NUMBER): TEST_COMMIT_HASH
+                    }
+                },
+                LOG_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_KEY: AUTHOR_TEMPLATE,
+                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
+                    }
+                },
+                BYTE_HASH_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
+                }
+            }
+        },
+        COMMIT_MESSAGES_KEY: {
+            TEST_COMMIT_HASH: INITIAL_COMMIT_MESSAGE
+        },
+        CURRENT_BRANCH_KEY: {
+            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_KEY: [
+                MAIN_BRANCH_NAME
+            ],
+            UPDATED_BRANCHES_KEY: []
+        },
+        CONFIG_KEY: {
+            NAME_KEY: TEST_STRING,
+            EMAIL_KEY: TEST_STRING
+        }
+    }
+
+    SECOND_COMMIT_TEST_METADATA = {
+        BRANCHES_KEY: {
+            MAIN_BRANCH_NAME: {
+                HISTORY_KEY: {
+                    INITIAL_COMMIT_KEY: TEST_INITIAL_COMMIT_HASH,
+                    LATEST_COMMIT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_KEY: {
+                        str(FIRST_COMMIT_NUMBER): TEST_INITIAL_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
+                    }
+                },
+                LOG_KEY: {
+                    TEST_INITIAL_COMMIT_HASH: {
+                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_KEY: AUTHOR_TEMPLATE,
+                        MESSAGE_KEY: INITIAL_COMMIT_MESSAGE
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_KEY: AUTHOR_TEMPLATE,
+                        MESSAGE_KEY: TEST_STRING
+                    }
+                },
+                BYTE_HASH_KEY: {
+                    TEST_INITIAL_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
+                }
+            }
+        },
+        COMMIT_MESSAGES_KEY: {
+            TEST_INITIAL_COMMIT_HASH: INITIAL_COMMIT_MESSAGE,
+            SECOND_COMMIT_HASH: TEST_STRING
+        },
+        CURRENT_BRANCH_KEY: {
+            CURRENT_BRANCH_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_KEY: [
+                MAIN_BRANCH_NAME
+            ],
+            UPDATED_BRANCHES_KEY: [
+                MAIN_BRANCH_NAME
+            ]
+        },
+        CONFIG_KEY: {
+            NAME_KEY: TEST_STRING,
+            EMAIL_KEY: TEST_STRING
+        }
+    }
