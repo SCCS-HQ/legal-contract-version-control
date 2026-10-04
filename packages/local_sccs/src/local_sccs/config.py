@@ -2,7 +2,7 @@
 
 from urllib.parse import urljoin, urlsplit
 
-import local_sccs.utils as utils
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (

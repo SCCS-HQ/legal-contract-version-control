@@ -8,12 +8,12 @@ import shutil
 import sys
 import tempfile
 import zipfile
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-from collections.abc import Generator
 
 
 def cleanup_staging(staging_root: Path) -> None:

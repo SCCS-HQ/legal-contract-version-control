@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import TargetBranch
-
 from test_constants import SCCSTestConstants
 
 

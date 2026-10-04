@@ -13,7 +13,6 @@ import pytest
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-
 from test_constants import SCCSTestConstants
 
 

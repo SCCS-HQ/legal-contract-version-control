@@ -16,7 +16,6 @@ from local_sccs.repository_layout import (
     RepositoryWrite,
     TargetBranch,
 )
-
 from test_constants import SCCSTestConstants
 
 
