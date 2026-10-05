@@ -21,6 +21,8 @@ class SCCSConstants:
     messages, field names, directory names, and other static values that are referenced
     in multiple places in the codebase.
     """
+    SECOND_ELEMENT_INDEX = 1
+    COMMA_SPACE = ", "
 
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     ACCEPTED_SCHEMES = ("http", "https")

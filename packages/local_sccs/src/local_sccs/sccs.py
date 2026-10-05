@@ -122,7 +122,7 @@ def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
     config_parser.add_argument(
         c.CONFIG_KEY_ARGUMENT_NAME,
         help=c.CONFIG_KEY_ARGUMENT_HELP_TEMPLATE.format(
-            keys=", ".join(c.ACCEPTED_CONFIG_KEYS)
+            keys=c.COMMA_SPACE.join(c.ACCEPTED_CONFIG_KEYS)
         ),
     )
 
@@ -397,7 +397,7 @@ def main() -> None:
         help.main(c)
         return
 
-    command = utils.entered_argument(c, 1)
+    command = utils.entered_argument(c, c.SECOND_ELEMENT_INDEX)
 
     if command not in COMMANDS:
         print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
