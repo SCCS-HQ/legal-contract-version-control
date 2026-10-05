@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 
 import local_sccs.utils as utils

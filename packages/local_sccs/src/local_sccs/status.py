@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
