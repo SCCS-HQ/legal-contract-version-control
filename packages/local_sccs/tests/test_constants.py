@@ -490,3 +490,5 @@ class SCCSTestConstants:
     ZIPFILE_MODULE_NAME = "zipfile"
     RENAME_FUNCTION_NAME = "rename"
     COPY_FROM_DIRECTORY = "copy_from"
+    ESCAPED_BACKSLASH = "\\"
+    

@@ -4,6 +4,7 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, NoReturn
+import uuid
 
 import pytest
 from local_sccs.constants_classes import SCCSConstants
@@ -200,7 +201,7 @@ def test_repository_data_commit_file_methods_raises_if_multiple_matching_commit_
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + "2" + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_HASH + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
     )
 
     with open(colliding_commit_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
@@ -229,7 +230,7 @@ def test_repository_data_commit_file_bytes_raises_if_display_length_multiple_mat
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + "2" + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_HASH + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
     )
 
     with open(colliding_commit_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
@@ -314,7 +315,7 @@ def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    def raise_error() -> NoReturn:
+    def raise_error(*args: Any) -> NoReturn:
         raise Exception
 
     monkeypatch.setattr(shutil, "copy2", raise_error)
@@ -670,15 +671,11 @@ def test_repository_io_mutate_updated_branches_does_not_write_if_mutation_return
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
-        metadata_before = json.load(f)
+    original_mtime = metadata_path.stat().st_mtime_ns
 
     ri.mutate_updated_branches(do_nothing)
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
-        metadata = json.load(f)
-
-    assert metadata == metadata_before
+    assert metadata_path.stat().st_mtime_ns == original_mtime
 
 
 @pytest.mark.parametrize(
@@ -1306,6 +1303,9 @@ def test_repository_paths_view_html_objects_path_returns_correct_path(
     [
         (SCCSTestConstants.MAIN_BRANCH_NAME, True),
         (SCCSTestConstants.TEST_STRING, False),
+        (SCCSTestConstants.MAIN_BRANCH_NAME.capitalize(), True),
+        (SCCSTestConstants.TEST_STRING.upper(), False)
+
     ],
 )
 def test_repository_status_branch_exists_returns_correct_bool(
@@ -1462,7 +1462,7 @@ def test_repository_write_add_branch_metadata_correctly_updates_metadata(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING.upper(), tc.MAIN_BRANCH_NAME)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -1853,14 +1853,14 @@ def test_repository_write_remove_from_branches_list_removes_branch_from_branches
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    branch_to_remove = tc.MAIN_BRANCH_NAME
+    branch_to_remove = tc.MAIN_BRANCH_NAME.capitalize()
 
     rw.remove_from_branches_list(branch_to_remove)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
+    assert branch_to_remove.lower() not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
         tc.BRANCHES_DICT_KEY
     ]
 
@@ -1940,7 +1940,7 @@ def test_repository_write_set_current_branch_sets_current_branch(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    new_current_branch = tc.TEST_STRING
+    new_current_branch = tc.TEST_STRING.upper()
 
     rw.set_current_branch(new_current_branch)
 
@@ -1949,7 +1949,7 @@ def test_repository_write_set_current_branch_sets_current_branch(
 
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
-        == new_current_branch
+        == tc.TEST_STRING
     )
 
 
@@ -2040,6 +2040,6 @@ def test_repository_write_write_key_to_config_raises_if_remote_contains_invalid_
     )
 
     with pytest.raises(SCCSException) as e:
-        rw.write_key_to_config(tc.REMOTE_KEY, "\\")
+        rw.write_key_to_config(tc.REMOTE_KEY, tc.ESCAPED_BACKSLASH)
 
     assert str(e.value) == c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE

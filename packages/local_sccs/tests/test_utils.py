@@ -121,10 +121,13 @@ def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
 
 
 def test_working_directory_sets_cwd_to_pwd_if_cwd_raises(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    monkeypatch: pytest.MonkeyPatch,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path
 ) -> None:
 
-    original_cwd = Path.cwd
+    original_cwd = Path.cwd()
     call_counter = tc.INITIAL_CALL_COUNTER_VALUE
 
     def raise_error_on_first_call() -> Path:
@@ -132,11 +135,13 @@ def test_working_directory_sets_cwd_to_pwd_if_cwd_raises(
         call_counter += tc.INCREMENT_ONE
 
         if call_counter > tc.ONE_CALL:
-            return original_cwd()
+            return original_cwd
         else:
             raise OSError
 
     monkeypatch.setattr(Path, tc.CWD_OBJECT_NAME, raise_error_on_first_call)
+    monkeypatch.setenv(tc.PWD_ENVIRONMENT_VARIABLE, str(original_cwd))
+    monkeypatch.chdir(tmp_path)
 
     assert utils.working_directory(c) == Path.cwd()
     assert os.environ.get(tc.PWD_ENVIRONMENT_VARIABLE) == str(Path.cwd())
