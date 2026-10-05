@@ -1,4 +1,3 @@
-
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (

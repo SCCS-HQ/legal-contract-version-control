@@ -1,4 +1,3 @@
-
 from typing import Any
 
 from local_sccs.constants_classes import SCCSConstants

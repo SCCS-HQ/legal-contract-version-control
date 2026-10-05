@@ -1,4 +1,3 @@
-
 from urllib.parse import urljoin, urlsplit
 
 import local_sccs.utils as utils
