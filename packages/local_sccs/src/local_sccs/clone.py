@@ -76,8 +76,6 @@ def unzip_repository_file(
 
     destination = Path(staging_root / repository_name)
 
-    print(destination)
-
     validate_repository_name(c, destination.name)
 
     with zipfile.ZipFile(zip_buffer, "r") as zf:
@@ -141,8 +139,6 @@ def main(c: SCCSConstants, url: str) -> None:
         raise SCCSException(c.CLONE_DESTINATION_EXISTS_ERROR_MESSAGE)
 
     staging_root = utils.create_staging_directory(c, destination)
-
-    print(staging_root)
 
     try:
         unzip_repository_file(c, zip_buffer, url, staging_root)
