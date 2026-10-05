@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """API Endpoints for hosted SCCS Repositories"""
 
 import io

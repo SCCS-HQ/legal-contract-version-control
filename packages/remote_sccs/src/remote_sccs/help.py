@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from remote_sccs.constants_classes import RemoteSCCSConstants
 
 
