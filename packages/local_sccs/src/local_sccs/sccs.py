@@ -250,7 +250,7 @@ def run_command(arguments: argparse.Namespace) -> None:
         c.BRANCH_COMMAND_NAME: lambda: [
             c,
             arguments.subcommand,
-            arguments.branch_name,
+            getattr(arguments, c.BRANCH_NAME_ARGUMENT_NAME, None),
             wd_rd,
             wd_rp,
             wd_rs,
