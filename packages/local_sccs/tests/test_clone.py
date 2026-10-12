@@ -112,21 +112,50 @@ def test_request_repository_raises_if_request_exception_is_raised(
 
 
 @pytest.mark.parametrize(
-    "url", ["htp://127.0.0.1:8000/clone", "http://127.0.0.1:8000", ""]
+    "url, error_raised", [
+        ("htp://127.0.0.1:8000/clone", True),
+        ("http://127.0.0.1:8000", True),
+        ("", True),
+        ("http://127.0.0.1:8000/test/test/clone", False),
+        ("https://example.com/repos/my-repo/clone", False),
+        ("http://localhost/clone", False),
+        ("https://127.0.0.1:8080/a/b/c/test/clone", False),
+    ]
 )
 def test_validate_entered_url_raises_if_invalid(
-    url: str, c: SCCSConstants
+    url: str, c: SCCSConstants, error_raised: bool
 ) -> None:
-    with pytest.raises(SCCSException):
+    if error_raised:
+        with pytest.raises(SCCSException):
+            clone.validate_entered_url(c, url)
+    else:
         clone.validate_entered_url(c, url)
 
 
 @pytest.mark.parametrize(
-    "name",
-    ["", "my repo", "repo/name", ".", ".."],
+    "name, error_raised",
+    [
+        ("", True),
+        ("my repo", True),
+        ("repo/name", True),
+        (".", True),
+        ("..", True),        
+        ("my-repo", False),
+        ("my_repo", False),
+        ("my.repo", False),
+        ("myrepo123", False),
+        ("A", False),
+        ("a" * 64, False),
+        ("My-Repo_123.X", False),
+    ],
 )
-def test_validate_repository_name_invalid(name: str, c: SCCSConstants) -> None:
-    with pytest.raises(SCCSException):
+def test_validate_repository_name_invalid(
+    name: str, c: SCCSConstants, error_raised: bool
+) -> None:
+    if error_raised:
+        with pytest.raises(SCCSException):
+            clone.validate_repository_name(c, name)
+    else:
         clone.validate_repository_name(c, name)
 
 
@@ -397,11 +426,17 @@ def test_config_main_unzips_repository(
     )
 
 
+@pytest.mark.parametrize(
+    "module, function",
+    [(utils, "promote_staging"), (clone, "unzip_repository_file")]
+)
 def test_config_main_deletes_staging_root_if_error_is_raised(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     c: SCCSConstants,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
+    module: object,
+    function: str
 ) -> None:
         
     def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
@@ -422,10 +457,10 @@ def test_config_main_deletes_staging_root_if_error_is_raised(
 
     monkeypatch.setattr(clone, "request_repository", mock_request_repository)
     monkeypatch.setattr(utils, "create_staging_directory", return_tmp_path)
-    monkeypatch.setattr(utils, "promote_staging", raise_exception)
+    monkeypatch.setattr(module, function, raise_exception)
 
 
     with pytest.raises(Exception):
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
-        assert not tmp_path.exists()
+    assert not tmp_path.exists()
 
