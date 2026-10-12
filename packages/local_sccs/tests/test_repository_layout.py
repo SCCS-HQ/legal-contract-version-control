@@ -286,13 +286,13 @@ def test_repository_data_copy_latest_commit_document_copies_latest_commit(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    repository_document_path = initialized_repository / tc.TEST_DOCUMENT_FILENAME
+    repository_document_path = initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
 
     with open(repository_document_path, "rb") as f:
         latest_commit = f.read()
 
     shutil.copy(
-        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
         repository_document_path
     )
 
@@ -323,7 +323,7 @@ def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
     with pytest.raises(SCCSException):
         rd.copy_latest_commit_document(
             tc.MAIN_BRANCH_NAME,
-            initialized_repository / tc.TEST_DOCUMENT_FILENAME,
+            initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
             tc.TEST_STRING
         )
     
@@ -536,7 +536,7 @@ def test_repository_io_create_document_commit_creates_document_commit_file(
     assert new_commit_path.suffix == tc.DOCUMENT_EXTENSION
     assert filecmp.cmp(
         new_commit_path,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME,
+        initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )
 
@@ -577,10 +577,10 @@ def test_repository_io_file_bytes_returns_correct_bytes(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    with open(initialized_repository / tc.TEST_DOCUMENT_FILENAME, "rb") as f:
+    with open(initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME, "rb") as f:
         expected = f.read()
 
-    assert expected == ri.file_bytes(initialized_repository / tc.TEST_DOCUMENT_FILENAME)
+    assert expected == ri.file_bytes(initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME)
 
 
 def test_repository_io_mutate_updated_branches_updated_branches_using_passed_callable(
@@ -1625,7 +1625,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
         / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
-        repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME,
+        repository_with_modified_document / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )
 

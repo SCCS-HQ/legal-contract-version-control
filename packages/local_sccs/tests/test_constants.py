@@ -70,6 +70,7 @@ class SCCSTestConstants:
     INITIAL_COMMIT_NUMBER = 1
     JSON_INDENT = 4
     SECOND_COMMIT_TEST_DOCUMENT_FILENAME = "second_commit_test_document.docx"
+    TEST_DOCUMENTS_DIRECTORY = "test_documents"
     EPOCH_ISO_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0).isoformat()
     DOCUMENT_EXTENSION = ".docx"
     REMOTE_KEY = "remote"

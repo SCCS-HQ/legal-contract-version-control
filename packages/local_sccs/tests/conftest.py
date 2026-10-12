@@ -55,7 +55,7 @@ def initialized_repository(
     docx_objects_root = objects_root / tc.DOCUMENT_DIRECTORY
     html_objects_root = objects_root / tc.HTML_DIRECTORY
     view_html_objects_root = objects_root / tc.VIEW_HTML_DIRECTORY
-    test_document_path = Path(__file__).parent / tc.TEST_DOCUMENT_FILENAME
+    test_document_path = Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
     docx_object_path = docx_objects_root / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
     html_object_path = html_objects_root / (tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION)
     view_html_object_path = (
@@ -101,8 +101,8 @@ def repository_with_modified_document(
     """
 
     shutil.copy(
-        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
     )
 
     return initialized_repository
@@ -139,11 +139,11 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         )
 
     shutil.copy(
-        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
     )
     shutil.copy(
-        Path(__file__).parent / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
         initialized_repository
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
