@@ -46,7 +46,7 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
     return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
 
 
-def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+def request_repository(c: SCCSConstants, url: str) -> requests.Response:
     """
     Sends a GET request to the specified URL with a timeout and returns the response.
 
@@ -54,7 +54,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     """
 
     try:
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
         response.raise_for_status()
     except requests.RequestException as e:
         raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
@@ -126,7 +126,7 @@ def main(c: SCCSConstants, url: str) -> None:
 
     validate_entered_url(c, url)
 
-    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
+    response = request_repository(c, url)
 
     zip_buffer = io.BytesIO(response.content)
 
