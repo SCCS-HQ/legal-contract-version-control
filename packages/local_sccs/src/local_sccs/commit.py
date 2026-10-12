@@ -19,24 +19,9 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
 
     print(
         c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
     )
-
-
-def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
-    """
-    Validates the entered commit message by checking if it is not empty.
-
-    Raises an SCCSException if the commit message is invalid.
-    """
-
-    if not commit_message:
-        raise SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_MESSAGE_FIELD_NAME
-            )
-        )
 
 
 def main(
@@ -55,11 +40,11 @@ def main(
     reset the target branch when the operation completes.
     """
 
+    utils.raise_if_empty(c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True)
+
     rs.target.set(rd.current_branch())
 
     rs.validate_repository_layout()
-
-    validate_commit_message(c, commit_message)
 
     with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)

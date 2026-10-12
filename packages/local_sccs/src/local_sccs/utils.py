@@ -136,8 +136,10 @@ def raise_if_empty(
     """
 
     if not value:
-        message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
-        raise SCCSException(message.capitalize() if capitalize else message)
+        message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+            field=field.capitalize() if capitalize else field
+        )
+        raise SCCSException(message)
 
 
 def safe_extract_zip(
