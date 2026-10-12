@@ -102,7 +102,7 @@ def repository_with_modified_document(
 
     shutil.copy(
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+        initialized_repository / tc.TEST_DOCUMENT_FILENAME
     )
 
     return initialized_repository
@@ -140,7 +140,7 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
 
     shutil.copy(
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+        initialized_repository / tc.TEST_DOCUMENT_FILENAME
     )
     shutil.copy(
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
