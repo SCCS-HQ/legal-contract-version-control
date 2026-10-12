@@ -475,8 +475,10 @@ class SCCSTestConstants:
     INCREMENT_ONE = 1
     ONE_CALL = 1
     STATUS_CODE_ONE_HUNDRED = 100
+    STATUS_CODE_TWO_HUNDRED = 200
     NEWLINE = "\n"
-    TEST_URL = "http://127.0.0.1:8000"
+    NO_PATH_TEST_URL = "http://127.0.0.1:8000"
+    TEST_REPOSITORY_CLONE_URL = "http://127.0.0.1:8000/test/test/clone"
     FIRST_ELEMENT_INDEX = 0
     INITIAL_CALL_COUNTER_VALUE = 0
     TEST_FINAL_ROOT = "test_final_root"
@@ -492,4 +494,5 @@ class SCCSTestConstants:
     RENAME_FUNCTION_NAME = "rename"
     COPY_FROM_DIRECTORY = "copy_from"
     ESCAPED_BACKSLASH = "\\"
+    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
     
