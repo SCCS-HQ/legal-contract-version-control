@@ -29,44 +29,24 @@ def test_print_clone_success_message(
 
 
 @pytest.mark.parametrize(
-    "url",
+    "url, error_raised, expected_value",
     [
-        "http://127.0.0.1:8000/test/clone/test",
-        "http://127.0.0.1:8000/clone/",
-        "http://127.0.0.1:8000",
-        "http://127.0.0.1:8000/clone",
+        ("http://127.0.0.1:8000/test/clone/test", True, None),
+        ("http://127.0.0.1:8000/clone/", True, None),
+        ("http://127.0.0.1:8000", True, None),
+        ("http://127.0.0.1:8000/clone", True, None),
+        ("http://127.0.0.1:8000/test/test/clone", False, "test")
     ]
 )
 def test_repository_name_from_url_raises_if_url_is_missing_path_components(
-    c: SCCSConstants, url: str
+    c: SCCSConstants, url: str, error_raised: bool, expected_value: str | None
 ) -> None:
-    
-    with pytest.raises(SCCSException):
-        clone.repository_name_from_url(c, url)
 
-
-def test_repository_name_from_url_returns_second_last_path_part(
-    tc: SCCSTestConstants, c: SCCSConstants
-) -> None:
-    assert (
-        clone.repository_name_from_url(c, tc.TEST_REPOSITORY_CLONE_URL)
-        == tc.TEST_STRING
-    )
-
-
-def test_request_repository_returns_response(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
-) -> None:
-    
-    response = requests.Response()
-    response.status_code = tc.STATUS_CODE_TWO_HUNDRED
-
-    def return_response(*args: Any, **kwargs: Any) -> requests.Response:
-        return response
-
-    monkeypatch.setattr(requests, "get", return_response)
-
-    assert clone.request_repository(c, tc.NO_PATH_TEST_URL) == response
+    if error_raised:
+        with pytest.raises(SCCSException):
+            clone.repository_name_from_url(c, url)
+    else:
+        assert clone.repository_name_from_url(c, url) == expected_value
 
 
 @pytest.mark.parametrize(
@@ -93,7 +73,7 @@ def test_request_repository_raises_if_http_error_occurred(
         with pytest.raises(SCCSException):
             clone.request_repository(c, tc.NO_PATH_TEST_URL)
     else:
-        clone.request_repository(c, tc.NO_PATH_TEST_URL)
+        assert clone.request_repository(c, tc.NO_PATH_TEST_URL) == response
 
 
 def test_request_repository_raises_if_request_exception_is_raised(
