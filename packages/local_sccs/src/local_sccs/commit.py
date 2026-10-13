@@ -40,16 +40,23 @@ def main(
     reset the target branch when the operation completes.
     """
 
-    utils.raise_if_empty(c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True)
+    try:
+        utils.raise_if_empty(c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True)
 
-    rs.validate_repository_layout()
+        rs.validate_repository_layout()
 
-    rs.target.set(rd.current_branch())
+        rs.target.set(rd.current_branch())
 
-    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        commit_identifier = staging_rw.commit_changes(commit_message)
+        with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            commit_identifier = staging_rw.commit_changes(commit_message)
 
-    print_commit_success_message(c, commit_identifier)
+        print_commit_success_message(c, commit_identifier)
+    except SCCSException:
+        rs.target.reset()
+        raise
+    except Exception as e:
+        rs.target.reset()
+        raise SCCSException(c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE) from e
 
-    rs.target.reset()
+

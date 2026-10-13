@@ -495,4 +495,8 @@ class SCCSTestConstants:
     COPY_FROM_DIRECTORY = "copy_from"
     ESCAPED_BACKSLASH = "\\"
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
-    
+    COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
+        "Commit {commit_identifier} created successfully."
+    )
+    COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
+    RGLOB_ALL_FILES_PATTERN = "*"
