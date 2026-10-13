@@ -32,8 +32,8 @@ def main(
     rw: RepositoryWrite,
 ) -> None:
     """
-    Run the commit command by setting the current branch as the target, validating the
-    repository layout and commit message, and committing the changes to a copy of the
+    Run the commit command by validating the repository layout and commit message,
+    setting the current branch as the target, and committing the changes to a copy of the
     repository in a staging directory.
 
     Promote the staging directory to the repository root, print a success message, and
@@ -42,9 +42,9 @@ def main(
 
     utils.raise_if_empty(c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True)
 
-    rs.target.set(rd.current_branch())
-
     rs.validate_repository_layout()
+
+    rs.target.set(rd.current_branch())
 
     with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
