@@ -153,9 +153,7 @@ def test_print_remote_success_message_prints_correct_message(
 
     expected = (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_ONE_HUNDRED)
-        + tc.NEWLINE
-        + tc.TEST_MESSAGE_TEMPLATE.format(url=tc.NO_PATH_TEST_URL)
-        + tc.NEWLINE
+        + tc.TEST_MESSAGE_TEMPLATE.format(url=tc.NO_PATH_TEST_URL) + tc.NEWLINE
     )
 
     utils.print_remote_success_message(

@@ -7,7 +7,6 @@ from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
-    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
@@ -35,6 +34,11 @@ def resolve_key_value(
     appropriate error message.
     """
 
+    if key not in c.ACCEPTED_CONFIG_KEYS:
+        raise SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
+
+    utils.raise_if_empty(c, value.strip(), key)
+
     if key == c.REMOTE_KEY:
         url = (
             value + c.PATH_SEPARATOR if not value.endswith(c.PATH_SEPARATOR) else value
@@ -59,34 +63,18 @@ def resolve_key_value(
         return (
             urljoin(url, required_path_ending)
             if not url.endswith(required_path_ending)
+            and (not parsed_url.path or parsed_url.path == c.PATH_SEPARATOR)
             else url
         )
 
-    return value
-
-
-def validate_entered_value(c: SCCSConstants, key: str, value: str) -> str:
-    """
-    Validates the entered key-value pair by checking if the key is accepted and if the
-    value is not empty.
-
-    Raises an SCCSException if the key or value is invalid.
-    """
-
-    if key not in c.ACCEPTED_CONFIG_KEYS:
-        raise SCCSException(c.INVALID_KEY_ERROR_MESSAGE)
-
-    utils.raise_if_empty(c, value.strip(), key)
-
     return value.strip()
-
+    
 
 def main(
     c: SCCSConstants,
     key: str,
     value: str,
     rd: RepositoryData,
-    ri: RepositoryIO,
     rp: RepositoryPaths,
     rs: RepositoryStatus,
     rw: RepositoryWrite,
@@ -100,20 +88,24 @@ def main(
     reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
 
-    rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    resolved_value = resolve_key_value(
-        c, rp.repository_name, key, validate_entered_value(c, key, value)
-    )
+        resolved_value = resolve_key_value(
+            c, rp.repository_name, key, value
+        )
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        staging_rw.write_key_to_config(key, resolved_value)
+            staging_rw.write_key_to_config(key, resolved_value)
 
-    print_config_success_message(c, key, value)
-
-    rs.target.reset()
+        print_config_success_message(c, key, value)
+    except SCCSException:
+        rs.target.reset()
+        raise
+    except Exception as e:
+        rs.target.reset()
+        raise SCCSException(c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE) from e

@@ -469,7 +469,7 @@ class SCCSTestConstants:
     CWD_OBJECT_NAME = "cwd"
     PWD_ENVIRONMENT_VARIABLE = "PWD"
     EMPTY_STRING = ""
-    STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
+    STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
     TEST_MESSAGE_TEMPLATE = "Test {url}"
     SECOND_ELEMENT_INDEX = 1
     INCREMENT_ONE = 1
@@ -494,9 +494,9 @@ class SCCSTestConstants:
     RENAME_FUNCTION_NAME = "rename"
     COPY_FROM_DIRECTORY = "copy_from"
     ESCAPED_BACKSLASH = "\\"
-    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
+    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit {commit_identifier} created successfully."
+        "Commit {commit_identifier} created successfully.\n"
     )
     COMMIT_IDENTIFIER_DISPLAY_LENGTH = 10
     RGLOB_ALL_FILES_PATTERN = "*"
@@ -509,4 +509,7 @@ class SCCSTestConstants:
     )
     DELETED_CONSTANT_ERROR_MESSAGE = (
         "{module_name} is missing constant: {constant_name}"
+    )
+    CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
+        "Configuration '{key}' set to '{value}' successfully.\n"
     )

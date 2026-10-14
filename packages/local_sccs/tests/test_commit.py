@@ -37,7 +37,7 @@ def test_print_commit_success_message(
 
     assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=expected_identifier
-    ) + tc.NEWLINE
+    )
 
 
 def test_commit_main_raises_if_commit_message_is_empty(
@@ -109,7 +109,8 @@ def test_commit_main_raises_for_each_missing_resource(
     )
 
 
-def test_commit_main_creates_commit_and_updates_metadata(    repository_with_modified_document: Path,
+def test_commit_main_creates_commit_and_updates_metadata(
+    repository_with_modified_document: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
@@ -271,7 +272,7 @@ def test_commit_main_prints_success_message(
     
     assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=tc.SECOND_COMMIT_HASH[:tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
-    ) + tc.NEWLINE
+    )
 
 
 def test_commit_main_resets_target_on_error(
@@ -371,3 +372,13 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     
     with pytest.raises(SCCSException):
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    assert target.get() is None
+
+    staging_dirs = list(
+        repository_with_modified_document.parent.glob(
+            tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
+        )
+    )
+
+    assert not staging_dirs

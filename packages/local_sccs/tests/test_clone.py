@@ -22,9 +22,7 @@ def test_print_clone_success_message(
 
     assert capsys.readouterr().out == (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_ONE_HUNDRED)
-        + tc.NEWLINE
         + tc.CLONE_SUCCESS_MESSAGE
-        + tc.NEWLINE
     )
 
 
@@ -239,7 +237,7 @@ def test_unzip_repository_file_raises_if_zip_buffer_is_invalid(
 @pytest.mark.parametrize(
     "url", ["htp://127.0.0.1:8000/clone", "http://127.0.0.1:8000", ""]
 )
-def test_config_main_raises_if_url_is_invalid(url: str, c: SCCSConstants) -> None:
+def test_clone_main_raises_if_url_is_invalid(url: str, c: SCCSConstants) -> None:
     with pytest.raises(SCCSException):
         clone.main(c, url)
 
@@ -248,7 +246,7 @@ def test_config_main_raises_if_url_is_invalid(url: str, c: SCCSConstants) -> Non
     "status_code",
     [400, 500]
 )
-def test_config_main_raises_if_http_error_occurred(
+def test_clone_main_raises_if_http_error_occurred(
     monkeypatch: pytest.MonkeyPatch,
     c: SCCSConstants,
     tc: SCCSTestConstants,
@@ -270,7 +268,7 @@ def test_config_main_raises_if_http_error_occurred(
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
 
 
-def test_config_main_raises_if_request_exception_is_raised(
+def test_clone_main_raises_if_request_exception_is_raised(
     monkeypatch: pytest.MonkeyPatch,
     c: SCCSConstants,
     tc: SCCSTestConstants,
@@ -296,7 +294,7 @@ def test_config_main_raises_if_request_exception_is_raised(
         "http://127.0.0.1:8000",
     ]
 )
-def test_config_main_raises_if_repository_name_cannot_be_retrieved(
+def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
     c: SCCSConstants, url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
@@ -319,7 +317,7 @@ def test_config_main_raises_if_repository_name_cannot_be_retrieved(
     "name",
     ["", "my repo", "repo/name", ".", ".."],
 )
-def test_config_main_raises_if_repository_name_is_invalid(
+def test_clone_main_raises_if_repository_name_is_invalid(
     c: SCCSConstants, name: str, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants
 ) -> None:
 
@@ -343,7 +341,7 @@ def test_config_main_raises_if_repository_name_is_invalid(
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
 
 
-def test_config_main_raises_if_local_repository_already_exists(
+def test_clone_main_raises_if_local_repository_already_exists(
     tmp_path: Path,
     c: SCCSConstants,
     tc: SCCSTestConstants,
@@ -373,7 +371,7 @@ def test_config_main_raises_if_local_repository_already_exists(
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
 
 
-def test_config_main_unzips_repository(
+def test_clone_main_unzips_repository(
     tmp_path: Path,
     c: SCCSConstants,
     tc: SCCSTestConstants,
@@ -400,9 +398,7 @@ def test_config_main_unzips_repository(
 
     assert capsys.readouterr().out == (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_TWO_HUNDRED)
-        + tc.NEWLINE
         + tc.CLONE_SUCCESS_MESSAGE
-        + tc.NEWLINE
     )
 
 
@@ -410,7 +406,7 @@ def test_config_main_unzips_repository(
     "module, function",
     [(utils, "promote_staging"), (clone, "unzip_repository_file")]
 )
-def test_config_main_deletes_staging_root_if_error_is_raised(
+def test_clone_main_deletes_staging_root_if_error_is_raised(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     c: SCCSConstants,
