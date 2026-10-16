@@ -319,27 +319,23 @@ def main(
 
     validate_diff(c, rd, commit_identifier)
 
-    with utils.staged_repository(c, ri.root, ri.root) as staging_root:
-
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-
-        staging_ri.write_diff_output(
-            utils.wrap_html(
-                c,
-                str(
-                    strip_number_attribute(
+    ri.write_diff_output(
+        utils.wrap_html(
+            c,
+            str(
+                strip_number_attribute(
+                    c,
+                    generate_diff_output(
                         c,
-                        generate_diff_output(
-                            c,
-                            rd.short_commit_identifier_to_full(commit_identifier),
-                            rd,
-                            ri,
-                        ),
-                    )
-                ),
-                c.DEFAULT_HTML_STYLES,
-            )
+                        rd.short_commit_identifier_to_full(commit_identifier),
+                        rd,
+                        ri,
+                    ),
+                )
+            ),
+            c.DEFAULT_HTML_STYLES,
         )
+    )
 
     print_diff_success_message(c)
     rs.target.reset()
