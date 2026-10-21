@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from urllib.parse import urljoin, urlsplit
 
 from local_sccs import utils

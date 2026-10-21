@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-
-import copy
 import hashlib
 import json
 import shutil
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+import copy
 
 import mammoth
 
