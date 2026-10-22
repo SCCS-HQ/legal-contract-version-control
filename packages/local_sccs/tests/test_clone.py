@@ -117,13 +117,23 @@ def test_validate_entered_url_raises_if_invalid(
         ("my repo", True),
         ("repo/name", True),
         (".", True),
-        ("..", True),        
+        ("..", True),
+        ("repo\\name", True),
+        ("repo\nname", True),
+        ("repo\tname", True),
+        ("repo name", True),
+        ("répo", True),
+        ("repo!", True),
+        ("repo@", True),
+        (".hidden", False),
+        ("trailing.", False),
         ("my-repo", False),
         ("my_repo", False),
         ("my.repo", False),
         ("myrepo123", False),
         ("A", False),
         ("a" * 64, False),
+        ("a" * 256, False),
         ("My-Repo_123.X", False),
     ],
 )
@@ -196,7 +206,10 @@ def test_unzip_repository_file_extracts_directories(
     [
         "../test.txt",
         "/test.txt",
-    ],
+        "foo/../../bar.txt",
+        "foo/../../../etc/passwd",
+        "./../escape.txt",
+    ]
 )
 def test_unzip_repository_file_raises_if_member_path_escapes_destination(
     tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, member_path: str
@@ -312,6 +325,7 @@ def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
 
     with pytest.raises(SCCSException):
         clone.main(c, url)
+
 
 @pytest.mark.parametrize(
     "name",
