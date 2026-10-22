@@ -1360,14 +1360,14 @@ def test_repository_status_raise_for_uncommitted_changes_does_not_raise_for_comm
 
 
 def test_repository_status_raise_for_uncommitted_changes_raises_for_modified_document(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     target.set(tc.MAIN_BRANCH_NAME)
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     with pytest.raises(SCCSException) as e:
@@ -1434,14 +1434,14 @@ def test_repository_status_validate_uncommitted_changes_returns_false_for_commit
 
 
 def test_repository_status_validate_uncommitted_changes_returns_true_for_modified_document(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     target.set(tc.MAIN_BRANCH_NAME)
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     assert rs.validate_uncommitted_changes() is True
@@ -1567,26 +1567,26 @@ def test_repository_write_add_to_updated_branches_does_not_duplicate(
 
 
 def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     metadata_path = (
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.METADATA_JSON
     )
 
     target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     rw.commit_changes(tc.TEST_STRING)
 
     with open(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
@@ -1602,7 +1602,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
     )
 
     with open(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
@@ -1620,12 +1620,12 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
     )
 
     assert filecmp.cmp(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
         / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
-        repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME,
+        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )
 
@@ -1654,13 +1654,13 @@ def test_repository_write_commit_changes_raises_if_no_changes(
 
 
 def test_repository_write_commit_changes_raises_if_target_branch_not_set(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     with pytest.raises(SCCSException) as e:
@@ -1670,13 +1670,13 @@ def test_repository_write_commit_changes_raises_if_target_branch_not_set(
 
 
 def test_repository_write_commit_changes_raises_if_target_branch_does_not_exist(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     target.set(tc.TEST_STRING)
@@ -1720,18 +1720,18 @@ def test_repository_write_commit_changes_commits_when_allow_empty_commit_is_true
 
 
 def test_repository_write_commit_changes_when_updated_branches_is_missing(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     metadata_path = (
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.METADATA_JSON
     )

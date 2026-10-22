@@ -204,7 +204,7 @@ def test_config_main_raises_correctly_given_key_value_provided(
 )
 def test_config_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
@@ -212,16 +212,16 @@ def test_config_main_staged_repository_creation_fails(
     function: str
 ) -> None:
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rp = RepositoryPaths(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     def raise_exception(*args, **kwargs) -> NoReturn:
@@ -233,7 +233,7 @@ def test_config_main_staged_repository_creation_fails(
         config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     staging_dirs = list(
-        repository_with_modified_document.parent.glob(
+        repository_with_multiple_commits.parent.glob(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )

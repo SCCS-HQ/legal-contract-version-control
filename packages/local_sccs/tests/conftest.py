@@ -151,10 +151,5 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
     )
 
-    with open(
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
-    ) as f:
-        json.dump(tc.SECOND_COMMIT_TEST_METADATA, f, indent=tc.JSON_INDENT)
-
     return initialized_repository
 

@@ -110,31 +110,31 @@ def test_commit_main_raises_for_each_missing_resource(
 
 
 def test_commit_main_creates_commit_and_updates_metadata(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     metadata_path = (
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.METADATA_JSON
     )
     
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     commit.main(c, tc.TEST_STRING, rd, rs, rw)
 
     with open(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
@@ -150,7 +150,7 @@ def test_commit_main_creates_commit_and_updates_metadata(
     )
 
     with open(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
@@ -168,12 +168,12 @@ def test_commit_main_creates_commit_and_updates_metadata(
     )
 
     assert filecmp.cmp(
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
         / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
-        repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME,
+        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )
 
@@ -207,23 +207,23 @@ def test_commit_main_raises_if_no_changes(
 
 
 def test_commit_main_when_updated_branches_is_missing(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     metadata_path = (
-        repository_with_modified_document
+        repository_with_multiple_commits
         / tc.SCCS_DIRECTORY
         / tc.METADATA_JSON
     )
@@ -253,19 +253,19 @@ def test_commit_main_when_updated_branches_is_missing(
 def test_commit_main_prints_success_message(
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     target: TargetBranch,
     c: SCCSConstants
 ) -> None:
     
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     commit.main(c, tc.TEST_STRING, rd, rs, rw)
@@ -277,19 +277,19 @@ def test_commit_main_prints_success_message(
 
 def test_commit_main_resets_target_on_error(
     monkeypatch: pytest.MonkeyPatch,
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants
 ) -> None:
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     def fail_commit_changes(*args, **kwargs) -> NoReturn:
@@ -309,7 +309,7 @@ def test_commit_main_resets_target_on_error(
 )
 def test_commit_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
@@ -317,13 +317,13 @@ def test_commit_main_staged_repository_creation_fails(
     function: str
 ) -> None:
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     def raise_exception(*args, **kwargs) -> NoReturn:
@@ -335,7 +335,7 @@ def test_commit_main_staged_repository_creation_fails(
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
 
     staging_dirs = list(
-        repository_with_modified_document.parent.glob(
+        repository_with_multiple_commits.parent.glob(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
@@ -348,7 +348,7 @@ def test_commit_main_staged_repository_creation_fails(
     "write_commit_messages", "write_current_branch_data",
 ])
 def test_commit_main_handles_io_errors_on_metadata_write(
-    repository_with_modified_document: Path,
+    repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
@@ -356,13 +356,13 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     method: str
 ) -> None:
     rd = RepositoryData(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     
     def raise_exception(*args, **kwargs) -> NoReturn:
@@ -376,7 +376,7 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     assert target.get() is None
 
     staging_dirs = list(
-        repository_with_modified_document.parent.glob(
+        repository_with_multiple_commits.parent.glob(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )

@@ -315,29 +315,35 @@ def main(
     target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
-    rs.validate_repository_layout()
-    rs.raise_for_uncommitted_changes()
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
+        rs.raise_for_uncommitted_changes()
 
-    validate_diff(c, rd, commit_identifier)
+        validate_diff(c, rd, commit_identifier)
 
-    ri.write_diff_output(
-        utils.wrap_html(
-            c,
-            str(
-                strip_number_attribute(
-                    c,
-                    generate_diff_output(
+        ri.write_diff_output(
+            utils.wrap_html(
+                c,
+                str(
+                    strip_number_attribute(
                         c,
-                        rd.short_commit_identifier_to_full(commit_identifier),
-                        rd,
-                        ri,
-                    ),
-                )
-            ),
-            c.DEFAULT_HTML_STYLES,
+                        generate_diff_output(
+                            c,
+                            rd.short_commit_identifier_to_full(commit_identifier),
+                            rd,
+                            ri,
+                        ),
+                    )
+                ),
+                c.DEFAULT_HTML_STYLES,
+            )
         )
-    )
 
-    print_diff_success_message(c)
-    rs.target.reset()
+        print_diff_success_message(c)
+    except SCCSException:
+        rs.target.reset()
+        raise
+    except Exception as e:
+        rs.target.reset()
+        raise SCCSException(c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE) from e
