@@ -481,8 +481,7 @@ class SCCSConstants:
     ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
     ZIP_EXTENSION = ".zip"
 
-    # Next constants out of alphabetical order as they use constants that would be
-    # defined after them.
+    # Next constants out of alphabetical order as they use constants that would be defined after them.
     COMMAND_DESCRIPTIONS = MappingProxyType(
         {
             BRANCH_COMMAND_NAME: "Create a new branch, delete, or list branches.",
