@@ -205,12 +205,13 @@ def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulS
     modifying it directly.
     """
 
-    soup = copy.copy(html)
+    soup = copy.deepcopy(html)
     for i in soup.find_all(c.TAGS_TO_UNWRAP):
         if i.name == c.STYLE_TAG_NAME:
             i.decompose()
         else:
             i.unwrap()
+    soup.smooth()
     return soup
 
 
