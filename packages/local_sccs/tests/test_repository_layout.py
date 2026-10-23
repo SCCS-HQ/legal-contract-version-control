@@ -320,12 +320,13 @@ def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
 
     monkeypatch.setattr(shutil, "copy2", raise_error)
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         rd.copy_latest_commit_document(
             tc.MAIN_BRANCH_NAME,
             initialized_repository / tc.TEST_DOCUMENT_FILENAME,
             tc.TEST_STRING
         )
+    assert str(e.value) == tc.TEST_STRING
     
 
 def test_repository_data_current_branch_returns_correct_branch(

@@ -88,8 +88,9 @@ def test_entered_argument_raises_if_argument_does_not_exist(
 
     monkeypatch.setattr(sys, tc.ARGV_OBJECT_NAME, [tc.TEST_STRING])
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         utils.entered_argument(c, tc.SECOND_ELEMENT_INDEX)
+    assert str(e.value) == c.UTILS_ARGUMENT_ERROR_MESSAGE
 
 
 def test_entered_argument_does_not_raise_if_raise_on_not_provided_is_false(
@@ -284,8 +285,9 @@ def test_raise_if_empty_raises_if_value_is_empty(
 
     utils.raise_if_empty(c, tc.TEST_STRING, tc.TEST_STRING)
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         utils.raise_if_empty(c, tc.EMPTY_STRING, tc.TEST_STRING)
+    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=tc.TEST_STRING)
 
 
 def test_safe_extract_zip_extracts_properly(
@@ -361,13 +363,16 @@ def test_safe_extract_zip_rejects_double_period(
 
     archive = unittest.mock.Mock()
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         utils.safe_extract_zip(
             c,
             archive,
             member_path,
             tmp_path,
         )
+    assert str(e.value) == c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+        entry_path=Path(member_path)
+    )
 
 
 def test_safe_extract_zip_rejects_symlink_escape(
@@ -382,8 +387,12 @@ def test_safe_extract_zip_rejects_symlink_escape(
         outside_path, target_is_directory=True
     )
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         utils.safe_extract_zip(c, None, tc.TEST_SYMLINK_DIRECTORY, destination_path) # pyright: ignore[reportArgumentType]
+    assert str(e.value) == c.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
+        target_path=Path(os.path.normpath(destination_path / tc.TEST_SYMLINK_DIRECTORY)).resolve(),
+        destination_resolved=destination_path.resolve(),
+    )
 
 
 def test_safe_extract_zip_missing_member(
@@ -579,14 +588,16 @@ def test_zip_buffer_raises_if_buffer_creation_fails(
 
     monkeypatch.setattr(io, "BytesIO", raise_error)
 
-    with pytest.raises(SCCSException), utils.zip_buffer(c):
+    with pytest.raises(SCCSException) as e, utils.zip_buffer(c):
         pass
+    assert str(e.value) == c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
 
 
 def test_zip_buffer_raises_if_error_occurs_during_zipping(c: SCCSConstants) -> None:
 
-    with pytest.raises(SCCSException), utils.zip_buffer(c) as (buffer, zf):
+    with pytest.raises(SCCSException) as e, utils.zip_buffer(c) as (buffer, zf):
         raise Exception
+    assert str(e.value) == c.ZIPPING_FILE_ERROR_MESSAGE
 
 
 def test_zip_buffer_raises_if_buffer_seek_fails(
@@ -601,5 +612,6 @@ def test_zip_buffer_raises_if_buffer_seek_fails(
 
     monkeypatch.setattr(io, "BytesIO", FailingSeekBuffer)
 
-    with pytest.raises(SCCSException), utils.zip_buffer(c) as (buffer, zf):
+    with pytest.raises(SCCSException) as e, utils.zip_buffer(c) as (buffer, zf):
         zf.writestr(tc.TEST_STRING, tc.TEST_STRING)
+    assert str(e.value) == c.ZIP_BUFFER_SEEK_ERROR_MESSAGE

@@ -6,8 +6,19 @@ class SCCSTestConstants:
     ARGV_OBJECT_NAME = "argv"
     AUTHOR_DICT_KEY = "author"
 
+    BRANCH_CREATE_SUBCOMMAND = "create"
+    BRANCH_CREATE_SUCCESS_MESSAGE = (
+        "Branch 'test' created from 'main' successfully and "
+        "is set to the current branch.\n"
+    )
+    BRANCH_DELETE_SUBCOMMAND = "delete"
+    BRANCH_DELETE_SUCCESS_MESSAGE = (
+        "Branch 'test' deleted successfully."
+    )
     BRANCHES_DICT_KEY = "branches"
+    BRANCH_LIST_SUBCOMMAND = "list"
     BYTE_HASH_DICT_KEY = "byte_hash"
+
 
     CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
@@ -70,6 +81,7 @@ class SCCSTestConstants:
     EPOCH_ISO_DATETIME = datetime.datetime(1970, 1, 1, 0, 0, 0).isoformat()
     ESCAPED_BACKSLASH = "\\"
 
+    FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE = "Failed to generate diff output. Please try again."
     FIRST_ELEMENT_INDEX = 0
 
     HEX_DIGITS = "0123456789abcdef"

@@ -133,8 +133,9 @@ def test_validate_diff_raises_if_commit_is_latest(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         diff.validate_diff(c, rd, tc.TEST_COMMIT_HASH)
+    assert str(e.value) == tc.FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -406,8 +407,9 @@ def test_diff_main_raises_if_uncommitted_changes_exist(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+    assert str(e.value) == c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
 def test_diff_main_prints_success_message(
@@ -465,8 +467,9 @@ def test_diff_main_staged_repository_creation_fails(
 
     monkeypatch.setattr(module, function, raise_exception)
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         diff.main(c, tc.TEST_STRING, rd, ri, rs)
+    assert str(e.value) == c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(

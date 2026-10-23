@@ -69,8 +69,14 @@ def test_resolve_key_value_raises_correctly(
     c: SCCSConstants, tc: SCCSTestConstants, key: str, value: str, error_raised: bool
 ) -> None:
     if error_raised:
-        with pytest.raises(SCCSException):
+        with pytest.raises(SCCSException) as e:
             config.resolve_key_value(c, tc.TEST_STRING, key, value)
+        if key == "test":
+            assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+        elif key in ("name", "email") or (key == "remote" and not value.strip()):
+            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+        elif key == "remote":
+            assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
     else:
         config.resolve_key_value(c, tc.TEST_STRING, key, value)
 
@@ -192,8 +198,14 @@ def test_config_main_raises_correctly_given_key_value_provided(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     if error_raised:
-        with pytest.raises(SCCSException):
+        with pytest.raises(SCCSException) as e:
             config.main(c, key, value, rd, rp, rs, rw)
+        if key == "test":
+            assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+        elif key in ("name", "email") or (key == "remote" and not value.strip()):
+            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+        elif key == "remote":
+            assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
     else:
         config.main(c, key, value, rd, rp, rs, rw)
 
@@ -229,8 +241,9 @@ def test_config_main_staged_repository_creation_fails(
 
     monkeypatch.setattr(module, function, raise_exception)
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
+    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(

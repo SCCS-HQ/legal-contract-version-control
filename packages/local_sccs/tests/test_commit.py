@@ -56,8 +56,11 @@ def test_commit_main_raises_if_commit_message_is_empty(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         commit.main(c, tc.EMPTY_STRING, rd, rs, rw)
+    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+        field=c.COMMIT_MESSAGE_FIELD_NAME.capitalize()
+    )
 
 
 @pytest.mark.parametrize(
@@ -293,7 +296,7 @@ def test_commit_main_resets_target_on_error(
     )
 
     def fail_commit_changes(*args, **kwargs) -> NoReturn:
-        raise SCCSException("commit failed")
+        raise SCCSException()
 
     monkeypatch.setattr(RepositoryWrite, "commit_changes", fail_commit_changes)
 
@@ -331,8 +334,9 @@ def test_commit_main_staged_repository_creation_fails(
 
     monkeypatch.setattr(module, function, raise_exception)
 
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
+    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(
@@ -370,8 +374,9 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     
     monkeypatch.setattr(RepositoryIO, method, raise_exception)
     
-    with pytest.raises(SCCSException):
+    with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
+    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     assert target.get() is None
 
