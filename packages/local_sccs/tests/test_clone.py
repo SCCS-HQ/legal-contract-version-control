@@ -37,18 +37,18 @@ def test_print_clone_success_message(
     ]
 )
 def test_repository_name_from_url_raises_if_url_is_missing_path_components(
-    c: SCCSConstants, url: str, error_raised: bool, expected_value: str | None
+    c: SCCSConstants, url: str, error_raised: bool, expected_value: str | None, tc: SCCSTestConstants
 ) -> None:
 
     if error_raised:
         with pytest.raises(SCCSException) as e:
             clone.repository_name_from_url(c, url)
-        if url.endswith(c.CLONE_ENDPOINT):
-            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.REPOSITORY_NAME_FIELD_NAME
+        if url.endswith(tc.CLONE_ENDPOINT):
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=tc.REPOSITORY_NAME_FIELD_NAME
             )
         else:
-            assert str(e.value) == c.INVALID_ENDING_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_ENDING_ERROR_MESSAGE
     else:
         assert clone.repository_name_from_url(c, url) == expected_value
 
@@ -76,7 +76,7 @@ def test_request_repository_raises_if_http_error_occurred(
     if error_raised:
         with pytest.raises(SCCSException) as e:
             clone.request_repository(c, tc.NO_PATH_TEST_URL)
-        assert str(e.value) == c.HTTP_REQUEST_ERROR_MESSAGE
+        assert str(e.value) == tc.HTTP_REQUEST_ERROR_MESSAGE
     else:
         assert clone.request_repository(c, tc.NO_PATH_TEST_URL) == response
 
@@ -94,7 +94,7 @@ def test_request_repository_raises_if_request_exception_is_raised(
 
     with pytest.raises(SCCSException) as e:
         clone.request_repository(c, tc.NO_PATH_TEST_URL)
-    assert str(e.value) == c.HTTP_REQUEST_ERROR_MESSAGE
+    assert str(e.value) == tc.HTTP_REQUEST_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -109,19 +109,19 @@ def test_request_repository_raises_if_request_exception_is_raised(
     ]
 )
 def test_validate_entered_url_raises_if_invalid(
-    url: str, c: SCCSConstants, error_raised: bool
+    url: str, c: SCCSConstants, error_raised: bool, tc: SCCSTestConstants
 ) -> None:
     if error_raised:
         with pytest.raises(SCCSException) as e:
             clone.validate_entered_url(c, url)
         if url == "":
-            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.URL_FIELD_NAME
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=tc.URL_FIELD_NAME
             )
         elif url == "http://127.0.0.1:8000":
-            assert str(e.value) == c.INVALID_ENDING_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_ENDING_ERROR_MESSAGE
         else:
-            assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
     else:
         clone.validate_entered_url(c, url)
 
@@ -154,12 +154,12 @@ def test_validate_entered_url_raises_if_invalid(
     ],
 )
 def test_validate_repository_name_invalid(
-    name: str, c: SCCSConstants, error_raised: bool
+    name: str, c: SCCSConstants, error_raised: bool, tc: SCCSTestConstants
 ) -> None:
     if error_raised:
         with pytest.raises(SCCSException) as e:
             clone.validate_repository_name(c, name)
-        assert str(e.value) == c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+        assert str(e.value) == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
     else:
         clone.validate_repository_name(c, name)
 
@@ -177,12 +177,12 @@ def test_validate_repository_name_invalid(
     ],
 )
 def test_unzip_repository_file_raises_if_url_is_missing_path_components(
-    tmp_path: Path, c: SCCSConstants, url: str
+    tmp_path: Path, c: SCCSConstants, url: str, tc: SCCSTestConstants
 ) -> None:
 
     with pytest.raises(SCCSException) as e:
         clone.unzip_repository_file(c, io.BytesIO(), url, tmp_path)
-    assert str(e.value) == c.INVALID_ENDING_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_ENDING_ERROR_MESSAGE
 
 
 def test_unzip_repository_file_extracts_files(
@@ -195,7 +195,7 @@ def test_unzip_repository_file_extracts_files(
 
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED) as zf:
         zf.writestr(member_path, tc.TEST_STRING)
-    buffer.seek(c.FILE_START_POSITION)
+    buffer.seek(tc.FILE_START_POSITION)
 
     clone.unzip_repository_file(c, buffer, tc.TEST_REPOSITORY_CLONE_URL, tmp_path)
 
@@ -212,7 +212,7 @@ def test_unzip_repository_file_extracts_directories(
 
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED) as zf:
         zf.writestr(member_path, tc.EMPTY_STRING)
-    buffer.seek(c.FILE_START_POSITION)
+    buffer.seek(tc.FILE_START_POSITION)
 
     clone.unzip_repository_file(c, buffer, tc.TEST_REPOSITORY_CLONE_URL, tmp_path)
 
@@ -237,13 +237,13 @@ def test_unzip_repository_file_raises_if_member_path_escapes_destination(
 
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_STORED) as zf:
         zf.writestr(member_path, tc.TEST_STRING)
-    buffer.seek(c.FILE_START_POSITION)
+    buffer.seek(tc.FILE_START_POSITION)
 
     with pytest.raises(SCCSException) as e:
         clone.unzip_repository_file(
             c, buffer, tc.TEST_REPOSITORY_CLONE_URL, tmp_path
         )
-    assert str(e.value) == c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+    assert str(e.value) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
         entry_path=Path(member_path)
     )
 
@@ -271,17 +271,19 @@ def test_unzip_repository_file_raises_if_zip_buffer_is_invalid(
 @pytest.mark.parametrize(
     "url", ["htp://127.0.0.1:8000/clone", "http://127.0.0.1:8000", ""]
 )
-def test_clone_main_raises_if_url_is_invalid(url: str, c: SCCSConstants) -> None:
+def test_clone_main_raises_if_url_is_invalid(
+    url: str, c: SCCSConstants, tc: SCCSTestConstants
+) -> None:
     with pytest.raises(SCCSException) as e:
         clone.main(c, url)
     if url == "":
-        assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-            field=c.URL_FIELD_NAME
+        assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+            field=tc.URL_FIELD_NAME
         )
     elif url == "http://127.0.0.1:8000":
-        assert str(e.value) == c.INVALID_ENDING_ERROR_MESSAGE
+        assert str(e.value) == tc.INVALID_ENDING_ERROR_MESSAGE
     else:
-        assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
+        assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -308,7 +310,7 @@ def test_clone_main_raises_if_http_error_occurred(
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
-    assert str(e.value) == c.HTTP_REQUEST_ERROR_MESSAGE
+    assert str(e.value) == tc.HTTP_REQUEST_ERROR_MESSAGE
 
 
 def test_clone_main_raises_if_request_exception_is_raised(
@@ -328,7 +330,7 @@ def test_clone_main_raises_if_request_exception_is_raised(
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
-    assert str(e.value) == c.HTTP_REQUEST_ERROR_MESSAGE
+    assert str(e.value) == tc.HTTP_REQUEST_ERROR_MESSAGE
 
 @pytest.mark.parametrize(
     "url",
@@ -339,14 +341,14 @@ def test_clone_main_raises_if_request_exception_is_raised(
     ]
 )
 def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
-    c: SCCSConstants, url: str, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, url: str, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants
 ) -> None:
 
     def do_nothing(*args: Any, **kwargs: Any) -> None:
         ...
 
     def raise_exception(*args: Any, **kwargs: Any) -> str:
-        raise SCCSException(c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
+        raise SCCSException(tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
 
     def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
         response = requests.Response()
@@ -359,7 +361,7 @@ def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, url)
-    assert str(e.value) == c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -387,7 +389,7 @@ def test_clone_main_raises_if_repository_name_is_invalid(
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
-    assert str(e.value) == c.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
 
 
 def test_clone_main_raises_if_local_repository_already_exists(

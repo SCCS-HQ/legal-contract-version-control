@@ -90,7 +90,7 @@ def test_entered_argument_raises_if_argument_does_not_exist(
 
     with pytest.raises(SCCSException) as e:
         utils.entered_argument(c, tc.SECOND_ELEMENT_INDEX)
-    assert str(e.value) == c.UTILS_ARGUMENT_ERROR_MESSAGE
+    assert str(e.value) == tc.UTILS_ARGUMENT_ERROR_MESSAGE
 
 
 def test_entered_argument_does_not_raise_if_raise_on_not_provided_is_false(
@@ -287,7 +287,7 @@ def test_raise_if_empty_raises_if_value_is_empty(
 
     with pytest.raises(SCCSException) as e:
         utils.raise_if_empty(c, tc.EMPTY_STRING, tc.TEST_STRING)
-    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=tc.TEST_STRING)
+    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=tc.TEST_STRING)
 
 
 def test_safe_extract_zip_extracts_properly(
@@ -336,7 +336,7 @@ def test_safe_extract_zip_rejects_absolute_paths(
     with pytest.raises(
         SCCSException,
         match=re.escape(
-            c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+            tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
                 entry_path=Path(member_path)
             )
         ),
@@ -358,7 +358,7 @@ def test_safe_extract_zip_rejects_absolute_paths(
     ],
 )
 def test_safe_extract_zip_rejects_double_period(
-    tmp_path: Path, c: SCCSConstants, member_path: str
+    tmp_path: Path, c: SCCSConstants, member_path: str, tc: SCCSTestConstants
 ) -> None:
 
     archive = unittest.mock.Mock()
@@ -370,7 +370,7 @@ def test_safe_extract_zip_rejects_double_period(
             member_path,
             tmp_path,
         )
-    assert str(e.value) == c.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+    assert str(e.value) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
         entry_path=Path(member_path)
     )
 
@@ -389,7 +389,7 @@ def test_safe_extract_zip_rejects_symlink_escape(
 
     with pytest.raises(SCCSException) as e:
         utils.safe_extract_zip(c, None, tc.TEST_SYMLINK_DIRECTORY, destination_path) # pyright: ignore[reportArgumentType]
-    assert str(e.value) == c.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
+    assert str(e.value) == tc.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
         target_path=Path(os.path.normpath(destination_path / tc.TEST_SYMLINK_DIRECTORY)).resolve(),
         destination_resolved=destination_path.resolve(),
     )
@@ -580,7 +580,7 @@ def test_zip_buffer_zips_buffer(c: SCCSConstants, tc: SCCSTestConstants) -> None
 
 
 def test_zip_buffer_raises_if_buffer_creation_fails(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants
+    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
 ) -> None:
 
     def raise_error() -> NoReturn:
@@ -590,14 +590,16 @@ def test_zip_buffer_raises_if_buffer_creation_fails(
 
     with pytest.raises(SCCSException) as e, utils.zip_buffer(c):
         pass
-    assert str(e.value) == c.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
+    assert str(e.value) == tc.ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE
 
 
-def test_zip_buffer_raises_if_error_occurs_during_zipping(c: SCCSConstants) -> None:
+def test_zip_buffer_raises_if_error_occurs_during_zipping(
+    c: SCCSConstants, tc: SCCSTestConstants
+) -> None:
 
     with pytest.raises(SCCSException) as e, utils.zip_buffer(c) as (buffer, zf):
         raise Exception
-    assert str(e.value) == c.ZIPPING_FILE_ERROR_MESSAGE
+    assert str(e.value) == tc.ZIPPING_FILE_ERROR_MESSAGE
 
 
 def test_zip_buffer_raises_if_buffer_seek_fails(
@@ -614,4 +616,4 @@ def test_zip_buffer_raises_if_buffer_seek_fails(
 
     with pytest.raises(SCCSException) as e, utils.zip_buffer(c) as (buffer, zf):
         zf.writestr(tc.TEST_STRING, tc.TEST_STRING)
-    assert str(e.value) == c.ZIP_BUFFER_SEEK_ERROR_MESSAGE
+    assert str(e.value) == tc.ZIP_BUFFER_SEEK_ERROR_MESSAGE

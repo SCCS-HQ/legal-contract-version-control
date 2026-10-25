@@ -1,6 +1,6 @@
 import datetime
 import hashlib
-
+from types import MappingProxyType
 
 class SCCSTestConstants:
     ARGV_OBJECT_NAME = "argv"
@@ -13,10 +13,11 @@ class SCCSTestConstants:
     )
     BRANCH_DELETE_SUBCOMMAND = "delete"
     BRANCH_DELETE_SUCCESS_MESSAGE = (
-        "Branch 'test' deleted successfully."
+        "Branch 'test' deleted successfully.\n"
     )
     BRANCHES_DICT_KEY = "branches"
     BRANCH_LIST_SUBCOMMAND = "list"
+    BRANCH_NAME_MISSING_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
     BYTE_HASH_DICT_KEY = "byte_hash"
 
 
@@ -565,7 +566,7 @@ class SCCSTestConstants:
     TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
     TEST_DIFF_HTML_1 = "<html><body><p>Hello <strong>bold</strong>, <em>italic</em>, and <u>underlined</u> text.</p></body></html>"
     TEST_DIFF_HTML_1_WITH_DATA_NUMBER = '<html data-number="0"><body data-number="1"><p data-number="2">Hello <strong data-number="3">bold</strong>, <em data-number="4">italic</em>, and <u data-number="5">underlined</u> text.</p></body></html>'
-    TEST_DIFF_HTML_2 = '<html><body><h2>Testing <b>bold</b> and <i>italic</i> with <u>underline</u>.</h2></body></html>'
+    TEST_DIFF_HTML_2 = "<html><body><h2>Testing <b>bold</b> and <i>italic</i> with <u>underline</u>.</h2></body></html>"
     TEST_DIFF_HTML_2_WITH_DATA_NUMBER = '<html data-number="0"><body data-number="1"><h2 data-number="2">Testing <b data-number="3">bold</b> and <i data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>'
     TEST_DIFF_OUTPUT = """<!DOCTYPE html><html><head><meta charset='UTF-8'>
     <style>
@@ -644,7 +645,7 @@ class SCCSTestConstants:
     TEST_MESSAGE_TEMPLATE = "Test {url}"
     TEST_REPOSITORY_CLONE_URL = "http://127.0.0.1:8000/test/test/clone"
     TEST_REPOSITORY_DIFF_HTML = (
-        '''<p data-number="1">GENERAL CONTRACT AGREEMENT</p><p data-number="3">This Agreement is entered into as of the date last signed below</p><p data-number="5">PARTIES</p><p data-number="10">CLIENT / PARTY A</p><p class="deleted" data-number="12">Full Legal Name: [Full Name]</p><p class="inserted" data-number="11">Full Legal Name: [Full Nae]</p><p data-number="14">Address: [Street Address]</p><p data-number="16">City, Province/State: [City, Province]</p><p data-number="18">Email: [Email Address]</p><p data-number="20">Phone: [Phone Number]</p><p data-number="23">SERVICE PROVIDER / PARTY B</p><p data-number="25">Full Legal Name: [Full Name]</p><p data-number="27">Address: [Street Address]</p><p data-number="29">City, Province/State: [City, Province]</p><p data-number="31">Email: [Email Address]</p><p data-number="33">Phone: [Phone Number]</p><h1 data-number="35">1. Scope of Work</h1><p data-number="37">Party B agrees to provide the following services to Party A (the "Services"):</p><p data-number="38">[Describe the specific services, deliverables, and work to be performed in detail. Include any milestones, phases, or specifications.]</p><p data-number="40">The Services shall be completed by: </p><p data-number="41">Completion Date: [Date]</p><h1 data-number="43">2. Compensation &amp; Payment Terms</h1><p data-number="45">In consideration for the Services, Party A agrees to pay Party B as follows:</p><p data-number="46">Total Amount: [$ Amount] CAD</p><p data-number="48">Payment Schedule: [e.g., 50% upfront, 50% upon completion]</p><p data-number="50">Accepted Payment Methods: [e.g., e-transfer, cheque, wire]</p><p data-number="52">Late payments shall accrue interest at a rate of [__]% per month on any outstanding balance. Party B reserves the right to suspend Services in the event of non-payment after [__] days written notice.</p><h1 data-number="53">3. Term &amp; Termination</h1><p data-number="55">Start Date: [Date]</p><p data-number="57">End Date: [Date or "Upon Completion"]</p><p data-number="59">Either party may terminate this Agreement upon [__] days written notice to the other party. In the event of termination:</p><li data-number="61">Party A shall pay for all Services rendered up to the termination date.</li><li data-number="62">Any non-refundable deposits paid shall remain with Party B.</li><li data-number="63">Sections 5, 6, 7, and 8 shall survive termination.</li><h1 data-number="64">4. Intellectual Property</h1><p data-number="66">Upon receipt of full payment, Party B assigns to Party A all rights, title, and interest in the deliverables produced under this Agreement, including any copyright, patent, or trade secret rights, except as follows:</p><p data-number="67">[Describe any retained rights, pre-existing IP, or tools/frameworks Party B retains ownership of]</p><p data-number="69">Party B retains the right to reference this project in their portfolio unless otherwise agreed in writing.</p><h1 data-number="70">5. Confidentiality</h1><p data-number="72">Each party agrees to hold in strict confidence any proprietary or confidential information disclosed by the other party in connection with this Agreement ("Confidential Information"). Confidential Information shall not be disclosed to third parties without prior written consent, and shall be used solely for the purposes of this Agreement.</p><p data-number="73">This obligation shall survive the termination of this Agreement for a period of [__] years.</p><h1 data-number="74">6. Representations &amp; Warranties</h1><h2 data-number="76">6.1 Party B Warrants That:</h2><li data-number="79">The Services will be performed in a professional and workmanlike manner.</li><li data-number="80">Party B has the full right and authority to enter into this Agreement.</li><li data-number="81">The deliverables will not infringe upon the intellectual property rights of any third party.</li><h2 data-number="82">6.2 Party A Warrants That:</h2><li data-number="85">Party A has the full authority to enter into this Agreement.</li><li data-number="86">All materials and information provided to Party B are accurate and lawfully obtained.</li><h1 data-number="87">7. Limitation of Liability</h1><p data-number="89">IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p><p data-number="90">Each party's total aggregate liability under this Agreement shall not exceed the total fees paid or payable under this Agreement in the [__] months immediately preceding the event giving rise to the claim.</p><h1 data-number="91">8. Dispute Resolution</h1><p data-number="93">Governing Law: This Agreement shall be governed by the laws of the Province of [Province], Canada.</p><p data-number="96">In the event of any dispute, the parties agree to first attempt to resolve it through good-faith negotiation. If negotiation fails within 30 days, the parties agree to submit the dispute to binding arbitration in accordance with the rules of [Arbitration Body], before pursuing litigation.</p><h1 data-number="97">9. General Provisions</h1><h2 data-number="99">9.1 Entire Agreement</h2><p data-number="101">This Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior discussions, negotiations, and agreements.</p><h2 data-number="102">9.2 Amendments</h2><p data-number="104">This Agreement may only be amended in writing signed by both parties.</p><h2 data-number="105">9.3 Severability</h2><p data-number="107">If any provision of this Agreement is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p><h2 data-number="108">9.4 Waiver</h2><p data-number="110">Failure by either party to enforce any right under this Agreement shall not constitute a waiver of that right.</p><h2 data-number="111">9.5 Independent Contractors</h2><p data-number="113">The parties are independent contractors. Nothing in this Agreement creates an employment, partnership, joint venture, or agency relationship between the parties.</p><h2 data-number="114">9.6 Notices</h2><p data-number="116">All notices under this Agreement shall be in writing and delivered via email (with read receipt) or registered mail to the addresses set out above.</p><h2 data-number="117">9.7 Force Majeure</h2><p data-number="119">Neither party shall be liable for delays or failures in performance resulting from causes beyond their reasonable control, including but not limited to acts of God, war, pandemic, government orders, or natural disasters.</p><h1 data-number="120">10. Signatures</h1><p data-number="122">By signing below, each party agrees to be bound by the terms and conditions of this Agreement.</p><p data-number="126">CLIENT / PARTY A</p><p data-number="128"> </p><p data-number="129">Signature</p><p data-number="131"> </p><p data-number="132">Full Printed Name</p><p data-number="134"> </p><p data-number="135">Title / Position (if applicable)</p><p data-number="137"> </p><p data-number="138">Date Signed</p><p data-number="142">SERVICE PROVIDER / PARTY B</p><p data-number="144"> </p><p data-number="145">Signature</p><p data-number="147"> </p><p data-number="148">Full Printed Name</p><p data-number="150"> </p><p data-number="151">Title / Position (if applicable)</p><p data-number="153"> </p><p data-number="154">Date Signed</p><p data-number="156">WITNESS (optional)</p><p data-number="161"> </p><p data-number="162">Witness Signature</p><p data-number="164"> </p><p data-number="165">Witness Full Name</p><p data-number="167"> </p><p data-number="168">Date</p><p data-number="172"> </p><p data-number="173">Witness Signature</p><p data-number="175"> </p><p data-number="176">Witness Full Name</p><p data-number="178"> </p><p data-number="179">Date</p><p data-number="181">This is a general-purpose template. Consult a legal professional to ensure this Agreement meets your specific needs and jurisdiction.</p>'''
+        """<p data-number="1">GENERAL CONTRACT AGREEMENT</p><p data-number="3">This Agreement is entered into as of the date last signed below</p><p data-number="5">PARTIES</p><p data-number="10">CLIENT / PARTY A</p><p class="deleted" data-number="12">Full Legal Name: [Full Name]</p><p class="inserted" data-number="11">Full Legal Name: [Full Nae]</p><p data-number="14">Address: [Street Address]</p><p data-number="16">City, Province/State: [City, Province]</p><p data-number="18">Email: [Email Address]</p><p data-number="20">Phone: [Phone Number]</p><p data-number="23">SERVICE PROVIDER / PARTY B</p><p data-number="25">Full Legal Name: [Full Name]</p><p data-number="27">Address: [Street Address]</p><p data-number="29">City, Province/State: [City, Province]</p><p data-number="31">Email: [Email Address]</p><p data-number="33">Phone: [Phone Number]</p><h1 data-number="35">1. Scope of Work</h1><p data-number="37">Party B agrees to provide the following services to Party A (the "Services"):</p><p data-number="38">[Describe the specific services, deliverables, and work to be performed in detail. Include any milestones, phases, or specifications.]</p><p data-number="40">The Services shall be completed by: </p><p data-number="41">Completion Date: [Date]</p><h1 data-number="43">2. Compensation &amp; Payment Terms</h1><p data-number="45">In consideration for the Services, Party A agrees to pay Party B as follows:</p><p data-number="46">Total Amount: [$ Amount] CAD</p><p data-number="48">Payment Schedule: [e.g., 50% upfront, 50% upon completion]</p><p data-number="50">Accepted Payment Methods: [e.g., e-transfer, cheque, wire]</p><p data-number="52">Late payments shall accrue interest at a rate of [__]% per month on any outstanding balance. Party B reserves the right to suspend Services in the event of non-payment after [__] days written notice.</p><h1 data-number="53">3. Term &amp; Termination</h1><p data-number="55">Start Date: [Date]</p><p data-number="57">End Date: [Date or "Upon Completion"]</p><p data-number="59">Either party may terminate this Agreement upon [__] days written notice to the other party. In the event of termination:</p><li data-number="61">Party A shall pay for all Services rendered up to the termination date.</li><li data-number="62">Any non-refundable deposits paid shall remain with Party B.</li><li data-number="63">Sections 5, 6, 7, and 8 shall survive termination.</li><h1 data-number="64">4. Intellectual Property</h1><p data-number="66">Upon receipt of full payment, Party B assigns to Party A all rights, title, and interest in the deliverables produced under this Agreement, including any copyright, patent, or trade secret rights, except as follows:</p><p data-number="67">[Describe any retained rights, pre-existing IP, or tools/frameworks Party B retains ownership of]</p><p data-number="69">Party B retains the right to reference this project in their portfolio unless otherwise agreed in writing.</p><h1 data-number="70">5. Confidentiality</h1><p data-number="72">Each party agrees to hold in strict confidence any proprietary or confidential information disclosed by the other party in connection with this Agreement ("Confidential Information"). Confidential Information shall not be disclosed to third parties without prior written consent, and shall be used solely for the purposes of this Agreement.</p><p data-number="73">This obligation shall survive the termination of this Agreement for a period of [__] years.</p><h1 data-number="74">6. Representations &amp; Warranties</h1><h2 data-number="76">6.1 Party B Warrants That:</h2><li data-number="79">The Services will be performed in a professional and workmanlike manner.</li><li data-number="80">Party B has the full right and authority to enter into this Agreement.</li><li data-number="81">The deliverables will not infringe upon the intellectual property rights of any third party.</li><h2 data-number="82">6.2 Party A Warrants That:</h2><li data-number="85">Party A has the full authority to enter into this Agreement.</li><li data-number="86">All materials and information provided to Party B are accurate and lawfully obtained.</li><h1 data-number="87">7. Limitation of Liability</h1><p data-number="89">IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p><p data-number="90">Each party's total aggregate liability under this Agreement shall not exceed the total fees paid or payable under this Agreement in the [__] months immediately preceding the event giving rise to the claim.</p><h1 data-number="91">8. Dispute Resolution</h1><p data-number="93">Governing Law: This Agreement shall be governed by the laws of the Province of [Province], Canada.</p><p data-number="96">In the event of any dispute, the parties agree to first attempt to resolve it through good-faith negotiation. If negotiation fails within 30 days, the parties agree to submit the dispute to binding arbitration in accordance with the rules of [Arbitration Body], before pursuing litigation.</p><h1 data-number="97">9. General Provisions</h1><h2 data-number="99">9.1 Entire Agreement</h2><p data-number="101">This Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior discussions, negotiations, and agreements.</p><h2 data-number="102">9.2 Amendments</h2><p data-number="104">This Agreement may only be amended in writing signed by both parties.</p><h2 data-number="105">9.3 Severability</h2><p data-number="107">If any provision of this Agreement is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p><h2 data-number="108">9.4 Waiver</h2><p data-number="110">Failure by either party to enforce any right under this Agreement shall not constitute a waiver of that right.</p><h2 data-number="111">9.5 Independent Contractors</h2><p data-number="113">The parties are independent contractors. Nothing in this Agreement creates an employment, partnership, joint venture, or agency relationship between the parties.</p><h2 data-number="114">9.6 Notices</h2><p data-number="116">All notices under this Agreement shall be in writing and delivered via email (with read receipt) or registered mail to the addresses set out above.</p><h2 data-number="117">9.7 Force Majeure</h2><p data-number="119">Neither party shall be liable for delays or failures in performance resulting from causes beyond their reasonable control, including but not limited to acts of God, war, pandemic, government orders, or natural disasters.</p><h1 data-number="120">10. Signatures</h1><p data-number="122">By signing below, each party agrees to be bound by the terms and conditions of this Agreement.</p><p data-number="126">CLIENT / PARTY A</p><p data-number="128"> </p><p data-number="129">Signature</p><p data-number="131"> </p><p data-number="132">Full Printed Name</p><p data-number="134"> </p><p data-number="135">Title / Position (if applicable)</p><p data-number="137"> </p><p data-number="138">Date Signed</p><p data-number="142">SERVICE PROVIDER / PARTY B</p><p data-number="144"> </p><p data-number="145">Signature</p><p data-number="147"> </p><p data-number="148">Full Printed Name</p><p data-number="150"> </p><p data-number="151">Title / Position (if applicable)</p><p data-number="153"> </p><p data-number="154">Date Signed</p><p data-number="156">WITNESS (optional)</p><p data-number="161"> </p><p data-number="162">Witness Signature</p><p data-number="164"> </p><p data-number="165">Witness Full Name</p><p data-number="167"> </p><p data-number="168">Date</p><p data-number="172"> </p><p data-number="173">Witness Signature</p><p data-number="175"> </p><p data-number="176">Witness Full Name</p><p data-number="178"> </p><p data-number="179">Date</p><p data-number="181">This is a general-purpose template. Consult a legal professional to ensure this Agreement meets your specific needs and jurisdiction.</p>"""
     )
     TEST_STAGING_ROOT = "test_staging_root"
     TEST_SYMLINK_DIRECTORY = "link"
@@ -653,4 +654,185 @@ class SCCSTestConstants:
 
     VIEW_HTML_DIRECTORY = "view_html"
 
+    ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
+    ACCEPTED_SCHEMES = ("http", "https")
+    ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
+    ALLOWED_NAME_AND_EMAIL_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-"
+    ALLOWED_REMOTE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&"()*+,;=%'
+    ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with SCCS."
+    BRANCHES_DIRECTORY_LIST_HEADER = "Branches:"
+    BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' already exists."
+    BRANCH_COMMAND_NAME = "branch"
+    BRANCH_CREATE_ARGUMENT_HELP = "The branch to create."
+    BRANCH_CREATE_SUBCOMMAND_HELP = "Create a new branch."
+    BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = 'Branch "{branch_name}" created from "{current_branch_name}" successfully and is set to the current branch.'
+    BRANCH_DELETE_ARGUMENT_HELP = "The branch to delete."
+    BRANCH_DELETE_SUBCOMMAND_HELP = "Delete an existing branch."
+    BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE = 'Branch "{branch_name}" deleted successfully.'
+    BRANCH_LIST_SUBCOMMAND_HELP = "List all branches."
+    BRANCH_MERGE_ARGUMENT_HELP = "The branch to merge into the current branch."
+    BRANCH_NAME_ARGUMENT_NAME = "branch_name"
+    BRANCH_NAME_FIELD_NAME = "branch name"
+    BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Branch '{branch_name}' is missing from repository metadata. If the branch does not exist, please create it."
+    BRANCH_SWITCH_ARGUMENT_HELP = "The branch to switch to."
+    CLASS_HTML_ATTRIBUTE = "class"
+    CLONE_COMMAND_NAME = "clone"
+    CLONE_DESTINATION_EXISTS_ERROR_MESSAGE = "A directory with the repository name already exists in the current directory."
+    CLONE_ENDPOINT = "/clone"
+    COMMAND_DESCRIPTIONS = MappingProxyType({"branch": "Create a new branch, delete, or list branches.", "clone": "Clone a hosted SCCS repository with a URL.", "commit": "Commit changes to the repository.", "config": "Configure a repository's data value (remote, name, email)", "diff": "Show differences between the current document and a past commit.", "help": "Prints a help message listing the available commands and their descriptions.", "init": "Initialize a new SCCS repository.", "log": "Print a list of past commits for the current branch.", "merge": "Merge the entered branch into the current branch.", "open": "Open a commit file and update the current document.", "publish": "Publish a local repository to a hosting service.", "pull": "Pull changes from a remote repository and merge them into the local repository.", "push": "Push changes from the local repository to a remote repository.", "reset": "Delete all uncommitted changes.", "revert": "Revert the current document to the specified commit.", "status": "Check the status of the current document for uncommitted changes.", "switch": "Switch between document branches."})
+    COMMAND_FIELD_NAME = "command"
+    COMMA_SPACE = ", "
+    COMMIT_COMMAND_NAME = "commit"
+    COMMIT_IDENTIFIER_ARGUMENT_NAME = "commit_identifier"
+    COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP = "The commit identifier to diff against."
+    COMMIT_IDENTIFIER_FIELD_NAME = "commit byte hash"
+    COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP = "The commit identifier to open."
+    COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP = "The commit identifier to revert the document to."
+    COMMIT_MESSAGE_ARGUMENT_HELP = "The message describing the commit."
+    COMMIT_MESSAGE_ARGUMENT_NAME = "commit_message"
+    COMMIT_MESSAGE_FIELD_NAME = "commit message"
+    COMMIT_NUMBER_INCREMENT = 1
+    COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE = "Failed to create or promote the staged repository. Please try again."
+    CONFIG_COMMAND_NAME = "config"
+    CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
+    CONFIG_KEY_ARGUMENT_NAME = "key"
+    CONFIG_VALUE_ARGUMENT_HELP = "The value to set the configuration key to."
+    CONFIG_VALUE_ARGUMENT_NAME = "value"
+    CONTENT_TYPE_ZIP = "application/zip"
+    CREATE_SUBCOMMAND = "create"
+    CURRENT_BRANCH_DELETION_ERROR_MESSAGE = "Cannot delete the current branch. Please switch to another branch first."
+    CURRENT_BRANCH_MERGE_ERROR_MESSAGE = "Cannot merge the current branch into itself."
+    CURRENT_BRANCH_MESSAGE_TEMPLATE = "* {branch_name} (current)"
+    DATA_DATA = "data"
+    DATA_NUMBER_HTML_ATTRIBUTE = "data-number"
+    DATA_REMOTE = "remote"
+    DEBUG_FLAG = "--debug"
+    DEBUG_FLAG_GENERAL = "debug"
+    DEBUG_FLAG_SHORT = "-d"
+    DEFAULT_BRANCH_DATA = MappingProxyType({"current_branch": "main", "branches": ["main"], "updated_branches": []})
+    DELETED_HTML_ATTRIBUTE_VALUE = "deleted"
+    DELETE_OPCODE = "delete"
+    DELETE_SUBCOMMAND = "delete"
+    DELETING_MAIN_ERROR_MESSAGE = "You cannot delete 'main'. Please try deleting another branch."
+    DIFF_COMMAND_NAME = "diff"
+    DIFF_ERROR_MESSAGE = "Failed to generate diff output. Please try again."
+    DIFF_OUTPUT_HTML_FILE = "diff.html"
+    DOCUMENT_PATH_ARGUMENT_HELP = "The path to the document to initialize with SCCS."
+    DOCUMENT_PATH_ARGUMENT_NAME = "document_path"
+    DOUBLE_PERIOD = ".."
+    EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE = "{field} cannot be empty. Please provide a valid {field}."
+    ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "The entered file '{file_path}' does not exist. Please provide a valid file path to an existing file."
+    EXPECTED_ERROR_EXIT_CODE = 1
+    FILE_START_POSITION = 0
+    FLAG_DESCRIPTIONS = MappingProxyType({"debug": "Does not except Exception or SCCSException."})
+    FULL_COMMIT_IDENTIFIER_LENGTH = 64
+    HELP_COMMAND_NAME = "help"
+    HELP_MESSAGES = ("SCCS Help", "Available commands:", "  sccs branch - Create a new branch, delete, or list branches.", "  sccs clone - Clone a hosted SCCS repository with a URL.", "  sccs commit - Commit changes to the repository.", "  sccs config - Configure a repository's data value (remote, name, email)", "  sccs diff - Show differences between the current document and a past commit.", "  sccs help - Prints a help message listing the available commands and their descriptions.", "  sccs init - Initialize a new SCCS repository.", "  sccs log - Print a list of past commits for the current branch.", "  sccs merge - Merge the entered branch into the current branch.", "  sccs open - Open a commit file and update the current document.", "  sccs publish - Publish a local repository to a hosting service.", "  sccs pull - Pull changes from a remote repository and merge them into the local repository.", "  sccs push - Push changes from the local repository to a remote repository.", "  sccs reset - Delete all uncommitted changes.", "  sccs revert - Revert the current document to the specified commit.", "  sccs status - Check the status of the current document for uncommitted changes.", "  sccs switch - Switch between document branches.", "Available flags:", "  --debug, -d - Does not except Exception or SCCSException.")
+    HTTP_OBJECTS_DICT_KEY = "objects"
+    HTTP_REQUEST_ERROR_MESSAGE = "Failed to request repository from the remote URL. Please try again."
+    HTTP_TIMEOUT_SECONDS = 60
+    INITIAL_COMMIT_NUMBER_DICT_KEY = "1"
+    INITIAL_VERSION_COMMIT_MESSAGE = "initial_version"
+    INIT_COMMAND_NAME = "init"
+    INIT_COPY_ERROR_MESSAGE = "Failed to copy document or write HTML during initialization."
+    INIT_CREATE_ERROR_MESSAGE = "Failed to create SCCS directory layout."
+    INIT_SUCCESS_MESSAGE = "SCCS initialization complete."
+    INPUT_CONFIG_VALUE_TEMPLATE = "Enter your {config_key}: "
+    INSERTED_HTML_ATTRIBUTE_VALUE = "inserted"
+    INSERT_OPCODE = "insert"
+    INVALID_BRANCH_DATA_ERROR_MESSAGE = "Invalid branch data. Please ensure that the branch data has not been manually modified and the targeted branch exists."
+    INVALID_BRANCH_NAME_ERROR_MESSAGE = "Invalid subcommand or missing branch name."
+    INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE = "Invalid character in config value. Only letters, numbers, ., _, %, +, and - are allowed."
+    INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE = "Invalid character in URL. Only letters, numbers, and -._~:/?#[]@!$&'()*+,;=% are allowed."
+    INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE = "Invalid commit history data. Please ensure that the commit data has not been manually modified."
+    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = "Invalid commit file name. Please provide a shortened, 10 character commit hash or the full 64 character commit hash as the commit identifier."
+    INVALID_ENDING_ERROR_MESSAGE = "Invalid remote URL provided. Please provide a valid URL ending with '/clone'."
+    INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
+    INVALID_KEY_ERROR_MESSAGE = "Invalid configuration key provided. Please provide one of the valid keys: remote, name, email."
+    INVALID_PATH_ENDING_ERROR_MESSAGE = 'API URL must end with "/repos/your-repo-name".'
+    INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name. Please ensure the repository is properly initialized with a valid name."
+    INVALID_SUBCOMMAND_ERROR_MESSAGE = "Invalid subcommand provided. Please provide one of the valid subcommands: create, delete, list."
+    INVALID_URL_ERROR_MESSAGE = "Invalid remote URL provided. The URL must start with one of the following schemes: http, https, and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
+    LAST_TAG_INDEX = -1
+    LIST_SUBCOMMAND = "list"
+    LOCAL_SCCS = "local_sccs"
+    LOCAL_SCCS_DESCRIPTION = "Simple Contracts Communication System"
+    LOG_AUTHOR_LABEL = "Author: "
+    LOG_COMMAND_NAME = "log"
+    LOG_COMMIT_FILE_LABEL = "Commit File: "
+    LOG_DATE_LABEL = "Date: "
+    LOG_MESSAGE_LABEL = "Message: "
+    LOG_SEPARATOR = "------------------------------"
+    MAXIMUM_COMMIT_FILE_MATCHES = 1
+    MERGE_COMMAND_NAME = "merge"
+    MERGE_COMMIT_MESSAGE_TEMPLATE = 'Merged branch "{branch_name}" into "{current_branch}".'
+    MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
+    MERGE_SUCCESS_MESSAGE_TEMPLATE = 'Successfully merged branch "{branch_name}" into branch "{current_branch}".'
+    MINIMUM_ARGUMENTS = 2
+    MINIMUM_PATH_PARTS = 2
+    MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = "The remote repository has extra commits that the local is missing. Please pull the latest changes before pushing."
+    MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
+    MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = "Multiple commit files found matching '{commit_identifier}'. Please provide a full, 64 character commit hash."
+    NO_UNCOMMITTED_CHANGES = "Status Report: No uncommitted changes detected."
+    NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = "No uncommitted changes detected. Uncommitted changes are required before committing."
+    OLD_ROOT_TEMPLATE = "{repository_name}.old-dfad5993abfc41df9cae31a3b0c77070"
+    OPEN_COMMAND_NAME = "open"
+    OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
+    OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
+    OPEN_SUCCESS_MESSAGE_TEMPLATE = 'Commit "{commit_identifier}" has been successfully opened in {output_file}. It is safe to delete this file. No changes will be lost unless {output_file} is modified after this point.'
+    OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
+    PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = "Invalid file path: {entry_path} in zip. Please ensure the path does not include '..' and is not an absolute path."
+    POST_FILE_FIELD_NAME = "file"
+    PROGRAM_START_TIME = "2026-10-23T20:48:51.688278+00:00"
+    PUBLISH_COMMAND_NAME = "publish"
+    PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
+    PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
+    PULL_COMMAND_NAME = "pull"
+    PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
+    PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}."
+    PUSH_COMMAND_NAME = "push"
+    PUSH_ENDPOINT_TEMPLATE = "{base_url}/push"
+    PUSH_FAILURE_ERROR_MESSAGE_TEMPLATE = "Failed to push to repository {url}."
+    PUSH_HTTP_REQUEST_ERROR_MESSAGE = "The HTTP request failed while attempting to push the new changes. Please try again later or check your internet connection."
+    PUSH_SUCCESS_MESSAGE_TEMPLATE = "Repository pushed successfully to {url}."
+    REPLACE_OPCODE = "replace"
+    REPOSITORIES_PATH_SEGMENT = "repos"
+    REPOSITORY_NAME_FIELD_NAME = "repository name"
+    REPOSITORY_NAME_PATH_INDEX = -2
+    REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
+    RESET_COMMAND_NAME = "reset"
+    RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
+    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit."
+    REVERT_COMMAND_NAME = "revert"
+    REVERT_COMMIT_MESSAGE_TEMPLATE = 'Reverted document to commit "{commit_identifier}".'
+    REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."
+    REVERT_SUCCESS_MESSAGE_TEMPLATE = 'Document successfully reverted to commit "{commit_identifier}" on commit "{new_commit_identifier}".'
+    SINGLE_PERIOD = "."
+    SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
+    SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = 'Source file "{file_name}" does not exist.'
+    STATUS_COMMAND_NAME = "status"
+    STORE_TRUE_ACTION = "store_true"
+    STYLE_TAG_NAME = "style"
+    SUBCOMMAND_FIELD_NAME = "subcommand"
+    SWITCH_COMMAND_NAME = "switch"
+    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = 'Commit file missing for branch "{branch_name}".'
+    SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch. Please try again."
+    SWITCH_SUCCESS_MESSAGE_TEMPLATE = 'Successfully switched to branch "{branch_name}".'
+    TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
+    TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = "Target branch not set. Ensure the branch is set by using Repository*.target.set(foo)"
+    TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = "Invalid file path: {target_path} in zip. Please ensure that {target_path} is inside {destination_resolved}."
+    UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = "Uncommitted changes detected. Please clean the working tree before proceeding."
+    UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
+    UNEXPECTED_ERROR_EXIT_CODE = 2
+    UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
+    URL_ARGUMENT_HELP = "The URL of the hosted repository to clone."
+    URL_ARGUMENT_NAME = "url"
+    URL_FIELD_NAME = "URL"
+    UTILS_ARGUMENT_ERROR_MESSAGE = "Required argument missing. Please provide the required argument."
+    WALK_ROOT = "."
+    ZIPPING_FILE_ERROR_MESSAGE = "Failed to zip current working directory."
+    ZIP_BUFFER_CREATION_FAILED_ERROR_MESSAGE = "Failed to create a buffer for the zipped repository. Please try again."
+    ZIP_BUFFER_SEEK_ERROR_MESSAGE = "Failed to reset buffer position. Please try again."
+    ZIP_EXTENSION = ".zip"
     ZIPFILE_MODULE_NAME = "zipfile"
+    TEST_BRANCH_LIST_MESSAGE = "Branches:\n  main\n* test (current)\n"

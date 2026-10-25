@@ -386,7 +386,7 @@ def test_diff_main_raises_for_each_missing_resource(
     with pytest.raises(SCCSException) as e:
         diff.main(c, tc.TEST_STRING, rd, ri ,rs)
 
-    assert str(e.value) == c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
     )
 
@@ -409,7 +409,7 @@ def test_diff_main_raises_if_uncommitted_changes_exist(
 
     with pytest.raises(SCCSException) as e:
         diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
-    assert str(e.value) == c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+    assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
 def test_diff_main_prints_success_message(
@@ -469,7 +469,7 @@ def test_diff_main_staged_repository_creation_fails(
 
     with pytest.raises(SCCSException) as e:
         diff.main(c, tc.TEST_STRING, rd, ri, rs)
-    assert str(e.value) == c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+    assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(

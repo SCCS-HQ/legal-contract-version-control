@@ -449,10 +449,10 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
 
 
 def test_sccs_constants_help_messages_returns_correct_help_message(
-    c: SCCSConstants
+    c: SCCSConstants, tc: SCCSTestConstants
 ) -> None:
 
-    assert c.HELP_MESSAGES == (
+    assert tc.HELP_MESSAGES == (
         "SCCS Help",
         "Available commands:",
         "  sccs branch - Create a new branch, delete, or list branches.",

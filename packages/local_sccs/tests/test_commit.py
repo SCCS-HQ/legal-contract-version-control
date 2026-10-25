@@ -58,8 +58,8 @@ def test_commit_main_raises_if_commit_message_is_empty(
 
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.EMPTY_STRING, rd, rs, rw)
-    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-        field=c.COMMIT_MESSAGE_FIELD_NAME.capitalize()
+    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+        field=tc.COMMIT_MESSAGE_FIELD_NAME.capitalize()
     )
 
 
@@ -107,7 +107,7 @@ def test_commit_main_raises_for_each_missing_resource(
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
 
-    assert str(e.value) == c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
     )
 
@@ -206,7 +206,7 @@ def test_commit_main_raises_if_no_changes(
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
 
-    assert str(e.value) == c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+    assert str(e.value) == tc.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
 def test_commit_main_when_updated_branches_is_missing(
@@ -336,7 +336,7 @@ def test_commit_main_staged_repository_creation_fails(
 
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
-    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(
@@ -376,7 +376,7 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
-    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     assert target.get() is None
 

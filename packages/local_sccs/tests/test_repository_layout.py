@@ -39,7 +39,7 @@ def test_repository_data_matching_commit_files_returns_correct_commit_files(
     ]
 
     assert (
-        rd._matching_commit_files(tc.TEST_COMMIT_HASH, c.DOCUMENT_DIRECTORY)
+        rd._matching_commit_files(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
         == expected
     )
 
@@ -108,7 +108,7 @@ def test_repository_data_commit_file_bytes_returns_correct_bytes(
         expected = f.read()
 
     assert (
-        rd.commit_file_bytes(tc.TEST_COMMIT_HASH, c.DOCUMENT_DIRECTORY) == expected
+        rd.commit_file_bytes(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY) == expected
     )
 
 
@@ -132,7 +132,7 @@ def test_repository_data_commit_identifier_to_full_path_returns_correct_path(
 
     assert (
         rd.commit_identifier_to_full_path(
-            tc.TEST_COMMIT_HASH, c.DOCUMENT_DIRECTORY
+            tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY
         )
         == expected
     )
@@ -153,9 +153,9 @@ def test_repository_data_commit_file_methods_raises_if_commit_identifier_length_
     )
 
     with pytest.raises(SCCSException) as e:
-        getattr(rd, method_name)(tc.TEST_STRING, c.DOCUMENT_DIRECTORY)
+        getattr(rd, method_name)(tc.TEST_STRING, tc.DOCUMENT_DIRECTORY)
 
-    assert str(e.value) == c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -174,9 +174,9 @@ def test_repository_data_commit_file_methods_raises_if_no_matching_commit_file_f
     )
 
     with pytest.raises(SCCSException) as e:
-        getattr(rd, method_name)(tc.SECOND_COMMIT_HASH, c.DOCUMENT_DIRECTORY)
+        getattr(rd, method_name)(tc.SECOND_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
 
-    assert str(e.value) == c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
         file_path=tc.SECOND_COMMIT_HASH
     )
 
@@ -208,9 +208,9 @@ def test_repository_data_commit_file_methods_raises_if_multiple_matching_commit_
         f.write(tc.TEST_STRING)
 
     with pytest.raises(SCCSException) as e:
-        getattr(rd, method_name)(tc.TEST_COMMIT_HASH, c.DOCUMENT_DIRECTORY)
+        getattr(rd, method_name)(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
 
-    assert str(e.value) == c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
         commit_identifier=tc.TEST_COMMIT_HASH
     )
 
@@ -238,12 +238,12 @@ def test_repository_data_commit_file_bytes_raises_if_display_length_multiple_mat
 
     with pytest.raises(SCCSException) as e:
         rd.commit_file_bytes(
-            tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            c.DOCUMENT_DIRECTORY,
+            tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            tc.DOCUMENT_DIRECTORY,
         )
 
-    assert str(e.value) == c.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+    assert str(e.value) == tc.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+        commit_identifier=tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
     )
 
 
@@ -273,7 +273,7 @@ def test_repository_data_config_data_raises_if_invalid_key(
     with pytest.raises(SCCSException) as e:
         rd.config_data(tc.TEST_STRING)
 
-    assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
 
 
 def test_repository_data_copy_latest_commit_document_copies_latest_commit(
@@ -384,7 +384,7 @@ def test_repository_data_latest_commit_identifier_raises_if_latest_commit_identi
     with pytest.raises(SCCSException) as e:
         rd.latest_commit_identifier()
 
-    assert str(e.value) == c.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize("commit_identifier", [SCCSTestConstants.TEST_STRING, ""])
@@ -402,7 +402,7 @@ def test_repository_data_raise_for_commit_identifier_length_raises_if_length_inv
     with pytest.raises(SCCSException) as e:
         rd.raise_for_commit_identifier_length(commit_identifier)
 
-    assert str(e.value) == c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -410,7 +410,7 @@ def test_repository_data_raise_for_commit_identifier_length_raises_if_length_inv
     [
         SCCSTestConstants.TEST_COMMIT_HASH,
         SCCSTestConstants.TEST_COMMIT_HASH[
-            : SCCSConstants.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            :SCCSTestConstants.COMMIT_IDENTIFIER_DISPLAY_LENGTH
         ],
     ],
 )
@@ -440,7 +440,7 @@ def test_repository_data_short_commit_identifier_to_full_returns_full_commit_ide
 
     assert (
         rd.short_commit_identifier_to_full(
-            tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
         == tc.TEST_COMMIT_HASH
     )
@@ -495,13 +495,13 @@ def test_target_branch_reset_sets_target_branch_to_none(
 
 
 def test_target_branch_require_raises_if_target_branch_is_none(
-    c: SCCSConstants,
     target: TargetBranch,
+    tc: SCCSTestConstants
 ) -> None:
     with pytest.raises(SCCSException) as e:
         target.require()
 
-    assert str(e.value) == c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
+    assert str(e.value) == tc.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
 
 
 def test_target_branch_require_returns_target_branch(
@@ -711,7 +711,7 @@ def test_repository_io_raises_if_target_branch_not_set(
     with pytest.raises(SCCSException) as e:
         invoke(ri, tc.TEST_DICTIONARY)
 
-    assert str(e.value) == c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
+    assert str(e.value) == tc.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
 
 
 def test_repository_io_read_branch_data_returns_target_branch_metadata(
@@ -764,7 +764,7 @@ def test_repository_io_raises_if_set_branch_does_not_exist(
     with pytest.raises(SCCSException) as e:
         invoke(ri, tc.TEST_DICTIONARY)
 
-    assert str(e.value) == c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
         branch_name=tc.TEST_STRING
     )
 
@@ -1059,7 +1059,7 @@ def test_repository_io_write_diff_output_writes_diff_output_file(
 
     ri.write_diff_output(tc.TEST_STRING)
 
-    diff_output_path = initialized_repository / c.DIFF_OUTPUT_HTML_FILE
+    diff_output_path = initialized_repository / tc.DIFF_OUTPUT_HTML_FILE
 
     assert diff_output_path.exists()
 
@@ -1374,7 +1374,7 @@ def test_repository_status_raise_for_uncommitted_changes_raises_for_modified_doc
     with pytest.raises(SCCSException) as e:
         rs.raise_for_uncommitted_changes()
 
-    assert str(e.value) == c.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+    assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -1415,7 +1415,7 @@ def test_repository_status_validate_repository_layout_raises_for_each_missing_re
     with pytest.raises(SCCSException) as e:
         rs.validate_repository_layout()
 
-    assert str(e.value) == c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
     )
 
@@ -1651,7 +1651,7 @@ def test_repository_write_commit_changes_raises_if_no_changes(
     with pytest.raises(SCCSException) as e:
         rw.commit_changes(tc.TEST_STRING)
 
-    assert str(e.value) == c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+    assert str(e.value) == tc.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
 def test_repository_write_commit_changes_raises_if_target_branch_not_set(
@@ -1667,7 +1667,7 @@ def test_repository_write_commit_changes_raises_if_target_branch_not_set(
     with pytest.raises(SCCSException) as e:
         rw.commit_changes(tc.TEST_STRING)
 
-    assert str(e.value) == c.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
+    assert str(e.value) == tc.TARGET_BRANCH_NOT_SET_ERROR_MESSAGE
 
 
 def test_repository_write_commit_changes_raises_if_target_branch_does_not_exist(
@@ -1685,7 +1685,7 @@ def test_repository_write_commit_changes_raises_if_target_branch_does_not_exist(
     with pytest.raises(SCCSException) as e:
         rw.commit_changes(tc.TEST_STRING)
 
-    assert str(e.value) == c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
         branch_name=tc.TEST_STRING
     )
 
@@ -1707,7 +1707,7 @@ def test_repository_write_commit_changes_commits_when_allow_empty_commit_is_true
 
     commit_identifier = rw.commit_changes(tc.TEST_STRING, allow_empty_commit=True)
 
-    assert len(commit_identifier) == c.FULL_COMMIT_IDENTIFIER_LENGTH
+    assert len(commit_identifier) == tc.FULL_COMMIT_IDENTIFIER_LENGTH
     assert all(i in tc.HEX_DIGITS for i in commit_identifier)
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -1886,7 +1886,7 @@ def test_repository_write_remove_from_branches_list_raises_if_branch_not_in_list
     with pytest.raises(SCCSException) as e:
         rw.remove_from_branches_list(tc.TEST_STRING)
 
-    assert str(e.value) == c.INVALID_BRANCH_DATA_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_BRANCH_DATA_ERROR_MESSAGE
 
     with open(metadata_path, "rb") as f:
         assert f.read() == metadata_before
@@ -1989,7 +1989,7 @@ def test_repository_write_write_key_to_config_raises_if_value_is_a_space(
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(tc.NAME_KEY, " ")
 
-    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
         field=tc.NAME_KEY
     )
 
@@ -2007,7 +2007,7 @@ def test_repository_write_write_key_to_config_raises_if_key_is_not_valid(
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(tc.TEST_STRING, tc.TEST_STRING)
 
-    assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -2027,7 +2027,7 @@ def test_repository_write_write_key_to_config_raises_if_name_or_email_contains_i
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(key, "?")
 
-    assert str(e.value) == c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
 
 
 def test_repository_write_write_key_to_config_raises_if_remote_contains_invalid_characters(
@@ -2043,4 +2043,4 @@ def test_repository_write_write_key_to_config_raises_if_remote_contains_invalid_
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(tc.REMOTE_KEY, tc.ESCAPED_BACKSLASH)
 
-    assert str(e.value) == c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
+    assert str(e.value) == tc.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE

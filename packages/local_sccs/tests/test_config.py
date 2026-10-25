@@ -72,11 +72,11 @@ def test_resolve_key_value_raises_correctly(
         with pytest.raises(SCCSException) as e:
             config.resolve_key_value(c, tc.TEST_STRING, key, value)
         if key == "test":
-            assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
         elif key in ("name", "email") or (key == "remote" and not value.strip()):
-            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         elif key == "remote":
-            assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
     else:
         config.resolve_key_value(c, tc.TEST_STRING, key, value)
 
@@ -143,7 +143,7 @@ def test_config_main_raises_for_each_missing_resource(
     with pytest.raises(SCCSException) as e:
         config.main(c, tc.TEST_STRING, tc.TEST_STRING, rd, rp, rs, rw)
 
-    assert str(e.value) == c.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+    assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
     )
 
@@ -201,11 +201,11 @@ def test_config_main_raises_correctly_given_key_value_provided(
         with pytest.raises(SCCSException) as e:
             config.main(c, key, value, rd, rp, rs, rw)
         if key == "test":
-            assert str(e.value) == c.INVALID_KEY_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
         elif key in ("name", "email") or (key == "remote" and not value.strip()):
-            assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
         elif key == "remote":
-            assert str(e.value) == c.INVALID_URL_ERROR_MESSAGE
+            assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
     else:
         config.main(c, key, value, rd, rp, rs, rw)
 
@@ -243,7 +243,7 @@ def test_config_main_staged_repository_creation_fails(
 
     with pytest.raises(SCCSException) as e:
         config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
-    assert str(e.value) == c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(
