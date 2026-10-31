@@ -281,10 +281,13 @@ def test_run_specified_subcommand_raises_if_branch_name_is_none_and_create_or_de
 
 
 @pytest.mark.parametrize(
-    "subcommand",
+    "subcommand, precreate_branch, error_raised",
     [
-        "",
-        "test",
+        ("", False, True),
+        ("test", False, True),
+        ("create", False, False),
+        ("delete", True, False),
+        ("list", False, False),
     ],
 )
 def test_validate_subcommand_raises_if_subcommand_is_invalid(
@@ -292,20 +295,39 @@ def test_validate_subcommand_raises_if_subcommand_is_invalid(
     target: TargetBranch,
     c: SCCSConstants,
     tc: SCCSTestConstants,
+    precreate_branch: bool,
+    error_raised: bool,
     subcommand: str,
 ) -> None:
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    with pytest.raises(SCCSException) as e:
-        branch.validate_subcommand(c, subcommand, tc.MAIN_BRANCH_NAME, rs)
-    assert str(e.value) == tc.INVALID_SUBCOMMAND_ERROR_MESSAGE
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    rw.target.set(tc.MAIN_BRANCH_NAME)
+
+    if precreate_branch:
+        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.set_current_branch(tc.MAIN_BRANCH_NAME)
+
+    if error_raised:
+        with pytest.raises(SCCSException) as e:
+            branch.validate_subcommand(c, subcommand, tc.TEST_STRING, rs)
+        assert str(e.value) == tc.INVALID_SUBCOMMAND_ERROR_MESSAGE
+    else:
+        branch.validate_subcommand(c, subcommand, tc.TEST_STRING, rs)
 
 
 @pytest.mark.parametrize(
-    "subcommand",
+    "subcommand, precreate_branch, branch_name, error_raised",
     [
-        "create",
-        "delete",
+        ("create", False, None, True),
+        ("delete", False, None, True),
+        ("list", False, None, False),
+        ("create", False, "test", False),
+        ("delete", True, "test", False),
+        ("list", False, "test", False)
     ],
 )
 def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch_name_is_empty(
@@ -314,28 +336,50 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
     c: SCCSConstants,
     tc: SCCSTestConstants,
     subcommand: str,
+    precreate_branch: bool,
+    branch_name: str,
+    error_raised: bool
 ) -> None:
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    with pytest.raises(SCCSException) as e:
-        branch.validate_subcommand(c, subcommand, None, rs)
-    assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-        field="branch name"
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
+
+    rw.target.set(tc.MAIN_BRANCH_NAME)
+
+    if precreate_branch:
+        
+        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.set_current_branch(tc.MAIN_BRANCH_NAME)
+
+    if error_raised:
+        with pytest.raises(SCCSException) as e:
+            branch.validate_subcommand(c, subcommand, branch_name, rs)
+        assert str(e.value) == c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+            field="branch name"
+        )
+    else:
+        branch.validate_subcommand(c, subcommand, branch_name, rs)
 
 
 @pytest.mark.parametrize(
-    "branch_name, expected_message, precreate_branch",
+    "branch_name, precreate_branch, error_raised",
     [
         (
             "main",
-            "Branch 'main' already exists.",
             False,
+            True
         ),
         (
             "test",
-            "Branch 'test' already exists.",
             True,
+            True
+        ),
+        (
+            "test",
+            False,
+            False
         ),
     ],
 )
@@ -345,8 +389,8 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
     c: SCCSConstants,
     tc: SCCSTestConstants,
     branch_name: str,
-    expected_message: str,
     precreate_branch: bool,
+    error_raised: bool
 ) -> None:
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(
@@ -357,23 +401,30 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
         rw.target.set(tc.MAIN_BRANCH_NAME)
         rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
 
-    with pytest.raises(SCCSException) as e:
+    if error_raised:
+        with pytest.raises(SCCSException) as e:
+            branch.validate_subcommand(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rs)
+        assert str(e.value) == tc.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+    else:
         branch.validate_subcommand(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rs)
-    assert str(e.value) == expected_message
 
 
 @pytest.mark.parametrize(
-    "branch_name, expected_message, setup_current_branch",
+    "branch_name, expected_message, setup_current_branch, set_current_to_main, error_raised",
     [
         (
             "test",
             "Cannot delete the current branch. Please switch to another branch first.",
             True,
+            False,
+            True
         ),
         (
             "test",
             "Branch 'test' is missing from repository metadata. If the branch does not exist, please create it.",
             False,
+            False,
+            True
         ),
     ],
 )
@@ -385,7 +436,11 @@ def test_validate_subcommand_raises_for_delete_branch_cases(
     branch_name: str,
     expected_message: str,
     setup_current_branch: bool,
+    set_current_to_main: bool,
+    error_raised: bool
 ) -> None:
+    target.set(tc.MAIN_BRANCH_NAME)
+
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -397,9 +452,63 @@ def test_validate_subcommand_raises_for_delete_branch_cases(
         rw.target.set(tc.MAIN_BRANCH_NAME)
         rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
 
-    with pytest.raises(SCCSException) as e:
+    if set_current_to_main:
+        rw.set_current_branch(tc.MAIN_BRANCH_NAME)
+
+    if error_raised:
+        with pytest.raises(SCCSException) as e:
+            branch.validate_subcommand(c, tc.BRANCH_DELETE_SUBCOMMAND, branch_name, rs)
+        assert str(e.value) == expected_message
+    else:
         branch.validate_subcommand(c, tc.BRANCH_DELETE_SUBCOMMAND, branch_name, rs)
-    assert str(e.value) == expected_message
+
+
+def test_validate_subcommand_does_not_raise_for_list_with_no_branch_name(
+    initialized_repository: Path,
+    target: TargetBranch,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+) -> None:
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    branch.validate_subcommand(c, tc.BRANCH_LIST_SUBCOMMAND, None, rs)
+
+
+
+def test_validate_subcommand_does_not_raise_for_create_with_new_branch(
+    initialized_repository: Path,
+    target: TargetBranch,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+) -> None:
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    branch.validate_subcommand(c, tc.BRANCH_CREATE_SUBCOMMAND, tc.TEST_STRING, rs)
+
+
+def test_validate_subcommand_does_not_raise_for_delete_with_existing_non_current_branch(
+    initialized_repository: Path,
+    target: TargetBranch,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    rw.target.set(tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.set_current_branch(tc.MAIN_BRANCH_NAME)
+    rs.target.set(tc.MAIN_BRANCH_NAME)
+
+    branch.validate_subcommand(c, tc.BRANCH_DELETE_SUBCOMMAND, tc.TEST_STRING, rs)
 
 
 @pytest.mark.parametrize(
@@ -460,7 +569,7 @@ def test_branch_main_raises_for_each_missing_resource(
     )
 
 
-def test_main_raises_if_uncommitted_changes_exist(
+def test_branch_main_raises_if_uncommitted_changes_exist(
     initialized_repository: Path,
     c: SCCSConstants,
     tc: SCCSTestConstants,
@@ -486,3 +595,5 @@ def test_main_raises_if_uncommitted_changes_exist(
     with pytest.raises(SCCSException) as e:
         branch.main(c, tc.BRANCH_CREATE_SUBCOMMAND, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
     assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+
+

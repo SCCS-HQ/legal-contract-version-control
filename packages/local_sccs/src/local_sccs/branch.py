@@ -47,6 +47,8 @@ def branch_delete_subcommand(
     if branch_name.lower() == c.MAIN_BRANCH_NAME:
         raise SCCSException(c.DELETING_MAIN_ERROR_MESSAGE)
 
+    rw.target.set(rd.current_branch())
+
     rw.remove_branch_metadata(branch_name, rd.current_branch())
     print_branch_delete_success_message(c, branch_name)
 
