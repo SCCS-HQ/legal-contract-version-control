@@ -23,10 +23,10 @@ def branch_create_subcommand(
     current branch.
     """
 
-    rw.target.set(branch_name)
-
     current_branch_name = rd.current_branch()
-
+    
+    rw.target.set(current_branch_name)
+    
     rw.add_branch_metadata(branch_name, current_branch_name)
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
@@ -122,7 +122,8 @@ def validate_subcommand(
     subcommand. Raise an SCCSException if any validation fails.
     """
 
-    utils.raise_if_empty(c, subcommand, c.SUBCOMMAND_FIELD_NAME)
+    if not subcommand:
+        raise SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)
 
     if subcommand not in c.ACCEPTED_SUBCOMMANDS:
         raise SCCSException(c.INVALID_SUBCOMMAND_ERROR_MESSAGE)

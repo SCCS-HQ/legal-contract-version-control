@@ -322,16 +322,7 @@ class SCCSTestConstants:
     ).hexdigest()
     # Next constants out of alphabetical order as they would be used by constants defined before it
     TEST_AUTHOR = COMMIT_AUTHOR_TEMPLATE.format(name=TEST_STRING, email=TEST_STRING)
-    TEST_COMMIT_HASH = hashlib.sha256(
-        PATH_SEPARATOR.join(
-            [
-                EPOCH_ISO_DATETIME,
-                INIT_COMMIT_MESSAGE,
-                TEST_STRING,
-                TEST_STRING
-            ]
-        ).encode(UTF_8)
-    ).hexdigest()
+    TEST_COMMIT_HASH = "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
     TEST_DOCUMENT_HTML = (
         "<p><strong>GENERAL CONTRACT AGREEMENT</strong></p>"
         "<p><em>This Agreement is entered into as of the date last signed below</em></p>"

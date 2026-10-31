@@ -387,7 +387,7 @@ def test_repository_data_latest_commit_identifier_raises_if_latest_commit_identi
     assert str(e.value) == tc.INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE
 
 
-@pytest.mark.parametrize("commit_identifier", [SCCSTestConstants.TEST_STRING, ""])
+@pytest.mark.parametrize("commit_identifier", ["test", ""])
 def test_repository_data_raise_for_commit_identifier_length_raises_if_length_invalid(
     initialized_repository: Path,
     c: SCCSConstants,
@@ -408,10 +408,8 @@ def test_repository_data_raise_for_commit_identifier_length_raises_if_length_inv
 @pytest.mark.parametrize(
     "commit_identifier",
     [
-        SCCSTestConstants.TEST_COMMIT_HASH,
-        SCCSTestConstants.TEST_COMMIT_HASH[
-            :SCCSTestConstants.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-        ],
+        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
+        "ef4a6cd9a3"
     ],
 )
 def test_repository_data_raise_for_commit_identifier_length_does_not_raise_for_valid_lengths(
@@ -1302,10 +1300,10 @@ def test_repository_paths_view_html_objects_path_returns_correct_path(
 @pytest.mark.parametrize(
     ("branch_name", "expected"),
     [
-        (SCCSTestConstants.MAIN_BRANCH_NAME, True),
-        (SCCSTestConstants.TEST_STRING, False),
-        (SCCSTestConstants.MAIN_BRANCH_NAME.capitalize(), True),
-        (SCCSTestConstants.TEST_STRING.upper(), False)
+        ("main", True),
+        ("test", False),
+        ("Main", True),
+        ("TEST", False)
 
     ],
 )
@@ -1327,8 +1325,8 @@ def test_repository_status_branch_exists_returns_correct_bool(
 @pytest.mark.parametrize(
     ("branch_name", "expected"),
     [
-        (SCCSTestConstants.MAIN_BRANCH_NAME, True),
-        (SCCSTestConstants.TEST_STRING, False),
+        ("main", True),
+        ("test", False),
     ],
 )
 def test_repository_status_is_current_branch_returns_correct_bool(
@@ -2011,7 +2009,7 @@ def test_repository_write_write_key_to_config_raises_if_key_is_not_valid(
 
 
 @pytest.mark.parametrize(
-    "key", [SCCSTestConstants.NAME_KEY, SCCSTestConstants.EMAIL_KEY]
+    "key", ["name", "email"]
 )
 def test_repository_write_write_key_to_config_raises_if_name_or_email_contains_invalid_characters(
     initialized_repository: Path,
