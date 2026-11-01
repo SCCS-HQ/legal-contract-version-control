@@ -42,7 +42,7 @@ from bs4 import BeautifulSoup
      ]
 )
 def test_tags_to_list_converts_bs4_object_to_list_of_tags(
-    html: str, tc: SCCSTestConstants, expected_value: list
+    tc: SCCSTestConstants, html: str, expected_value: list
 ) -> None:
     assert (
         diff.tags_to_list(BeautifulSoup(html, tc.HTML_PARSER))
@@ -64,7 +64,7 @@ def test_tags_to_list_converts_bs4_object_to_list_of_tags(
      ],
 )
 def test_remove_inline_semantics_removes_or_decomposes_tags(
-    c: SCCSConstants, html: str, expected_value: str, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, html: str, expected_value: str
 ) -> None:
     assert (
         diff.remove_inline_semantics(c, BeautifulSoup(html, tc.HTML_PARSER))
@@ -86,7 +86,7 @@ def test_remove_inline_semantics_removes_or_decomposes_tags(
      ],
 )
 def test_number_tags_numbers_tags_correctly(
-    c: SCCSConstants, html: str, expected_value: str, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, html: str, expected_value: str
 ) -> None:
     assert (
        diff.number_tags(c, BeautifulSoup(html, tc.HTML_PARSER))
@@ -108,7 +108,7 @@ def test_number_tags_numbers_tags_correctly(
      ],
 )
 def test_strip_number_attribute_removes_all_data_number_attributes(
-    html: str, expected_value: str, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, html: str, expected_value: str
 ) -> None:
     assert (
         diff.strip_number_attribute(c, BeautifulSoup(html, tc.HTML_PARSER))
@@ -127,7 +127,10 @@ def test_print_diff_success_message(
 
 
 def test_validate_diff_raises_if_commit_is_latest(
-    c: SCCSConstants, tc: SCCSTestConstants, initialized_repository: Path, target: TargetBranch
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -160,7 +163,7 @@ def test_validate_diff_raises_if_commit_is_latest(
      ],
 )
 def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
-    c: SCCSConstants, html: str, old_changed_strings: list[str], expected_value: str, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, html: str, old_changed_strings: list[str], expected_value: str
 ) -> None:
 
     assert (
@@ -275,7 +278,7 @@ def test_replace_tag_adds_correct_tags_and_classes(
     ]
 )
 def test_get_data_number_returns_set_of_data_numbers(
-    tag_list: list[str], expected_value: set[str], c: SCCSConstants
+    c: SCCSConstants, tag_list: list[str], expected_value: set[str]
 ) -> None:
     assert diff.get_data_number(c, tag_list) == expected_value
 
@@ -354,11 +357,11 @@ def test_generate_diff_output_generates_correct_diff(
 )
 def test_diff_main_raises_for_each_missing_resource(
     initialized_repository: Path,
-    missing_resource_path_name: str,
-    expected_reported_resource_path_name: str,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    missing_resource_path_name: str,
+    expected_reported_resource_path_name: str,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -444,11 +447,11 @@ def test_diff_main_prints_success_message(
     [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_diff_main_staged_repository_creation_fails(
-    monkeypatch: pytest.MonkeyPatch,
     repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str
 ) -> None:

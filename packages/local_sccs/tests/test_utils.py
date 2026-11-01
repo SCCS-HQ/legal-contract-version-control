@@ -74,7 +74,7 @@ def test_create_staging_directory_uses_prefix_parameter(
 
 
 def test_entered_argument_returns_correct_argument(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     monkeypatch.setattr(sys, tc.ARGV_OBJECT_NAME, [tc.TEST_STRING])
@@ -83,7 +83,7 @@ def test_entered_argument_returns_correct_argument(
 
 
 def test_entered_argument_raises_if_argument_does_not_exist(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     monkeypatch.setattr(sys, tc.ARGV_OBJECT_NAME, [tc.TEST_STRING])
@@ -94,7 +94,7 @@ def test_entered_argument_raises_if_argument_does_not_exist(
 
 
 def test_entered_argument_does_not_raise_if_raise_on_not_provided_is_false(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     monkeypatch.setattr(sys, tc.ARGV_OBJECT_NAME, [tc.TEST_STRING])
@@ -108,7 +108,7 @@ def test_working_directory_returns_cwd(c: SCCSConstants) -> None:
 
 
 def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def raise_error() -> NoReturn:
@@ -122,10 +122,10 @@ def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
 
 
 def test_working_directory_sets_cwd_to_pwd_if_cwd_raises(
-    monkeypatch: pytest.MonkeyPatch,
     c: SCCSConstants,
     tc: SCCSTestConstants,
-    tmp_path: Path
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     original_cwd = Path.cwd()
@@ -149,7 +149,7 @@ def test_working_directory_sets_cwd_to_pwd_if_cwd_raises(
 
 
 def test_print_remote_success_message_prints_correct_message(
-    capsys: pytest.CaptureFixture[str], c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]
 ) -> None:
 
     expected = (
@@ -238,10 +238,7 @@ def test_promote_staging_allows_non_empty_final_root(
 
 
 def test_promote_staging_restores_final_root_if_promotion_raises(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
+    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     final_root = tmp_path / tc.TEST_FINAL_ROOT
@@ -358,7 +355,7 @@ def test_safe_extract_zip_rejects_absolute_paths(
     ],
 )
 def test_safe_extract_zip_rejects_double_period(
-    tmp_path: Path, c: SCCSConstants, member_path: str, tc: SCCSTestConstants
+    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, member_path: str
 ) -> None:
 
     archive = unittest.mock.Mock()
@@ -580,7 +577,7 @@ def test_zip_buffer_zips_buffer(c: SCCSConstants, tc: SCCSTestConstants) -> None
 
 
 def test_zip_buffer_raises_if_buffer_creation_fails(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def raise_error() -> NoReturn:
@@ -603,7 +600,7 @@ def test_zip_buffer_raises_if_error_occurs_during_zipping(
 
 
 def test_zip_buffer_raises_if_buffer_seek_fails(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     class FailingSeekBuffer(io.BytesIO):

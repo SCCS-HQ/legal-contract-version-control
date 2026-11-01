@@ -75,8 +75,8 @@ def test_print_branch_delete_success_message(
 
 def test_branch_create_subcommand_creates_new_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -116,8 +116,8 @@ def test_branch_create_subcommand_creates_new_branch(
 
 def test_branch_delete_subcommand_deletes_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -159,8 +159,8 @@ def test_branch_delete_subcommand_deletes_branch(
 
 def test_branch_delete_subcommand_raises_if_branch_to_remove_is_main(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants
 ) -> None:
     rd = RepositoryData(
@@ -177,8 +177,8 @@ def test_branch_delete_subcommand_raises_if_branch_to_remove_is_main(
 
 def test_branch_list_subcommand_lists_all_branches(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -200,8 +200,8 @@ def test_branch_list_subcommand_lists_all_branches(
 
 def test_run_specified_subcommand_runs_create_subcommand(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -243,8 +243,8 @@ def test_run_specified_subcommand_runs_create_subcommand(
 
 def test_run_specified_subcommand_runs_delete_subcommand(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -288,8 +288,8 @@ def test_run_specified_subcommand_runs_delete_subcommand(
 
 def test_run_specified_subcommand_runs_branch_list_subcommand(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -315,8 +315,8 @@ def test_run_specified_subcommand_runs_branch_list_subcommand(
 )
 def test_run_specified_subcommand_raises_if_branch_name_is_none_and_create_or_delete_subcommand_is_given(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     subcommand: str,
     error_raised: bool
@@ -348,8 +348,8 @@ def test_run_specified_subcommand_raises_if_branch_name_is_none_and_create_or_de
 )
 def test_validate_subcommand_raises_if_subcommand_is_invalid(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     precreate_branch: bool,
     error_raised: bool,
@@ -388,8 +388,8 @@ def test_validate_subcommand_raises_if_subcommand_is_invalid(
 )
 def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch_name_is_empty(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     subcommand: str,
     precreate_branch: bool,
@@ -441,8 +441,8 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
 )
 def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_exists(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     branch_name: str,
     precreate_branch: bool,
@@ -486,8 +486,8 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
 )
 def test_validate_subcommand_raises_for_delete_branch_cases(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     branch_name: str,
     expected_message: str,
@@ -521,8 +521,8 @@ def test_validate_subcommand_raises_for_delete_branch_cases(
 
 def test_validate_subcommand_does_not_raise_for_list_with_no_branch_name(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rs = RepositoryStatus(
@@ -534,8 +534,8 @@ def test_validate_subcommand_does_not_raise_for_list_with_no_branch_name(
 
 def test_validate_subcommand_does_not_raise_for_create_with_new_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rs = RepositoryStatus(
@@ -547,8 +547,8 @@ def test_validate_subcommand_does_not_raise_for_create_with_new_branch(
 
 def test_validate_subcommand_does_not_raise_for_delete_with_existing_non_current_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rw = RepositoryWrite(
@@ -579,12 +579,12 @@ def test_validate_subcommand_does_not_raise_for_delete_with_existing_non_current
 )
 def test_branch_main_raises_for_each_missing_resource(
     initialized_repository: Path,
-    missing_resource_path_name: str,
-    expected_reported_resource_path_name: str,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
+    missing_resource_path_name: str,
+    expected_reported_resource_path_name: str,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -627,8 +627,8 @@ def test_branch_main_raises_for_each_missing_resource(
 def test_branch_main_raises_if_uncommitted_changes_exist(
     initialized_repository: Path,
     c: SCCSConstants,
-    tc: SCCSTestConstants,
-    target: TargetBranch
+    target: TargetBranch,
+    tc: SCCSTestConstants
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -664,8 +664,8 @@ def test_branch_main_raises_if_uncommitted_changes_exist(
 )
 def test_branch_main_raises_if_subcommand_is_invalid(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     precreate_branch: bool,
     error_raised: bool,
@@ -708,8 +708,8 @@ def test_branch_main_raises_if_subcommand_is_invalid(
 )
 def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is_empty(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     subcommand: str,
     precreate_branch: bool,
@@ -765,8 +765,8 @@ def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is
 )
 def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     branch_name: str,
     precreate_branch: bool,
@@ -815,8 +815,8 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
 )
 def test_branch_main_raises_for_delete_branch_cases(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     branch_name: str,
     expected_message: str,
@@ -853,8 +853,8 @@ def test_branch_main_raises_for_delete_branch_cases(
 
 def test_branch_main_does_not_raise_for_list_with_no_branch_name(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -872,8 +872,8 @@ def test_branch_main_does_not_raise_for_list_with_no_branch_name(
 
 def test_branch_main_does_not_raise_for_create_with_new_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -891,8 +891,8 @@ def test_branch_main_does_not_raise_for_create_with_new_branch(
 
 def test_branch_main_does_not_raise_for_delete_with_existing_non_current_branch(
     initialized_repository: Path,
-    target: TargetBranch,
     c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -925,12 +925,12 @@ def test_branch_main_does_not_raise_for_delete_with_existing_non_current_branch(
     ]
 )
 def test_branch_main_staged_repository_creation_fails(
-    subcommand: str,
-    monkeypatch: pytest.MonkeyPatch,
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    subcommand: str,
     module: object,
     function: str
 ) -> None:
@@ -970,13 +970,13 @@ def test_branch_main_staged_repository_creation_fails(
     ]
 )
 def test_branch_main_handles_io_errors_on_metadata_write(
-    precreate_branch: bool,
-    subcommand: str,
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
+    precreate_branch: bool,
+    subcommand: str,
     method: str
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -1029,11 +1029,11 @@ def test_branch_main_handles_io_errors_on_metadata_write(
 )
 def test_branch_main_prints_create_success_message(
     initialized_repository: Path,
+    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
     branch_name: str,
     expected_message: str,
-    c: SCCSConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -1065,13 +1065,13 @@ def test_branch_main_prints_create_success_message(
     ],
 )
 def test_branch_main_prints_delete_success_message(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
     branch_name: str,
     expected_message: str,
-    c: SCCSConstants,
     capsys: pytest.CaptureFixture[str],
-    initialized_repository: Path,
-    target: TargetBranch,
-    tc: SCCSTestConstants
 ) -> None:
     
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -1096,9 +1096,9 @@ def test_branch_main_prints_delete_success_message(
 
 def test_branch_main_prints_list_success_message(
     initialized_repository: Path,
+    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    c: SCCSConstants,
     capsys: pytest.CaptureFixture[str]
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
@@ -1121,9 +1121,9 @@ def test_branch_main_prints_list_success_message(
 
 def test_branch_main_creates_branch_side_effects(
     initialized_repository: Path,
+    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    c: SCCSConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1163,9 +1163,9 @@ def test_branch_main_creates_branch_side_effects(
 
 def test_branch_main_deletes_branch_side_effects(
     initialized_repository: Path,
+    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    c: SCCSConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target

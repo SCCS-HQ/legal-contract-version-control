@@ -305,11 +305,11 @@ def test_repository_data_copy_latest_commit_document_copies_latest_commit(
 
 
 def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
-    monkeypatch: pytest.MonkeyPatch,
     initialized_repository: Path,
     c: SCCSConstants, 
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target

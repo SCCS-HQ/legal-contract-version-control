@@ -27,11 +27,7 @@ import os
     ("abc", "abc"),
 ])
 def test_print_commit_success_message(
-    capsys: pytest.CaptureFixture[str],
-    tc: SCCSTestConstants,
-    c: SCCSConstants,
-    commit_hash: str,
-    expected_identifier: str
+    c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str], commit_hash: str, expected_identifier: str
 ) -> None:
     commit.print_commit_success_message(c, commit_hash)
 
@@ -41,10 +37,10 @@ def test_print_commit_success_message(
 
 
 def test_commit_main_raises_if_commit_message_is_empty(
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
     initialized_repository: Path,
-    target: TargetBranch
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -76,11 +72,11 @@ def test_commit_main_raises_if_commit_message_is_empty(
 )
 def test_commit_main_raises_for_each_missing_resource(
     initialized_repository: Path,
-    missing_resource_path_name: str,
-    expected_reported_resource_path_name: str,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    missing_resource_path_name: str,
+    expected_reported_resource_path_name: str,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -254,11 +250,11 @@ def test_commit_main_when_updated_branches_is_missing(
 
 
 def test_commit_main_prints_success_message(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
-    repository_with_multiple_commits: Path,
-    target: TargetBranch,
-    c: SCCSConstants
 ) -> None:
     
     rd = RepositoryData(
@@ -279,11 +275,11 @@ def test_commit_main_prints_success_message(
 
 
 def test_commit_main_resets_target_on_error(
-    monkeypatch: pytest.MonkeyPatch,
     repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -311,11 +307,11 @@ def test_commit_main_resets_target_on_error(
     [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_commit_main_staged_repository_creation_fails(
-    monkeypatch: pytest.MonkeyPatch,
     repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str
 ) -> None:

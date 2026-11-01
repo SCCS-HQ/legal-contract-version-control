@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 
 def test_print_clone_success_message(
-    capsys: pytest.CaptureFixture[str], tc: SCCSTestConstants, c: SCCSConstants
+    c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]
 ) -> None:
 
     response = requests.Response()
@@ -37,7 +37,7 @@ def test_print_clone_success_message(
     ]
 )
 def test_repository_name_from_url_raises_if_url_is_missing_path_components(
-    c: SCCSConstants, url: str, error_raised: bool, expected_value: str | None, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, url: str, error_raised: bool, expected_value: str | None
 ) -> None:
 
     if error_raised:
@@ -58,11 +58,7 @@ def test_repository_name_from_url_raises_if_url_is_missing_path_components(
     [(100, False), (200, False), (300, False), (400, True), (500, True)]
 )
 def test_request_repository_raises_if_http_error_occurred(
-    monkeypatch: pytest.MonkeyPatch,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
-    status_code: int,
-    error_raised: bool
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, status_code: int, error_raised: bool
 ) -> None:
     
     response = requests.Response()
@@ -82,9 +78,7 @@ def test_request_repository_raises_if_http_error_occurred(
 
 
 def test_request_repository_raises_if_request_exception_is_raised(
-    monkeypatch: pytest.MonkeyPatch,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def raise_request_exception(*args: Any, **kwargs: Any) -> NoReturn:
@@ -109,7 +103,7 @@ def test_request_repository_raises_if_request_exception_is_raised(
     ]
 )
 def test_validate_entered_url_raises_if_invalid(
-    url: str, c: SCCSConstants, error_raised: bool, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, url: str, error_raised: bool
 ) -> None:
     if error_raised:
         with pytest.raises(SCCSException) as e:
@@ -154,7 +148,7 @@ def test_validate_entered_url_raises_if_invalid(
     ],
 )
 def test_validate_repository_name_invalid(
-    name: str, c: SCCSConstants, error_raised: bool, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, name: str, error_raised: bool
 ) -> None:
     if error_raised:
         with pytest.raises(SCCSException) as e:
@@ -177,7 +171,7 @@ def test_validate_repository_name_invalid(
     ],
 )
 def test_unzip_repository_file_raises_if_url_is_missing_path_components(
-    tmp_path: Path, c: SCCSConstants, url: str, tc: SCCSTestConstants
+    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, url: str
 ) -> None:
 
     with pytest.raises(SCCSException) as e:
@@ -272,7 +266,7 @@ def test_unzip_repository_file_raises_if_zip_buffer_is_invalid(
     "url", ["htp://127.0.0.1:8000/clone", "http://127.0.0.1:8000", ""]
 )
 def test_clone_main_raises_if_url_is_invalid(
-    url: str, c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, url: str
 ) -> None:
     with pytest.raises(SCCSException) as e:
         clone.main(c, url)
@@ -291,10 +285,7 @@ def test_clone_main_raises_if_url_is_invalid(
     [400, 500]
 )
 def test_clone_main_raises_if_http_error_occurred(
-    monkeypatch: pytest.MonkeyPatch,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
-    status_code: int,
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, status_code: int
 ) -> None:
     response = requests.Response()
     response.status_code = status_code
@@ -314,9 +305,7 @@ def test_clone_main_raises_if_http_error_occurred(
 
 
 def test_clone_main_raises_if_request_exception_is_raised(
-    monkeypatch: pytest.MonkeyPatch,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def raise_request_exception(*args: Any, **kwargs: Any) -> NoReturn:
@@ -341,7 +330,7 @@ def test_clone_main_raises_if_request_exception_is_raised(
     ]
 )
 def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
-    c: SCCSConstants, url: str, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def do_nothing(*args: Any, **kwargs: Any) -> None:
@@ -369,7 +358,7 @@ def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
     ["", "my repo", "repo/name", ".", ".."],
 )
 def test_clone_main_raises_if_repository_name_is_invalid(
-    c: SCCSConstants, name: str, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants
+    c: SCCSConstants, tc: SCCSTestConstants, name: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
     def do_nothing(*args: Any, **kwargs: Any) -> None:
@@ -458,12 +447,7 @@ def test_clone_main_unzips_repository(
     [(utils, "promote_staging"), (clone, "unzip_repository_file")]
 )
 def test_clone_main_deletes_staging_root_if_error_is_raised(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-    c: SCCSConstants,
-    tc: SCCSTestConstants,
-    module: object,
-    function: str
+    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, module: object, function: str
 ) -> None:
         
     def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:

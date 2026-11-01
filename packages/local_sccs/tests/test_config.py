@@ -109,11 +109,11 @@ def test_resolve_key_value_returns_correct_string_if_error_is_not_raised(
 )
 def test_config_main_raises_for_each_missing_resource(
     initialized_repository: Path,
-    missing_resource_path_name: str,
-    expected_reported_resource_path_name: str,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    missing_resource_path_name: str,
+    expected_reported_resource_path_name: str,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -179,11 +179,11 @@ def test_config_main_raises_for_each_missing_resource(
 def test_config_main_raises_correctly_given_key_value_provided(
     c: SCCSConstants,
     tc: SCCSTestConstants,
-    key: str,
-    value: str, 
-    error_raised: bool,
     initialized_repository: Path,
-    target: TargetBranch
+    target: TargetBranch,
+    key: str,
+    value: str,
+    error_raised: bool,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -215,11 +215,11 @@ def test_config_main_raises_correctly_given_key_value_provided(
     [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_config_main_staged_repository_creation_fails(
-    monkeypatch: pytest.MonkeyPatch,
     repository_with_multiple_commits: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str
 ) -> None:
@@ -287,11 +287,11 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
 
 
 def test_config_main_prints_success_message(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
-    initialized_repository: Path,
-    target: TargetBranch,
-    c: SCCSConstants
 ) -> None:
     
     rd = RepositoryData(
