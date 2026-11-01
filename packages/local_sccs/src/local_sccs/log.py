@@ -39,9 +39,8 @@ def main(
     repository layout, and printing the log entries of the current branch.
     """
 
-    rs.target.set(rd.current_branch())
-
     rs.validate_repository_layout()
+    rs.target.set(rd.current_branch())
 
     print_log(c, ri.read_log())
 

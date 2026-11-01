@@ -3,7 +3,7 @@ from local_sccs import help
 import pytest
 from test_constants import SCCSTestConstants
 
-def test_print_help_prints_help_message(capsys: pytest.CaptureFixture[str], c: SCCSConstants, tc: SCCSTestConstants) -> None:
+def test_print_help_prints_help_message(c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]) -> None:
     """
     Test the print_help function to ensure it prints the correct help messages.
     """
@@ -13,7 +13,7 @@ def test_print_help_prints_help_message(capsys: pytest.CaptureFixture[str], c: S
     assert capsys.readouterr().out == expected_output
 
 
-def test_help_main_prints_help_message(capsys: pytest.CaptureFixture[str], c: SCCSConstants, tc: SCCSTestConstants) -> None:
+def test_help_main_prints_help_message(c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]) -> None:
     """
     Test the main function to ensure it calls print_help and prints the correct help messages.
     """
