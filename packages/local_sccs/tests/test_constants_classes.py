@@ -1,4 +1,4 @@
-from ast import pattern
+from types import MappingProxyType
 import re
 from types import FunctionType
 
@@ -60,35 +60,37 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     ),
     "CLONE_ENDPOINT": "/clone",
     "CLONE_SUCCESS_MESSAGE": "Repository cloned successfully.",
-    "COMMAND_DESCRIPTIONS": {
-        "branch": "Create a new branch, delete, or list branches.",
-        "clone": "Clone a hosted SCCS repository with a URL.",
-        "commit": "Commit changes to the repository.",
-        "config": "Configure a repository's data value (remote, name, email)",
-        "diff": "Show differences between the current document and a past commit.",
-        "help": (
-            "Prints a help message listing the available commands and their "
-            "descriptions."
-        ),
-        "init": "Initialize a new SCCS repository.",
-        "log": "Print a list of past commits for the current branch.",
-        "merge": "Merge the entered branch into the current branch.",
-        "open": "Open a commit file and update the current document.",
-        "publish": "Publish a local repository to a hosting service.",
-        "pull": (
-            "Pull changes from a remote repository and merge them "
-            "into the local repository."
-        ),
-        "push": (
-            "Push changes from the local repository to a remote repository."
-        ),
-        "reset": "Delete all uncommitted changes.",
-        "revert": "Revert the current document to the specified commit.",
-        "status": (
-            "Check the status of the current document for uncommitted changes."
-        ),
-        "switch": "Switch between document branches.",
-    },
+    "COMMAND_DESCRIPTIONS": MappingProxyType(
+        {
+            "branch": "Create a new branch, delete, or list branches.",
+            "clone": "Clone a hosted SCCS repository with a URL.",
+            "commit": "Commit changes to the repository.",
+            "config": "Configure a repository's data value (remote, name, email)",
+            "diff": "Show differences between the current document and a past commit.",
+            "help": (
+                "Prints a help message listing the available commands and their "
+                "descriptions."
+            ),
+            "init": "Initialize a new SCCS repository.",
+            "log": "Print a list of past commits for the current branch.",
+            "merge": "Merge the entered branch into the current branch.",
+            "open": "Open a commit file and update the current document.",
+            "publish": "Publish a local repository to a hosting service.",
+            "pull": (
+                "Pull changes from a remote repository and merge them "
+                "into the local repository."
+            ),
+            "push": (
+                "Push changes from the local repository to a remote repository."
+            ),
+            "reset": "Delete all uncommitted changes.",
+            "revert": "Revert the current document to the specified commit.",
+            "status": (
+                "Check the status of the current document for uncommitted changes."
+            ),
+            "switch": "Switch between document branches.",
+        }
+    ),
     "COMMAND_FIELD_NAME": "command",
     "COMMA_SPACE": ", ",
     "COMMIT_AUTHOR_TEMPLATE": "{name} <{email}>",
@@ -138,11 +140,13 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "DEBUG_FLAG": "--debug",
     "DEBUG_FLAG_GENERAL": "debug",
     "DEBUG_FLAG_SHORT": "-d",
-    "DEFAULT_BRANCH_DATA": {
-        "current_branch": "main",
-        "branches": ["main"],
-        "updated_branches": [],
-    },
+    "DEFAULT_BRANCH_DATA": (
+        {
+            "current_branch": "main",
+            "branches": ["main"],
+            "updated_branches": [],
+        }
+    ),
     "DEFAULT_HTML_STYLES": """
     <style>
         * {
@@ -194,7 +198,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "EXPECTED_ERROR_EXIT_CODE": 1,
     "FILE_START_POSITION": 0,
     "FIRST_ELEMENT_INDEX": 0,
-    "FLAG_DESCRIPTIONS": {"debug": "Does not except Exception or SCCSException."},
+    "FLAG_DESCRIPTIONS": MappingProxyType({"debug": "Does not except Exception or SCCSException."}),
     "FULL_COMMIT_IDENTIFIER_LENGTH": 64,
     "HELP_COMMAND_NAME": "help",
     "HEX_DIGITS": "0123456789abcdef",
@@ -449,10 +453,10 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
 
 
 def test_sccs_constants_help_messages_returns_correct_help_message(
-    c: SCCSConstants, tc: SCCSTestConstants
+    c: SCCSConstants
 ) -> None:
 
-    assert tc.HELP_MESSAGES == (
+    assert c.HELP_MESSAGES == (
         "SCCS Help",
         "Available commands:",
         "  sccs branch - Create a new branch, delete, or list branches.",

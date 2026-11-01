@@ -224,6 +224,7 @@ class SCCSConstants:
         {DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."}
     )
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
+    @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
         Return the help messages listing the available SCCS commands and their
