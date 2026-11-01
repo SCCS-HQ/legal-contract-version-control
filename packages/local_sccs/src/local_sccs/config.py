@@ -106,4 +106,4 @@ def main(
         raise
     except Exception as e:
         rs.target.reset()
-        raise SCCSException(c.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE) from e
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e

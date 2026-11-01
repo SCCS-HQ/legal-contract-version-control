@@ -110,7 +110,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "COMMIT_MESSAGE_FIELD_NAME": "commit message",
     "COMMIT_NUMBER_INCREMENT": 1,
     "COMMIT_ORDER_DICT_KEY": "commit_order",
-    "COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE": (
+    "STAGED_REPOSITORY_ERROR_MESSAGE": (
         "Failed to create or promote the staged repository. Please try again."
     ),
     "CONFIG_COMMAND_NAME": "config",

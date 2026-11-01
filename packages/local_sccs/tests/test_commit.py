@@ -336,7 +336,7 @@ def test_commit_main_staged_repository_creation_fails(
 
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
-    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(
@@ -347,10 +347,16 @@ def test_commit_main_staged_repository_creation_fails(
     assert not staging_dirs
 
 
-@pytest.mark.parametrize("method", [
-    "write_history", "write_log", "write_byte_hash",
-    "write_commit_messages", "write_current_branch_data",
-])
+@pytest.mark.parametrize(
+    "method",
+    [
+        "write_history",
+        "write_log",
+        "write_byte_hash",
+        "write_commit_messages",
+        "write_current_branch_data",
+    ]
+)
 def test_commit_main_handles_io_errors_on_metadata_write(
     repository_with_multiple_commits: Path,
     c: SCCSConstants,
@@ -376,7 +382,7 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     
     with pytest.raises(SCCSException) as e:
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
-    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     assert target.get() is None
 

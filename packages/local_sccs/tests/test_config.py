@@ -243,7 +243,7 @@ def test_config_main_staged_repository_creation_fails(
 
     with pytest.raises(SCCSException) as e:
         config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
-    assert str(e.value) == tc.COMMIT_STAGED_REPOSITORY_ERROR_MESSAGE
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
         repository_with_multiple_commits.parent.glob(
