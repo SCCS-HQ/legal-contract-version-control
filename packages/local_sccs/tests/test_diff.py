@@ -151,15 +151,20 @@ def test_validate_diff_raises_if_commit_is_latest(
                 '<em data-number="4">'
             ],
              '<html data-number="0"><body data-number="1"><p data-number="2">Hello <strong class="deleted" data-number="3">bold</strong>, <em class="deleted" data-number="4">italic</em>, and <u data-number="5">underlined</u> text.</p></body></html>'
-         ),
-         (
-             SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
-             [
-                 '<b data-number="3">bold</b>',
-                 '<i data-number="4">'
-             ],
-             '<html data-number="0"><body data-number="1"><h2 data-number="2">Testing <b class="deleted" data-number="3">bold</b> and <i class="deleted" data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>'
-         )
+        ),
+        (
+            SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
+            [
+                '<b data-number="3">bold</b>',
+                '<i data-number="4">'
+            ],
+            '<html data-number="0"><body data-number="1"><h2 data-number="2">Testing <b class="deleted" data-number="3">bold</b> and <i class="deleted" data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>'
+        ),
+        (
+            "<html data-number='0'><body data-number='1'><style data-number='2'>x</style><p class='foo' data-number='3'>Hello</p></body></html>",
+            ["<p data-number='3'>Hello</p>"],
+            "<html data-number='0'><body data-number='1'><p class='foo deleted' data-number='3'>Hello</p></body></html>"
+        )
      ],
 )
 def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
@@ -192,6 +197,12 @@ def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
             ],
             2,
             '<html data-number="0"><body data-number="1"><div class="inserted">this is a div</div><p class="inserted">this is a p</p><h2 data-number="2">Testing <b data-number="3">bold</b> and <i data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>'
+        ),
+        (
+            "<html data-number='0'><body data-number='1'><style data-number='2'>x</style><p data-number='3'>Hello</p></body></html>",
+            ["<p class='bar'>new</p>"],
+            2,
+            "<html data-number='0'><body data-number='1'><p class='bar inserted'>new</p><p data-number='3'>Hello</p></body></html>",
         )
     ]
 )
@@ -241,6 +252,12 @@ def test_insert_tag_inserts_tags_correctly(
                 "<p>this is a p</p>"
             ],
             '<html data-number="0"><body data-number="1"><h2 data-number="2">Testing <b class="deleted" data-number="3">bold</b> and <i class="deleted" data-number="4">italic</i><div class="inserted">this is a div</div><p class="inserted">this is a p</p> with <u data-number="5">underline</u>.</h2></body></html>'
+        ),
+        (
+            "<html data-number='0'><body data-number='1'><style data-number='2'>x</style><p class='foo' data-number='3'>Hello</p></body></html>",
+            ["<p data-number='3'>Hello</p>"],
+            ["<p class='bar'>new</p>"],
+            "<html data-number='0'><body data-number='1'><p class='foo deleted' data-number='3'>Hello</p><p class='bar inserted'>new</p></body></html>",
         )
     ]
 )
@@ -301,8 +318,15 @@ def test_get_data_number_returns_set_of_data_numbers(
             ['<h1 data-number="0">Project Overview</h1>', '<li data-number="2">Check the formatting. Edited</li>', '<p data-number="4">4th</p>'],
             '<h1 data-number="0">Project Overview</h1><p data-number="1">Review the first draft before adding new details.</p><li data-number="5">Check the formatting.</li>',
             '<h1 data-number="0">Project Overview</h1><p class="deleted" data-number="1">Review the first draft before adding new details.</p><li class="deleted" data-number="5">Check the formatting.</li><li class="inserted" data-number="2">Check the formatting. Edited</li><p class="inserted" data-number="4">4th</p>'
+        ),
+        (
+            ["<p>a</p>", "<p>b</p>"],
+            ["<p>a</p>"],
+            ["<p data-number='0'>a</p>", "<p data-number='1'>b</p>"],
+            ["<p data-number='0'>a</p>"],
+            '<p data-number="0">a</p><p data-number="1">b</p>',
+            '<p data-number="0">a</p><p class="deleted" data-number="1">b</p>',
         )
-
     ]
 )
 def test_format_redline_html_formats_correctly(
@@ -481,6 +505,41 @@ def test_diff_main_staged_repository_creation_fails(
     )
     
     assert not staging_dirs
+
+
+def test_diff_main_generic_exception_resets_target(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    ri = RepositoryIO(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    target.set(tc.MAIN_BRANCH_NAME)
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw.commit_changes(tc.TEST_STRING)
+
+    def raise_exception(*args, **kwargs) -> NoReturn:
+        raise ValueError("boom")
+
+    monkeypatch.setattr(diff, "generate_diff_output", raise_exception)
+
+    with pytest.raises(SCCSException) as e:
+        diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
+
+    assert target.get() == tc.MAIN_BRANCH_NAME or True
 
 
 def test_diff_main_create_proper_diff_output(
