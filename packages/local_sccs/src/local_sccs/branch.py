@@ -172,25 +172,32 @@ def main(
     when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        rs.validate_repository_layout()
 
-    rs.raise_for_uncommitted_changes()
+        rs.raise_for_uncommitted_changes()
 
-    validate_subcommand(c, subcommand, branch_name, rs)
+        validate_subcommand(c, subcommand, branch_name, rs)
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
+            staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+            staging_rw = RepositoryWrite(staging_root, rd.repository_name, c, rw.target)
 
-        run_specified_subcommand(
-            c,
-            subcommand,
-            branch_name,
-            staging_rd,
-            staging_rw,
-        )
+            run_specified_subcommand(
+                c,
+                subcommand,
+                branch_name,
+                staging_rd,
+                staging_rw,
+            )
 
-    rs.target.reset()
+        rs.target.reset()
+    except SCCSException:
+        rs.target.reset()
+        raise
+    except Exception as e:
+        rs.target.reset()
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
