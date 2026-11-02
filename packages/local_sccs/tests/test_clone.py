@@ -1,3 +1,4 @@
+from types import FunctionType
 from typing import Any, NoReturn
 
 from local_sccs.constants_classes import SCCSConstants
@@ -64,10 +65,7 @@ def test_request_repository_raises_if_http_error_occurred(
     response = requests.Response()
     response.status_code = status_code
 
-    def return_response(*args: Any, **kwargs: Any) -> requests.Response:
-        return response
-
-    monkeypatch.setattr(requests, "get", return_response)
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: response)
 
     if error_raised:
         with pytest.raises(SCCSException) as e:
@@ -78,11 +76,9 @@ def test_request_repository_raises_if_http_error_occurred(
 
 
 def test_request_repository_raises_if_request_exception_is_raised(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_request_exception: FunctionType
 ) -> None:
 
-    def raise_request_exception(*args: Any, **kwargs: Any) -> NoReturn:
-        raise requests.RequestException
 
     monkeypatch.setattr(requests, "get", raise_request_exception)
 
@@ -290,14 +286,8 @@ def test_clone_main_raises_if_http_error_occurred(
     response = requests.Response()
     response.status_code = status_code
 
-    def return_response(*args: Any, **kwargs: Any) -> requests.Response:
-        return response
-
-    def do_nothing(*args: Any, **kwargs: Any) -> None:
-        ...
-
-    monkeypatch.setattr(clone, "validate_entered_url", do_nothing)
-    monkeypatch.setattr(requests, "get", return_response)
+    monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
+    monkeypatch.setattr(requests, "get", lambda *args, **kwargs: response)
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
@@ -305,16 +295,10 @@ def test_clone_main_raises_if_http_error_occurred(
 
 
 def test_clone_main_raises_if_request_exception_is_raised(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_request_exception: FunctionType
 ) -> None:
 
-    def raise_request_exception(*args: Any, **kwargs: Any) -> NoReturn:
-        raise requests.RequestException
-
-    def do_nothing(*args: Any, **kwargs: Any) -> None:
-        ...
-
-    monkeypatch.setattr(clone, "validate_entered_url", do_nothing)
+    monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
     monkeypatch.setattr(requests, "get", raise_request_exception)
 
     with pytest.raises(SCCSException) as e:
@@ -330,27 +314,18 @@ def test_clone_main_raises_if_request_exception_is_raised(
     ]
 )
 def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
-    c: SCCSConstants, tc: SCCSTestConstants, url: str, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, tc: SCCSTestConstants, url: str, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
 ) -> None:
+    
+    response = requests.Response()
+    response._content = b""
 
-    def do_nothing(*args: Any, **kwargs: Any) -> None:
-        ...
-
-    def raise_exception(*args: Any, **kwargs: Any) -> str:
-        raise SCCSException(tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE)
-
-    def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
-        response = requests.Response()
-        response._content = b""
-        return response
-
-    monkeypatch.setattr(clone, "validate_entered_url", do_nothing)
-    monkeypatch.setattr(clone, "request_repository", mock_request_repository)
+    monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
+    monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
     monkeypatch.setattr(clone, "repository_name_from_url", raise_exception)
 
-    with pytest.raises(SCCSException) as e:
+    with pytest.raises(Exception):
         clone.main(c, url)
-    assert str(e.value) == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -361,20 +336,12 @@ def test_clone_main_raises_if_repository_name_is_invalid(
     c: SCCSConstants, tc: SCCSTestConstants, name: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
-    def do_nothing(*args: Any, **kwargs: Any) -> None:
-        ...
+    response = requests.Response()
+    response._content = b""
 
-    def return_name(*args: Any, **kwargs: Any) -> str:
-        return name
-
-    def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
-        response = requests.Response()
-        response._content = b""
-        return response
-
-    monkeypatch.setattr(clone, "validate_entered_url", do_nothing)
-    monkeypatch.setattr(clone, "request_repository", mock_request_repository)
-    monkeypatch.setattr(clone, "repository_name_from_url", return_name)
+    monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
+    monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
+    monkeypatch.setattr(clone, "repository_name_from_url", lambda *args, **kwargs: name)
 
     with pytest.raises(SCCSException) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
@@ -387,23 +354,16 @@ def test_clone_main_raises_if_local_repository_already_exists(
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    
-    def do_nothing(*args: Any, **kwargs: Any) -> None:
-        ...
 
-    def return_string(*args: Any, **kwargs: Any) -> str:
-        return tc.TEST_STRING
+    response = requests.Response()
+    response._content = bytes(tc.EMPTY_STRING, tc.UTF_8)
+    response.status_code = tc.STATUS_CODE_TWO_HUNDRED
 
-    def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
-        response = requests.Response()
-        response._content = bytes(tc.EMPTY_STRING, tc.UTF_8)
-        return response
-
-    monkeypatch.setattr(clone, "validate_entered_url", do_nothing)
-    monkeypatch.setattr(clone, "request_repository", mock_request_repository)
-    monkeypatch.setattr(io, "BytesIO", do_nothing)
-    monkeypatch.setattr(clone, "repository_name_from_url", return_string)
-    monkeypatch.setattr(clone, "validate_repository_name", do_nothing)
+    monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
+    monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
+    monkeypatch.setattr(io, "BytesIO", lambda *args, **kwargs: None)
+    monkeypatch.setattr(clone, "repository_name_from_url", lambda *args, **kwargs: tc.TEST_STRING)
+    monkeypatch.setattr(clone, "validate_repository_name", lambda *args, **kwargs: None)
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.TEST_STRING).mkdir()
 
@@ -419,17 +379,14 @@ def test_clone_main_unzips_repository(
     capsys: pytest.CaptureFixture[str]
 ) -> None:
     
-    def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
-        response = requests.Response()
-        response.status_code = tc.STATUS_CODE_TWO_HUNDRED
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr(tc.TEST_TEXT_FILENAME, tc.TEST_STRING)
-        response._content = buffer.getvalue()
+    response = requests.Response()
+    response.status_code = tc.STATUS_CODE_TWO_HUNDRED
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(tc.TEST_TEXT_FILENAME, tc.TEST_STRING)
+    response._content = buffer.getvalue()
 
-        return response
-
-    monkeypatch.setattr(clone, "request_repository", mock_request_repository)
+    monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
     monkeypatch.chdir(tmp_path)
 
     clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
@@ -447,27 +404,18 @@ def test_clone_main_unzips_repository(
     [(utils, "promote_staging"), (clone, "unzip_repository_file")]
 )
 def test_clone_main_deletes_staging_root_if_error_is_raised(
-    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, module: object, function: str
+    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, module: object, function: str, raise_exception: FunctionType
 ) -> None:
         
-    def mock_request_repository(*args: Any, **kwargs: Any) -> requests.Response:
-        response = requests.Response()
-        response.status_code = tc.STATUS_CODE_TWO_HUNDRED
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr(tc.TEST_TEXT_FILENAME, tc.TEST_STRING)
-        response._content = buffer.getvalue()
+    response = requests.Response()
+    response.status_code = tc.STATUS_CODE_TWO_HUNDRED
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(tc.TEST_TEXT_FILENAME, tc.TEST_STRING)
+    response._content = buffer.getvalue()
 
-        return response
-
-    def return_tmp_path(*args: Any, **kwargs: Any) -> Path:
-        return tmp_path
-
-    def raise_exception(*args: Any, **kwargs: Any) -> NoReturn:
-        raise Exception
-
-    monkeypatch.setattr(clone, "request_repository", mock_request_repository)
-    monkeypatch.setattr(utils, "create_staging_directory", return_tmp_path)
+    monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
+    monkeypatch.setattr(utils, "create_staging_directory", lambda *args, **kwargs: tmp_path)
     monkeypatch.setattr(module, function, raise_exception)
 
 

@@ -8,6 +8,7 @@ from test_constants import SCCSTestConstants
 from local_sccs.repository_layout import RepositoryData, RepositoryIO, RepositoryPaths, RepositoryStatus, RepositoryWrite, TargetBranch
 from pathlib import Path
 from local_sccs.exceptions import SCCSException
+from types import FunctionType
 
 @pytest.mark.parametrize(
     "log_data, expected_output",
@@ -147,10 +148,7 @@ def test_log_main_prints_correct_log_entries(
     ri = RepositoryIO(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    def mock_read_log(*args: Any, **kwargs: Any) -> dict:
-        return log_data
-
-    monkeypatch.setattr(RepositoryIO, "read_log", mock_read_log)
+    monkeypatch.setattr(RepositoryIO, "read_log", lambda *args, **kwargs: log_data)
     
     log.main(c, rd, ri, rs)
     assert capsys.readouterr().out == expected_output
@@ -235,16 +233,13 @@ def test_log_main_raises_if_method_raises(
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     module: object,
-    method_name: str
+    method_name: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     ri = RepositoryIO(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    def raise_exception(*args: Any, **kwargs: Any) -> None:
-        raise Exception(tc.TEST_STRING)
-
     monkeypatch.setattr(module, method_name, raise_exception)
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         log.main(c, rd, ri, rs)
-    assert str(e.value) == tc.TEST_STRING

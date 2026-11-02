@@ -1,10 +1,13 @@
 import json
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import TargetBranch
+import requests
+from types import FunctionType
 from test_constants import SCCSTestConstants
 
 
@@ -153,3 +156,27 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
 
     return initialized_repository
 
+
+@pytest.fixture
+def raise_exception() -> FunctionType:
+    """
+    Return a callable that raises an exception when called.
+    """
+
+    def _raise_exception(*args: Any, **kwargs: Any) -> None:
+        raise Exception()
+
+    return _raise_exception
+
+
+@pytest.fixture
+def raise_request_exception(*args: Any, **kwargs: Any) -> FunctionType:
+    """
+    Return a callable that raises an requests.RequestException exception when called.
+    """
+
+    def _raise_request_exception(*args: Any, **kwargs: Any) -> None:
+        raise requests.RequestException()
+
+    return _raise_request_exception
+    

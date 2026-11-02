@@ -17,6 +17,7 @@ import filecmp
 import json
 import tempfile
 import os
+from types import FunctionType
 
 @pytest.mark.parametrize("commit_hash,expected_identifier", [
     (
@@ -280,6 +281,7 @@ def test_commit_main_resets_target_on_error(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -291,10 +293,7 @@ def test_commit_main_resets_target_on_error(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    def fail_commit_changes(*args, **kwargs) -> NoReturn:
-        raise SCCSException()
-
-    monkeypatch.setattr(RepositoryWrite, "commit_changes", fail_commit_changes)
+    monkeypatch.setattr(RepositoryWrite, "commit_changes", raise_exception)
 
     with pytest.raises(SCCSException):
         commit.main(c, tc.TEST_STRING, rd, rs, rw)
@@ -313,7 +312,8 @@ def test_commit_main_staged_repository_creation_fails(
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     module: object,
-    function: str
+    function: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -324,9 +324,6 @@ def test_commit_main_staged_repository_creation_fails(
     rw = RepositoryWrite(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise Exception
 
     monkeypatch.setattr(module, function, raise_exception)
 
@@ -359,7 +356,8 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    method: str
+    method: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -370,9 +368,6 @@ def test_commit_main_handles_io_errors_on_metadata_write(
     rw = RepositoryWrite(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise OSError
     
     monkeypatch.setattr(RepositoryIO, method, raise_exception)
     

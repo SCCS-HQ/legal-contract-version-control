@@ -18,6 +18,7 @@ from local_sccs.repository_layout import (
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
+from types import FunctionType
 
 
 def test_repository_data_matching_commit_files_returns_correct_commit_files(
@@ -310,15 +311,13 @@ def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    def raise_error(*args: Any) -> NoReturn:
-        raise Exception
-
-    monkeypatch.setattr(shutil, "copy2", raise_error)
+    monkeypatch.setattr(shutil, "copy2", raise_exception)
 
     with pytest.raises(SCCSException) as e:
         rd.copy_latest_commit_document(
@@ -663,16 +662,13 @@ def test_repository_io_mutate_updated_branches_does_not_write_if_mutation_return
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    def do_nothing(updated: list[str]) -> bool:
-        return False
-
     metadata_path = (
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
 
     original_mtime = metadata_path.stat().st_mtime_ns
 
-    ri.mutate_updated_branches(do_nothing)
+    ri.mutate_updated_branches(lambda *args, **kwargs: False)
 
     assert metadata_path.stat().st_mtime_ns == original_mtime
 

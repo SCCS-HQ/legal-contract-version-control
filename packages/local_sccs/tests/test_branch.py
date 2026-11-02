@@ -1,11 +1,9 @@
-from typing import Any
-
 from local_sccs.constants_classes import SCCSConstants
+from types import FunctionType
 from test_constants import SCCSTestConstants
 from local_sccs.repository_layout import (
     TargetBranch,
     RepositoryData,
-    RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite
@@ -18,7 +16,6 @@ from local_sccs.exceptions import SCCSException
 import shutil
 import tempfile
 import os
-from typing import NoReturn
 
 
 @pytest.mark.parametrize(
@@ -927,7 +924,8 @@ def test_branch_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
     subcommand: str,
     module: object,
-    function: str
+    function: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
@@ -938,9 +936,6 @@ def test_branch_main_staged_repository_creation_fails(
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise Exception
 
     monkeypatch.setattr(module, function, raise_exception)
 
@@ -972,7 +967,8 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     monkeypatch: pytest.MonkeyPatch,
     precreate_branch: bool,
     subcommand: str,
-    method: str
+    method: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
@@ -983,9 +979,6 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise OSError
     
     monkeypatch.setattr(RepositoryWrite, method, raise_exception)
 

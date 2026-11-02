@@ -10,6 +10,7 @@ import shutil
 from typing import NoReturn
 import os
 import tempfile
+from types import FunctionType
 
 from bs4 import BeautifulSoup
 
@@ -477,7 +478,8 @@ def test_diff_main_staged_repository_creation_fails(
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     module: object,
-    function: str
+    function: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -488,9 +490,6 @@ def test_diff_main_staged_repository_creation_fails(
     rs = RepositoryStatus(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise Exception
 
     monkeypatch.setattr(module, function, raise_exception)
 
@@ -513,6 +512,7 @@ def test_diff_main_generic_exception_resets_target(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -529,9 +529,6 @@ def test_diff_main_generic_exception_resets_target(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw.commit_changes(tc.TEST_STRING)
-
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise ValueError("boom")
 
     monkeypatch.setattr(diff, "generate_diff_output", raise_exception)
 

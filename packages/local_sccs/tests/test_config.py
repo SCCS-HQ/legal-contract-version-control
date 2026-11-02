@@ -10,8 +10,8 @@ from pathlib import Path
 import shutil
 import tempfile
 import os
-from typing import NoReturn
 import json
+from types import FunctionType
 
 @pytest.mark.parametrize(
     "key, value",
@@ -221,7 +221,8 @@ def test_config_main_staged_repository_creation_fails(
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     module: object,
-    function: str
+    function: str,
+    raise_exception: FunctionType
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -236,8 +237,6 @@ def test_config_main_staged_repository_creation_fails(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    def raise_exception(*args, **kwargs) -> NoReturn:
-        raise Exception
 
     monkeypatch.setattr(module, function, raise_exception)
 

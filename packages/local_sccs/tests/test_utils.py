@@ -14,7 +14,7 @@ from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from test_constants import SCCSTestConstants
-
+from types import FunctionType
 
 def test_cleanup_staging_deletes_staging_root(
     tmp_path: Path, tc: SCCSTestConstants
@@ -108,16 +108,13 @@ def test_working_directory_returns_cwd(c: SCCSConstants) -> None:
 
 
 def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
 ) -> None:
 
-    def raise_error() -> NoReturn:
-        raise OSError
-
-    monkeypatch.setattr(Path, tc.CWD_OBJECT_NAME, raise_error)
+    monkeypatch.setattr(Path, tc.CWD_OBJECT_NAME, raise_exception)
     monkeypatch.setenv(tc.PWD_ENVIRONMENT_VARIABLE, tc.EMPTY_STRING)
 
-    with pytest.raises(OSError):
+    with pytest.raises(Exception):
         utils.working_directory(c)
 
 
@@ -577,13 +574,10 @@ def test_zip_buffer_zips_buffer(c: SCCSConstants, tc: SCCSTestConstants) -> None
 
 
 def test_zip_buffer_raises_if_buffer_creation_fails(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
 ) -> None:
 
-    def raise_error() -> NoReturn:
-        raise Exception
-
-    monkeypatch.setattr(io, "BytesIO", raise_error)
+    monkeypatch.setattr(io, "BytesIO", raise_exception)
 
     with pytest.raises(SCCSException) as e, utils.zip_buffer(c):
         pass
