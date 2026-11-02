@@ -385,7 +385,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "SECOND_ELEMENT_INDEX": 1,
     "SINGLE_PERIOD": ".",
     "SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE": (
-        "Warning: could not remove source file {document_path}: {e}. The repository "
+        "Warning: could not remove source file '{document_path}'. The repository "
         "has been initialized."
     ),
     "SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE": (

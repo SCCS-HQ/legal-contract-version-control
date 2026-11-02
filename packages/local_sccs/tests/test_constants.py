@@ -638,7 +638,7 @@ class SCCSTestConstants:
     SECOND_ELEMENT_INDEX = 1
     SECOND_TEST_STRING = TEST_STRING + "2"
     SINGLE_PERIOD = "."
-    SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
+    SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = "Warning: could not remove source file '{document_path}'. The repository has been initialized."
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
     SPACE = " "
     STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
