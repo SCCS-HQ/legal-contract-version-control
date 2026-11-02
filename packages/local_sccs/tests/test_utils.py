@@ -114,7 +114,7 @@ def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
     monkeypatch.setattr(Path, tc.CWD_OBJECT_NAME, raise_exception)
     monkeypatch.setenv(tc.PWD_ENVIRONMENT_VARIABLE, tc.EMPTY_STRING)
 
-    with pytest.raises(Exception):
+    with pytest.raises(OSError):
         utils.working_directory(c)
 
 

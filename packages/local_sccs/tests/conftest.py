@@ -164,7 +164,7 @@ def raise_exception() -> FunctionType:
     """
 
     def _raise_exception(*args: Any, **kwargs: Any) -> None:
-        raise Exception()
+        raise OSError
 
     return _raise_exception
 
