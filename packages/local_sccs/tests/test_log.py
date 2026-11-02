@@ -201,12 +201,6 @@ def test_log_main_raises_for_each_missing_resource(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-
-    def return_string(*args: Any, **kwargs: Any) -> str:
-        return tc.TEST_STRING
-
-    monkeypatch.setattr(RepositoryData, "current_branch", return_string)
-
     missing_resource = getattr(rs.paths, missing_resource_path_name)()
     expected_reported_resource = getattr(
         rs.paths, expected_reported_resource_path_name
