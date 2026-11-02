@@ -67,29 +67,34 @@ def main(
     reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
 
-    rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.raise_for_uncommitted_changes()
+        rs.raise_for_uncommitted_changes()
 
-    commit_path = rd.commit_identifier_to_full_path(
-        commit_identifier, c.DOCUMENT_DIRECTORY
-    )
-
-    full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
-
-    output_file_name = Path(
-        c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_identifier=full_commit_identifier[
-                : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-            ]
+        commit_path = rd.commit_identifier_to_full_path(
+            commit_identifier, c.DOCUMENT_DIRECTORY
         )
-    ).with_suffix(c.DOCUMENT_EXTENSION)
 
-    with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
-        copy_commit_file(c, commit_path, staging_root / output_file_name.name)
+        full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
-    print_open_success_message(c, full_commit_identifier, output_file_name)
+        output_file_name = Path(
+            c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
+                commit_identifier=full_commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
+            )
+        ).with_suffix(c.DOCUMENT_EXTENSION)
 
-    rs.target.reset()
+        with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
+            copy_commit_file(c, commit_path, staging_root / output_file_name.name)
+
+        print_open_success_message(c, full_commit_identifier, output_file_name)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

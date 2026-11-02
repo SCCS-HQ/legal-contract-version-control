@@ -173,9 +173,9 @@ def main(
     """
 
     try:
-        rs.target.set(rd.current_branch())
-
         rs.validate_repository_layout()
+
+        rs.target.set(rd.current_branch())
 
         rs.raise_for_uncommitted_changes()
 
@@ -193,11 +193,9 @@ def main(
                 staging_rd,
                 staging_rw,
             )
-
-        rs.target.reset()
     except SCCSException:
-        rs.target.reset()
         raise
     except Exception as e:
-        rs.target.reset()
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

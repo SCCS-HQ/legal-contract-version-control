@@ -67,27 +67,32 @@ def main(
     target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        rs.raise_for_uncommitted_changes()
 
-    rs.raise_for_uncommitted_changes()
+        response = pull(c, rd)
+        response.raise_for_status()
 
-    response = pull(c, rd)
-    response.raise_for_status()
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+            staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+            staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
 
-        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
+            update_repository_files(c, response, staging_rd, staging_rp)
 
-        update_repository_files(c, response, staging_rd, staging_rp)
-
-    utils.print_remote_success_message(
-        c,
-        response.status_code,
-        rd.config_data(c.REMOTE_KEY),
-        c.PULL_SUCCESS_MESSAGE_TEMPLATE,
-    )
-
-    rs.target.reset()
+        utils.print_remote_success_message(
+            c,
+            response.status_code,
+            rd.config_data(c.REMOTE_KEY),
+            c.PULL_SUCCESS_MESSAGE_TEMPLATE,
+        )
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

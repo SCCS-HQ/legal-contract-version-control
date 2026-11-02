@@ -102,8 +102,8 @@ def main(
 
         print_config_success_message(c, key, value)
     except SCCSException:
-        rs.target.reset()
         raise
     except Exception as e:
-        rs.target.reset()
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

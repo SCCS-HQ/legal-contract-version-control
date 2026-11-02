@@ -175,31 +175,36 @@ def main(
     completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        remote = rd.base_repository_url()
 
-    remote = rd.base_repository_url()
+        remote_objects_response = fetch_remote_objects(c, rd)
 
-    remote_objects_response = fetch_remote_objects(c, rd)
+        remote_objects_response.raise_for_status()
 
-    remote_objects_response.raise_for_status()
+        remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
 
-    remote_objects = remote_objects_response.json()[c.HTTP_OBJECTS_DICT_KEY]
+        buffer = zip_files_to_upload(c, remote_objects, rd, rp)
 
-    buffer = zip_files_to_upload(c, remote_objects, rd, rp)
+        upload_response = upload_objects(c, buffer, rd, rp)
 
-    upload_response = upload_objects(c, buffer, rd, rp)
+        upload_response.raise_for_status()
 
-    upload_response.raise_for_status()
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+            staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+            clear_updated_branches(staging_ri)
 
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        clear_updated_branches(staging_ri)
-
-    utils.print_remote_success_message(
-        c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
-    )
-
-    rs.target.reset()
+        utils.print_remote_success_message(
+            c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
+        )
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

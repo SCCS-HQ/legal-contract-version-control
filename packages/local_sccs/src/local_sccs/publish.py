@@ -80,29 +80,33 @@ def main(
     reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        rs.raise_for_uncommitted_changes()
 
-    rs.raise_for_uncommitted_changes()
+        url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
 
-    url = c.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url())
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
+            response = post_repository(
+                c,
+                zip_current_directory(c),
+                url,
+                rd,
+                rp,
+            )
+            response.raise_for_status()
 
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        staging_rw.set_current_branch(c.MAIN_BRANCH_NAME)
-        response = post_repository(
-            c,
-            zip_current_directory(c),
-            url,
-            rd,
-            rp,
+        utils.print_remote_success_message(
+            c, response.status_code, url, c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE
         )
-        response.raise_for_status()
-
-    utils.print_remote_success_message(
-        c, response.status_code, url, c.PUBLISH_SUCCESS_MESSAGE_TEMPLATE
-    )
-
-    rs.target.reset()
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

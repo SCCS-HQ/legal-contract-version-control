@@ -1,6 +1,7 @@
 from typing import Any
 
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
@@ -39,9 +40,14 @@ def main(
     repository layout, and printing the log entries of the current branch.
     """
 
-    rs.validate_repository_layout()
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    print_log(c, ri.read_log())
-
-    rs.target.reset()
+        print_log(c, ri.read_log())
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise
+    finally:
+        rs.target.reset()

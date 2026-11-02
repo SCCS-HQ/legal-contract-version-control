@@ -50,10 +50,10 @@ def main(
 
         print_commit_success_message(c, commit_identifier)
     except SCCSException:
-        rs.target.reset()
         raise
     except Exception as e:
-        rs.target.reset()
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()
 
 

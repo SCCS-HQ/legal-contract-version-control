@@ -70,29 +70,34 @@ def main(
     print a success message, and reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
 
-    rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    commit_path = rd.commit_identifier_to_full_path(
-        commit_identifier, c.DOCUMENT_DIRECTORY
-    )
-
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
-
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        revert(c, commit_path, staging_root, staging_rw.repository_name)
-        new_commit_identifier = staging_rw.commit_changes(
-            c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
-                commit_identifier=commit_identifier[
-                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
-                ]
-            ),
-            allow_empty_commit=True,
+        commit_path = rd.commit_identifier_to_full_path(
+            commit_identifier, c.DOCUMENT_DIRECTORY
         )
 
-    print_revert_success_message(
-        c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
-    )
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    rs.target.reset()
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            revert(c, commit_path, staging_root, staging_rw.repository_name)
+            new_commit_identifier = staging_rw.commit_changes(
+                c.REVERT_COMMIT_MESSAGE_TEMPLATE.format(
+                    commit_identifier=commit_identifier[
+                        : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                    ]
+                ),
+                allow_empty_commit=True,
+            )
+
+        print_revert_success_message(
+            c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
+        )
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

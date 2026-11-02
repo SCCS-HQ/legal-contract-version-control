@@ -342,8 +342,8 @@ def main(
 
         print_diff_success_message(c)
     except SCCSException:
-        rs.target.reset()
         raise
     except Exception as e:
-        rs.target.reset()
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

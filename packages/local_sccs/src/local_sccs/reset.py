@@ -1,3 +1,4 @@
+from local_sccs.exceptions import SCCSException
 import local_sccs.utils as utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import (
@@ -30,17 +31,21 @@ def main(
     reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        with utils.staged_repository(c, rp.root, rp.root) as staging_root:
+            rd.copy_latest_commit_document(
+                rd.current_branch(),
+                staging_root / rd.paths.document_path().name,
+                c.RESET_ERROR_MESSAGE,
+            )
 
-    with utils.staged_repository(c, rp.root, rp.root) as staging_root:
-        rd.copy_latest_commit_document(
-            rd.current_branch(),
-            staging_root / rd.paths.document_path().name,
-            c.RESET_ERROR_MESSAGE,
-        )
-
-    print_reset_success_message(c)
-
-    rs.target.reset()
+        print_reset_success_message(c)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

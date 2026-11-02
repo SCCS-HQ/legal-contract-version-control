@@ -78,27 +78,32 @@ def main(
     operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
 
-    rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.raise_for_uncommitted_changes()
+        rs.raise_for_uncommitted_changes()
 
-    validate_branch_to_switch(c, branch_to_switch, rs)
+        validate_branch_to_switch(c, branch_to_switch, rs)
 
-    validate_commit_identifier(c, branch_to_switch, rd, rs)
+        validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-        rd.copy_latest_commit_document(
-            branch_to_switch,
-            staging_root / rd.paths.document_path().name,
-            c.SWITCH_COPY_ERROR_MESSAGE,
-        )
+            rd.copy_latest_commit_document(
+                branch_to_switch,
+                staging_root / rd.paths.document_path().name,
+                c.SWITCH_COPY_ERROR_MESSAGE,
+            )
 
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        staging_rw.set_current_branch(branch_to_switch)
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            staging_rw.set_current_branch(branch_to_switch)
 
-    print_switch_success_message(c, branch_to_switch)
-
-    rs.target.reset()
+        print_switch_success_message(c, branch_to_switch)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

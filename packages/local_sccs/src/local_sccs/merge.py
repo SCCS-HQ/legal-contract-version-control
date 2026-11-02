@@ -124,35 +124,39 @@ def main(
     print a success message, and reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
+        rs.raise_for_uncommitted_changes()
 
-    rs.raise_for_uncommitted_changes()
+        validate_branch(c, branch, rs)
 
-    validate_branch(c, branch, rs)
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+            staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+            staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            rd.copy_latest_commit_document( 
+                branch,
+                staging_rp.document_path(),
+                c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE,
+            )
 
-        rd.copy_latest_commit_document( 
-            branch,
-            staging_rp.document_path(),
-            c.MERGE_DOCUMENT_COPY_ERROR_MESSAGE,
-        )
+            copy_branch_data(c, branch, rd, staging_ri)
 
-        copy_branch_data(c, branch, rd, staging_ri)
+            staging_rw.commit_changes(
+                c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
+                    branch_name=branch, current_branch=rd.current_branch()
+                ),
+                allow_empty_commit=True,
+            )
 
-        staging_rw.commit_changes(
-            c.MERGE_COMMIT_MESSAGE_TEMPLATE.format(
-                branch_name=branch, current_branch=rd.current_branch()
-            ),
-            allow_empty_commit=True,
-        )
-
-    print_merge_success_message(c, branch, rd)
-
-    rs.target.reset()
+        print_merge_success_message(c, branch, rd)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()
