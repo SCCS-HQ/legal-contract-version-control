@@ -243,3 +243,29 @@ def test_log_main_raises_if_method_raises(
     monkeypatch.setattr(module, method_name, raise_exception)
     with pytest.raises(Exception):
         log.main(c, rd, ri, rs)
+
+
+def test_log_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(Exception):
+        log.main(c, rd, ri, rs)
+
+    assert target.get() is None

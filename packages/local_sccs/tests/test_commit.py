@@ -293,7 +293,7 @@ def test_commit_main_resets_target_on_error(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    monkeypatch.setattr(RepositoryWrite, "commit_changes", raise_exception)
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
 
     with pytest.raises(SCCSException):
         commit.main(c, tc.TEST_STRING, rd, rs, rw)

@@ -310,3 +310,32 @@ def test_config_main_prints_success_message(
     assert capsys.readouterr().out == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(
         key=tc.NAME_KEY, value=tc.TEST_STRING
     )
+
+
+def test_config_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(SCCSException):
+        config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
+
+    assert target.get() is None

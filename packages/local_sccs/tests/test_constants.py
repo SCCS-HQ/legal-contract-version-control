@@ -260,7 +260,7 @@ class SCCSTestConstants:
     REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
     RESET_COMMAND_NAME = "reset"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
-    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit."
+    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit.\n"
     REVERT_COMMAND_NAME = "revert"
     REVERT_COMMIT_MESSAGE_TEMPLATE = 'Reverted document to commit "{commit_identifier}".'
     REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."

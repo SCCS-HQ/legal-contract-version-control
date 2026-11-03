@@ -1,4 +1,5 @@
 from typing import Any
+from types import FunctionType
 
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -122,3 +123,26 @@ def test_status_main_prints_success_message_for_uncommitted_changes(
     status.main(c, rd, rs)
     
     assert capsys.readouterr().out.strip() == tc.UNCOMMITTED_CHANGES_FOUND
+
+
+def test_status_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(Exception):
+        status.main(c, rd, rs)
+
+    assert target.get() is None

@@ -579,7 +579,6 @@ def test_branch_main_raises_for_each_missing_resource(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    monkeypatch: pytest.MonkeyPatch,
     missing_resource_path_name: str,
     expected_reported_resource_path_name: str,
 ) -> None:
@@ -1191,3 +1190,32 @@ def test_branch_main_deletes_branch_side_effects(
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.MAIN_BRANCH_NAME
     )
+
+
+def test_branch_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(SCCSException):
+        branch.main(c, tc.BRANCH_CREATE_SUBCOMMAND, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
+
+    assert target.get() is None

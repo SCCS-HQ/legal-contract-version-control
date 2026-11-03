@@ -35,7 +35,7 @@ def main(
         rs.validate_repository_layout()
         rs.target.set(rd.current_branch())
 
-        with utils.staged_repository(c, rp.root, rp.root) as staging_root:
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
             rd.copy_latest_commit_document(
                 rd.current_branch(),
                 staging_root / rd.paths.document_path().name,

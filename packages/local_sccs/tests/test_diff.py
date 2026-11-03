@@ -567,3 +567,29 @@ def test_diff_main_create_proper_diff_output(
         repository_with_multiple_commits / tc.DIFF_HTML_FILE, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
         assert f.read() == tc.TEST_DIFF_OUTPUT
+
+
+def test_diff_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(SCCSException):
+        diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+
+    assert target.get() is None
