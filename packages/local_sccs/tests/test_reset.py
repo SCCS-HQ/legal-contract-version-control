@@ -149,6 +149,31 @@ def test_reset_main_prints_reset_success_message(
     assert capsys.readouterr().out == tc.RESET_SUCCESS_MESSAGE
 
 
+def test_reset_main_resets_target_on_error(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(SCCSException):
+        reset.main(c, rd, rp, rs)
+
+    assert target.get() is None
+
 def test_reset_main_resets_repository_document_to_latest_commit(
     repository_with_modified_document: Path,
     c: SCCSConstants,

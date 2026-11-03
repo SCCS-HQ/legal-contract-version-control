@@ -264,7 +264,7 @@ class SCCSTestConstants:
     REVERT_COMMAND_NAME = "revert"
     REVERT_COMMIT_MESSAGE_TEMPLATE = 'Reverted document to commit "{commit_identifier}".'
     REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."
-    REVERT_SUCCESS_MESSAGE_TEMPLATE = 'Document successfully reverted to commit "{commit_identifier}" on commit "{new_commit_identifier}".'
+    REVERT_SUCCESS_MESSAGE_TEMPLATE = "Document successfully reverted to commit '{commit_identifier}' on commit '{new_commit_identifier}'.\n"
     RGLOB_ALL_FILES_PATTERN = "*"
     SCCS_DIRECTORY = ".sccs"
     SECOND_COMMIT_HASH = "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45"
@@ -500,7 +500,7 @@ class SCCSTestConstants:
     SECOND_TEST_STRING = TEST_STRING + "2"
     SINGLE_PERIOD = "."
     SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
-    SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = 'Source file "{file_name}" does not exist.'
+    SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
     SPACE = " "
     STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
     STATUS_CODE_ONE_HUNDRED = 100
