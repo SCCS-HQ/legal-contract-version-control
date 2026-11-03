@@ -1,3 +1,5 @@
+pytest
+pytest-cov
 mammoth
 requests
 beautifulsoup4
