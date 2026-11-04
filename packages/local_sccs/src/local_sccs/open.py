@@ -34,7 +34,7 @@ def print_open_success_message(
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
             output_file=output_file_path,
         )
     )
@@ -83,7 +83,7 @@ def main(
         output_file_path = Path(
             c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
                 commit_identifier=full_commit_identifier[
-                    :c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
                 ]
             )
         ).with_suffix(c.DOCUMENT_EXTENSION)

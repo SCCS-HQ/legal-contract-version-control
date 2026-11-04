@@ -3,7 +3,6 @@ import shutil
 import zipfile
 
 import requests
-
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -69,7 +68,7 @@ def main(
 
     try:
         rs.validate_repository_layout()
-        
+
         rs.target.set(rd.current_branch())
 
         rs.raise_for_uncommitted_changes()

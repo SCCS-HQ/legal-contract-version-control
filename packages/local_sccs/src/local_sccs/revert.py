@@ -93,7 +93,9 @@ def main(
             )
 
         print_revert_success_message(
-            c, rd.short_commit_identifier_to_full(commit_identifier), new_commit_identifier
+            c,
+            rd.short_commit_identifier_to_full(commit_identifier),
+            new_commit_identifier,
         )
     except SCCSException:
         raise

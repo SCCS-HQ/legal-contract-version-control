@@ -1,13 +1,13 @@
 import json
 import shutil
 from pathlib import Path
+from types import FunctionType, SimpleNamespace
 from typing import Any
 
 import pytest
+import requests
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import TargetBranch
-import requests
-from types import FunctionType, SimpleNamespace
 from test_constants import SCCSTestConstants
 
 
@@ -49,7 +49,7 @@ def initialized_repository(
     monkeypatch.setattr(
         SCCSConstants,
         tc.PROGRAM_START_TIME_SCCS_CONSTANTS_ATTRIBUTE_NAME,
-        tc.EPOCH_ISO_DATETIME
+        tc.EPOCH_ISO_DATETIME,
     )
 
     repository_root = tmp_path / tc.TEST_DOCUMENT_REPOSITORY_NAME
@@ -58,11 +58,17 @@ def initialized_repository(
     docx_objects_root = objects_root / tc.DOCUMENT_DIRECTORY
     html_objects_root = objects_root / tc.HTML_DIRECTORY
     view_html_objects_root = objects_root / tc.VIEW_HTML_DIRECTORY
-    test_document_path = Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
-    docx_object_path = docx_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
-    html_object_path = html_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION)
-    view_html_object_path = (
-        view_html_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION)
+    test_document_path = (
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    )
+    docx_object_path = docx_objects_root / (
+        tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION
+    )
+    html_object_path = html_objects_root / (
+        tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION
+    )
+    view_html_object_path = view_html_objects_root / (
+        tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION
     )
     metadata_path = sccs_root / tc.METADATA_JSON
 
@@ -70,14 +76,10 @@ def initialized_repository(
     html_objects_root.mkdir(parents=True)
     view_html_objects_root.mkdir(parents=True)
 
-    with open(
-        html_object_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
-    ) as f:
+    with open(html_object_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         f.write(tc.DEFAULT_HTML_STYLES + tc.TEST_DOCUMENT_HTML)
 
-    with open(
-        view_html_object_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
-    ) as f:
+    with open(view_html_object_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         f.write(
             tc.HTML_BOILERPLATE_TEMPLATE.format(
                 styles=tc.DEFAULT_HTML_STYLES, html=tc.TEST_DOCUMENT_HTML
@@ -87,9 +89,7 @@ def initialized_repository(
     shutil.copy(test_document_path, repository_root)
     shutil.copy(test_document_path, docx_object_path)
 
-    with open(
-        metadata_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
-    ) as f:
+    with open(metadata_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         json.dump(tc.TEST_INITIALIZATION_METADATA, f, indent=tc.JSON_INDENT)
 
     return repository_root
@@ -104,8 +104,10 @@ def repository_with_modified_document(
     """
 
     shutil.copy(
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME
+        Path(__file__).parent
+        / tc.TEST_DOCUMENTS_DIRECTORY
+        / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        initialized_repository / tc.TEST_DOCUMENT_FILENAME,
     )
 
     return initialized_repository
@@ -124,7 +126,10 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
     ) as f:
         f.write(tc.DEFAULT_HTML_STYLES + tc.SECOND_COMMIT_TEST_DOCUMENT_HTML)
 
@@ -133,7 +138,10 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
     ) as f:
         f.write(
             tc.HTML_BOILERPLATE_TEMPLATE.format(
@@ -142,33 +150,44 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         )
 
     shutil.copy(
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME
+        Path(__file__).parent
+        / tc.TEST_DOCUMENTS_DIRECTORY
+        / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        initialized_repository / tc.TEST_DOCUMENT_FILENAME,
     )
     shutil.copy(
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        Path(__file__).parent
+        / tc.TEST_DOCUMENTS_DIRECTORY
+        / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
         initialized_repository
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
     )
 
     return initialized_repository
 
 
 @pytest.fixture()
-def repository_with_multiple_branches(repository_with_multiple_commits: Path, tc: SCCSTestConstants) -> Path:
+def repository_with_multiple_branches(
+    repository_with_multiple_commits: Path, tc: SCCSTestConstants
+) -> Path:
     """
     Return a repository containing a second branch, 'test' with 2 commits. Branch 'main' has 1 commit, and the current branch is 'main'.
     """
 
-    with open(repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+    with open(
+        repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
         json.dump(tc.SECOND_BRANCH_WITH_TWO_COMMITS_METADATA, f, indent=tc.JSON_INDENT)
 
     shutil.copy(
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
-        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME
+        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
     )
 
     return repository_with_multiple_commits

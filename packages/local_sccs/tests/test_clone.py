@@ -1,16 +1,17 @@
-from types import FunctionType
-from typing import Any, NoReturn
-
-from local_sccs.constants_classes import SCCSConstants
-from test_constants import SCCSTestConstants
-import pytest
-import requests
-from local_sccs import clone, utils
-from local_sccs.exceptions import SCCSException
 import io
 import os
 import zipfile
 from pathlib import Path
+from types import FunctionType
+from typing import Any, NoReturn
+
+import pytest
+import requests
+from local_sccs import clone, utils
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
+from test_constants import SCCSTestConstants
+
 
 def test_print_clone_success_message(
     c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]
@@ -35,11 +36,15 @@ def test_print_clone_success_message(
         ("http://127.0.0.1:8000/clone/", True, None),
         ("http://127.0.0.1:8000", True, None),
         ("http://127.0.0.1:8000/clone", True, None),
-        ("http://127.0.0.1:8000/test/test/clone", False, "test")
-    ]
+        ("http://127.0.0.1:8000/test/test/clone", False, "test"),
+    ],
 )
 def test_repository_name_from_url_raises_if_url_is_missing_path_components(
-    c: SCCSConstants, tc: SCCSTestConstants, url: str, error_raised: bool, expected_value: str | None
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    url: str,
+    error_raised: bool,
+    expected_value: str | None,
 ) -> None:
 
     if error_raised:
@@ -57,12 +62,16 @@ def test_repository_name_from_url_raises_if_url_is_missing_path_components(
 
 @pytest.mark.parametrize(
     "status_code, error_raised",
-    [(100, False), (200, False), (300, False), (400, True), (500, True)]
+    [(100, False), (200, False), (300, False), (400, True), (500, True)],
 )
 def test_request_repository_raises_if_http_error_occurred(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, status_code: int, error_raised: bool
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    status_code: int,
+    error_raised: bool,
 ) -> None:
-    
+
     response = requests.Response()
     response.status_code = status_code
 
@@ -77,9 +86,11 @@ def test_request_repository_raises_if_http_error_occurred(
 
 
 def test_request_repository_raises_if_request_exception_is_raised(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_request_exception: FunctionType
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_request_exception: FunctionType,
 ) -> None:
-
 
     monkeypatch.setattr(requests, "get", raise_request_exception)
 
@@ -89,7 +100,8 @@ def test_request_repository_raises_if_request_exception_is_raised(
 
 
 @pytest.mark.parametrize(
-    "url, error_raised", [
+    "url, error_raised",
+    [
         ("htp://127.0.0.1:8000/clone", True),
         ("http://127.0.0.1:8000", True),
         ("", True),
@@ -97,7 +109,7 @@ def test_request_repository_raises_if_request_exception_is_raised(
         ("https://example.com/repos/my-repo/clone", False),
         ("http://localhost/clone", False),
         ("https://127.0.0.1:8080/a/b/c/test/clone", False),
-    ]
+    ],
 )
 def test_validate_entered_url_raises_if_invalid(
     c: SCCSConstants, tc: SCCSTestConstants, url: str, error_raised: bool
@@ -161,7 +173,7 @@ def test_validate_repository_name_invalid(
         "http://127.0.0.1:8000/test/clone/test",
         "http://127.0.0.1:8000/clone/",
         "http://127.0.0.1:8000",
-        "http://127.0.0.1:8000//clone/",        
+        "http://127.0.0.1:8000//clone/",
         "http://127.0.0.1:8000/my repo/clone/",
         "http://127.0.0.1:8000/./clone/",
         "http://127.0.0.1:8000/../clone/",
@@ -218,7 +230,7 @@ def test_unzip_repository_file_extracts_directories(
         "foo/../../bar.txt",
         "foo/../../../etc/passwd",
         "./../escape.txt",
-    ]
+    ],
 )
 def test_unzip_repository_file_raises_if_member_path_escapes_destination(
     tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, member_path: str
@@ -231,10 +243,10 @@ def test_unzip_repository_file_raises_if_member_path_escapes_destination(
     buffer.seek(tc.FILE_START_POSITION)
 
     with pytest.raises(SCCSException) as e:
-        clone.unzip_repository_file(
-            c, buffer, tc.TEST_REPOSITORY_CLONE_URL, tmp_path
-        )
-    assert str(e.value) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+        clone.unzip_repository_file(c, buffer, tc.TEST_REPOSITORY_CLONE_URL, tmp_path)
+    assert str(
+        e.value
+    ) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
         entry_path=Path(member_path)
     )
 
@@ -277,12 +289,12 @@ def test_clone_main_raises_if_url_is_invalid(
         assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
 
 
-@pytest.mark.parametrize(
-    "status_code",
-    [400, 500]
-)
+@pytest.mark.parametrize("status_code", [400, 500])
 def test_clone_main_raises_if_http_error_occurred(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, status_code: int
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    status_code: int,
 ) -> None:
     response = requests.Response()
     response.status_code = status_code
@@ -296,7 +308,10 @@ def test_clone_main_raises_if_http_error_occurred(
 
 
 def test_clone_main_raises_if_request_exception_is_raised(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_request_exception: FunctionType
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_request_exception: FunctionType,
 ) -> None:
 
     monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
@@ -306,18 +321,23 @@ def test_clone_main_raises_if_request_exception_is_raised(
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
     assert str(e.value) == tc.HTTP_REQUEST_ERROR_MESSAGE
 
+
 @pytest.mark.parametrize(
     "url",
     [
         "http://127.0.0.1:8000/test/clone/test",
         "http://127.0.0.1:8000/clone/",
         "http://127.0.0.1:8000",
-    ]
+    ],
 )
 def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
-    c: SCCSConstants, tc: SCCSTestConstants, url: str, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    url: str,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
 ) -> None:
-    
+
     response = requests.Response()
     response._content = b""
 
@@ -353,7 +373,7 @@ def test_clone_main_raises_if_local_repository_already_exists(
     tmp_path: Path,
     c: SCCSConstants,
     tc: SCCSTestConstants,
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     response = requests.Response()
@@ -363,7 +383,9 @@ def test_clone_main_raises_if_local_repository_already_exists(
     monkeypatch.setattr(clone, "validate_entered_url", lambda *args, **kwargs: None)
     monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
     monkeypatch.setattr(io, "BytesIO", lambda *args, **kwargs: None)
-    monkeypatch.setattr(clone, "repository_name_from_url", lambda *args, **kwargs: tc.TEST_STRING)
+    monkeypatch.setattr(
+        clone, "repository_name_from_url", lambda *args, **kwargs: tc.TEST_STRING
+    )
     monkeypatch.setattr(clone, "validate_repository_name", lambda *args, **kwargs: None)
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.TEST_STRING).mkdir()
@@ -377,9 +399,9 @@ def test_clone_main_unzips_repository(
     c: SCCSConstants,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    
+
     response = requests.Response()
     response.status_code = tc.STATUS_CODE_TWO_HUNDRED
     buffer = io.BytesIO()
@@ -392,7 +414,9 @@ def test_clone_main_unzips_repository(
 
     clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
 
-    assert (tmp_path / tc.TEST_STRING / tc.TEST_TEXT_FILENAME).read_text() == tc.TEST_STRING
+    assert (
+        tmp_path / tc.TEST_STRING / tc.TEST_TEXT_FILENAME
+    ).read_text() == tc.TEST_STRING
 
     assert capsys.readouterr().out.strip() == (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_TWO_HUNDRED)
@@ -402,13 +426,18 @@ def test_clone_main_unzips_repository(
 
 
 @pytest.mark.parametrize(
-    "module, function",
-    [(utils, "promote_staging"), (clone, "unzip_repository_file")]
+    "module, function", [(utils, "promote_staging"), (clone, "unzip_repository_file")]
 )
 def test_clone_main_deletes_staging_root_if_error_is_raised(
-    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, module: object, function: str, raise_exception: FunctionType
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    module: object,
+    function: str,
+    raise_exception: FunctionType,
 ) -> None:
-        
+
     response = requests.Response()
     response.status_code = tc.STATUS_CODE_TWO_HUNDRED
     buffer = io.BytesIO()
@@ -417,11 +446,11 @@ def test_clone_main_deletes_staging_root_if_error_is_raised(
     response._content = buffer.getvalue()
 
     monkeypatch.setattr(clone, "request_repository", lambda *args, **kwargs: response)
-    monkeypatch.setattr(utils, "create_staging_directory", lambda *args, **kwargs: tmp_path)
+    monkeypatch.setattr(
+        utils, "create_staging_directory", lambda *args, **kwargs: tmp_path
+    )
     monkeypatch.setattr(module, function, raise_exception)
-
 
     with pytest.raises(Exception) as e:
         clone.main(c, tc.TEST_REPOSITORY_CLONE_URL)
     assert not tmp_path.exists()
-

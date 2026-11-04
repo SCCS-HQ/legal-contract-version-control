@@ -56,8 +56,10 @@ COMMANDS = {
 }
 
 
-def COMMAND_ARGUMENTS(arguments: argparse.Namespace) -> dict[str, Callable[[], list[log.Any]]]:
-    
+def COMMAND_ARGUMENTS(
+    arguments: argparse.Namespace,
+) -> dict[str, Callable[[], list[log.Any]]]:
+
     c = SCCSConstants()
     wd = utils.working_directory(c)
     target = TargetBranch(c)

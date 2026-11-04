@@ -66,7 +66,7 @@ def resolve_key_value(
         )
 
     return value.strip()
-    
+
 
 def main(
     c: SCCSConstants,
@@ -91,9 +91,7 @@ def main(
 
         rs.target.set(rd.current_branch())
 
-        resolved_value = resolve_key_value(
-            c, rp.repository_name, key, value
-        )
+        resolved_value = resolve_key_value(c, rp.repository_name, key, value)
 
         with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
             staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)

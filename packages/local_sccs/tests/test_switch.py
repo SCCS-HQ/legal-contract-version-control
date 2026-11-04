@@ -1,17 +1,23 @@
+import json
+import os
+import shutil
+import tempfile
+from pathlib import Path
+from types import FunctionType
+
+import pytest
 from local_sccs import switch
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-import pytest
-from test_constants import SCCSTestConstants
 from local_sccs.repository_layout import (
-    RepositoryData, RepositoryPaths, RepositoryStatus, RepositoryWrite, TargetBranch
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
 )
-from pathlib import Path
-import shutil
-import tempfile
-import os
-import json
-from types import FunctionType
+from test_constants import SCCSTestConstants
+
 
 @pytest.mark.parametrize(
     ("branch_to_switch"),
@@ -21,10 +27,13 @@ from types import FunctionType
     ],
 )
 def test_print_switch_success_message_prints_expected_message(
-    c: SCCSConstants, tc: SCCSTestConstants, branch_to_switch: str, capsys: pytest.CaptureFixture[str]
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    branch_to_switch: str,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     switch.print_switch_success_message(c, branch_to_switch)
-    
+
     assert capsys.readouterr().out.strip() == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
         branch_name=branch_to_switch
     )
@@ -35,15 +44,19 @@ def test_validate_branch_to_switch_raises_for_empty_branch_name(
 ) -> None:
 
     rs = RepositoryStatus(
-        Path(tc.TEST_DOCUMENT_REPOSITORY_NAME), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        Path(tc.TEST_DOCUMENT_REPOSITORY_NAME),
+        tc.TEST_DOCUMENT_REPOSITORY_NAME,
+        c,
+        target,
     )
-    
+
     with pytest.raises(Exception) as e:
         switch.validate_branch_to_switch(c, tc.EMPTY_STRING, rs)
 
     assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
         field=tc.BRANCH_NAME_FIELD_NAME
     )
+
 
 @pytest.mark.parametrize(
     ("branch_to_switch, error_raised"),
@@ -54,14 +67,19 @@ def test_validate_branch_to_switch_raises_for_empty_branch_name(
     ],
 )
 def test_validate_branch_to_switch_raises_correctly(
-    c: SCCSConstants, tc: SCCSTestConstants, branch_to_switch: str, error_raised: bool, initialized_repository: Path, target: TargetBranch
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    branch_to_switch: str,
+    error_raised: bool,
+    initialized_repository: Path,
+    target: TargetBranch,
 ) -> None:
 
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    if error_raised:    
+    if error_raised:
         with pytest.raises(Exception) as e:
             switch.validate_branch_to_switch(c, branch_to_switch, rs)
 
@@ -77,7 +95,7 @@ def test_validate_commit_identifier_raises_for_missing_commit_file(
     tc: SCCSTestConstants,
     initialized_repository: Path,
     target: TargetBranch,
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     rs = RepositoryStatus(
@@ -120,20 +138,16 @@ def test_switch_main_raises_for_each_missing_resource(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
+
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -154,7 +168,7 @@ def test_switch_main_raises_for_uncommitted_changes(
     repository_with_modified_document: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -179,14 +193,12 @@ def test_switch_main_raises_for_empty_branch_name(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -200,6 +212,7 @@ def test_switch_main_raises_for_empty_branch_name(
     assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
         field=tc.BRANCH_NAME_FIELD_NAME
     )
+
 
 @pytest.mark.parametrize(
     ("branch_to_switch, error_raised"),
@@ -215,14 +228,12 @@ def test_switch_main_raises_correctly_for_branch_to_switch(
     target: TargetBranch,
     tc: SCCSTestConstants,
     branch_to_switch: str,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -237,7 +248,7 @@ def test_switch_main_raises_correctly_for_branch_to_switch(
         assert str(e.value) == tc.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
             branch_name=branch_to_switch
         )
-    
+
     else:
         switch.main(c, branch_to_switch, rd, rp, rs, rw)
 
@@ -247,14 +258,12 @@ def test_switch_main_raises_for_missing_commit_file(
     tc: SCCSTestConstants,
     initialized_repository: Path,
     target: TargetBranch,
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -267,7 +276,9 @@ def test_switch_main_raises_for_missing_commit_file(
             return False
 
     monkeypatch.setattr(
-        RepositoryData, "commit_identifier_to_full_path", lambda *args, **kwargs: DummyPath()
+        RepositoryData,
+        "commit_identifier_to_full_path",
+        lambda *args, **kwargs: DummyPath(),
     )
 
     with pytest.raises(Exception) as e:
@@ -279,8 +290,7 @@ def test_switch_main_raises_for_missing_commit_file(
 
 
 @pytest.mark.parametrize(
-    "module, function",
-    [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
+    "module, function", [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_switch_main_staged_repository_creation_fails(
     initialized_repository: Path,
@@ -290,14 +300,12 @@ def test_switch_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -316,7 +324,7 @@ def test_switch_main_staged_repository_creation_fails(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
-    
+
     assert not staging_dirs
 
 
@@ -324,14 +332,12 @@ def test_switch_main_sets_current_branch(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -340,9 +346,7 @@ def test_switch_main_sets_current_branch(
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(
-        tc.TEST_STRING
-    )
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     assert rd.current_branch() != tc.MAIN_BRANCH_NAME
 
@@ -356,14 +360,12 @@ def test_switch_main_prints_switch_success_message(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -372,9 +374,7 @@ def test_switch_main_prints_switch_success_message(
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(
-        tc.TEST_STRING
-    )
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     switch.main(c, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
     assert capsys.readouterr().out.strip() == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
@@ -388,14 +388,12 @@ def test_switch_main_resets_target_on_error(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -415,14 +413,12 @@ def test_switch_main_switches_branch_in_metadata(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -431,9 +427,7 @@ def test_switch_main_switches_branch_in_metadata(
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(
-        tc.TEST_STRING
-    )
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     switch.main(c, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
 

@@ -16,7 +16,7 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
 
     print(
         c.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
     )
 
@@ -38,7 +38,9 @@ def main(
     """
 
     try:
-        utils.raise_if_empty(c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True)
+        utils.raise_if_empty(
+            c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True
+        )
 
         rs.validate_repository_layout()
 
@@ -55,5 +57,3 @@ def main(
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
     finally:
         rs.target.reset()
-
-

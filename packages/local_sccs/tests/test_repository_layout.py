@@ -1,10 +1,11 @@
 import filecmp
 import json
 import shutil
+import uuid
 from collections.abc import Callable
 from pathlib import Path
+from types import FunctionType
 from typing import Any, NoReturn
-import uuid
 
 import pytest
 from local_sccs.constants_classes import SCCSConstants
@@ -18,7 +19,6 @@ from local_sccs.repository_layout import (
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
-from types import FunctionType
 
 
 def test_repository_data_matching_commit_files_returns_correct_commit_files(
@@ -55,9 +55,7 @@ def test_repository_data_base_repository_url_returns_correct_url(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -109,7 +107,8 @@ def test_repository_data_commit_file_bytes_returns_correct_bytes(
         expected = f.read()
 
     assert (
-        rd.commit_file_bytes(tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY) == expected
+        rd.commit_file_bytes(tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY)
+        == expected
     )
 
 
@@ -244,7 +243,9 @@ def test_repository_data_commit_file_bytes_raises_if_display_length_multiple_mat
         )
 
     assert str(e.value) == tc.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+        commit_identifier=tc.TEST_COMMIT_IDENTIFIER[
+            : tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+        ]
     )
 
 
@@ -279,9 +280,9 @@ def test_repository_data_config_data_raises_if_invalid_key(
 
 def test_repository_data_copy_latest_commit_document_copies_latest_commit(
     initialized_repository: Path,
-    c: SCCSConstants, 
+    c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -293,8 +294,10 @@ def test_repository_data_copy_latest_commit_document_copies_latest_commit(
         latest_commit = f.read()
 
     shutil.copy(
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        repository_document_path
+        Path(__file__).parent
+        / tc.TEST_DOCUMENTS_DIRECTORY
+        / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
+        repository_document_path,
     )
 
     rd.copy_latest_commit_document(
@@ -307,11 +310,11 @@ def test_repository_data_copy_latest_commit_document_copies_latest_commit(
 
 def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
     initialized_repository: Path,
-    c: SCCSConstants, 
+    c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -323,10 +326,10 @@ def test_repository_data_copy_latest_commit_document_raises_if_copy_fails(
         rd.copy_latest_commit_document(
             tc.MAIN_BRANCH_NAME,
             initialized_repository / tc.TEST_DOCUMENT_FILENAME,
-            tc.TEST_STRING
+            tc.TEST_STRING,
         )
     assert str(e.value) == tc.TEST_STRING
-    
+
 
 def test_repository_data_current_branch_returns_correct_branch(
     initialized_repository: Path,
@@ -366,9 +369,7 @@ def test_repository_data_latest_commit_identifier_raises_if_latest_commit_identi
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -406,10 +407,7 @@ def test_repository_data_raise_for_commit_identifier_length_raises_if_length_inv
 
 @pytest.mark.parametrize(
     "commit_identifier",
-    [
-        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
-        "ef4a6cd9a3"
-    ],
+    ["ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f", "ef4a6cd9a3"],
 )
 def test_repository_data_raise_for_commit_identifier_length_does_not_raise_for_valid_lengths(
     initialized_repository: Path,
@@ -492,8 +490,7 @@ def test_target_branch_reset_sets_target_branch_to_none(
 
 
 def test_target_branch_require_raises_if_target_branch_is_none(
-    target: TargetBranch,
-    tc: SCCSTestConstants
+    target: TargetBranch, tc: SCCSTestConstants
 ) -> None:
     with pytest.raises(SCCSException) as e:
         target.require()
@@ -535,7 +532,7 @@ def test_repository_io_create_document_commit_creates_document_commit_file(
     assert filecmp.cmp(
         new_commit_path,
         initialized_repository / tc.TEST_DOCUMENT_FILENAME,
-        shallow=False
+        shallow=False,
     )
 
 
@@ -587,9 +584,7 @@ def test_repository_io_mutate_updated_branches_updated_branches_using_passed_cal
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -602,18 +597,20 @@ def test_repository_io_mutate_updated_branches_updated_branches_using_passed_cal
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        tc.TEST_STRING
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
 
     ri.mutate_updated_branches(add)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert tc.TEST_STRING in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        tc.TEST_STRING
+        in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
 
 
 def test_repository_io_mutate_updated_branches_initializes_missing_updated_branches(
@@ -622,9 +619,7 @@ def test_repository_io_mutate_updated_branches_initializes_missing_updated_branc
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -647,9 +642,9 @@ def test_repository_io_mutate_updated_branches_initializes_missing_updated_branc
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ] == [tc.TEST_STRING]
+    assert metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY] == [
+        tc.TEST_STRING
+    ]
 
 
 def test_repository_io_mutate_updated_branches_does_not_write_if_mutation_returns_false(
@@ -662,9 +657,7 @@ def test_repository_io_mutate_updated_branches_does_not_write_if_mutation_return
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     original_mtime = metadata_path.stat().st_mtime_ns
 
@@ -774,8 +767,7 @@ def test_repository_io_read_branches_data_returns_branches_metadata(
     )
 
     assert (
-        ri.read_branches_data()
-        == tc.TEST_INITIALIZATION_METADATA[tc.BRANCHES_DICT_KEY]
+        ri.read_branches_data() == tc.TEST_INITIALIZATION_METADATA[tc.BRANCHES_DICT_KEY]
     )
 
 
@@ -790,7 +782,9 @@ def test_repository_io_read_byte_hash_returns_target_branch_byte_hash(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    assert ri.read_byte_hash() == {tc.TEST_COMMIT_IDENTIFIER: tc.TEST_DOCUMENT_HTML_HASH}
+    assert ri.read_byte_hash() == {
+        tc.TEST_COMMIT_IDENTIFIER: tc.TEST_DOCUMENT_HTML_HASH
+    }
 
 
 def test_repository_io_read_commit_messages_returns_commit_messages(
@@ -910,9 +904,7 @@ def test_repository_io_write_branch_data_writes_to_target_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     ri = RepositoryIO(
@@ -933,9 +925,7 @@ def test_repository_io_write_branches_data_writes_branches_data(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     ri = RepositoryIO(
@@ -956,9 +946,7 @@ def test_repository_io_write_byte_hash_writes_to_target_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     ri = RepositoryIO(
@@ -970,9 +958,10 @@ def test_repository_io_write_byte_hash_writes_to_target_branch(
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][
-        tc.BYTE_HASH_DICT_KEY
-    ] == tc.TEST_DICTIONARY
+    assert (
+        metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.BYTE_HASH_DICT_KEY]
+        == tc.TEST_DICTIONARY
+    )
 
 
 def test_repository_io_write_commit_messages_writes_commit_messages(
@@ -981,9 +970,7 @@ def test_repository_io_write_commit_messages_writes_commit_messages(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1003,9 +990,7 @@ def test_repository_io_write_config_writes_config(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1025,9 +1010,7 @@ def test_repository_io_write_current_branch_data_writes_current_branch_data(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1069,9 +1052,7 @@ def test_repository_io_write_history_writes_to_target_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     ri = RepositoryIO(
@@ -1083,9 +1064,10 @@ def test_repository_io_write_history_writes_to_target_branch(
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][
-        tc.HISTORY_DICT_KEY
-    ] == tc.TEST_DICTIONARY
+    assert (
+        metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_DICT_KEY]
+        == tc.TEST_DICTIONARY
+    )
 
 
 def test_repository_io_write_html_commit_writes_html_and_view_html_objects(
@@ -1139,9 +1121,7 @@ def test_repository_io_write_log_writes_to_target_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     ri = RepositoryIO(
@@ -1153,9 +1133,10 @@ def test_repository_io_write_log_writes_to_target_branch(
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][
-        tc.LOG_DICT_KEY
-    ] == tc.TEST_DICTIONARY
+    assert (
+        metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.LOG_DICT_KEY]
+        == tc.TEST_DICTIONARY
+    )
 
 
 def test_repository_io_write_metadata_writes_repository_metadata(
@@ -1164,9 +1145,7 @@ def test_repository_io_write_metadata_writes_repository_metadata(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1189,12 +1168,7 @@ def test_repository_paths_document_objects_path_returns_correct_path(
 
     rp = RepositoryPaths(root, repository_name, c)
 
-    expected = (
-        root
-        / tc.SCCS_DIRECTORY
-        / tc.OBJECTS_DIRECTORY
-        / tc.DOCUMENT_DIRECTORY
-    )
+    expected = root / tc.SCCS_DIRECTORY / tc.OBJECTS_DIRECTORY / tc.DOCUMENT_DIRECTORY
 
     assert rp.document_objects_path() == expected
 
@@ -1222,12 +1196,7 @@ def test_repository_paths_html_objects_path_returns_correct_path(
 
     rp = RepositoryPaths(root, repository_name, c)
 
-    expected = (
-        root
-        / tc.SCCS_DIRECTORY
-        / tc.OBJECTS_DIRECTORY
-        / tc.HTML_DIRECTORY
-    )
+    expected = root / tc.SCCS_DIRECTORY / tc.OBJECTS_DIRECTORY / tc.HTML_DIRECTORY
 
     assert rp.html_objects_path() == expected
 
@@ -1283,25 +1252,14 @@ def test_repository_paths_view_html_objects_path_returns_correct_path(
 
     rp = RepositoryPaths(root, repository_name, c)
 
-    expected = (
-        root
-        / tc.SCCS_DIRECTORY
-        / tc.OBJECTS_DIRECTORY
-        / tc.VIEW_HTML_DIRECTORY
-    )
+    expected = root / tc.SCCS_DIRECTORY / tc.OBJECTS_DIRECTORY / tc.VIEW_HTML_DIRECTORY
 
     assert rp.view_html_objects_path() == expected
 
 
 @pytest.mark.parametrize(
     ("branch_name", "expected"),
-    [
-        ("main", True),
-        ("test", False),
-        ("Main", True),
-        ("TEST", False)
-
-    ],
+    [("main", True), ("test", False), ("Main", True), ("TEST", False)],
 )
 def test_repository_status_branch_exists_returns_correct_bool(
     initialized_repository: Path,
@@ -1395,9 +1353,7 @@ def test_repository_status_validate_repository_layout_raises_for_each_missing_re
     )
 
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -1448,13 +1404,11 @@ def test_repository_write_add_branch_metadata_correctly_updates_metadata(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
+
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
     rw.add_branch_metadata(tc.TEST_STRING.upper())
@@ -1483,9 +1437,7 @@ def test_repository_write_add_to_branches_list_adds_branch_to_branches_list(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1507,9 +1459,7 @@ def test_repository_write_add_to_updated_branches_adds_branch_to_updated_branche
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1522,9 +1472,10 @@ def test_repository_write_add_to_updated_branches_adds_branch_to_updated_branche
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert new_branch_name in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        new_branch_name
+        in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
 
 
 def test_repository_write_add_to_updated_branches_does_not_duplicate(
@@ -1537,9 +1488,7 @@ def test_repository_write_add_to_updated_branches_does_not_duplicate(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -1556,9 +1505,9 @@ def test_repository_write_add_to_updated_branches_does_not_duplicate(
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ] == [tc.MAIN_BRANCH_NAME]
+    assert metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY] == [
+        tc.MAIN_BRANCH_NAME
+    ]
 
 
 def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
@@ -1568,9 +1517,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
     tc: SCCSTestConstants,
 ) -> None:
     metadata_path = (
-        repository_with_multiple_commits
-        / tc.SCCS_DIRECTORY
-        / tc.METADATA_JSON
+        repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
 
     target.set(tc.MAIN_BRANCH_NAME)
@@ -1621,7 +1568,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
         / tc.DOCUMENT_DIRECTORY
         / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
         repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
-        shallow=False
+        shallow=False,
     )
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
@@ -1690,9 +1637,7 @@ def test_repository_write_commit_changes_commits_when_allow_empty_commit_is_true
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
@@ -1706,12 +1651,18 @@ def test_repository_write_commit_changes_commits_when_allow_empty_commit_is_true
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_DICT_KEY][
-        tc.LATEST_COMMIT_DICT_KEY
-    ] == commit_identifier
-    assert metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_DICT_KEY][
-        tc.LATEST_COMMIT_NUMBER_DICT_KEY
-    ] == tc.SECOND_COMMIT_NUMBER
+    assert (
+        metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_DICT_KEY][
+            tc.LATEST_COMMIT_DICT_KEY
+        ]
+        == commit_identifier
+    )
+    assert (
+        metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME][tc.HISTORY_DICT_KEY][
+            tc.LATEST_COMMIT_NUMBER_DICT_KEY
+        ]
+        == tc.SECOND_COMMIT_NUMBER
+    )
 
 
 def test_repository_write_commit_changes_when_updated_branches_is_missing(
@@ -1726,9 +1677,7 @@ def test_repository_write_commit_changes_when_updated_branches_is_missing(
     )
 
     metadata_path = (
-        repository_with_multiple_commits
-        / tc.SCCS_DIRECTORY
-        / tc.METADATA_JSON
+        repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
@@ -1756,9 +1705,7 @@ def test_repository_write_remove_branch_metadata_removes_branch_metadata(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
@@ -1773,12 +1720,14 @@ def test_repository_write_remove_branch_metadata_removes_branch_metadata(
         metadata = json.load(f)
 
     assert branch_to_remove not in metadata[tc.BRANCHES_DICT_KEY]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.MAIN_BRANCH_NAME
@@ -1791,9 +1740,7 @@ def test_repository_write_remove_branch_metadata_keeps_current_branch_when_remov
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -1812,13 +1759,14 @@ def test_repository_write_remove_branch_metadata_keeps_current_branch_when_remov
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        tc.TEST_STRING
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
     assert tc.TEST_STRING not in metadata[tc.BRANCHES_DICT_KEY]
-    assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
+    assert (
+        tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.SECOND_TEST_STRING
@@ -1839,9 +1787,7 @@ def test_repository_write_remove_from_branches_list_removes_branch_from_branches
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1854,9 +1800,10 @@ def test_repository_write_remove_from_branches_list_removes_branch_from_branches
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert branch_to_remove.lower() not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
+    assert (
+        branch_to_remove.lower()
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
 
 
 def test_repository_write_remove_from_branches_list_raises_if_branch_not_in_list(
@@ -1865,9 +1812,7 @@ def test_repository_write_remove_from_branches_list_raises_if_branch_not_in_list
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1891,9 +1836,7 @@ def test_repository_write_remove_from_updated_branch_removes_branch_from_updated
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1915,9 +1858,10 @@ def test_repository_write_remove_from_updated_branch_removes_branch_from_updated
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
 
 
 def test_repository_write_set_current_branch_sets_current_branch(
@@ -1926,9 +1870,7 @@ def test_repository_write_set_current_branch_sets_current_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1953,9 +1895,7 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -2003,9 +1943,7 @@ def test_repository_write_write_key_to_config_raises_if_key_is_not_valid(
     assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
 
 
-@pytest.mark.parametrize(
-    "key", ["name", "email"]
-)
+@pytest.mark.parametrize("key", ["name", "email"])
 def test_repository_write_write_key_to_config_raises_if_name_or_email_contains_invalid_characters(
     initialized_repository: Path,
     c: SCCSConstants,

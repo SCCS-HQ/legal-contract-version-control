@@ -7,6 +7,7 @@ import unittest
 import unittest.mock
 import zipfile
 from pathlib import Path
+from types import FunctionType
 from typing import Any, NoReturn
 
 import pytest
@@ -14,7 +15,7 @@ from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from test_constants import SCCSTestConstants
-from types import FunctionType
+
 
 def test_cleanup_staging_deletes_staging_root(
     tmp_path: Path, tc: SCCSTestConstants
@@ -108,7 +109,10 @@ def test_working_directory_returns_cwd(c: SCCSConstants) -> None:
 
 
 def test_working_directory_raises_if_cwd_raises_and_pwd_does_not_exist(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
 ) -> None:
 
     monkeypatch.setattr(Path, tc.CWD_OBJECT_NAME, raise_exception)
@@ -236,7 +240,10 @@ def test_promote_staging_allows_non_empty_final_root(
 
 
 def test_promote_staging_restores_final_root_if_promotion_raises(
-    tmp_path: Path, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     final_root = tmp_path / tc.TEST_FINAL_ROOT
@@ -282,7 +289,9 @@ def test_raise_if_empty_raises_if_value_is_empty(
 
     with pytest.raises(SCCSException) as e:
         utils.raise_if_empty(c, tc.EMPTY_STRING, tc.TEST_STRING)
-    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=tc.TEST_STRING)
+    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+        field=tc.TEST_STRING
+    )
 
 
 def test_safe_extract_zip_extracts_properly(
@@ -365,7 +374,9 @@ def test_safe_extract_zip_rejects_double_period(
             member_path,
             tmp_path,
         )
-    assert str(e.value) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
+    assert str(
+        e.value
+    ) == tc.PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE.format(
         entry_path=Path(member_path)
     )
 
@@ -383,9 +394,15 @@ def test_safe_extract_zip_rejects_symlink_escape(
     )
 
     with pytest.raises(SCCSException) as e:
-        utils.safe_extract_zip(c, None, tc.TEST_SYMLINK_DIRECTORY, destination_path) # pyright: ignore[reportArgumentType]
-    assert str(e.value) == tc.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
-        target_path=Path(os.path.normpath(destination_path / tc.TEST_SYMLINK_DIRECTORY)).resolve(),
+        utils.safe_extract_zip(
+            c, None, tc.TEST_SYMLINK_DIRECTORY, destination_path
+        )  # pyright: ignore[reportArgumentType]
+    assert str(
+        e.value
+    ) == tc.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
+        target_path=Path(
+            os.path.normpath(destination_path / tc.TEST_SYMLINK_DIRECTORY)
+        ).resolve(),
         destination_resolved=destination_path.resolve(),
     )
 
@@ -575,7 +592,10 @@ def test_zip_buffer_zips_buffer(c: SCCSConstants, tc: SCCSTestConstants) -> None
 
 
 def test_zip_buffer_raises_if_buffer_creation_fails(
-    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
 ) -> None:
 
     monkeypatch.setattr(io, "BytesIO", raise_exception)

@@ -6,7 +6,6 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import requests
-
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -177,7 +176,7 @@ def main(
 
     try:
         rs.validate_repository_layout()
-        
+
         rs.target.set(rd.current_branch())
 
         remote = rd.base_repository_url()
@@ -203,9 +202,7 @@ def main(
             c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
         )
     except requests.exceptions.RequestException as e:
-        raise SCCSException(
-            c.PUSH_HTTP_REQUEST_ERROR_MESSAGE
-        ) from e
+        raise SCCSException(c.PUSH_HTTP_REQUEST_ERROR_MESSAGE) from e
     except SCCSException:
         raise
     except Exception as e:

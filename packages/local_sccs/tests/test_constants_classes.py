@@ -1,6 +1,5 @@
-from types import MappingProxyType
 import re
-from types import FunctionType
+from types import FunctionType, MappingProxyType
 
 import pytest
 from local_sccs.constants_classes import ErrorWrappers, SCCSConstants
@@ -80,9 +79,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
                 "Pull changes from a remote repository and merge them "
                 "into the local repository."
             ),
-            "push": (
-                "Push changes from the local repository to a remote repository."
-            ),
+            "push": ("Push changes from the local repository to a remote repository."),
             "reset": "Delete all uncommitted changes.",
             "revert": "Revert the current document to the specified commit.",
             "status": (
@@ -198,7 +195,9 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "EXPECTED_ERROR_EXIT_CODE": 1,
     "FILE_START_POSITION": 0,
     "FIRST_ELEMENT_INDEX": 0,
-    "FLAG_DESCRIPTIONS": MappingProxyType({"debug": "Does not except Exception or SCCSException."}),
+    "FLAG_DESCRIPTIONS": MappingProxyType(
+        {"debug": "Does not except Exception or SCCSException."}
+    ),
     "FULL_COMMIT_IDENTIFIER_LENGTH": 64,
     "HELP_COMMAND_NAME": "help",
     "HEX_DIGITS": "0123456789abcdef",
@@ -453,7 +452,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
 
 
 def test_sccs_constants_help_messages_returns_correct_help_message(
-    c: SCCSConstants
+    c: SCCSConstants,
 ) -> None:
 
     assert c.HELP_MESSAGES == (
@@ -484,9 +483,15 @@ def test_sccs_constants_help_messages_returns_correct_help_message(
 @pytest.mark.parametrize(
     "module, constant_name, expected_value",
     [
-        *[(SCCSConstants, name, value) for name, value in sorted(SCCS_CONSTANTS_SNAPSHOT.items())],
-        *[(ErrorWrappers, name, value) for name, value in sorted(ERROR_WRAPPERS_SNAPSHOT.items())],
-    ]
+        *[
+            (SCCSConstants, name, value)
+            for name, value in sorted(SCCS_CONSTANTS_SNAPSHOT.items())
+        ],
+        *[
+            (ErrorWrappers, name, value)
+            for name, value in sorted(ERROR_WRAPPERS_SNAPSHOT.items())
+        ],
+    ],
 )
 def test_sccs_constants_match_snapshot(
     module: type, constant_name: str, expected_value: object, tc: SCCSTestConstants
@@ -496,27 +501,28 @@ def test_sccs_constants_match_snapshot(
         actual_value = getattr(module, constant_name)
     except AttributeError:
         pytest.fail(
-            tc.DELETED_CONSTANT_ERROR_MESSAGE.format(module_name=module.__name__, constant_name=constant_name)
+            tc.DELETED_CONSTANT_ERROR_MESSAGE.format(
+                module_name=module.__name__, constant_name=constant_name
+            )
         )
-        
 
     if isinstance(expected_value, re.Pattern):
-        assert expected_value.fullmatch(actual_value) is not None, (
-            tc.CONSTANTS_CLASSES_CHANGED_VALUE_MESSAGE.format(
-                module_name=module.__name__,
-                constant_name=constant_name,
-                expected_value=expected_value.pattern,
-                actual_value=actual_value
-            )
-        )   
+        assert (
+            expected_value.fullmatch(actual_value) is not None
+        ), tc.CONSTANTS_CLASSES_CHANGED_VALUE_MESSAGE.format(
+            module_name=module.__name__,
+            constant_name=constant_name,
+            expected_value=expected_value.pattern,
+            actual_value=actual_value,
+        )
     else:
-        assert actual_value == expected_value, (
-            tc.CONSTANTS_CLASSES_CHANGED_VALUE_MESSAGE.format(
-                module_name=module.__name__,
-                constant_name=constant_name,
-                expected_value=expected_value,
-                actual_value=actual_value
-            )
+        assert (
+            actual_value == expected_value
+        ), tc.CONSTANTS_CLASSES_CHANGED_VALUE_MESSAGE.format(
+            module_name=module.__name__,
+            constant_name=constant_name,
+            expected_value=expected_value,
+            actual_value=actual_value,
         )
 
 
@@ -539,11 +545,10 @@ def test_snapshot_covers_every_constant(
     }
     snapshot_names = set(snapshot)
 
-    assert actual_names == snapshot_names, (
-        tc.CONSTANTS_CLASSES_ADDED_OR_REMOVED_MESSAGE.format(
-            module_name=constants_class.__name__,
-            added=sorted(actual_names - snapshot_names),
-            removed=sorted(snapshot_names - actual_names)
-        )
+    assert (
+        actual_names == snapshot_names
+    ), tc.CONSTANTS_CLASSES_ADDED_OR_REMOVED_MESSAGE.format(
+        module_name=constants_class.__name__,
+        added=sorted(actual_names - snapshot_names),
+        removed=sorted(snapshot_names - actual_names),
     )
-

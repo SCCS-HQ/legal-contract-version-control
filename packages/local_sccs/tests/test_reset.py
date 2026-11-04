@@ -1,17 +1,22 @@
+import filecmp
+import os
+import shutil
+import tempfile
+from pathlib import Path
 from posixpath import exists
 from types import FunctionType
 
 import pytest
 from local_sccs import reset
 from local_sccs.constants_classes import SCCSConstants
-from test_constants import SCCSTestConstants
-from pathlib import Path
-from local_sccs.repository_layout import RepositoryData, RepositoryPaths, RepositoryStatus, TargetBranch
 from local_sccs.exceptions import SCCSException
-import shutil
-import tempfile
-import os
-import filecmp
+from local_sccs.repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    TargetBranch,
+)
+from test_constants import SCCSTestConstants
 
 
 def test_print_reset_success_message_prints_success_message(
@@ -22,8 +27,9 @@ def test_print_reset_success_message_prints_success_message(
     """
 
     reset.print_reset_success_message(c)
-    
+
     assert capsys.readouterr().out.strip() == tc.RESET_SUCCESS_MESSAGE
+
 
 @pytest.mark.parametrize(
     ("missing_resource_name"),
@@ -37,7 +43,7 @@ def test_print_reset_success_message_prints_success_message(
         "objects_path",
     ],
 )
-def test_reset_main_raises_for_each_missing_resource(    
+def test_reset_main_raises_for_each_missing_resource(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
@@ -47,17 +53,13 @@ def test_reset_main_raises_for_each_missing_resource(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
+
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -74,10 +76,7 @@ def test_reset_main_raises_for_each_missing_resource(
     )
 
 
-@pytest.mark.parametrize(
-    "module, function",
-    [(tempfile, "mkdtemp"), (os, "rename")]
-)
+@pytest.mark.parametrize("module, function", [(tempfile, "mkdtemp"), (os, "rename")])
 def test_reset_main_staged_repository_creation_fails(
     initialized_repository: Path,
     c: SCCSConstants,
@@ -86,13 +85,17 @@ def test_reset_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     monkeypatch.setattr(module, function, raise_exception)
 
@@ -105,7 +108,7 @@ def test_reset_main_staged_repository_creation_fails(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
-    
+
     assert not staging_dirs
 
 
@@ -115,15 +118,21 @@ def test_reset_main_staged_repository_cleanup_fails(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
-    monkeypatch.setattr(RepositoryData, "commit_identifier_to_full_path", raise_exception)
+    monkeypatch.setattr(
+        RepositoryData, "commit_identifier_to_full_path", raise_exception
+    )
 
     with pytest.raises(SCCSException) as e:
         reset.main(c, rd, rp, rs)
@@ -136,16 +145,20 @@ def test_reset_main_prints_reset_success_message(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     reset.main(c, rd, rp, rs)
-    
+
     assert capsys.readouterr().out.strip() == tc.RESET_SUCCESS_MESSAGE
 
 
@@ -160,9 +173,7 @@ def test_reset_main_resets_target_on_error(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -174,6 +185,7 @@ def test_reset_main_resets_target_on_error(
 
     assert target.get() is None
 
+
 def test_reset_main_resets_repository_document_to_latest_commit(
     repository_with_modified_document: Path,
     c: SCCSConstants,
@@ -182,11 +194,17 @@ def test_reset_main_resets_repository_document_to_latest_commit(
     initialized_repository: Path,
 ) -> None:
 
-    modified_rd = RepositoryData(repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    modified_rd = RepositoryData(
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
-    modified_rp = RepositoryPaths(repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    modified_rp = RepositoryPaths(
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
 
-    modified_rs = RepositoryStatus(repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    modified_rs = RepositoryStatus(
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     reset.main(c, modified_rd, modified_rp, modified_rs)
 
@@ -224,7 +242,7 @@ def test_reset_main_resets_target_branch(
     )
 
     print((repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME).exists())
-    
+
     assert not filecmp.cmp(
         repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME,
         latest_commit_document,
@@ -232,7 +250,7 @@ def test_reset_main_resets_target_branch(
     )
 
     reset.main(c, modified_rd, modified_rp, modified_rs)
-    
+
     assert filecmp.cmp(
         repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME,
         latest_commit_document,

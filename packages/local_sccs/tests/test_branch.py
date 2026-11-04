@@ -1,21 +1,22 @@
-from local_sccs.constants_classes import SCCSConstants
+import json
+import os
+import shutil
+import tempfile
+from pathlib import Path
 from types import FunctionType
-from test_constants import SCCSTestConstants
+
+import pytest
+from local_sccs import branch
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryPaths,
     RepositoryStatus,
-    RepositoryWrite
+    RepositoryWrite,
+    TargetBranch,
 )
-from pathlib import Path
-from local_sccs import branch
-import json
-import pytest
-from local_sccs.exceptions import SCCSException
-import shutil
-import tempfile
-import os
+from test_constants import SCCSTestConstants
 
 
 @pytest.mark.parametrize(
@@ -24,12 +25,12 @@ import os
         (
             "test",
             "main",
-            "Branch 'test' created from 'main' successfully and is set to the current branch."
+            "Branch 'test' created from 'main' successfully and is set to the current branch.",
         ),
         (
             "feature",
             "develop",
-            "Branch 'feature' created from 'develop' successfully and is set to the current branch."
+            "Branch 'feature' created from 'develop' successfully and is set to the current branch.",
         ),
     ],
 )
@@ -38,34 +39,28 @@ def test_print_branch_create_success_message(
     current_branch_name: str,
     expected_message: str,
     c: SCCSConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
 
     branch.print_branch_create_success_message(c, branch_name, current_branch_name)
-    
+
     assert capsys.readouterr().out.strip() == expected_message
 
 
 @pytest.mark.parametrize(
     "branch_name, expected_message",
     [
-        (
-            "test",
-            "Branch 'test' deleted successfully."
-        ),
-        (
-            "feature",
-            "Branch 'feature' deleted successfully."
-        ),
+        ("test", "Branch 'test' deleted successfully."),
+        ("feature", "Branch 'feature' deleted successfully."),
     ],
 )
 def test_print_branch_delete_success_message(
     branch_name: str,
     expected_message: str,
     c: SCCSConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    
+
     branch.print_branch_delete_success_message(c, branch_name)
     assert capsys.readouterr().out.strip() == expected_message
 
@@ -75,7 +70,7 @@ def test_branch_create_subcommand_creates_new_branch(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -90,7 +85,7 @@ def test_branch_create_subcommand_creates_new_branch(
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE
+        newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
 
@@ -116,7 +111,7 @@ def test_branch_delete_subcommand_deletes_branch(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -135,17 +130,19 @@ def test_branch_delete_subcommand_deletes_branch(
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE
+        newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
 
     assert branch_to_remove not in metadata[tc.BRANCHES_DICT_KEY]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.MAIN_BRANCH_NAME
@@ -158,7 +155,7 @@ def test_branch_delete_subcommand_raises_if_branch_to_remove_is_main(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -177,7 +174,7 @@ def test_branch_list_subcommand_lists_all_branches(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -200,7 +197,7 @@ def test_run_specified_subcommand_runs_create_subcommand(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -217,7 +214,7 @@ def test_run_specified_subcommand_runs_create_subcommand(
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE
+        newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
 
@@ -243,7 +240,7 @@ def test_run_specified_subcommand_runs_delete_subcommand(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -264,17 +261,19 @@ def test_run_specified_subcommand_runs_delete_subcommand(
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE
+        newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
 
     assert branch_to_remove not in metadata[tc.BRANCHES_DICT_KEY]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
-    assert branch_to_remove not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
+    assert (
+        branch_to_remove
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.MAIN_BRANCH_NAME
@@ -288,7 +287,7 @@ def test_run_specified_subcommand_runs_branch_list_subcommand(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -316,7 +315,7 @@ def test_run_specified_subcommand_raises_if_branch_name_is_none_and_create_or_de
     target: TargetBranch,
     tc: SCCSTestConstants,
     subcommand: str,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -352,7 +351,9 @@ def test_validate_subcommand_raises_if_subcommand_is_invalid(
     error_raised: bool,
     subcommand: str,
 ) -> None:
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -380,7 +381,7 @@ def test_validate_subcommand_raises_if_subcommand_is_invalid(
         ("list", False, None, False),
         ("create", False, "test", False),
         ("delete", True, "test", False),
-        ("list", False, "test", False)
+        ("list", False, "test", False),
     ],
 )
 def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch_name_is_empty(
@@ -391,9 +392,11 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
     subcommand: str,
     precreate_branch: bool,
     branch_name: str,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -402,7 +405,7 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
     if precreate_branch:
-        
+
         rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
@@ -419,21 +422,9 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
 @pytest.mark.parametrize(
     "branch_name, precreate_branch, error_raised",
     [
-        (
-            "main",
-            False,
-            True
-        ),
-        (
-            "test",
-            True,
-            True
-        ),
-        (
-            "test",
-            False,
-            False
-        ),
+        ("main", False, True),
+        ("test", True, True),
+        ("test", False, False),
     ],
 )
 def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_exists(
@@ -443,9 +434,11 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
     tc: SCCSTestConstants,
     branch_name: str,
     precreate_branch: bool,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -457,7 +450,9 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
     if error_raised:
         with pytest.raises(SCCSException) as e:
             branch.validate_subcommand(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rs)
-        assert str(e.value) == tc.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+        assert str(e.value) == tc.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name
+        )
     else:
         branch.validate_subcommand(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rs)
 
@@ -470,14 +465,14 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
             "Cannot delete the current branch. Please switch to another branch first.",
             True,
             False,
-            True
+            True,
         ),
         (
             "test",
             "Branch 'test' is missing from repository metadata. If the branch does not exist, please create it.",
             False,
             False,
-            True
+            True,
         ),
     ],
 )
@@ -490,7 +485,7 @@ def test_validate_subcommand_raises_for_delete_branch_cases(
     expected_message: str,
     setup_current_branch: bool,
     set_current_to_main: bool,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
     target.set(tc.MAIN_BRANCH_NAME)
 
@@ -585,9 +580,7 @@ def test_branch_main_raises_for_each_missing_resource(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -596,9 +589,7 @@ def test_branch_main_raises_for_each_missing_resource(
     )
 
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -619,7 +610,7 @@ def test_branch_main_raises_if_uncommitted_changes_exist(
     repository_with_modified_document: Path,
     c: SCCSConstants,
     target: TargetBranch,
-    tc: SCCSTestConstants
+    tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
         repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -658,11 +649,15 @@ def test_branch_main_raises_if_subcommand_is_invalid(
     error_raised: bool,
     subcommand: str,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -690,7 +685,7 @@ def test_branch_main_raises_if_subcommand_is_invalid(
         ("list", False, None, False),
         ("create", False, "test", False),
         ("delete", True, "test", False),
-        ("list", False, "test", False)
+        ("list", False, "test", False),
     ],
 )
 def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is_empty(
@@ -701,13 +696,17 @@ def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is
     subcommand: str,
     precreate_branch: bool,
     branch_name: str,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -716,7 +715,7 @@ def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
     if precreate_branch:
-        
+
         rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
@@ -733,21 +732,9 @@ def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is
 @pytest.mark.parametrize(
     "branch_name, precreate_branch, error_raised",
     [
-        (
-            "main",
-            False,
-            True
-        ),
-        (
-            "test",
-            True,
-            True
-        ),
-        (
-            "test",
-            False,
-            False
-        ),
+        ("main", False, True),
+        ("test", True, True),
+        ("test", False, False),
     ],
 )
 def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
@@ -757,13 +744,17 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
     tc: SCCSTestConstants,
     branch_name: str,
     precreate_branch: bool,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -776,7 +767,9 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
     if error_raised:
         with pytest.raises(SCCSException) as e:
             branch.main(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
-        assert str(e.value) == tc.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(branch_name=branch_name)
+        assert str(e.value) == tc.BRANCH_ALREADY_EXISTS_ERROR_MESSAGE_TEMPLATE.format(
+            branch_name=branch_name
+        )
     else:
         branch.main(c, tc.BRANCH_CREATE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
 
@@ -789,14 +782,14 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
             "Cannot delete the current branch. Please switch to another branch first.",
             True,
             False,
-            True
+            True,
         ),
         (
             "test",
             "Branch 'test' is missing from repository metadata. If the branch does not exist, please create it.",
             False,
             False,
-            True
+            True,
         ),
     ],
 )
@@ -809,13 +802,17 @@ def test_branch_main_raises_for_delete_branch_cases(
     expected_message: str,
     setup_current_branch: bool,
     set_current_to_main: bool,
-    error_raised: bool
+    error_raised: bool,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -844,16 +841,20 @@ def test_branch_main_does_not_raise_for_list_with_no_branch_name(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
+
     branch.main(c, tc.BRANCH_LIST_SUBCOMMAND, None, rd, rp, rs, rw)
 
 
@@ -863,11 +864,15 @@ def test_branch_main_does_not_raise_for_create_with_new_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -882,11 +887,15 @@ def test_branch_main_does_not_raise_for_delete_with_existing_non_current_branch(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -909,7 +918,7 @@ def test_branch_main_does_not_raise_for_delete_with_existing_non_current_branch(
         ("list", shutil, "copytree"),
         ("create", os, "rename"),
         ("list", os, "rename"),
-    ]
+    ],
 )
 def test_branch_main_staged_repository_creation_fails(
     initialized_repository: Path,
@@ -920,13 +929,17 @@ def test_branch_main_staged_repository_creation_fails(
     subcommand: str,
     module: object,
     function: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -943,7 +956,7 @@ def test_branch_main_staged_repository_creation_fails(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
-    
+
     assert not staging_dirs
 
 
@@ -952,7 +965,7 @@ def test_branch_main_staged_repository_creation_fails(
     [
         ("create", False, "add_branch_metadata"),
         ("delete", True, "remove_branch_metadata"),
-    ]
+    ],
 )
 def test_branch_main_handles_io_errors_on_metadata_write(
     initialized_repository: Path,
@@ -963,25 +976,29 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     precreate_branch: bool,
     subcommand: str,
     method: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    
+
     monkeypatch.setattr(RepositoryWrite, method, raise_exception)
 
     if precreate_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
         rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
-    
+
     with pytest.raises(SCCSException) as e:
         branch.main(c, subcommand, tc.TEST_STRING, rd, rp, rs, rw)
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
@@ -1002,11 +1019,11 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     [
         (
             "test",
-            "Branch 'test' created from 'main' successfully and is set to the current branch."
+            "Branch 'test' created from 'main' successfully and is set to the current branch.",
         ),
         (
             "feature",
-            "Branch 'feature' created from 'main' successfully and is set to the current branch."
+            "Branch 'feature' created from 'main' successfully and is set to the current branch.",
         ),
     ],
 )
@@ -1017,34 +1034,32 @@ def test_branch_main_prints_create_success_message(
     tc: SCCSTestConstants,
     branch_name: str,
     expected_message: str,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     branch.main(c, tc.CREATE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
-    
+
     assert capsys.readouterr().out.strip() == expected_message
 
 
 @pytest.mark.parametrize(
     "branch_name, expected_message",
     [
-        (
-            "test",
-            "Branch 'test' deleted successfully."
-        ),
-        (
-            "feature",
-            "Branch 'feature' deleted successfully."
-        ),
+        ("test", "Branch 'test' deleted successfully."),
+        ("feature", "Branch 'feature' deleted successfully."),
     ],
 )
 def test_branch_main_prints_delete_success_message(
@@ -1056,12 +1071,16 @@ def test_branch_main_prints_delete_success_message(
     expected_message: str,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1082,13 +1101,17 @@ def test_branch_main_prints_list_success_message(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -1174,14 +1197,15 @@ def test_branch_main_deletes_branch_side_effects(
         newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
-        
+
     assert tc.TEST_STRING not in metadata[tc.BRANCHES_DICT_KEY]
-    assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.BRANCHES_DICT_KEY
-    ]
-    assert tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][
-        tc.UPDATED_BRANCHES_DICT_KEY
-    ]
+    assert (
+        tc.TEST_STRING not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.BRANCHES_DICT_KEY]
+    )
+    assert (
+        tc.TEST_STRING
+        not in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
     assert (
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.CURRENT_BRANCH_DICT_KEY]
         == tc.MAIN_BRANCH_NAME
@@ -1194,14 +1218,12 @@ def test_branch_main_resets_target_on_error(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )

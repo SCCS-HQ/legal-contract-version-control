@@ -1,16 +1,11 @@
 import argparse
-from local_sccs.constants_classes import SCCSConstants
-from test_constants import SCCSTestConstants
-
 import sys
+from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, Callable
 from unittest.mock import MagicMock
 
 import pytest
-from typing import Any, Callable
-from pathlib import Path
-
-from local_sccs.exceptions import SCCSException
 from local_sccs import (
     branch,
     clone,
@@ -30,16 +25,20 @@ from local_sccs import (
     sccs,
     status,
     switch,
-    utils
+    utils,
 )
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
     RepositoryWrite,
-    TargetBranch
+    TargetBranch,
 )
+from test_constants import SCCSTestConstants
+
 
 def test_sccs_COMMANDS_does_not_drift(tc: SCCSTestConstants) -> None:
     assert sccs.COMMANDS == {
@@ -224,9 +223,11 @@ def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
 
     arguments = SimpleNamespace(command=tc.TEST_STRING, debug=False)
 
-    sccs.run_command(arguments) # pyright: ignore[reportArgumentType]
+    sccs.run_command(arguments)  # pyright: ignore[reportArgumentType]
     assert capsys.readouterr().out.strip() == (
-        tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES)
+        tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
+        + tc.NEWLINE
+        + (tc.NEWLINE).join(tc.HELP_MESSAGES)
     )
 
 
@@ -253,17 +254,23 @@ def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
     ],
 )
 def test_run_command_prints_expected_error_message_if_command_raises_sccs_exception_if_debug_is_false(
-    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+    command: str,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-
-
 
     e = SCCSException(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.run_command(CustomSimpleNamespace(command=command, debug=False)) # pyright: ignore[reportArgumentType]
+        sccs.run_command(
+            CustomSimpleNamespace(command=command, debug=False)
+        )  # pyright: ignore[reportArgumentType]
 
         assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
 
@@ -293,21 +300,29 @@ def test_run_command_prints_expected_error_message_if_command_raises_sccs_except
     ],
 )
 def test_run_command_prints_unexpected_error_message_if_command_raises_unexpected_exception_if_debug_is_false(
-    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+    command: str,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-
-
 
     e = Exception(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.run_command(CustomSimpleNamespace(command=command, debug=False)) # pyright: ignore[reportArgumentType]
+        sccs.run_command(
+            CustomSimpleNamespace(command=command, debug=False)
+        )  # pyright: ignore[reportArgumentType]
 
         assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(
+        e=e, type_name=type(e).__name__
+    )
 
 
 @pytest.mark.parametrize(
@@ -333,21 +348,32 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
     ],
 )
 def test_run_command_does_not_except_exceptions_if_debug_is_true(
-    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+    monkeypatch: pytest.MonkeyPatch,
+    command: str,
+    tc: SCCSTestConstants,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
 
     e = Exception(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
 
     with pytest.raises(Exception) as exc_info:
-        sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+        sccs.run_command(
+            CustomSimpleNamespace(command=command, debug=True)
+        )  # pyright: ignore[reportArgumentType]
 
         assert exc_info.value == e
 
 
-
-def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any], c: SCCSConstants, target: TargetBranch) -> None:
+def test_COMMAND_ARGUMENTS_does_not_drift(
+    tc: SCCSTestConstants,
+    CustomSimpleNamespace: Callable[..., Any],
+    c: SCCSConstants,
+    target: TargetBranch,
+) -> None:
 
     wd = utils.working_directory(c)
     wd_repository_name = wd.name
@@ -484,16 +510,18 @@ def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNam
         ],
     }
 
-    result = sccs.COMMAND_ARGUMENTS(CustomSimpleNamespace(command=tc.TEST_STRING, debug=False))
-    
-    assert (
-        set(result)
-        == set(expected_command_arguments)
-    ) # pyright: ignore[reportArgumentType]
+    result = sccs.COMMAND_ARGUMENTS(
+        CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)
+    )
 
+    assert set(result) == set(
+        expected_command_arguments
+    )  # pyright: ignore[reportArgumentType]
 
+    assert [i.__code__.co_code for i in result.values()] == [
+        i.__code__.co_code for i in expected_command_arguments.values()
+    ]  # pyright: ignore[reportArgumentType]
 
-    assert [i.__code__.co_code for i in result.values()] == [i.__code__.co_code for i in expected_command_arguments.values()] # pyright: ignore[reportArgumentType]
 
 @pytest.mark.parametrize(
     "command",
@@ -518,33 +546,47 @@ def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNam
     ],
 )
 def test_run_command_calls_specified_local_sccs_module_main(
-    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+    monkeypatch: pytest.MonkeyPatch,
+    command: str,
+    tc: SCCSTestConstants,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-    
-
 
     calls = 0
-        
+
     def increment_calls(*args: Any, **kwargs: Any) -> None:
         nonlocal calls
         calls += 1
 
     monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
-    
-    sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+
+    sccs.run_command(
+        CustomSimpleNamespace(command=command, debug=True)
+    )  # pyright: ignore[reportArgumentType]
 
     assert calls == 1
 
 
-def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_command_does_not_exist(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, tc: SCCSTestConstants) -> None:
+def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_command_does_not_exist(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+    tc: SCCSTestConstants,
+) -> None:
 
-    monkeypatch.setattr(utils, "entered_argument", lambda *args, **kwargs: tc.TEST_STRING)
+    monkeypatch.setattr(
+        utils, "entered_argument", lambda *args, **kwargs: tc.TEST_STRING
+    )
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
 
     sccs.main()
 
-    assert capsys.readouterr().out.strip() == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES)
+    assert (
+        capsys.readouterr().out.strip()
+        == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING)
+        + tc.NEWLINE
+        + (tc.NEWLINE).join(tc.HELP_MESSAGES)
+    )
 
 
 @pytest.mark.parametrize(
@@ -570,17 +612,24 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
     ],
 )
 def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exception_if_debug_is_false(
-    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+    command: str,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-
-
-
 
     e = SCCSException(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
-    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False))
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False),
+    )
 
     with pytest.raises(SystemExit) as exc_info:
         sccs.main()
@@ -612,21 +661,32 @@ def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exceptio
     ],
 )
 def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_exception_if_debug_is_false(
-    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+    command: str,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-
 
     e = Exception(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
-    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False))
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False),
+    )
 
     with pytest.raises(SystemExit) as exc_info:
         sccs.main()
         assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(
+        e=e, type_name=type(e).__name__
+    )
 
 
 @pytest.mark.parametrize(
@@ -652,19 +712,26 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
     ],
 )
 def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
-    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+    monkeypatch: pytest.MonkeyPatch,
+    command: str,
+    tc: SCCSTestConstants,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-    
-
 
     e = Exception(tc.TEST_STRING)
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(
+        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+    )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
-    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True))
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True),
+    )
 
     with pytest.raises(Exception) as exc_info:
-        sccs.main() # pyright: ignore[reportArgumentType]
+        sccs.main()  # pyright: ignore[reportArgumentType]
 
         assert exc_info.value == e
 
@@ -692,32 +759,41 @@ def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
     ],
 )
 def test_sccs_main_calls_specified_local_sccs_module_main(
-    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+    monkeypatch: pytest.MonkeyPatch,
+    command: str,
+    tc: SCCSTestConstants,
+    CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
-    
-
 
     calls = 0
-        
+
     def increment_calls(*args: Any, **kwargs: Any) -> None:
         nonlocal calls
         calls += 1
 
     monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
-    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True))
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True),
+    )
 
-    
-    sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+    sccs.run_command(
+        CustomSimpleNamespace(command=command, debug=True)
+    )  # pyright: ignore[reportArgumentType]
 
     assert calls == 1
-
 
 
 # fixture for CustomSimpleNamespace
 
 
-def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture) -> None:
+def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+) -> None:
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
     sccs.main()

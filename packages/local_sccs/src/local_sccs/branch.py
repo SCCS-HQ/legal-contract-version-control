@@ -24,9 +24,9 @@ def branch_create_subcommand(
     """
 
     current_branch_name = rd.current_branch()
-    
+
     rw.target.set(current_branch_name)
-    
+
     rw.add_branch_metadata(branch_name)
 
     print_branch_create_success_message(c, branch_name, current_branch_name)
@@ -155,7 +155,7 @@ def validate_subcommand(
 
 
 def main(
-    c: SCCSConstants, 
+    c: SCCSConstants,
     subcommand: str,
     branch_name: str | None,
     rd: RepositoryData,

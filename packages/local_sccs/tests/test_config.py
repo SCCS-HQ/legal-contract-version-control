@@ -1,17 +1,23 @@
-from local_sccs import config
-import pytest
-from local_sccs.constants_classes import SCCSConstants
-from local_sccs.exceptions import SCCSException
-from test_constants import SCCSTestConstants
-from local_sccs.repository_layout import (
-    RepositoryData, RepositoryPaths, RepositoryStatus, RepositoryWrite, TargetBranch
-)
-from pathlib import Path
+import json
+import os
 import shutil
 import tempfile
-import os
-import json
+from pathlib import Path
 from types import FunctionType
+
+import pytest
+from local_sccs import config
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
+from local_sccs.repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
+from test_constants import SCCSTestConstants
+
 
 @pytest.mark.parametrize(
     "key, value",
@@ -19,21 +25,20 @@ from types import FunctionType
         ("test", "test"),
         ("remote", "http://127.0.0.1"),
         ("name", "Jeff"),
-        ("email", "jeff123@foo.com")
-    ]
+        ("email", "jeff123@foo.com"),
+    ],
 )
 def test_print_config_success_message_prints_correct_message(
     c: SCCSConstants,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
     key: str,
-    value: str
+    value: str,
 ) -> None:
     config.print_config_success_message(c, key, value)
 
-    assert (
-        capsys.readouterr().out.strip()
-        == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value)
+    assert capsys.readouterr().out.strip() == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(
+        key=key, value=value
     )
 
 
@@ -62,8 +67,8 @@ def test_print_config_success_message_prints_correct_message(
         ("email", " ", True),
         ("email", "test", False),
         ("test", "", True),
-        ("test", "test", True)
-    ]
+        ("test", "test", True),
+    ],
 )
 def test_resolve_key_value_raises_correctly(
     c: SCCSConstants, tc: SCCSTestConstants, key: str, value: str, error_raised: bool
@@ -74,7 +79,9 @@ def test_resolve_key_value_raises_correctly(
         if key == "test":
             assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
         elif key in ("name", "email") or (key == "remote" and not value.strip()):
-            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=key
+            )
         elif key == "remote":
             assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
     else:
@@ -86,9 +93,8 @@ def test_resolve_key_value_raises_correctly(
     [
         ("remote", "http://127.0.0.1:8000/test", "http://127.0.0.1:8000/test/"),
         ("remote", "http://127.0.0.1:8000", "http://127.0.0.1:8000/repos/test/"),
-
         ("email", "test", "test"),
-    ]
+    ],
 )
 def test_resolve_key_value_returns_correct_string_if_error_is_not_raised(
     c: SCCSConstants, tc: SCCSTestConstants, key: str, value: str, expected_value: str
@@ -113,14 +119,12 @@ def test_config_main_raises_for_each_missing_resource(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    missing_resource_name: str
+    missing_resource_name: str,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -129,9 +133,7 @@ def test_config_main_raises_for_each_missing_resource(
     )
 
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -173,8 +175,8 @@ def test_config_main_raises_for_each_missing_resource(
         ("email", " ", True),
         ("email", "test", False),
         ("test", "", True),
-        ("test", "test", True)
-    ]
+        ("test", "test", True),
+    ],
 )
 def test_config_main_raises_correctly_given_key_value_provided(
     c: SCCSConstants,
@@ -188,9 +190,7 @@ def test_config_main_raises_correctly_given_key_value_provided(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -203,7 +203,9 @@ def test_config_main_raises_correctly_given_key_value_provided(
         if key == "test":
             assert str(e.value) == tc.INVALID_KEY_ERROR_MESSAGE
         elif key in ("name", "email") or (key == "remote" and not value.strip()):
-            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=key)
+            assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+                field=key
+            )
         elif key == "remote":
             assert str(e.value) == tc.INVALID_URL_ERROR_MESSAGE
     else:
@@ -211,8 +213,7 @@ def test_config_main_raises_correctly_given_key_value_provided(
 
 
 @pytest.mark.parametrize(
-    "module, function",
-    [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
+    "module, function", [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_config_main_staged_repository_creation_fails(
     repository_with_multiple_commits: Path,
@@ -222,7 +223,7 @@ def test_config_main_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -237,7 +238,6 @@ def test_config_main_staged_repository_creation_fails(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-
     monkeypatch.setattr(module, function, raise_exception)
 
     with pytest.raises(SCCSException) as e:
@@ -249,8 +249,7 @@ def test_config_main_staged_repository_creation_fails(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
-    
-    
+
     assert not staging_dirs
 
 
@@ -260,16 +259,12 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = (
-        initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
-    )
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -292,13 +287,11 @@ def test_config_main_prints_success_message(
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    
+
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -306,7 +299,7 @@ def test_config_main_prints_success_message(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
-    
+
     assert capsys.readouterr().out.strip() == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(
         key=tc.NAME_KEY, value=tc.TEST_STRING
     )
@@ -318,14 +311,12 @@ def test_config_main_resets_target_on_error(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )

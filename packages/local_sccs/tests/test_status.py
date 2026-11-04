@@ -1,21 +1,22 @@
-from typing import Any
+import shutil
+from pathlib import Path
 from types import FunctionType
+from typing import Any
 
+import pytest
+from local_sccs import status
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-import pytest
-from pathlib import Path
-from test_constants import SCCSTestConstants
 from local_sccs.repository_layout import (
-    TargetBranch,
     RepositoryData,
     RepositoryIO,
     RepositoryPaths,
     RepositoryStatus,
-    RepositoryWrite
+    RepositoryWrite,
+    TargetBranch,
 )
-from local_sccs import status
-import shutil
+from test_constants import SCCSTestConstants
+
 
 @pytest.mark.parametrize(
     "uncommitted_changes, expected_message",
@@ -28,7 +29,7 @@ def test_print_status_success_message_prints_success_message(
     capsys: pytest.CaptureFixture[str],
     uncommitted_changes: bool,
     expected_message: str,
-    c: SCCSConstants
+    c: SCCSConstants,
 ) -> None:
     """
     Test that the print_status_success_message function prints the correct success message
@@ -58,7 +59,7 @@ def test_status_main_raises_for_each_missing_resource(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    missing_resource_name: str
+    missing_resource_name: str,
 ) -> None:
 
     rd = RepositoryData(
@@ -69,9 +70,7 @@ def test_status_main_raises_for_each_missing_resource(
     )
 
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -87,12 +86,13 @@ def test_status_main_raises_for_each_missing_resource(
         resource_name=expected_reported_resource
     )
 
+
 def test_status_main_prints_success_message_for_no_uncommitted_changes(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -102,7 +102,7 @@ def test_status_main_prints_success_message_for_no_uncommitted_changes(
     )
 
     status.main(c, rd, rs)
-    
+
     assert capsys.readouterr().out.strip() == tc.NO_UNCOMMITTED_CHANGES
 
 
@@ -111,7 +111,7 @@ def test_status_main_prints_success_message_for_uncommitted_changes(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -121,7 +121,7 @@ def test_status_main_prints_success_message_for_uncommitted_changes(
     )
 
     status.main(c, rd, rs)
-    
+
     assert capsys.readouterr().out.strip() == tc.UNCOMMITTED_CHANGES_FOUND
 
 
@@ -131,7 +131,7 @@ def test_status_main_resets_target_on_error(
     target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target

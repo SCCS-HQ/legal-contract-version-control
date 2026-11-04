@@ -1,13 +1,15 @@
 import uuid
-
 from types import MappingProxyType
+
 
 class RemoteErrorWrappers:
     """
     A class to hold the templates used to wrap expected and unexpected errors
     raised while running a command.
     """
+
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
+
 
 class RemoteSCCSConstants:
     """
@@ -15,6 +17,7 @@ class RemoteSCCSConstants:
     messages, field names, directory names, and other static values that are referenced
     in multiple places in the codebase.
     """
+
     BRANCHES_DIRECTORY = "branches"
     BYTES_PER_MEGABYTE = 1024 * 1024
     CLONE_ENDPOINT_TEMPLATE = "/repos/{repository_name}/clone"
@@ -47,7 +50,7 @@ class RemoteSCCSConstants:
     FILE_START_POSITION = 0
     FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
     FIRST_ITEM_INDEX = 0
-    
+
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
         Return the help messages listing the available SCCS commands
@@ -64,6 +67,7 @@ class RemoteSCCSConstants:
                 self.SERVE_COMMAND_NAME,
             )
         )
+
     HTTP_BAD_REQUEST_STATUS_CODE = 400
     HTTP_NOT_FOUND_STATUS_CODE = 404
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"

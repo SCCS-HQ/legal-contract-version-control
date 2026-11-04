@@ -5,7 +5,6 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import requests
-
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException

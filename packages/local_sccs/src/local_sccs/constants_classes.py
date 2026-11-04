@@ -1,16 +1,17 @@
 import datetime
-
 import uuid
-
 from types import MappingProxyType
+
 
 class ErrorWrappers:
     """
     A class to hold the templates used to wrap expected and unexpected errors raised
     while running a command.
     """
+
     EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
+
 
 class SCCSConstants:
     """
@@ -18,6 +19,7 @@ class SCCSConstants:
     messages, field names, directory names, and other static values that are referenced
     in multiple places in the codebase.
     """
+
     ACCEPTED_CONFIG_KEYS = ("remote", "name", "email")
     ACCEPTED_SCHEMES = ("http", "https")
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
@@ -224,6 +226,7 @@ class SCCSConstants:
         {DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."}
     )
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
+
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
@@ -266,6 +269,7 @@ class SCCSConstants:
                 )
             )
         )
+
     HEX_DIGITS = "0123456789abcdef"
     HISTORY_DICT_KEY = "history"
     HTML_BOILERPLATE_TEMPLATE = (

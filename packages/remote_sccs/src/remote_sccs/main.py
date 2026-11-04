@@ -13,7 +13,6 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-
 from remote_sccs.constants_classes import RemoteSCCSConstants
 
 
