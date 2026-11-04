@@ -1452,13 +1452,13 @@ def test_repository_write_add_branch_metadata_correctly_updates_metadata(
     metadata_path = (
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
-
-    target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
+    
+    rw.target.set(tc.MAIN_BRANCH_NAME)
 
-    rw.add_branch_metadata(tc.TEST_STRING.upper(), tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING.upper())
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)
@@ -1795,14 +1795,13 @@ def test_repository_write_remove_branch_metadata_keeps_current_branch_when_remov
     metadata_path = (
         initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
     )
-
-    target.set(tc.MAIN_BRANCH_NAME)
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
+    target.set(tc.MAIN_BRANCH_NAME)
 
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.SECOND_TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
+    rw.add_branch_metadata(tc.SECOND_TEST_STRING)
 
     target.set(tc.SECOND_TEST_STRING)
 

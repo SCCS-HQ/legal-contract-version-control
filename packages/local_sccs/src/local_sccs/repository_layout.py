@@ -845,14 +845,15 @@ class RepositoryWrite:
         self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
+    def add_branch_metadata(self, branch_name: str) -> None:
         """
         Add the entered branch by copying the current branch metadata, adding the branch
         to the branches list and updated branches, and setting it as the current branch.
         """
 
+        current_branch_name = self.target.require()
+        self.target.require()
         branch_name = branch_name.lower()
-        current_branch_name = current_branch_name.lower()
 
         branches_metadata = self.io.read_branches_data()
         current_branch_metadata = branches_metadata[current_branch_name]

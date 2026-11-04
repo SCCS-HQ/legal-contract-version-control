@@ -126,7 +126,7 @@ def test_branch_delete_subcommand_deletes_branch(
     )
 
     target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     branch_to_remove = tc.TEST_STRING
     branch.branch_delete_subcommand(c, branch_to_remove, rd, rw)
@@ -188,7 +188,7 @@ def test_branch_list_subcommand_lists_all_branches(
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     branch.branch_list_subcommand(c, rd)
 
@@ -253,7 +253,7 @@ def test_run_specified_subcommand_runs_delete_subcommand(
     )
 
     target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     branch_to_remove = tc.TEST_STRING
     branch.run_specified_subcommand(
@@ -299,7 +299,7 @@ def test_run_specified_subcommand_runs_branch_list_subcommand(
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     branch.run_specified_subcommand(c, tc.BRANCH_LIST_SUBCOMMAND, None, rd, rw)
 
@@ -361,7 +361,7 @@ def test_validate_subcommand_raises_if_subcommand_is_invalid(
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
     if precreate_branch:
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     if error_raised:
@@ -403,7 +403,7 @@ def test_validate_subcommand_raises_if_subcommand_is_create_or_delete_and_branch
 
     if precreate_branch:
         
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     if error_raised:
@@ -452,7 +452,7 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
 
     if precreate_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
 
     if error_raised:
         with pytest.raises(SCCSException) as e:
@@ -503,7 +503,7 @@ def test_validate_subcommand_raises_for_delete_branch_cases(
 
     if setup_current_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
 
     if set_current_to_main:
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
@@ -556,7 +556,7 @@ def test_validate_subcommand_does_not_raise_for_delete_with_existing_non_current
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
     rw.set_current_branch(tc.MAIN_BRANCH_NAME)
     rs.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -617,28 +617,24 @@ def test_branch_main_raises_for_each_missing_resource(
 
 
 def test_branch_main_raises_if_uncommitted_changes_exist(
-    initialized_repository: Path,
+    repository_with_modified_document: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants
 ) -> None:
     rd = RepositoryData(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
     )
     rs = RepositoryStatus(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    shutil.copy(
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.SECOND_COMMIT_TEST_DOCUMENT_FILENAME,
-        initialized_repository / tc.TEST_DOCUMENT_FILENAME
-    )
     with pytest.raises(SCCSException) as e:
         branch.main(c, tc.BRANCH_CREATE_SUBCOMMAND, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
     assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
@@ -676,7 +672,7 @@ def test_branch_main_raises_if_subcommand_is_invalid(
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
     if precreate_branch:
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     if error_raised:
@@ -722,7 +718,7 @@ def test_branch_main_raises_if_subcommand_is_create_or_delete_and_branch_name_is
 
     if precreate_branch:
         
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     if error_raised:
@@ -776,7 +772,7 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
 
     if precreate_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
 
     if error_raised:
         with pytest.raises(SCCSException) as e:
@@ -830,7 +826,7 @@ def test_branch_main_raises_for_delete_branch_cases(
 
     if setup_current_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
 
     if set_current_to_main:
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
@@ -898,7 +894,7 @@ def test_branch_main_does_not_raise_for_delete_with_existing_non_current_branch(
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
     rw.set_current_branch(tc.MAIN_BRANCH_NAME)
     rs.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -984,7 +980,7 @@ def test_branch_main_handles_io_errors_on_metadata_write(
 
     if precreate_branch:
         rw.target.set(tc.MAIN_BRANCH_NAME)
-        rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+        rw.add_branch_metadata(tc.TEST_STRING)
         rw.set_current_branch(tc.MAIN_BRANCH_NAME)
     
     with pytest.raises(SCCSException) as e:
@@ -1074,7 +1070,7 @@ def test_branch_main_prints_delete_success_message(
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
 
-    rw.add_branch_metadata(branch_name, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(branch_name)
     rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     branch.main(c, tc.DELETE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
@@ -1100,7 +1096,7 @@ def test_branch_main_prints_list_success_message(
     )
 
     rw.target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
 
     branch.main(c, tc.LIST_SUBCOMMAND, None, rd, rp, rs, rw)
 
@@ -1167,7 +1163,7 @@ def test_branch_main_deletes_branch_side_effects(
     )
 
     target.set(tc.MAIN_BRANCH_NAME)
-    rw.add_branch_metadata(tc.TEST_STRING, tc.MAIN_BRANCH_NAME)
+    rw.add_branch_metadata(tc.TEST_STRING)
     rw.set_current_branch(tc.MAIN_BRANCH_NAME)
 
     branch.main(c, tc.DELETE_SUBCOMMAND, tc.TEST_STRING, rd, rp, rs, rw)

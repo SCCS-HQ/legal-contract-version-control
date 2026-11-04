@@ -421,19 +421,19 @@ def test_diff_main_raises_for_each_missing_resource(
 
 
 def test_diff_main_raises_if_uncommitted_changes_exist(    
-    repository_with_multiple_commits: Path,
+    repository_with_modified_document: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
     rd = RepositoryData(
-        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     ri = RepositoryIO(
-        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rs = RepositoryStatus(
-        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     with pytest.raises(SCCSException) as e:
