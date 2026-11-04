@@ -30,10 +30,11 @@ def test_print_reset_success_message_prints_success_message(
     [
         ("view_html_objects_path", "view_html_objects_path"),
         ("html_objects_path", "html_objects_path"),
-        ("sccs_path", "view_html_objects_path"),
+        ("sccs_path", "sccs_path"),
         ("document_objects_path", "document_objects_path"),
         ("document_path", "document_path"),
         ("metadata_path", "metadata_path"),
+        ("objects_path", "objects_path")
     ],
 )
 def test_reset_main_raises_for_each_missing_resource(    

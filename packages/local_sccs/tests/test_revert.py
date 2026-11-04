@@ -94,10 +94,11 @@ def test_revert_copies_commit_file_to_staging(tc: SCCSTestConstants, c: SCCSCons
     [
         ("view_html_objects_path", "view_html_objects_path"),
         ("html_objects_path", "html_objects_path"),
-        ("sccs_path", "view_html_objects_path"),
+        ("sccs_path", "sccs_path"),
         ("document_objects_path", "document_objects_path"),
         ("document_path", "document_path"),
         ("metadata_path", "metadata_path"),
+        ("objects_path", "objects_path")
     ],
 )
 def test_revert_main_raises_for_each_missing_resource(

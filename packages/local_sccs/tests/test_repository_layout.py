@@ -1376,10 +1376,11 @@ def test_repository_status_raise_for_uncommitted_changes_raises_for_modified_doc
     [
         ("view_html_objects_path", "view_html_objects_path"),
         ("html_objects_path", "html_objects_path"),
-        ("sccs_path", "view_html_objects_path"),
+        ("sccs_path", "sccs_path"),
         ("document_objects_path", "document_objects_path"),
         ("document_path", "document_path"),
         ("metadata_path", "metadata_path"),
+        ("objects_path", "objects_path")
     ],
 )
 def test_repository_status_validate_repository_layout_raises_for_each_missing_resource(

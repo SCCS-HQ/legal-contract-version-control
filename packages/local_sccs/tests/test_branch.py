@@ -568,10 +568,11 @@ def test_validate_subcommand_does_not_raise_for_delete_with_existing_non_current
     [
         ("view_html_objects_path", "view_html_objects_path"),
         ("html_objects_path", "html_objects_path"),
-        ("sccs_path", "view_html_objects_path"),
+        ("sccs_path", "sccs_path"),
         ("document_objects_path", "document_objects_path"),
         ("document_path", "document_path"),
         ("metadata_path", "metadata_path"),
+        ("objects_path", "objects_path")
     ],
 )
 def test_branch_main_raises_for_each_missing_resource(
