@@ -215,6 +215,70 @@ class SCCSTestConstants:
     MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
     MERGE_SUCCESS_MESSAGE_TEMPLATE = 'Successfully merged branch "{branch_name}" into branch "{current_branch}".'
     MESSAGE_DICT_KEY = "message"
+    METADATA_AFTER_BRANCH_SWITCH = MappingProxyType(
+        {
+            "branches": {
+                "main": {
+                    "history": {
+                        "initial_commit": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
+                        "latest_commit": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
+                        "latest_commit_number": 1,
+                        "commit_order": {
+                            "1": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
+                        }
+                    },
+                    "log": {
+                        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": {
+                            "timestamp": "1970-01-01T00:00:00",
+                            "author": "test <test>",
+                            "message": "Initial commit (This is a default commit message for the initial version)"
+                        }
+                    },
+                    "byte_hash": {
+                        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": "daf65bd44755eee379d835d36ce8eb15e6b8fecfdd7decc90822045c50c4164f"
+                    }
+                },
+                "test": {
+                    "history": {
+                        "initial_commit": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
+                        "latest_commit": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f",
+                        "latest_commit_number": 1,
+                        "commit_order": {
+                            "1": "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
+                        }
+                    },
+                    "log": {
+                        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": {
+                            "timestamp": "1970-01-01T00:00:00",
+                            "author": "test <test>",
+                            "message": "Initial commit (This is a default commit message for the initial version)"
+                        }
+                    },
+                    "byte_hash": {
+                        "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": "daf65bd44755eee379d835d36ce8eb15e6b8fecfdd7decc90822045c50c4164f"
+                    }
+                }
+            },
+            "commit_messages": {
+                "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": "Initial commit (This is a default commit message for the initial version)"
+            },
+            "current_branch": {
+                "current_branch": "main",
+                "branches": [
+                    "main",
+                    "test"
+                ],
+                "updated_branches": [
+                    "test",
+                    "main"
+                ]
+            },
+            "config": {
+                "name": "test",
+                "email": "test"
+            }
+        }
+    )
     METADATA_JSON = "metadata.json"
     MINIMUM_ARGUMENTS = 2
     MINIMUM_PATH_PARTS = 2
@@ -510,9 +574,9 @@ class SCCSTestConstants:
     STYLE_TAG_NAME = "style"
     SUBCOMMAND_FIELD_NAME = "subcommand"
     SWITCH_COMMAND_NAME = "switch"
-    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = 'Commit file missing for branch "{branch_name}".'
+    SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = "Commit file missing for branch '{branch_name}'."
     SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch. Please try again."
-    SWITCH_SUCCESS_MESSAGE_TEMPLATE = 'Successfully switched to branch "{branch_name}".'
+    SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'.\n"
     TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
     TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = "Target branch not set. Ensure the branch is set by using Repository*.target.set(foo)"
     TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = "Invalid file path: {target_path} in zip. Please ensure that {target_path} is inside {destination_resolved}."
