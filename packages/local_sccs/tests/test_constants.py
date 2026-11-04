@@ -191,7 +191,7 @@ class SCCSTestConstants:
     INVALID_ENDING_ERROR_MESSAGE = "Invalid remote URL provided. Please provide a valid URL ending with '/clone'."
     INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
     INVALID_KEY_ERROR_MESSAGE = "Invalid configuration key provided. Please provide one of the valid keys: remote, name, email."
-    INVALID_PATH_ENDING_ERROR_MESSAGE = 'API URL must end with "/repos/your-repo-name".'
+    INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/your-repo-name'."
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name. Please ensure the repository is properly initialized with a valid name."
     INVALID_SUBCOMMAND_ERROR_MESSAGE = "Invalid subcommand provided. Please provide one of the valid subcommands: create, delete, list."
     INVALID_URL_ERROR_MESSAGE = "Invalid remote URL provided. The URL must start with one of the following schemes: http, https, and use the format 'http(s)://<host>/<base-path>'. Base path is optional."
@@ -917,6 +917,7 @@ class SCCSTestConstants:
         "Message: Initial commit (This is a default commit message for the initial version)\n"
         "------------------------------"
     )
+    TEST_REPOSITORY_URL_ENDING = "test/repos/test_document"
     TEST_STAGING_ROOT = "test_staging_root"
     TEST_SYMLINK_DIRECTORY = "link"
     TEST_TEXT_FILENAME = "test.txt"

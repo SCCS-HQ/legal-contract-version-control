@@ -18,7 +18,7 @@ from local_sccs.repository_layout import (
 )
 
 
-def _snapshot_file(src: Path, dst: Path) -> None:
+def snapshot_file(src: Path, dst: Path) -> None:
     """Mirror `src` to `dst` cheaply.
 
     Tries a hardlink first (O(1), same filesystem, no extra disk usage);
@@ -145,7 +145,7 @@ def zip_files_to_upload(
         for i in files_to_upload:
             dst = staging_root / i.relative_to(rp.root)
             dst.parent.mkdir(parents=True, exist_ok=True)
-            _snapshot_file(i, dst)
+            snapshot_file(i, dst)
 
         with utils.zip_buffer(c, zipfile.ZIP_DEFLATED) as (buffer, zf):
             for i in files_to_upload:
@@ -190,18 +190,22 @@ def main(
 
         buffer = zip_files_to_upload(c, remote_objects, rd, rp)
 
-        upload_response = upload_objects(c, buffer, rd, rp)
-
-        upload_response.raise_for_status()
-
         with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
             staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
             clear_updated_branches(staging_ri)
 
+            upload_response = upload_objects(c, buffer, rd, rp)
+
+            upload_response.raise_for_status()
+
         utils.print_remote_success_message(
             c, upload_response.status_code, remote, c.PUSH_SUCCESS_MESSAGE_TEMPLATE
         )
+    except requests.exceptions.RequestException as e:
+        raise SCCSException(
+            c.PUSH_HTTP_REQUEST_ERROR_MESSAGE
+        ) from e
     except SCCSException:
         raise
     except Exception as e:
