@@ -23,7 +23,8 @@ from test_constants import SCCSTestConstants
                 "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": {
                     "timestamp": "1970-01-01T00:00:00",
                     "author": "test <test@example.com>",
-                    "message": "Initial commit (This is a default commit message for the initial version)",
+                    "message": "Initial commit (This is a default commit message "
+                    "for the initial version)",
                 },
                 "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45": {
                     "timestamp": "1971-01-01T00:00:00",
@@ -35,7 +36,8 @@ from test_constants import SCCSTestConstants
             "Commit File: ef4a6cd9a3\n"
             "Author: test <test@example.com>\n"
             "Date: 1970-01-01T00:00:00\n"
-            "Message: Initial commit (This is a default commit message for the initial version)\n"
+            "Message: Initial commit (This is a default commit message "
+            "for the initial version)\n"
             "------------------------------\n"
             "------------------------------\n"
             "Commit File: f797d149c9\n"
@@ -90,7 +92,8 @@ def test_print_log_prints_log_entries(
                 "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f": {
                     "timestamp": "1970-01-01T00:00:00",
                     "author": "test <test@example.com>",
-                    "message": "Initial commit (This is a default commit message for the initial version)",
+                    "message": "Initial commit (This is a default commit message "
+                    "for the initial version)",
                 },
                 "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45": {
                     "timestamp": "1971-01-01T00:00:00",
@@ -102,7 +105,8 @@ def test_print_log_prints_log_entries(
             "Commit File: ef4a6cd9a3\n"
             "Author: test <test@example.com>\n"
             "Date: 1970-01-01T00:00:00\n"
-            "Message: Initial commit (This is a default commit message for the initial version)\n"
+            "Message: Initial commit (This is a default commit message "
+            "for the initial version)\n"
             "------------------------------\n"
             "------------------------------\n"
             "Commit File: f797d149c9\n"

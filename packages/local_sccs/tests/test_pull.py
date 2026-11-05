@@ -1,6 +1,5 @@
-from ast import FunctionType
+from types import FunctionType
 import io
-from token import NEWLINE
 import zipfile
 
 import pytest
@@ -8,7 +7,12 @@ import requests
 from local_sccs import pull
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-from local_sccs.repository_layout import RepositoryData, RepositoryPaths, RepositoryStatus, TargetBranch, RepositoryWrite
+from local_sccs.repository_layout import (
+    RepositoryData,
+    RepositoryPaths,
+    RepositoryStatus,
+    TargetBranch,
+)
 from pathlib import Path
 from test_constants import SCCSTestConstants
 import shutil
@@ -17,9 +21,15 @@ import os
 
 
 def test_pull_returns_response(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     response = requests.Response()
     response.status_code = 200
@@ -33,9 +43,16 @@ def test_pull_returns_response(
 
 
 def test_pull_raises_exception_if_request_fails(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch, raise_exception: FunctionType
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
+    raise_exception: FunctionType
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     monkeypatch.setattr(requests, "post", raise_exception)
 
@@ -45,10 +62,18 @@ def test_pull_raises_exception_if_request_fails(
 
 
 def test_update_repository_files_extracts_files_and_copies_commit_document(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
 
     rd.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -98,7 +123,9 @@ def test_pull_main_raises_for_each_missing_resource(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -132,7 +159,9 @@ def test_pull_main_raises_is_uncommitted_changes_exist(
     rd = RepositoryData(
         repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(
+        repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
     rs = RepositoryStatus(
         repository_with_modified_document, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -166,7 +195,9 @@ def test_pull_main_raises_if_status_code_is_4xx_or_5xx(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -199,7 +230,9 @@ def test_pull_main_raises_if_staged_repository_creation_fails(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -221,11 +254,21 @@ def test_pull_main_raises_if_staged_repository_creation_fails(
 
 
 def test_pull_main_updates_repository_files(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rd.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -256,11 +299,22 @@ def test_pull_main_updates_repository_files(
 
 
 def test_pull_main_prints_success_message(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch, capsys: pytest.CaptureFixture[str]
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
+    capsys: pytest.CaptureFixture[str]
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rd.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -284,15 +338,29 @@ def test_pull_main_prints_success_message(
     pull.main(c, rd, rp, rs)
 
     assert capsys.readouterr().out.strip() == (
-        tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_TWO_HUNDRED) + tc.NEWLINE + tc.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=tc.TEST_REPOSITORY_CLONE_URL)
+        tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_TWO_HUNDRED)
+        + tc.NEWLINE
+        + tc.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=tc.TEST_REPOSITORY_CLONE_URL)
     )
 
 def test_pull_main_resets_target_branch_if_failure_occurs(
-    initialized_repository: Path, c: SCCSConstants, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants, target: TargetBranch, capsys: pytest.CaptureFixture[str], raise_exception: FunctionType
+    initialized_repository: Path,
+    c: SCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tc: SCCSTestConstants,
+    target: TargetBranch,
+    capsys: pytest.CaptureFixture[str],
+    raise_exception: FunctionType
 ) -> None:
-    rd = RepositoryData(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rp = RepositoryPaths(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
 
     rd.target.set(tc.MAIN_BRANCH_NAME)
 

@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable
 from pathlib import Path
 from types import FunctionType
-from typing import Any, NoReturn
+from typing import Any
 
 import pytest
 from local_sccs.constants_classes import SCCSConstants

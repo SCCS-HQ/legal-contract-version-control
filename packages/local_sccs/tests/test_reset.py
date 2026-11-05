@@ -3,7 +3,6 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from posixpath import exists
 from types import FunctionType
 
 import pytest
@@ -23,7 +22,8 @@ def test_print_reset_success_message_prints_success_message(
     capsys: pytest.CaptureFixture[str], c: SCCSConstants, tc: SCCSTestConstants
 ) -> None:
     """
-    Test that the print_reset_success_message function prints the correct success message.
+    Test that the print_reset_success_message function prints the correct
+    success message.
     """
 
     reset.print_reset_success_message(c)

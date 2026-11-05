@@ -25,12 +25,14 @@ from test_constants import SCCSTestConstants
         (
             "test",
             "main",
-            "Branch 'test' created from 'main' successfully and is set to the current branch.",
+            "Branch 'test' created from 'main' successfully and "
+            "is set to the current branch.",
         ),
         (
             "feature",
             "develop",
-            "Branch 'feature' created from 'develop' successfully and is set to the current branch.",
+            "Branch 'feature' created from 'develop' successfully and "
+            "is set to the current branch.",
         ),
     ],
 )
@@ -458,18 +460,21 @@ def test_validate_subcommand_raises_if_subcommand_is_create_and_branch_already_e
 
 
 @pytest.mark.parametrize(
-    "branch_name, expected_message, setup_current_branch, set_current_to_main, error_raised",
+    "branch_name, expected_message, setup_current_branch, set_current_to_main, "
+    "error_raised",
     [
         (
             "test",
-            "Cannot delete the current branch. Please switch to another branch first.",
+            "Cannot delete the current branch. Please switch to "
+            "another branch first.",
             True,
             False,
             True,
         ),
         (
             "test",
-            "Branch 'test' is missing from repository metadata. If the branch does not exist, please create it.",
+            "Branch 'test' is missing from repository metadata. If the branch "
+            "does not exist, please create it.",
             False,
             False,
             True,
@@ -775,18 +780,21 @@ def test_branch_main_raises_if_subcommand_is_create_and_branch_already_exists(
 
 
 @pytest.mark.parametrize(
-    "branch_name, expected_message, setup_current_branch, set_current_to_main, error_raised",
+    "branch_name, expected_message, setup_current_branch, set_current_to_main, "
+    "error_raised",
     [
         (
             "test",
-            "Cannot delete the current branch. Please switch to another branch first.",
+            "Cannot delete the current branch. Please switch to "
+            "another branch first.",
             True,
             False,
             True,
         ),
         (
             "test",
-            "Branch 'test' is missing from repository metadata. If the branch does not exist, please create it.",
+            "Branch 'test' is missing from repository metadata. If the branch "
+            "does not exist, please create it.",
             False,
             False,
             True,
@@ -1019,11 +1027,13 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     [
         (
             "test",
-            "Branch 'test' created from 'main' successfully and is set to the current branch.",
+            "Branch 'test' created from 'main' successfully and "
+            "is set to the current branch.",
         ),
         (
             "feature",
-            "Branch 'feature' created from 'main' successfully and is set to the current branch.",
+            "Branch 'feature' created from 'main' successfully and "
+            "is set to the current branch.",
         ),
     ],
 )

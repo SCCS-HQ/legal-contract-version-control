@@ -1,7 +1,6 @@
 import shutil
 from pathlib import Path
 from types import FunctionType
-from typing import Any
 
 import pytest
 from local_sccs import status
@@ -9,10 +8,7 @@ from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
-    RepositoryIO,
-    RepositoryPaths,
     RepositoryStatus,
-    RepositoryWrite,
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
@@ -32,8 +28,8 @@ def test_print_status_success_message_prints_success_message(
     c: SCCSConstants,
 ) -> None:
     """
-    Test that the print_status_success_message function prints the correct success message
-    based on whether uncommitted changes were detected.
+    Test that the print_status_success_message function prints the correct
+    success message based on whether uncommitted changes were detected.
     """
 
     status.print_status_success_message(c, uncommitted_changes)

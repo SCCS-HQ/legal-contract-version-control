@@ -20,7 +20,8 @@ def test_help_main_prints_help_message(
     c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """
-    Test the main function to ensure it calls print_help and prints the correct help messages.
+    Test the main function to ensure it calls print_help and prints the
+    correct help messages.
     """
 
     help.main(c)

@@ -25,9 +25,12 @@ from test_constants import SCCSTestConstants
         (
             SCCSTestConstants.TEST_DIFF_HTML_1,
             [
-                "<html><body><p>Hello <strong>bold</strong>, <em>italic</em>, and <u>underlined</u> text.</p></body></html>",
-                "<body><p>Hello <strong>bold</strong>, <em>italic</em>, and <u>underlined</u> text.</p></body>",
-                "<p>Hello <strong>bold</strong>, <em>italic</em>, and <u>underlined</u> text.</p>",
+                "<html><body><p>Hello <strong>bold</strong>, <em>italic</em>, "
+                "and <u>underlined</u> text.</p></body></html>",
+                "<body><p>Hello <strong>bold</strong>, <em>italic</em>, "
+                "and <u>underlined</u> text.</p></body>",
+                "<p>Hello <strong>bold</strong>, <em>italic</em>, "
+                "and <u>underlined</u> text.</p>",
                 "<strong>bold</strong>",
                 "<em>italic</em>",
                 "<u>underlined</u>",
@@ -36,8 +39,10 @@ from test_constants import SCCSTestConstants
         (
             SCCSTestConstants.TEST_DIFF_HTML_2,
             [
-                "<html><body><h2>Testing <b>bold</b> and <i>italic</i> with <u>underline</u>.</h2></body></html>",
-                "<body><h2>Testing <b>bold</b> and <i>italic</i> with <u>underline</u>.</h2></body>",
+                "<html><body><h2>Testing <b>bold</b> and <i>italic</i> "
+                "with <u>underline</u>.</h2></body></html>",
+                "<body><h2>Testing <b>bold</b> and <i>italic</i> "
+                "with <u>underline</u>.</h2></body>",
                 "<h2>Testing <b>bold</b> and <i>italic</i> with <u>underline</u>.</h2>",
                 "<b>bold</b>",
                 "<i>italic</i>",
@@ -61,7 +66,8 @@ def test_tags_to_list_converts_bs4_object_to_list_of_tags(
         ),
         (
             SCCSTestConstants.TEST_DIFF_HTML_2,
-            "<html><body><h2>Testing bold and italic with underline.</h2></body></html>",
+            "<html><body><h2>Testing bold and italic with "
+            "underline.</h2></body></html>",
         ),
     ],
 )
@@ -144,17 +150,26 @@ def test_validate_diff_raises_if_commit_is_latest(
         (
             SCCSTestConstants.TEST_DIFF_HTML_1_WITH_DATA_NUMBER,
             ['<strong data-number="3">bold</strong>', '<em data-number="4">'],
-            '<html data-number="0"><body data-number="1"><p data-number="2">Hello <strong class="deleted" data-number="3">bold</strong>, <em class="deleted" data-number="4">italic</em>, and <u data-number="5">underlined</u> text.</p></body></html>',
+            '<html data-number="0"><body data-number="1"><p data-number="2">Hello '
+            '<strong class="deleted" data-number="3">bold</strong>, <em '
+            'class="deleted" data-number="4">italic</em>, and <u data-number="5">'
+            'underlined</u> text.</p></body></html>',
         ),
         (
             SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
             ['<b data-number="3">bold</b>', '<i data-number="4">'],
-            '<html data-number="0"><body data-number="1"><h2 data-number="2">Testing <b class="deleted" data-number="3">bold</b> and <i class="deleted" data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>',
+            '<html data-number="0"><body data-number="1"><h2 data-number="2">'
+            'Testing <b class="deleted" data-number="3">bold</b> and <i '
+            'class="deleted" data-number="4">italic</i> with <u data-number="5">'
+            'underline</u>.</h2></body></html>',
         ),
         (
-            "<html data-number='0'><body data-number='1'><style data-number='2'>x</style><p class='foo' data-number='3'>Hello</p></body></html>",
+            "<html data-number='0'><body data-number='1'><style "
+            "data-number='2'>x</style><p class='foo' data-number='3'>Hello"
+            "</p></body></html>",
             ["<p data-number='3'>Hello</p>"],
-            "<html data-number='0'><body data-number='1'><p class='foo deleted' data-number='3'>Hello</p></body></html>",
+            "<html data-number='0'><body data-number='1'><p "
+            "class='foo deleted' data-number='3'>Hello</p></body></html>",
         ),
     ],
 )
@@ -178,19 +193,30 @@ def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
             SCCSTestConstants.TEST_DIFF_HTML_1_WITH_DATA_NUMBER,
             ["<div>this is a div</div>", "<p>this is a p</p>"],
             2,
-            '<html data-number="0"><body data-number="1"><div class="inserted">this is a div</div><p class="inserted">this is a p</p><p data-number="2">Hello <strong data-number="3">bold</strong>, <em data-number="4">italic</em>, and <u data-number="5">underlined</u> text.</p></body></html>',
+            '<html data-number="0"><body data-number="1"><div class="inserted">'
+            'this is a div</div><p class="inserted">this is a p</p><p '
+            'data-number="2">Hello <strong data-number="3">bold</strong>, <em '
+            'data-number="4">italic</em>, and <u data-number="5">underlined</u> '
+            'text.</p></body></html>',
         ),
         (
             SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
             ["<div>this is a div</div>", "<p>this is a p</p>"],
             2,
-            '<html data-number="0"><body data-number="1"><div class="inserted">this is a div</div><p class="inserted">this is a p</p><h2 data-number="2">Testing <b data-number="3">bold</b> and <i data-number="4">italic</i> with <u data-number="5">underline</u>.</h2></body></html>',
+            '<html data-number="0"><body data-number="1"><div class="inserted">'
+            'this is a div</div><p class="inserted">this is a p</p><h2 '
+            'data-number="2">Testing <b data-number="3">bold</b> and <i '
+            'data-number="4">italic</i> with <u data-number="5">underline</u>.</h2>'
+            '</body></html>',
         ),
         (
-            "<html data-number='0'><body data-number='1'><style data-number='2'>x</style><p data-number='3'>Hello</p></body></html>",
+            "<html data-number='0'><body data-number='1'><style "
+            "data-number='2'>x</style><p data-number='3'>Hello</p>"
+            "</body></html>",
             ["<p class='bar'>new</p>"],
             2,
-            "<html data-number='0'><body data-number='1'><p class='bar inserted'>new</p><p data-number='3'>Hello</p></body></html>",
+            "<html data-number='0'><body data-number='1'><p class='bar "
+            "inserted'>new</p><p data-number='3'>Hello</p></body></html>",
         ),
     ],
 )

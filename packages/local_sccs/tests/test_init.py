@@ -999,20 +999,20 @@ def test_init_main_properly_initializes_repository_with_expected_files_and_direc
         json.dump(metadata, f, indent=tc.JSON_INDENT)
 
     files_a = {
-        path.relative_to(initialized_repository)
-        for path in initialized_repository.rglob("*")
-        if path.is_file()
+        i.relative_to(initialized_repository)
+        for i in initialized_repository.rglob("*")
+        if i.is_file()
     }
 
     files_b = {
-        path.relative_to(tmp_path / tc.TEST_STRING)
-        for path in (tmp_path / tc.TEST_STRING).rglob("*")
-        if path.is_file()
+        i.relative_to(tmp_path / tc.TEST_STRING)
+        for i in (tmp_path / tc.TEST_STRING).rglob("*")
+        if i.is_file()
     }
 
     assert files_a == files_b
 
-    for relative_path in files_a:
-        assert (initialized_repository / relative_path).read_bytes() == (
-            tmp_path / tc.TEST_STRING / relative_path
+    for i in files_a:
+        assert (initialized_repository / i).read_bytes() == (
+            tmp_path / tc.TEST_STRING / i
         ).read_bytes()

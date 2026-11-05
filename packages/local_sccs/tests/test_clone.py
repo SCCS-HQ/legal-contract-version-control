@@ -1,9 +1,7 @@
 import io
-import os
 import zipfile
 from pathlib import Path
 from types import FunctionType
-from typing import Any, NoReturn
 
 import pytest
 import requests

@@ -8,7 +8,7 @@ import unittest.mock
 import zipfile
 from pathlib import Path
 from types import FunctionType
-from typing import Any, NoReturn
+from typing import Any
 
 import pytest
 from local_sccs import utils
@@ -270,7 +270,7 @@ def test_promote_staging_restores_final_root_if_promotion_raises(
     with pytest.raises(OSError):
         utils.promote_staging(c, staging_root, final_root)
 
-    assert {path.name for path in tmp_path.iterdir()} == {
+    assert {i.name for i in tmp_path.iterdir()} == {
         final_root.name,
         staging_root.name,
     }
