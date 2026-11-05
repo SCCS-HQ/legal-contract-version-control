@@ -328,8 +328,8 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "OPEN_COPY_ERROR_MESSAGE": "Failed to copy commit file for open operation.",
     "OPEN_OUTPUT_FILE_NAME_TEMPLATE": "Opened_DOCX_Commit_{commit_identifier}",
     "OPEN_SUCCESS_MESSAGE_TEMPLATE": (
-        "Commit '{commit_identifier}' has been successfully opened in {output_file}. "
-        "It is safe to delete this file. No changes will be lost unless {output_file} "
+        "Commit '{commit_identifier}' has been successfully opened in '{output_file}'. "
+        "It is safe to delete this file. No changes will be lost unless '{output_file}' "
         "is modified after this point."
     ),
     "OTHER_BRANCH_LIST_TEMPLATE": "  {branch_name}",

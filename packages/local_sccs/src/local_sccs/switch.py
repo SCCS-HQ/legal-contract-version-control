@@ -89,7 +89,7 @@ def main(
 
         validate_commit_identifier(c, branch_to_switch, rd, rs)
 
-        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        with utils.staged_repository(c, rp.root, rp.root, rp.root) as staging_root:
 
             rd.copy_latest_commit_document(
                 branch_to_switch,

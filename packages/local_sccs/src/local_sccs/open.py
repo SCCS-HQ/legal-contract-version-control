@@ -11,7 +11,7 @@ from local_sccs.repository_layout import (
 
 
 def copy_commit_file(
-    c: SCCSConstants, commit_path: Path, output_file_name: Path
+    c: SCCSConstants, commit_path: Path, output_file_path: Path
 ) -> None:
     """
     Copy the commit file to the output file name. Raise an SCCSException if the commit
@@ -19,13 +19,13 @@ def copy_commit_file(
     """
 
     try:
-        shutil.copy2(commit_path, output_file_name)
+        shutil.copy2(commit_path, output_file_path)
     except Exception as e:
         raise SCCSException(c.OPEN_COPY_ERROR_MESSAGE) from e
 
 
 def print_open_success_message(
-    c: SCCSConstants, commit_identifier: str, output_file_name: Path
+    c: SCCSConstants, commit_identifier: str, output_file_path: Path
 ) -> None:
     """
     Print a success message indicating that the entered commit has been opened as the
@@ -34,8 +34,8 @@ def print_open_success_message(
 
     print(
         c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            output_file=output_file_name,
+            commit_identifier=commit_identifier[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            output_file=output_file_path,
         )
     )
 
@@ -80,18 +80,18 @@ def main(
 
         full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
 
-        output_file_name = Path(
+        output_file_path = Path(
             c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
                 commit_identifier=full_commit_identifier[
-                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                    :c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
                 ]
             )
         ).with_suffix(c.DOCUMENT_EXTENSION)
 
-        with utils.staged_repository(c, Path.cwd(), Path.cwd()) as staging_root:
-            copy_commit_file(c, commit_path, staging_root / output_file_name.name)
+        with utils.staged_repository(c, rd.root, rd.root, rd.root) as staging_root:
+            copy_commit_file(c, commit_path, staging_root / output_file_path.name)
 
-        print_open_success_message(c, full_commit_identifier, output_file_name)
+        print_open_success_message(c, full_commit_identifier, output_file_path)
     except SCCSException:
         raise
     except Exception as e:
