@@ -9,3 +9,12 @@ class SCCSTestConstants:
     DELETED_CONSTANT_ERROR_MESSAGE = (
         "{module_name} is missing constant: {constant_name}"
     )
+    HELP_MESSAGES = (
+        "Remote SCCS Help",
+        "Available commands:",
+        "  sccs help - Prints a help message listing the available commands and "
+        "their descriptions.",
+        "  sccs serve - Hosts a Remote-SCCS server on your computer anyone "
+        "on your internet network can access.",
+    )
+    NEWLINE = "\n"
