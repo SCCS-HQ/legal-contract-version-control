@@ -536,7 +536,7 @@ def test_diff_main_generic_exception_resets_target(
         diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
-    assert target.get() == tc.MAIN_BRANCH_NAME or True
+    assert target.get() is None
 
 
 def test_diff_main_create_proper_diff_output(

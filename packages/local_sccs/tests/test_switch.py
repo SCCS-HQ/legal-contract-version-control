@@ -282,7 +282,7 @@ def test_switch_main_raises_for_missing_commit_file(
     "module, function",
     [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
-def test_commit_main_staged_repository_creation_fails(
+def test_switch_main_staged_repository_creation_fails(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
@@ -312,7 +312,7 @@ def test_commit_main_staged_repository_creation_fails(
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
-        initialized_repository.glob(
+        initialized_repository.parent.glob(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )

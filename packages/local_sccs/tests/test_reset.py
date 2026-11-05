@@ -223,9 +223,6 @@ def test_reset_main_resets_target_branch(
         / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
     )
 
-    for i in repository_with_modified_document.rglob(tc.RGLOB_ALL_FILES_PATTERN):
-        print(i)
-
     print((repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME).exists())
     
     assert not filecmp.cmp(
