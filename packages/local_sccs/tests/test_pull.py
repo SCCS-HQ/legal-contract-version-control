@@ -1,6 +1,10 @@
-from types import FunctionType
 import io
+import os
+import shutil
+import tempfile
 import zipfile
+from pathlib import Path
+from types import FunctionType
 
 import pytest
 import requests
@@ -13,11 +17,7 @@ from local_sccs.repository_layout import (
     RepositoryStatus,
     TargetBranch,
 )
-from pathlib import Path
 from test_constants import SCCSTestConstants
-import shutil
-import tempfile
-import os
 
 
 def test_pull_returns_response(
@@ -48,7 +48,7 @@ def test_pull_raises_exception_if_request_fails(
     monkeypatch: pytest.MonkeyPatch,
     tc: SCCSTestConstants,
     target: TargetBranch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -71,9 +71,7 @@ def test_update_repository_files_extracts_files_and_copies_commit_document(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     rd.target.set(tc.MAIN_BRANCH_NAME)
 
@@ -123,17 +121,13 @@ def test_pull_main_raises_for_each_missing_resource(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     missing_resource = getattr(rs.paths, missing_resource_name)()
-    expected_reported_resource = getattr(
-        rs.paths, missing_resource_name
-    )()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
 
     assert missing_resource.exists()
 
@@ -195,9 +189,7 @@ def test_pull_main_raises_if_status_code_is_4xx_or_5xx(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -214,8 +206,7 @@ def test_pull_main_raises_if_status_code_is_4xx_or_5xx(
 
 
 @pytest.mark.parametrize(
-    "module, function",
-    [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
+    "module, function", [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
 )
 def test_pull_main_raises_if_staged_repository_creation_fails(
     initialized_repository: Path,
@@ -225,14 +216,12 @@ def test_pull_main_raises_if_staged_repository_creation_fails(
     monkeypatch: pytest.MonkeyPatch,
     module: object,
     function: str,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -249,7 +238,7 @@ def test_pull_main_raises_if_staged_repository_creation_fails(
             tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
         )
     )
-    
+
     assert not staging_dirs
 
 
@@ -263,9 +252,7 @@ def test_pull_main_updates_repository_files(
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -304,14 +291,12 @@ def test_pull_main_prints_success_message(
     monkeypatch: pytest.MonkeyPatch,
     tc: SCCSTestConstants,
     target: TargetBranch,
-    capsys: pytest.CaptureFixture[str]
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -323,7 +308,6 @@ def test_pull_main_prints_success_message(
         "commit_identifier_to_full_path",
         lambda self, *args, **kwargs: self.root / tc.TEST_TEXT_FILENAME,
     )
-
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as zf:
@@ -343,6 +327,7 @@ def test_pull_main_prints_success_message(
         + tc.PULL_SUCCESS_MESSAGE_TEMPLATE.format(url=tc.TEST_REPOSITORY_CLONE_URL)
     )
 
+
 def test_pull_main_resets_target_branch_if_failure_occurs(
     initialized_repository: Path,
     c: SCCSConstants,
@@ -350,14 +335,12 @@ def test_pull_main_resets_target_branch_if_failure_occurs(
     tc: SCCSTestConstants,
     target: TargetBranch,
     capsys: pytest.CaptureFixture[str],
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c
-    )
+    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )

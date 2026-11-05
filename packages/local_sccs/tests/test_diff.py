@@ -153,7 +153,7 @@ def test_validate_diff_raises_if_commit_is_latest(
             '<html data-number="0"><body data-number="1"><p data-number="2">Hello '
             '<strong class="deleted" data-number="3">bold</strong>, <em '
             'class="deleted" data-number="4">italic</em>, and <u data-number="5">'
-            'underlined</u> text.</p></body></html>',
+            "underlined</u> text.</p></body></html>",
         ),
         (
             SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
@@ -161,7 +161,7 @@ def test_validate_diff_raises_if_commit_is_latest(
             '<html data-number="0"><body data-number="1"><h2 data-number="2">'
             'Testing <b class="deleted" data-number="3">bold</b> and <i '
             'class="deleted" data-number="4">italic</i> with <u data-number="5">'
-            'underline</u>.</h2></body></html>',
+            "underline</u>.</h2></body></html>",
         ),
         (
             "<html data-number='0'><body data-number='1'><style "
@@ -197,7 +197,7 @@ def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
             'this is a div</div><p class="inserted">this is a p</p><p '
             'data-number="2">Hello <strong data-number="3">bold</strong>, <em '
             'data-number="4">italic</em>, and <u data-number="5">underlined</u> '
-            'text.</p></body></html>',
+            "text.</p></body></html>",
         ),
         (
             SCCSTestConstants.TEST_DIFF_HTML_2_WITH_DATA_NUMBER,
@@ -207,7 +207,7 @@ def test_delete_tag_adds_deleted_class_and_deletes_style_tags(
             'this is a div</div><p class="inserted">this is a p</p><h2 '
             'data-number="2">Testing <b data-number="3">bold</b> and <i '
             'data-number="4">italic</i> with <u data-number="5">underline</u>.</h2>'
-            '</body></html>',
+            "</body></html>",
         ),
         (
             "<html data-number='0'><body data-number='1'><style "
