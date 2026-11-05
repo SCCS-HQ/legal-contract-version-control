@@ -74,6 +74,7 @@ def main(
         rs.raise_for_uncommitted_changes()
 
         response = pull(c, rd)
+
         response.raise_for_status()
 
         with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
@@ -91,6 +92,8 @@ def main(
         )
     except SCCSException:
         raise
+    except requests.exceptions.RequestException as e:
+        raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
     except Exception as e:
         raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
     finally:
