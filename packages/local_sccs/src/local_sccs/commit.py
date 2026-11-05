@@ -21,21 +21,6 @@ def print_commit_success_message(c: SCCSConstants, commit_identifier: str) -> No
     )
 
 
-def validate_commit_message(c: SCCSConstants, commit_message: str) -> None:
-    """
-    Validates the entered commit message by checking if it is not empty.
-
-    Raises an SCCSException if the commit message is invalid.
-    """
-
-    if not commit_message:
-        raise SCCSException(
-            c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                field=c.COMMIT_MESSAGE_FIELD_NAME
-            )
-        )
-
-
 def main(
     c: SCCSConstants,
     commit_message: str,
@@ -44,24 +29,31 @@ def main(
     rw: RepositoryWrite,
 ) -> None:
     """
-    Run the commit command by setting the current branch as the target, validating the
-    repository layout and commit message, and committing the changes to a copy of the
+    Run the commit command by validating the repository layout and commit message,
+    setting the current branch as the target, and committing the changes to a copy of the
     repository in a staging directory.
 
     Promote the staging directory to the repository root, print a success message, and
     reset the target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        utils.raise_if_empty(
+            c, commit_message, c.COMMIT_MESSAGE_FIELD_NAME, capitalize=True
+        )
 
-    rs.validate_repository_layout()
+        rs.validate_repository_layout()
 
-    validate_commit_message(c, commit_message)
+        rs.target.set(rd.current_branch())
 
-    with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
-        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
-        commit_identifier = staging_rw.commit_changes(commit_message)
+        with utils.staged_repository(c, rd.root, rw.root, rd.root) as staging_root:
+            staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+            commit_identifier = staging_rw.commit_changes(commit_message)
 
-    print_commit_success_message(c, commit_identifier)
-
-    rs.target.reset()
+        print_commit_success_message(c, commit_identifier)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

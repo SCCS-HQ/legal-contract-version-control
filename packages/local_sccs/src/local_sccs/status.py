@@ -1,4 +1,5 @@
 from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryStatus,
@@ -23,10 +24,12 @@ def main(c: SCCSConstants, rd: RepositoryData, rs: RepositoryStatus) -> None:
     repository layout, and printing the status of the current document.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.validate_repository_layout()
-
-    print_status_success_message(c, rs.validate_uncommitted_changes())
-
-    rs.target.reset()
+        print_status_success_message(c, rs.validate_uncommitted_changes())
+    except SCCSException:
+        raise
+    finally:
+        rs.target.reset()

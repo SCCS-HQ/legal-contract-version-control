@@ -1,3 +1,4 @@
+import copy
 import hashlib
 import json
 import shutil
@@ -5,8 +6,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import local_sccs.utils as utils
 import mammoth
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 
@@ -74,7 +75,7 @@ class RepositoryData:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
     def _matching_commit_files(self, commit_identifier: str, folder: str) -> list[Path]:
@@ -162,13 +163,32 @@ class RepositoryData:
             raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
         return self.io.read_config()[key]
 
-    def create_commit_identifier(self, commit_identifier_parts: list[str]) -> str:
+    def copy_latest_commit_document(
+        self, branch: str, destination: Path, error_message: str
+    ) -> None:
         """
-        Return the commit identifier created by hashing the entered commit identifier
-        parts.
+        Copy the latest commit document of the entered branch to the destination path,
+        temporarily setting the target branch to the entered branch and restoring the
+        original target afterwards.
+
+        Raise an SCCSException with the entered error message if the commit document
+        cannot be resolved or copied.
         """
 
-        return utils.create_commit_identifier(self.c, commit_identifier_parts)
+        original_target = self.target.get()
+        self.target.set(branch)
+
+        try:
+            shutil.copy2(
+                self.commit_identifier_to_full_path(
+                    self.latest_commit_identifier(), self.c.DOCUMENT_DIRECTORY
+                ),
+                destination,
+            )
+        except Exception as e:
+            raise SCCSException(error_message) from e
+        finally:
+            self.target.set(original_target)
 
     def current_branch(self) -> str:
         """
@@ -198,13 +218,6 @@ class RepositoryData:
         a valid commit identifier length. Raise an SCCSException if the commit
         identifier is invalid.
         """
-
-        if commit_identifier is None:
-            raise SCCSException(
-                self.c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
-                    field=self.c.COMMIT_IDENTIFIER_FIELD_NAME
-                )
-            )
 
         if (
             len(commit_identifier) != self.c.FULL_COMMIT_IDENTIFIER_LENGTH
@@ -252,7 +265,7 @@ class RepositoryIO:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
 
     def _read_metadata_json(self) -> dict[str, Any]:
         """
@@ -291,24 +304,6 @@ class RepositoryIO:
         shutil.copy2(
             self.paths.document_path(), self.paths.document_objects_path() / name
         )
-
-    def document_byte_hash(self) -> str:
-        """
-        Return the SHA-256 hash of the repository document.
-        """
-
-        with open(self.paths.document_path(), "rb") as f:
-            hasher = hashlib.sha256()
-            for i in iter(lambda: f.read(self.c.MAX_FILE_READ_SIZE), b""):
-                hasher.update(i)
-        return hasher.hexdigest()
-
-    def document_bytes(self) -> bytes:
-        """
-        Return the bytes of the repository document.
-        """
-
-        return self.file_bytes(self.paths.document_path())
 
     def document_html(self) -> str:
         """
@@ -356,6 +351,18 @@ class RepositoryIO:
 
         self.target.require()
 
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()]
 
     def read_branches_data(self) -> dict[str, Any]:
@@ -372,6 +379,18 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.BYTE_HASH_DICT_KEY
@@ -413,6 +432,18 @@ class RepositoryIO:
 
         self.target.require()
 
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.HISTORY_DICT_KEY
         ]
@@ -424,6 +455,18 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         return self._read_metadata_json()[self.c.BRANCHES_DICT_KEY][self.target.get()][
             self.c.LOG_DICT_KEY
@@ -444,6 +487,18 @@ class RepositoryIO:
 
         self.target.require()
 
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         full_metadata = self.read_metadata()
         full_metadata.setdefault(self.c.BRANCHES_DICT_KEY, {})[self.target.get()] = data
 
@@ -457,6 +512,18 @@ class RepositoryIO:
 
         self.target.require()
 
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
+
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY] = data
 
@@ -469,6 +536,18 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
@@ -521,15 +600,6 @@ class RepositoryIO:
             f.write(diff)
             f.truncate()
 
-    def write_document_bytes(self, data: bytes) -> None:
-        """
-        Write the entered bytes to the repository document.
-        """
-
-        with open(self.paths.document_path(), "wb") as f:
-            f.write(data)
-            f.truncate()
-
     def write_history(self, data: dict[str, Any]) -> None:
         """
         Write the entered commit history to the target branch. Raise an SCCSException if
@@ -537,6 +607,18 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
@@ -547,22 +629,28 @@ class RepositoryIO:
 
     def write_html_commit(self, commit_hash: str, html: str) -> None:
         """
-        Write the entered HTML to the HTML and view HTML objects directories using the
-        entered commit hash.
+        Write the entered HTML to the HTML objects directory prefixed with the default
+        HTML styles and to the view HTML objects directory wrapped in the HTML
+        boilerplate, using the entered commit identifier.
         """
 
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
-        for i in (
-            self.paths.html_objects_path(),
-            self.paths.view_html_objects_path(),
-        ):
-            with open(
-                i / name,
-                "w",
-                encoding=self.c.UTF_8,
-                newline=self.c.NEWLINE,
-            ) as f:
-                f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
+
+        with open(
+            self.paths.html_objects_path() / name,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            f.write(self.c.DEFAULT_HTML_STYLES + html)
+
+        with open(
+            self.paths.view_html_objects_path() / name,
+            "w",
+            encoding=self.c.UTF_8,
+            newline=self.c.NEWLINE,
+        ) as f:
+            f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
     def write_log(self, data: dict[str, Any]) -> None:
         """
@@ -571,6 +659,18 @@ class RepositoryIO:
         """
 
         self.target.require()
+
+        if (
+            not self.target.get()
+            in self._read_metadata_json()[self.c.CURRENT_BRANCH_DICT_KEY][
+                self.c.BRANCHES_DICT_KEY
+            ]
+        ):
+            raise SCCSException(
+                self.c.BRANCH_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
+                    branch_name=self.target.get()
+                )
+            )
 
         full_metadata = self.read_metadata()
         full_metadata[self.c.BRANCHES_DICT_KEY][self.target.get()][
@@ -592,9 +692,7 @@ class RepositoryPaths:
     A class to resolve the paths of the files and directories within a repository.
     """
 
-    def __init__(
-        self, root: Path, repository_name: str, c: SCCSConstants, target: TargetBranch
-    ) -> None:
+    def __init__(self, root: Path, repository_name: str, c: SCCSConstants) -> None:
         """
         Initialize the repository paths with the entered root, repository name,
         constants, and target branch.
@@ -603,7 +701,6 @@ class RepositoryPaths:
         self.root = root
         self.repository_name = repository_name
         self.c = c
-        self.target = target
 
     def document_objects_path(self) -> Path:
         """
@@ -673,29 +770,25 @@ class RepositoryStatus:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def branch_exists(self, branch_name: str | None) -> bool:
+    def branch_exists(self, branch_name: str) -> bool:
         """
         Return whether the entered branch exists in the repository.
         """
 
-        if branch_name is None:
-            return False
         branches = (
             i.lower()
             for i in self.io.read_current_branch_data()[self.c.BRANCHES_DICT_KEY]
         )
         return branch_name.lower() in branches
 
-    def is_current_branch(self, branch_name: str | None) -> bool:
+    def is_current_branch(self, branch_name: str) -> bool:
         """
         Return whether the entered branch is the current branch of the repository.
         """
 
-        if branch_name is None:
-            return False
         current_branch = self.io.read_current_branch_data()[
             self.c.CURRENT_BRANCH_DICT_KEY
         ]
@@ -716,9 +809,10 @@ class RepositoryStatus:
         """
 
         dirs = [
+            self.paths.sccs_path(),
+            self.paths.objects_path(),
             self.paths.view_html_objects_path(),
             self.paths.html_objects_path(),
-            self.paths.sccs_path(),
             self.paths.document_objects_path(),
         ]
 
@@ -770,26 +864,29 @@ class RepositoryWrite:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c, self.target)
+        self.paths = RepositoryPaths(root, repository_name, c)
         self.io = RepositoryIO(root, repository_name, c, self.target)
 
-    def add_branch_metadata(self, branch_name: str, current_branch_name: str) -> None:
+    def add_branch_metadata(self, branch_name: str) -> None:
         """
         Add the entered branch by copying the current branch metadata, adding the branch
         to the branches list and updated branches, and setting it as the current branch.
         """
 
+        current_branch_name = self.target.require()
+        self.target.require()
         branch_name = branch_name.lower()
 
         branches_metadata = self.io.read_branches_data()
         current_branch_metadata = branches_metadata[current_branch_name]
 
-        branches_metadata[branch_name] = current_branch_metadata
+        branches_metadata[branch_name] = copy.deepcopy(current_branch_metadata)
 
-        self.io.write_branch_data(branches_metadata[branch_name])
+        self.io.write_branches_data(branches_metadata)
 
         self.add_to_branches_list(branch_name)
-        self.add_to_updated_branches(branch_name, current_branch_name)
+        self.add_to_updated_branches(branch_name)
+        self.add_to_updated_branches(current_branch_name)
         self.set_current_branch(branch_name)
 
     def add_to_branches_list(self, branch_name: str) -> None:
@@ -797,22 +894,22 @@ class RepositoryWrite:
         Add the entered branch to the list of branches in the current branch metadata.
         """
 
+        branch_name = branch_name.lower()
+
         branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name.lower())
+        if branch_name not in branch_data[self.c.BRANCHES_DICT_KEY]:
+            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
         self.io.write_current_branch_data(branch_data)
 
-    def add_to_updated_branches(
-        self, branch_name: str, conditional_branch: str | None = None
-    ) -> None:
+    def add_to_updated_branches(self, branch_name: str) -> None:
         """
-        Add the entered branch to the updated branches in the current branch metadata
-        when the conditional branch is None or is already marked as updated.
+        Add the entered branch to the updated branches in the current branch metadata.
         """
 
         branch_name = branch_name.lower()
 
         def add(updated: list[str]) -> bool:
-            if conditional_branch in updated or conditional_branch is None:
+            if branch_name not in updated:
                 updated.append(branch_name)
                 return True
             return False
@@ -889,12 +986,10 @@ class RepositoryWrite:
         if self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data and isinstance(
             current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
         ):
-            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = list(
-                set(
-                    current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
-                    + [current_branch]
-                )
-            )
+            updated = list(current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY])
+            if current_branch not in updated:
+                updated.append(current_branch)
+            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated
         else:
             current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = [current_branch]
         self.io.write_current_branch_data(current_branch_data)
@@ -963,9 +1058,7 @@ class RepositoryWrite:
         branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
         self.io.write_current_branch_data(branch_data)
 
-    def write_key_to_config(
-        self, key: str, value: str, current_config: dict[str, str]
-    ) -> None:
+    def write_key_to_config(self, key: str, value: str) -> None:
         """
         Write the entered key-value pair to the repository configuration. Raise an
         SCCSException if the value is empty, contains invalid characters, or the key is
@@ -975,11 +1068,11 @@ class RepositoryWrite:
         utils.raise_if_empty(self.c, value.strip(), key)
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
-            i for i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
+            i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
             raise SCCSException(self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE)
         if key == self.c.REMOTE_KEY and not all(
-            i for i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
+            i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):
             raise SCCSException(self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE)
 

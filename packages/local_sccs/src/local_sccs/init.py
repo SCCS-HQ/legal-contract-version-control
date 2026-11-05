@@ -1,10 +1,9 @@
-import hashlib
 import os
 import shutil
 from pathlib import Path
 
-import local_sccs.utils as utils
 import mammoth
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
@@ -39,20 +38,14 @@ def copy_document_to_objects_as_document_and_html(
     try:
         with open(document_path, "rb") as f:
             result = mammoth.convert_to_html(f).value
-    except Exception as e:
-        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
-    try:
         shutil.copy2(
             document_path,
             (rp.document_objects_path() / commit_identifier).with_suffix(
                 c.DOCUMENT_EXTENSION
             ),
         )
-    except Exception as e:
-        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
-    try:
         with open(
             (rp.html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
             "w",
@@ -60,10 +53,7 @@ def copy_document_to_objects_as_document_and_html(
             newline=c.NEWLINE,
         ) as f:
             f.write(c.DEFAULT_HTML_STYLES + result)
-    except Exception as e:
-        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
-    try:
         with open(
             (rp.view_html_objects_path() / commit_identifier).with_suffix(
                 c.HTML_EXTENSION
@@ -78,29 +68,19 @@ def copy_document_to_objects_as_document_and_html(
 
 
 def copy_document_to_repository_directory(
-    repository_path: Path, document_path: Path
+    c: SCCSConstants, repository_path: Path, document_path: Path
 ) -> None:
     """
     Copy the document to the repository directory.
     """
-
-    shutil.copy2(document_path, repository_path)
-
-
-def create_commit_identifier(c: SCCSConstants, name: str, email: str) -> str:
-    """
-    Return the initial commit identifier created by hashing the program start time,
-    initial version commit message, name, and email.
-    """
-
-    return utils.create_commit_identifier(
-        c,
-        [c.PROGRAM_START_TIME, c.INITIAL_VERSION_COMMIT_MESSAGE, name, email],
-    )
+    try:
+        shutil.copy2(document_path, repository_path)
+    except Exception as e:
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
 def create_sccs_directory_layout(
-    c: SCCSConstants, ri: RepositoryIO, rp: RepositoryPaths, rs: RepositoryStatus
+    c: SCCSConstants, rp: RepositoryPaths, rs: RepositoryStatus
 ) -> None:
     """
     Create the SCCS directory layout for the repository, including the objects,
@@ -126,8 +106,8 @@ def create_sccs_directory_layout(
 
     except Exception as e:
         raise SCCSException(c.INIT_CREATE_ERROR_MESSAGE) from e
-
-    rs.target.reset()
+    finally:
+        rs.target.reset()
 
 
 def finalize_repository_creation(
@@ -146,10 +126,10 @@ def finalize_repository_creation(
 
     try:
         os.remove(document_path)
-    except OSError as e:
+    except OSError:
         print(
             c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(
-                document_path=document_path, e=e
+                document_path=document_path
             )
         )
 
@@ -198,38 +178,39 @@ def write_starting_metadata(
 
     ri.target.set(c.MAIN_BRANCH_NAME)
 
-    ri.write_metadata(
-        {
-            c.BRANCHES_DICT_KEY: {
-                c.MAIN_BRANCH_NAME: {
-                    c.HISTORY_DICT_KEY: {
-                        c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
-                        c.LATEST_COMMIT_DICT_KEY: commit_identifier,
-                        c.LATEST_COMMIT_NUMBER_DICT_KEY: c.INITIAL_COMMIT_NUMBER,
-                        c.COMMIT_ORDER_DICT_KEY: {
-                            c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+    try:
+        ri.write_metadata(
+            {
+                c.BRANCHES_DICT_KEY: {
+                    c.MAIN_BRANCH_NAME: {
+                        c.HISTORY_DICT_KEY: {
+                            c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
+                            c.LATEST_COMMIT_DICT_KEY: commit_identifier,
+                            c.LATEST_COMMIT_NUMBER_DICT_KEY: c.INITIAL_COMMIT_NUMBER,
+                            c.COMMIT_ORDER_DICT_KEY: {
+                                c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+                            },
                         },
-                    },
-                    c.LOG_DICT_KEY: {
-                        commit_identifier: {
-                            c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
-                            c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
-                                name=name, email=email
-                            ),
-                            c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
-                        }
-                    },
-                    c.BYTE_HASH_DICT_KEY: {
-                        commit_identifier: hashlib.sha256(
-                            (ri.document_html()).encode(c.UTF_8)
-                        ).hexdigest()
-                    },
-                }
-            },
-            c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
-            c.CURRENT_BRANCH_DICT_KEY: dict(c.DEFAULT_BRANCH_DATA),
-        }
-    )
+                        c.LOG_DICT_KEY: {
+                            commit_identifier: {
+                                c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
+                                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                                    name=name, email=email
+                                ),
+                                c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
+                            }
+                        },
+                        c.BYTE_HASH_DICT_KEY: {
+                            commit_identifier: ri.document_html_byte_hash()
+                        },
+                    }
+                },
+                c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
+                c.CURRENT_BRANCH_DICT_KEY: dict(c.DEFAULT_BRANCH_DATA),
+            }
+        )
+    except Exception as e:
+        raise SCCSException(c.INIT_COPY_ERROR_MESSAGE) from e
 
 
 def main(
@@ -261,24 +242,27 @@ def main(
 
     try:
         staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
         staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
         staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
 
-        create_sccs_directory_layout(c, staging_ri, staging_rp, staging_rs)
+        create_sccs_directory_layout(c, staging_rp, staging_rs)
 
-        commit_identifier = create_commit_identifier(c, name, email)
+        commit_identifier = utils.create_commit_identifier(
+            c,
+            [c.PROGRAM_START_TIME, c.INIT_COMMIT_MESSAGE, name, email],
+        )
 
         copy_document_to_objects_as_document_and_html(
             c, document_path, commit_identifier, staging_rp
         )
 
-        copy_document_to_repository_directory(staging_rp.root, document_path)
+        copy_document_to_repository_directory(c, staging_rp.root, document_path)
 
         write_starting_metadata(c, commit_identifier, name, email, staging_ri)
 
-        staging_rw.write_key_to_config(c.NAME_KEY, name, staging_ri.read_config())
-        staging_rw.write_key_to_config(c.EMAIL_KEY, email, staging_ri.read_config())
+        staging_rw.write_key_to_config(c.NAME_KEY, name)
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email)
 
         finalize_repository_creation(c, document_path, rp, staging_rp)
 

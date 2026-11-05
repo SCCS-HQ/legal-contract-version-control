@@ -4,8 +4,8 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import local_sccs.utils as utils
 import requests
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 
@@ -43,7 +43,7 @@ def repository_name_from_url(c: SCCSConstants, url: str) -> str:
     return path_parts[c.REPOSITORY_NAME_PATH_INDEX]
 
 
-def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Response:
+def request_repository(c: SCCSConstants, url: str) -> requests.Response:
     """
     Sends a GET request to the specified URL with a timeout and returns the response.
 
@@ -51,7 +51,7 @@ def request_repository(c: SCCSConstants, url: str, timeout: int) -> requests.Res
     """
 
     try:
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(url, timeout=c.HTTP_TIMEOUT_SECONDS)
         response.raise_for_status()
     except requests.RequestException as e:
         raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
@@ -73,8 +73,6 @@ def unzip_repository_file(
     repository_name = repository_name_from_url(c, url)
 
     destination = Path(staging_root / repository_name)
-
-    print(destination)
 
     validate_repository_name(c, destination.name)
 
@@ -125,7 +123,7 @@ def main(c: SCCSConstants, url: str) -> None:
 
     validate_entered_url(c, url)
 
-    response = request_repository(c, url, c.HTTP_TIMEOUT_SECONDS)
+    response = request_repository(c, url)
 
     zip_buffer = io.BytesIO(response.content)
 
@@ -140,11 +138,11 @@ def main(c: SCCSConstants, url: str) -> None:
 
     staging_root = utils.create_staging_directory(c, destination)
 
-    print(staging_root)
+    repository_root = Path(staging_root / repository_name)
 
     try:
         unzip_repository_file(c, zip_buffer, url, staging_root)
-        utils.promote_staging(c, staging_root, destination)
+        utils.promote_staging(c, repository_root, destination)
     except Exception:
         utils.cleanup_staging(staging_root)
         raise

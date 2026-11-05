@@ -1,8 +1,7 @@
 import argparse
 import sys
 
-import remote_sccs.help as help
-import remote_sccs.serve as serve
+from remote_sccs import help, serve
 from remote_sccs.constants_classes import RemoteErrorWrappers, RemoteSCCSConstants
 
 rc = RemoteSCCSConstants()

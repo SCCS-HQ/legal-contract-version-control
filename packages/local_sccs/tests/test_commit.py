@@ -1,0 +1,395 @@
+import filecmp
+import json
+import os
+import shutil
+import tempfile
+from pathlib import Path
+from types import FunctionType
+
+import pytest
+from local_sccs import commit
+from local_sccs.constants_classes import SCCSConstants
+from local_sccs.exceptions import SCCSException
+from local_sccs.repository_layout import (
+    RepositoryData,
+    RepositoryIO,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch,
+)
+from test_constants import SCCSTestConstants
+
+
+@pytest.mark.parametrize(
+    "commit_identifier,expected_identifier",
+    [
+        (
+            "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45",
+            "f797d149c9",
+        ),
+        ("a" * 64, "a" * 10),
+        ("abc", "abc"),
+    ],
+)
+def test_print_commit_success_message(
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    capsys: pytest.CaptureFixture[str],
+    commit_identifier: str,
+    expected_identifier: str,
+) -> None:
+    commit.print_commit_success_message(c, commit_identifier)
+
+    assert (
+        capsys.readouterr().out.strip()
+        == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=expected_identifier
+        )
+    )
+
+
+def test_commit_main_raises_if_commit_message_is_empty(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException) as e:
+        commit.main(c, tc.EMPTY_STRING, rd, rs, rw)
+    assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+        field=tc.COMMIT_MESSAGE_FIELD_NAME.capitalize()
+    )
+
+
+@pytest.mark.parametrize(
+    ("missing_resource_name"),
+    [
+        "view_html_objects_path",
+        "html_objects_path",
+        "sccs_path",
+        "document_objects_path",
+        "document_path",
+        "metadata_path",
+        "objects_path",
+    ],
+)
+def test_commit_main_raises_for_each_missing_resource(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    missing_resource_name: str,
+) -> None:
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    missing_resource = getattr(rs.paths, missing_resource_name)()
+    expected_reported_resource = getattr(rs.paths, missing_resource_name)()
+
+    assert missing_resource.exists()
+
+    if missing_resource.is_dir():
+        shutil.rmtree(missing_resource)
+    else:
+        missing_resource.unlink()
+
+    with pytest.raises(SCCSException) as e:
+        commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
+        resource_name=expected_reported_resource
+    )
+
+
+def test_commit_main_creates_commit_and_updates_metadata(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+) -> None:
+    metadata_path = (
+        repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON
+    )
+
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    with open(
+        repository_with_multiple_commits
+        / tc.SCCS_DIRECTORY
+        / tc.OBJECTS_DIRECTORY
+        / tc.HTML_DIRECTORY
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        file_content = f.read()
+
+    assert file_content == (
+        tc.DEFAULT_HTML_STYLES + tc.SECOND_COMMIT_TEST_DOCUMENT_HTML
+    )
+
+    with open(
+        repository_with_multiple_commits
+        / tc.SCCS_DIRECTORY
+        / tc.OBJECTS_DIRECTORY
+        / tc.VIEW_HTML_DIRECTORY
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        file_content = f.read()
+
+    assert file_content == (
+        tc.HTML_BOILERPLATE_TEMPLATE.format(
+            styles=tc.DEFAULT_HTML_STYLES, html=tc.SECOND_COMMIT_TEST_DOCUMENT_HTML
+        )
+    )
+
+    assert filecmp.cmp(
+        repository_with_multiple_commits
+        / tc.SCCS_DIRECTORY
+        / tc.OBJECTS_DIRECTORY
+        / tc.DOCUMENT_DIRECTORY
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
+        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
+        shallow=False,
+    )
+
+    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata == tc.SECOND_COMMIT_TEST_METADATA
+
+
+def test_commit_main_raises_if_no_changes(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+) -> None:
+
+    rd = RepositoryData(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    with pytest.raises(SCCSException) as e:
+        commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    assert str(e.value) == tc.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+
+
+def test_commit_main_when_updated_branches_is_missing(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+) -> None:
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    metadata_path = (
+        repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON
+    )
+
+    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    del metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+
+    with open(metadata_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        json.dump(metadata, f, indent=tc.JSON_INDENT)
+
+    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert (
+        tc.MAIN_BRANCH_NAME
+        in metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY]
+    )
+
+
+def test_commit_main_prints_success_message(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    assert (
+        capsys.readouterr().out.strip()
+        == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=tc.SECOND_COMMIT_IDENTIFIER[
+                : tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+            ]
+        )
+    )
+
+
+def test_commit_main_resets_target_on_error(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+) -> None:
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
+
+    with pytest.raises(SCCSException):
+        commit.main(c, tc.TEST_STRING, rd, rs, rw)
+
+    assert target.get() is None
+
+
+@pytest.mark.parametrize(
+    "module, function", [(tempfile, "mkdtemp"), (shutil, "copytree"), (os, "rename")]
+)
+def test_commit_main_staged_repository_creation_fails(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    module: object,
+    function: str,
+    raise_exception: FunctionType,
+) -> None:
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(module, function, raise_exception)
+
+    with pytest.raises(SCCSException) as e:
+        commit.main(c, tc.TEST_STRING, rd, rs, rw)
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
+
+    staging_dirs = list(
+        repository_with_multiple_commits.parent.glob(
+            tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
+        )
+    )
+
+    assert not staging_dirs
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "write_history",
+        "write_log",
+        "write_byte_hash",
+        "write_commit_messages",
+        "write_current_branch_data",
+    ],
+)
+def test_commit_main_handles_io_errors_on_metadata_write(
+    repository_with_multiple_commits: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    raise_exception: FunctionType,
+) -> None:
+    rd = RepositoryData(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rs = RepositoryStatus(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+    rw = RepositoryWrite(
+        repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(RepositoryIO, method, raise_exception)
+
+    with pytest.raises(SCCSException) as e:
+        commit.main(c, tc.TEST_STRING, rd, rs, rw)
+    assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
+
+    assert target.get() is None
+
+    staging_dirs = list(
+        repository_with_multiple_commits.parent.glob(
+            tc.TEMPORARY_DIRECTORY_PREFIX + tc.RGLOB_ALL_FILES_PATTERN
+        )
+    )
+
+    assert not staging_dirs

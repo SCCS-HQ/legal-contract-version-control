@@ -2,8 +2,8 @@ import copy
 import difflib
 import filecmp
 
-import local_sccs.utils as utils
 from bs4 import BeautifulSoup
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
@@ -204,12 +204,13 @@ def remove_inline_semantics(c: SCCSConstants, html: BeautifulSoup) -> BeautifulS
     modifying it directly.
     """
 
-    soup = copy.copy(html)
+    soup = copy.deepcopy(html)
     for i in soup.find_all(c.TAGS_TO_UNWRAP):
         if i.name == c.STYLE_TAG_NAME:
             i.decompose()
         else:
             i.unwrap()
+    soup.smooth()
     return soup
 
 
@@ -313,29 +314,35 @@ def main(
     target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
-    rs.validate_repository_layout()
-    rs.raise_for_uncommitted_changes()
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
+        rs.raise_for_uncommitted_changes()
 
-    validate_diff(c, rd, commit_identifier)
+        validate_diff(c, rd, commit_identifier)
 
-    ri.write_diff_output(
-        utils.wrap_html(
-            c,
-            str(
-                strip_number_attribute(
-                    c,
-                    generate_diff_output(
+        ri.write_diff_output(
+            utils.wrap_html(
+                c,
+                str(
+                    strip_number_attribute(
                         c,
-                        rd.short_commit_identifier_to_full(commit_identifier),
-                        rd,
-                        ri,
-                    ),
-                )
-            ),
-            c.DEFAULT_HTML_STYLES,
+                        generate_diff_output(
+                            c,
+                            rd.short_commit_identifier_to_full(commit_identifier),
+                            rd,
+                            ri,
+                        ),
+                    )
+                ),
+                c.DEFAULT_HTML_STYLES,
+            )
         )
-    )
 
-    print_diff_success_message(c)
-    rs.target.reset()
+        print_diff_success_message(c)
+    except SCCSException:
+        raise
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

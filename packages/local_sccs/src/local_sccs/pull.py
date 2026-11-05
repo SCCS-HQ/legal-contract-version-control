@@ -2,8 +2,8 @@ import io
 import shutil
 import zipfile
 
-import local_sccs.utils as utils
 import requests
+from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
@@ -66,27 +66,35 @@ def main(
     target branch when the operation completes.
     """
 
-    rs.target.set(rd.current_branch())
+    try:
+        rs.validate_repository_layout()
 
-    rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
 
-    rs.raise_for_uncommitted_changes()
+        rs.raise_for_uncommitted_changes()
 
-    response = pull(c, rd)
-    response.raise_for_status()
+        response = pull(c, rd)
 
-    with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
+        response.raise_for_status()
 
-        staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
-        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c, rp.target)
+        with utils.staged_repository(c, rp.root, rp.root, rd.root) as staging_root:
 
-        update_repository_files(c, response, staging_rd, staging_rp)
+            staging_rd = RepositoryData(staging_root, rd.repository_name, c, rd.target)
+            staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
 
-    utils.print_remote_success_message(
-        c,
-        response.status_code,
-        rd.config_data(c.REMOTE_KEY),
-        c.PULL_SUCCESS_MESSAGE_TEMPLATE,
-    )
+            update_repository_files(c, response, staging_rd, staging_rp)
 
-    rs.target.reset()
+        utils.print_remote_success_message(
+            c,
+            response.status_code,
+            rd.config_data(c.REMOTE_KEY),
+            c.PULL_SUCCESS_MESSAGE_TEMPLATE,
+        )
+    except SCCSException:
+        raise
+    except requests.exceptions.RequestException as e:
+        raise SCCSException(c.HTTP_REQUEST_ERROR_MESSAGE) from e
+    except Exception as e:
+        raise SCCSException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

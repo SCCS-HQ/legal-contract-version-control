@@ -6,7 +6,7 @@ import shutil
 import sys
 import tempfile
 import zipfile
-from collections.abc import Iterator
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
@@ -14,41 +14,10 @@ from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
 
 
-def cleanup_staging(staging_root: Path | None) -> None:
+def cleanup_staging(staging_root: Path) -> None:
     """Best-effort removal of a staging directory. Safe to call multiple times."""
 
-    if staging_root is None:
-        return
     shutil.rmtree(staging_root, ignore_errors=True)
-
-
-def copy_latest_commit_document(
-    rd: Any, branch: str, destination: Path, error_message: str
-) -> None:
-    """
-    Copy the latest commit document of the entered branch to the destination path,
-    temporarily setting the target branch of `rd` (a duck-typed RepositoryData-like
-    object sharing a TargetBranch with the caller's status object) to the entered
-    branch and restoring the original target afterwards.
-
-    Raise an SCCSException with the entered error message if the commit document
-    cannot be resolved or copied.
-    """
-
-    original_target = rd.target.get()
-    rd.target.set(branch)
-
-    try:
-        shutil.copy2(
-            rd.commit_identifier_to_full_path(
-                rd.latest_commit_identifier(), rd.c.DOCUMENT_DIRECTORY
-            ),
-            destination,
-        )
-    except Exception as e:
-        raise SCCSException(error_message) from e
-    finally:
-        rd.target.set(original_target)
 
 
 def create_commit_identifier(c: SCCSConstants, parts: list[str]) -> str:
@@ -165,8 +134,10 @@ def raise_if_empty(
     """
 
     if not value:
-        message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(field=field)
-        raise SCCSException(message.capitalize() if capitalize else message)
+        message = c.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
+            field=field.capitalize() if capitalize else field
+        )
+        raise SCCSException(message)
 
 
 def safe_extract_zip(
@@ -213,7 +184,7 @@ def staged_repository(
     sibling_root: Path,
     final_root: Path,
     copy_from: Path | None = None,
-) -> Iterator[Path]:
+) -> Generator[Path]:
     """
     Create a staging directory as a sibling of `sibling_root`, optionally copying the
     repository at `copy_from` into it, and yield the staging root.
@@ -248,7 +219,7 @@ def wrap_html(c: SCCSConstants, html: str, styles: str) -> str:
 @contextlib.contextmanager
 def zip_buffer(
     c: SCCSConstants, compression: int = zipfile.ZIP_STORED
-) -> Iterator[tuple[io.BytesIO, zipfile.ZipFile]]:
+) -> Generator[tuple[io.BytesIO, zipfile.ZipFile]]:
     """
     Create a zip archive in an in-memory buffer and yield the buffer together with the
     zip file object. Raise an SCCSException if the buffer cannot be created, the files
