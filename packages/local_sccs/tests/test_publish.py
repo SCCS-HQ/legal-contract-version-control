@@ -84,15 +84,9 @@ def test_pull_raises_exception_on_request_failure(
 def test_zip_current_directory_zips_files(
     initialized_repository: Path,
     c: SCCSConstants,
-    target: TargetBranch,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    rd = RepositoryData(
-        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rp = RepositoryPaths(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-
     monkeypatch.setattr(SCCSConstants, "WALK_ROOT", str(initialized_repository))
 
     buffer = publish.zip_current_directory(c)
