@@ -51,6 +51,7 @@ class RemoteSCCSConstants:
     FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
     FIRST_ITEM_INDEX = 0
 
+    @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
         Return the help messages listing the available SCCS commands

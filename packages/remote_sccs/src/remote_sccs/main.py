@@ -469,8 +469,11 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     )
 
 
+if not Path(rc.REPOSITORIES_BASE_DIRECTORY).exists():
+    Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
+
 app.mount(
-    RemoteSCCSConstants.REPOS_MOUNT_ENDPOINT,
-    StaticFiles(directory=RemoteSCCSConstants.REPOSITORIES_BASE_DIRECTORY),
-    name=RemoteSCCSConstants.STATIC_FILES_NAME,
+    rc.REPOS_MOUNT_ENDPOINT,
+    StaticFiles(directory=rc.REPOSITORIES_BASE_DIRECTORY),
+    name=rc.STATIC_FILES_NAME,
 )
