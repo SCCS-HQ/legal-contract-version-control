@@ -241,9 +241,6 @@ def test_commit_main_when_updated_branches_is_missing(
     with open(metadata_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         json.dump(metadata, f, indent=tc.JSON_INDENT)
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
-        metadata = json.load(f)
-
     commit.main(c, tc.TEST_STRING, rd, rs, rw)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
