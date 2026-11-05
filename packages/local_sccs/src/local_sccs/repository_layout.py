@@ -790,8 +790,6 @@ class RepositoryStatus:
             self.paths.view_html_objects_path(),
             self.paths.html_objects_path(),
             self.paths.document_objects_path(),
-            self.paths.sccs_path(),
-            self.paths.document_objects_path()
         ]
 
         files = [self.paths.document_path(), self.paths.metadata_path()]

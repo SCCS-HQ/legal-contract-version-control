@@ -42,15 +42,15 @@ def test_print_status_success_message_prints_success_message(
 
 
 @pytest.mark.parametrize(
-    ("missing_resource_path_name", "expected_reported_resource_path_name"),
+    ("missing_resource_name"),
     [
-        ("view_html_objects_path", "view_html_objects_path"),
-        ("html_objects_path", "html_objects_path"),
-        ("sccs_path", "sccs_path"),
-        ("document_objects_path", "document_objects_path"),
-        ("document_path", "document_path"),
-        ("metadata_path", "metadata_path"),
-        ("objects_path", "objects_path")
+        "view_html_objects_path",
+        "html_objects_path",
+        "sccs_path",
+        "document_objects_path",
+        "document_path",
+        "metadata_path",
+        "objects_path",
     ],
 )
 def test_status_main_raises_for_each_missing_resource(
@@ -58,8 +58,7 @@ def test_status_main_raises_for_each_missing_resource(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
-    missing_resource_path_name: str,
-    expected_reported_resource_path_name: str,
+    missing_resource_name: str
 ) -> None:
 
     rd = RepositoryData(
@@ -69,9 +68,9 @@ def test_status_main_raises_for_each_missing_resource(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    missing_resource = getattr(rs.paths, missing_resource_path_name)()
+    missing_resource = getattr(rs.paths, missing_resource_name)()
     expected_reported_resource = getattr(
-        rs.paths, expected_reported_resource_path_name
+        rs.paths, missing_resource_name
     )()
 
     assert missing_resource.exists()
