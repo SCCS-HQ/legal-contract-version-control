@@ -150,7 +150,9 @@ def test_zip_current_directory_raises_exception_on_seek_failure(
     monkeypatch.setattr(SCCSConstants, "WALK_ROOT", str(initialized_repository))
 
     class FailingSeekBytesIO(io.BytesIO):
-        def seek(self, *args, **kwargs) -> None:  # pyright: ignore[reportIncompatibleMethodOverride]
+        def seek(
+            self, *args, **kwargs
+        ) -> None:  # pyright: ignore[reportIncompatibleMethodOverride]
             raise_exception()
 
     monkeypatch.setattr(io, "BytesIO", FailingSeekBytesIO)
