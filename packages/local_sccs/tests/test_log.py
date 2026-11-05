@@ -1,7 +1,6 @@
 import shutil
 from pathlib import Path
 from types import FunctionType
-from typing import Any
 
 import pytest
 from local_sccs import log
@@ -10,9 +9,7 @@ from local_sccs.exceptions import SCCSException
 from local_sccs.repository_layout import (
     RepositoryData,
     RepositoryIO,
-    RepositoryPaths,
     RepositoryStatus,
-    RepositoryWrite,
     TargetBranch,
 )
 from test_constants import SCCSTestConstants

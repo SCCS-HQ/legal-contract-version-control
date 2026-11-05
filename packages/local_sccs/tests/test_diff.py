@@ -3,7 +3,6 @@ import shutil
 import tempfile
 from pathlib import Path
 from types import FunctionType
-from typing import NoReturn
 
 import pytest
 from bs4 import BeautifulSoup
