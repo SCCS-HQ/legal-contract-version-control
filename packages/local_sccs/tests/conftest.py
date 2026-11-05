@@ -11,7 +11,7 @@ from types import FunctionType
 from test_constants import SCCSTestConstants
 
 
-@pytest.fixture
+@pytest.fixture()
 def c() -> SCCSConstants:
     """
     Return the SCCS constants.
@@ -20,7 +20,7 @@ def c() -> SCCSConstants:
     return SCCSConstants()
 
 
-@pytest.fixture
+@pytest.fixture()
 def target(c: SCCSConstants) -> TargetBranch:
     """
     Return a target branch with no branch set.
@@ -29,7 +29,7 @@ def target(c: SCCSConstants) -> TargetBranch:
     return TargetBranch(c)
 
 
-@pytest.fixture
+@pytest.fixture()
 def tc() -> SCCSTestConstants:
     """
     Return the SCCS test constants.
@@ -38,7 +38,7 @@ def tc() -> SCCSTestConstants:
     return SCCSTestConstants()
 
 
-@pytest.fixture
+@pytest.fixture()
 def initialized_repository(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, tc: SCCSTestConstants
 ) -> Path:
@@ -95,7 +95,7 @@ def initialized_repository(
     return repository_root
 
 
-@pytest.fixture
+@pytest.fixture()
 def repository_with_modified_document(
     initialized_repository: Path, tc: SCCSTestConstants
 ) -> Path:
@@ -111,7 +111,7 @@ def repository_with_modified_document(
     return initialized_repository
 
 
-@pytest.fixture
+@pytest.fixture()
 def repository_with_multiple_commits(initialized_repository: Path) -> Path:
     """
     Return a repository containing a second commit of a modified document.
@@ -157,7 +157,24 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
     return initialized_repository
 
 
-@pytest.fixture
+@pytest.fixture()
+def repository_with_multiple_branches(repository_with_multiple_commits: Path, tc: SCCSTestConstants) -> Path:
+    """
+    Return a repository containing a second branch, 'test' with 2 commits. Branch 'main' has 1 commit, and the current branch is 'main'.
+    """
+
+    with open(repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        json.dump(tc.SECOND_BRANCH_WITH_TWO_COMMITS_METADATA, f, indent=tc.JSON_INDENT)
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME
+    )
+
+    return repository_with_multiple_commits
+
+
+@pytest.fixture()
 def raise_exception() -> FunctionType:
     """
     Return a callable that raises an exception when called.
@@ -169,7 +186,7 @@ def raise_exception() -> FunctionType:
     return _raise_exception
 
 
-@pytest.fixture
+@pytest.fixture()
 def raise_request_exception(*args: Any, **kwargs: Any) -> FunctionType:
     """
     Return a callable that raises an requests.RequestException exception when called.

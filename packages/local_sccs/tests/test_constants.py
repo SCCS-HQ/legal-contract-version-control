@@ -211,9 +211,9 @@ class SCCSTestConstants:
     MAIN_BRANCH_NAME = "main"
     MAXIMUM_COMMIT_FILE_MATCHES = 1
     MERGE_COMMAND_NAME = "merge"
-    MERGE_COMMIT_MESSAGE_TEMPLATE = 'Merged branch "{branch_name}" into "{current_branch}".'
+    MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch_name}' into '{current_branch}'."
     MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
-    MERGE_SUCCESS_MESSAGE_TEMPLATE = 'Successfully merged branch "{branch_name}" into branch "{current_branch}".'
+    MERGE_SUCCESS_MESSAGE_TEMPLATE = "Successfully merged branch '{branch_name}' into branch '{current_branch}'.\n"
     MESSAGE_DICT_KEY = "message"
     METADATA_AFTER_BRANCH_SWITCH = MappingProxyType(
         {
@@ -508,11 +508,83 @@ class SCCSTestConstants:
     )
     SECOND_COMMIT_TEST_HTML_HASH = "baf1da7b7dcc1f061fa35633b16adb4d374708c84c0ee38dbbea9f5eb8307be6"
     # the next constants are out of alphabetical order intentionally
+    TEST_REPOSITORY_CLONE_URL = "http://127.0.0.1:8000/test/test/clone"
     TEST_AUTHOR = f"{TEST_STRING} <{TEST_STRING}>"
     TEST_COMMIT_HASH = "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
     TEST_DOCUMENT_HTML_HASH = "daf65bd44755eee379d835d36ce8eb15e6b8fecfdd7decc90822045c50c4164f"
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+    SECOND_BRANCH_WITH_TWO_COMMITS_METADATA = {
+        BRANCHES_DICT_KEY: {
+            MAIN_BRANCH_NAME: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: INITIAL_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH
+                    }
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
+                    }
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
+                }
+            },
+            TEST_STRING: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
+                    }
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING
+                    }
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
+                }
+            }
+        },
+        COMMIT_MESSAGES_DICT_KEY: {
+            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_HASH: TEST_STRING
+        },
+        CURRENT_BRANCH_DICT_KEY: {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [
+                MAIN_BRANCH_NAME,
+                TEST_STRING
+            ],
+            UPDATED_BRANCHES_DICT_KEY: [
+                TEST_STRING,
+                MAIN_BRANCH_NAME
+            ]
+        },
+        CONFIG_DICT_KEY: {
+            NAME_KEY: TEST_STRING,
+            EMAIL_KEY: TEST_STRING,
+            REMOTE_KEY: TEST_REPOSITORY_CLONE_URL
+        }
+    }
     SECOND_COMMIT_TEST_METADATA = {
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
@@ -833,7 +905,6 @@ class SCCSTestConstants:
         }
     }
     TEST_MESSAGE_TEMPLATE = "Test {url}"
-    TEST_REPOSITORY_CLONE_URL = "http://127.0.0.1:8000/test/test/clone"
     TEST_REPOSITORY_DIFF_HTML = (
         """<p data-number="1">GENERAL CONTRACT AGREEMENT</p><p data-number="3">This Agreement is entered into as of the date last signed below</p><p data-number="5">PARTIES</p><p data-number="10">CLIENT / PARTY A</p><p class="deleted" data-number="12">Full Legal Name: [Full Name]</p><p class="inserted" data-number="11">Full Legal Name: [Full Nae]</p><p data-number="14">Address: [Street Address]</p><p data-number="16">City, Province/State: [City, Province]</p><p data-number="18">Email: [Email Address]</p><p data-number="20">Phone: [Phone Number]</p><p data-number="23">SERVICE PROVIDER / PARTY B</p><p data-number="25">Full Legal Name: [Full Name]</p><p data-number="27">Address: [Street Address]</p><p data-number="29">City, Province/State: [City, Province]</p><p data-number="31">Email: [Email Address]</p><p data-number="33">Phone: [Phone Number]</p><h1 data-number="35">1. Scope of Work</h1><p data-number="37">Party B agrees to provide the following services to Party A (the "Services"):</p><p data-number="38">[Describe the specific services, deliverables, and work to be performed in detail. Include any milestones, phases, or specifications.]</p><p data-number="40">The Services shall be completed by: </p><p data-number="41">Completion Date: [Date]</p><h1 data-number="43">2. Compensation &amp; Payment Terms</h1><p data-number="45">In consideration for the Services, Party A agrees to pay Party B as follows:</p><p data-number="46">Total Amount: [$ Amount] CAD</p><p data-number="48">Payment Schedule: [e.g., 50% upfront, 50% upon completion]</p><p data-number="50">Accepted Payment Methods: [e.g., e-transfer, cheque, wire]</p><p data-number="52">Late payments shall accrue interest at a rate of [__]% per month on any outstanding balance. Party B reserves the right to suspend Services in the event of non-payment after [__] days written notice.</p><h1 data-number="53">3. Term &amp; Termination</h1><p data-number="55">Start Date: [Date]</p><p data-number="57">End Date: [Date or "Upon Completion"]</p><p data-number="59">Either party may terminate this Agreement upon [__] days written notice to the other party. In the event of termination:</p><li data-number="61">Party A shall pay for all Services rendered up to the termination date.</li><li data-number="62">Any non-refundable deposits paid shall remain with Party B.</li><li data-number="63">Sections 5, 6, 7, and 8 shall survive termination.</li><h1 data-number="64">4. Intellectual Property</h1><p data-number="66">Upon receipt of full payment, Party B assigns to Party A all rights, title, and interest in the deliverables produced under this Agreement, including any copyright, patent, or trade secret rights, except as follows:</p><p data-number="67">[Describe any retained rights, pre-existing IP, or tools/frameworks Party B retains ownership of]</p><p data-number="69">Party B retains the right to reference this project in their portfolio unless otherwise agreed in writing.</p><h1 data-number="70">5. Confidentiality</h1><p data-number="72">Each party agrees to hold in strict confidence any proprietary or confidential information disclosed by the other party in connection with this Agreement ("Confidential Information"). Confidential Information shall not be disclosed to third parties without prior written consent, and shall be used solely for the purposes of this Agreement.</p><p data-number="73">This obligation shall survive the termination of this Agreement for a period of [__] years.</p><h1 data-number="74">6. Representations &amp; Warranties</h1><h2 data-number="76">6.1 Party B Warrants That:</h2><li data-number="79">The Services will be performed in a professional and workmanlike manner.</li><li data-number="80">Party B has the full right and authority to enter into this Agreement.</li><li data-number="81">The deliverables will not infringe upon the intellectual property rights of any third party.</li><h2 data-number="82">6.2 Party A Warrants That:</h2><li data-number="85">Party A has the full authority to enter into this Agreement.</li><li data-number="86">All materials and information provided to Party B are accurate and lawfully obtained.</li><h1 data-number="87">7. Limitation of Liability</h1><p data-number="89">IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p><p data-number="90">Each party's total aggregate liability under this Agreement shall not exceed the total fees paid or payable under this Agreement in the [__] months immediately preceding the event giving rise to the claim.</p><h1 data-number="91">8. Dispute Resolution</h1><p data-number="93">Governing Law: This Agreement shall be governed by the laws of the Province of [Province], Canada.</p><p data-number="96">In the event of any dispute, the parties agree to first attempt to resolve it through good-faith negotiation. If negotiation fails within 30 days, the parties agree to submit the dispute to binding arbitration in accordance with the rules of [Arbitration Body], before pursuing litigation.</p><h1 data-number="97">9. General Provisions</h1><h2 data-number="99">9.1 Entire Agreement</h2><p data-number="101">This Agreement constitutes the entire agreement between the parties with respect to the subject matter hereof and supersedes all prior discussions, negotiations, and agreements.</p><h2 data-number="102">9.2 Amendments</h2><p data-number="104">This Agreement may only be amended in writing signed by both parties.</p><h2 data-number="105">9.3 Severability</h2><p data-number="107">If any provision of this Agreement is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p><h2 data-number="108">9.4 Waiver</h2><p data-number="110">Failure by either party to enforce any right under this Agreement shall not constitute a waiver of that right.</p><h2 data-number="111">9.5 Independent Contractors</h2><p data-number="113">The parties are independent contractors. Nothing in this Agreement creates an employment, partnership, joint venture, or agency relationship between the parties.</p><h2 data-number="114">9.6 Notices</h2><p data-number="116">All notices under this Agreement shall be in writing and delivered via email (with read receipt) or registered mail to the addresses set out above.</p><h2 data-number="117">9.7 Force Majeure</h2><p data-number="119">Neither party shall be liable for delays or failures in performance resulting from causes beyond their reasonable control, including but not limited to acts of God, war, pandemic, government orders, or natural disasters.</p><h1 data-number="120">10. Signatures</h1><p data-number="122">By signing below, each party agrees to be bound by the terms and conditions of this Agreement.</p><p data-number="126">CLIENT / PARTY A</p><p data-number="128"> </p><p data-number="129">Signature</p><p data-number="131"> </p><p data-number="132">Full Printed Name</p><p data-number="134"> </p><p data-number="135">Title / Position (if applicable)</p><p data-number="137"> </p><p data-number="138">Date Signed</p><p data-number="142">SERVICE PROVIDER / PARTY B</p><p data-number="144"> </p><p data-number="145">Signature</p><p data-number="147"> </p><p data-number="148">Full Printed Name</p><p data-number="150"> </p><p data-number="151">Title / Position (if applicable)</p><p data-number="153"> </p><p data-number="154">Date Signed</p><p data-number="156">WITNESS (optional)</p><p data-number="161"> </p><p data-number="162">Witness Signature</p><p data-number="164"> </p><p data-number="165">Witness Full Name</p><p data-number="167"> </p><p data-number="168">Date</p><p data-number="172"> </p><p data-number="173">Witness Signature</p><p data-number="175"> </p><p data-number="176">Witness Full Name</p><p data-number="178"> </p><p data-number="179">Date</p><p data-number="181">This is a general-purpose template. Consult a legal professional to ensure this Agreement meets your specific needs and jurisdiction.</p>"""
     )
@@ -849,6 +920,170 @@ class SCCSTestConstants:
     TEST_SYMLINK_DIRECTORY = "link"
     TEST_TEXT_FILENAME = "test.txt"
     TEST_ZIP_FILENAME = "test.zip"
+    TWO_BRANCHES_MERGED_METADATA_AFTER_COMMIT = {
+        BRANCHES_DICT_KEY: {
+            MAIN_BRANCH_NAME: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40",
+                    LATEST_COMMIT_NUMBER_DICT_KEY: 3,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                        "3": "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40",
+                    },
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING,
+                    },
+                    "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40": {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: MERGE_COMMIT_MESSAGE_TEMPLATE.format(branch_name=TEST_STRING, current_branch=MAIN_BRANCH_NAME),
+                    },
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                    "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40": SECOND_COMMIT_TEST_HTML_HASH,
+                },
+            },
+            TEST_STRING: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                    },
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING,
+                    },
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                },
+            },
+        },
+        COMMIT_MESSAGES_DICT_KEY: {
+            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_HASH: TEST_STRING,
+            "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40": MERGE_COMMIT_MESSAGE_TEMPLATE.format(branch_name=TEST_STRING, current_branch=MAIN_BRANCH_NAME),
+        },
+        CURRENT_BRANCH_DICT_KEY: {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [
+                MAIN_BRANCH_NAME,
+                TEST_STRING,
+            ],
+            UPDATED_BRANCHES_DICT_KEY: [
+                TEST_STRING,
+                MAIN_BRANCH_NAME,
+            ],
+        },
+        CONFIG_DICT_KEY: {
+            NAME_KEY: TEST_STRING,
+            EMAIL_KEY: TEST_STRING,
+            REMOTE_KEY: TEST_REPOSITORY_CLONE_URL,
+        },
+    }
+    TWO_BRANCHES_MERGED_METADATA_BEFORE_COMMIT = {
+        BRANCHES_DICT_KEY: {
+            MAIN_BRANCH_NAME: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                    },
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING,
+                    },
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                },
+            },
+            TEST_STRING: {
+                HISTORY_DICT_KEY: {
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
+                    COMMIT_ORDER_DICT_KEY: {
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                    },
+                },
+                LOG_DICT_KEY: {
+                    TEST_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
+                    },
+                    SECOND_COMMIT_HASH: {
+                        TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
+                        AUTHOR_DICT_KEY: TEST_AUTHOR,
+                        MESSAGE_DICT_KEY: TEST_STRING,
+                    },
+                },
+                BYTE_HASH_DICT_KEY: {
+                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                },
+            },
+        },
+        COMMIT_MESSAGES_DICT_KEY: {
+            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_HASH: TEST_STRING,
+        },
+        CURRENT_BRANCH_DICT_KEY: {
+            CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
+            BRANCHES_DICT_KEY: [
+                MAIN_BRANCH_NAME,
+                TEST_STRING,
+            ],
+            UPDATED_BRANCHES_DICT_KEY: [
+                TEST_STRING,
+                MAIN_BRANCH_NAME,
+            ],
+        },
+        CONFIG_DICT_KEY: {
+            NAME_KEY: TEST_STRING,
+            EMAIL_KEY: TEST_STRING,
+            REMOTE_KEY: TEST_REPOSITORY_CLONE_URL,
+        },
+    }
     UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = "Uncommitted changes detected. Please clean the working tree before proceeding."
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
     UNEXPECTED_ERROR_EXIT_CODE = 2
