@@ -59,7 +59,6 @@ COMMANDS = {
 def COMMAND_ARGUMENTS(arguments: argparse.Namespace) -> dict[str, Callable[[], list[log.Any]]]:
     
     c = SCCSConstants()
-    error_wrappers = ErrorWrappers()
     wd = utils.working_directory(c)
     target = TargetBranch(c)
     wd_repository_name = wd.name

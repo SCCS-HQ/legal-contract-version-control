@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from typing import Any, Callable
-
+from pathlib import Path
 
 from local_sccs.exceptions import SCCSException
 from local_sccs import (
@@ -31,6 +31,14 @@ from local_sccs import (
     status,
     switch,
     utils
+)
+from local_sccs.repository_layout import (
+    RepositoryData,
+    RepositoryIO,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+    TargetBranch
 )
 
 def test_sccs_COMMANDS_does_not_drift(tc: SCCSTestConstants) -> None:
@@ -327,8 +335,6 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
 def test_run_command_does_not_except_exceptions_if_debug_is_true(
     monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
 ) -> None:
-    
-
 
     e = Exception(tc.TEST_STRING)
 
@@ -340,10 +346,154 @@ def test_run_command_does_not_except_exceptions_if_debug_is_true(
         assert exc_info.value == e
 
 
-def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]) -> None:
 
-    assert sccs.COMMAND_ARGUMENTS(CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)) # pyright: ignore[reportArgumentType]
+def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any], c: SCCSConstants, target: TargetBranch) -> None:
 
+    wd = utils.working_directory(c)
+    wd_repository_name = wd.name
+
+    wd_rd = RepositoryData(wd, wd_repository_name, c, target)
+    wd_rp = RepositoryPaths(wd, wd_repository_name, c)
+    wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
+    wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
+
+    cwd_ri = RepositoryIO(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c)
+    cwd_rs = RepositoryStatus(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rw = RepositoryWrite(utils.working_directory(c), wd_repository_name, c, target)
+    arguments = CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)
+
+    expected_command_arguments = {
+        c.BRANCH_COMMAND_NAME: lambda: [
+            c,
+            arguments.subcommand,
+            getattr(arguments, c.BRANCH_NAME_ARGUMENT_NAME, None),
+            wd_rd,
+            wd_rp,
+            wd_rs,
+            wd_rw,
+        ],
+        c.CLONE_COMMAND_NAME: lambda: [c, arguments.url],
+        c.COMMIT_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_message,
+            wd_rd,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.CONFIG_COMMAND_NAME: lambda: [
+            c,
+            arguments.key,
+            arguments.value,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.DIFF_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_ri,
+            cwd_rs,
+        ],
+        c.HELP_COMMAND_NAME: lambda: [
+            c,
+        ],
+        c.INIT_COMMAND_NAME: lambda: [
+            c,
+            document_path := Path(arguments.document_path),
+            RepositoryIO(
+                repository_root := document_path.with_suffix(c.EMPTY_STRING),
+                root_repository_name := repository_root.name,
+                c,
+                target,
+            ),
+            RepositoryPaths(repository_root, root_repository_name, c),
+            RepositoryStatus(repository_root, root_repository_name, c, target),
+            RepositoryWrite(repository_root, root_repository_name, c, target),
+        ],
+        c.LOG_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_ri,
+            cwd_rs,
+        ],
+        c.MERGE_COMMAND_NAME: lambda: [
+            c,
+            arguments.branch_name,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.OPEN_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_rs,
+        ],
+        c.PUBLISH_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.PULL_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.PUSH_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.RESET_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.REVERT_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.STATUS_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rs,
+        ],
+        c.SWITCH_COMMAND_NAME: lambda: [
+            c,
+            arguments.branch_name,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+    }
+
+    result = sccs.COMMAND_ARGUMENTS(CustomSimpleNamespace(command=tc.TEST_STRING, debug=False))
+    
+    assert (
+        set(result)
+        == set(expected_command_arguments)
+    ) # pyright: ignore[reportArgumentType]
+
+
+
+    assert [i.__code__.co_code for i in result.values()] == [i.__code__.co_code for i in expected_command_arguments.values()] # pyright: ignore[reportArgumentType]
 
 @pytest.mark.parametrize(
     "command",
