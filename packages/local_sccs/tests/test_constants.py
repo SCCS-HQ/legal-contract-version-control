@@ -187,7 +187,7 @@ class SCCSTestConstants:
     INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE = "Invalid character in config value. Only letters, numbers, ., _, %, +, and - are allowed."
     INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE = "Invalid character in URL. Only letters, numbers, and -._~:/?#[]@!$&'()*+,;=% are allowed."
     INVALID_COMMIT_HISTORY_DIRECTORY_DATA_ERROR_MESSAGE = "Invalid commit history data. Please ensure that the commit data has not been manually modified."
-    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = "Invalid commit file name. Please provide a shortened, 10 character commit hash or the full 64 character commit hash as the commit identifier."
+    INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE = "Invalid commit file name. Please provide a shortened, 10 character commit identifier or the full 64 character commit identifier as the commit identifier."
     INVALID_ENDING_ERROR_MESSAGE = "Invalid remote URL provided. Please provide a valid URL ending with '/clone'."
     INVALID_FILE_TYPE_ERROR_MESSAGE = "File is not a .docx file. Please provide a valid .docx file."
     INVALID_KEY_ERROR_MESSAGE = "Invalid configuration key provided. Please provide one of the valid keys: remote, name, email."
@@ -286,7 +286,7 @@ class SCCSTestConstants:
     MINIMUM_PATH_PARTS = 2
     MISSING_REMOTE_OBJECTS_ERROR_MESSAGE = "The remote repository has extra commits that the local is missing. Please pull the latest changes before pushing."
     MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE = "Resource '{resource_name}' is missing from the repository directory."
-    MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = "Multiple commit files found matching '{commit_identifier}'. Please provide a full, 64 character commit hash."
+    MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE = "Multiple commit files found matching '{commit_identifier}'. Please provide a full, 64 character commit identifier."
     NAME_KEY = "name"
     NEWLINE = "\n"
     NO_PATH_TEST_URL = "http://127.0.0.1:8000"
@@ -333,7 +333,7 @@ class SCCSTestConstants:
     REVERT_SUCCESS_MESSAGE_TEMPLATE = "Document successfully reverted to commit '{commit_identifier}' on commit '{new_commit_identifier}'.\n"
     RGLOB_ALL_FILES_PATTERN = "*"
     SCCS_DIRECTORY = ".sccs"
-    SECOND_COMMIT_HASH = "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45"
+    SECOND_COMMIT_IDENTIFIER = "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45"
     SECOND_COMMIT_NUMBER = 2
     SECOND_COMMIT_TEST_DOCUMENT_FILENAME = "second_commit_test_document.docx"
     SECOND_COMMIT_TEST_DOCUMENT_HTML = (
@@ -511,7 +511,7 @@ class SCCSTestConstants:
     # the next constants are out of alphabetical order intentionally
     TEST_REPOSITORY_CLONE_URL = "http://127.0.0.1:8000/test/test/clone"
     TEST_AUTHOR = f"{TEST_STRING} <{TEST_STRING}>"
-    TEST_COMMIT_HASH = "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
+    TEST_COMMIT_IDENTIFIER = "ef4a6cd9a3fa5fd50c9f8ed03ea569671b3a41f6485d0446f891bda0ee2dd06f"
     TEST_DOCUMENT_HTML_HASH = "daf65bd44755eee379d835d36ce8eb15e6b8fecfdd7decc90822045c50c4164f"
     TIMESTAMP_DICT_KEY = "timestamp"
     UPDATED_BRANCHES_DICT_KEY = "updated_branches"
@@ -519,55 +519,55 @@ class SCCSTestConstants:
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: INITIAL_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER
                     }
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     }
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH
                 }
             },
             TEST_STRING: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER
                     }
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING
                     }
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH
                 }
             }
         },
         COMMIT_MESSAGES_DICT_KEY: {
-            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
-            SECOND_COMMIT_HASH: TEST_STRING
+            TEST_COMMIT_IDENTIFIER: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_IDENTIFIER: TEST_STRING
         },
         CURRENT_BRANCH_DICT_KEY: {
             CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
@@ -590,35 +590,35 @@ class SCCSTestConstants:
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER
                     }
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING
                     }
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH
                 }
             }
         },
         COMMIT_MESSAGES_DICT_KEY: {
-            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
-            SECOND_COMMIT_HASH: TEST_STRING
+            TEST_COMMIT_IDENTIFIER: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_IDENTIFIER: TEST_STRING
         },
         CURRENT_BRANCH_DICT_KEY: {
             CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
@@ -870,27 +870,27 @@ class SCCSTestConstants:
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: INITIAL_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER
                     }
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE
                     }
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH
                 }
             }
         },
         COMMIT_MESSAGES_DICT_KEY: {
-            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE
+            TEST_COMMIT_IDENTIFIER: INIT_COMMIT_MESSAGE
         },
         CURRENT_BRANCH_DICT_KEY: {
             CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,
@@ -925,22 +925,22 @@ class SCCSTestConstants:
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_DICT_KEY: "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40",
                     LATEST_COMMIT_NUMBER_DICT_KEY: 3,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER,
                         "3": "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40",
                     },
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING,
@@ -952,42 +952,42 @@ class SCCSTestConstants:
                     },
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH,
                     "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40": SECOND_COMMIT_TEST_HTML_HASH,
                 },
             },
             TEST_STRING: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER,
                     },
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING,
                     },
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH,
                 },
             },
         },
         COMMIT_MESSAGES_DICT_KEY: {
-            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
-            SECOND_COMMIT_HASH: TEST_STRING,
+            TEST_COMMIT_IDENTIFIER: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_IDENTIFIER: TEST_STRING,
             "1cfbe9eb11fce1fbe932513ee6e67e99fd1a7039e0d632c092f63017cedb8e40": MERGE_COMMIT_MESSAGE_TEMPLATE.format(branch_name=TEST_STRING, current_branch=MAIN_BRANCH_NAME),
         },
         CURRENT_BRANCH_DICT_KEY: {
@@ -1011,62 +1011,62 @@ class SCCSTestConstants:
         BRANCHES_DICT_KEY: {
             MAIN_BRANCH_NAME: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER,
                     },
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING,
                     },
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH,
                 },
             },
             TEST_STRING: {
                 HISTORY_DICT_KEY: {
-                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_HASH,
-                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_HASH,
+                    INITIAL_COMMIT_DICT_KEY: TEST_COMMIT_IDENTIFIER,
+                    LATEST_COMMIT_DICT_KEY: SECOND_COMMIT_IDENTIFIER,
                     LATEST_COMMIT_NUMBER_DICT_KEY: SECOND_COMMIT_NUMBER,
                     COMMIT_ORDER_DICT_KEY: {
-                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_HASH,
-                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_HASH,
+                        str(INITIAL_COMMIT_NUMBER): TEST_COMMIT_IDENTIFIER,
+                        str(SECOND_COMMIT_NUMBER): SECOND_COMMIT_IDENTIFIER,
                     },
                 },
                 LOG_DICT_KEY: {
-                    TEST_COMMIT_HASH: {
+                    TEST_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: INIT_COMMIT_MESSAGE,
                     },
-                    SECOND_COMMIT_HASH: {
+                    SECOND_COMMIT_IDENTIFIER: {
                         TIMESTAMP_DICT_KEY: EPOCH_ISO_DATETIME,
                         AUTHOR_DICT_KEY: TEST_AUTHOR,
                         MESSAGE_DICT_KEY: TEST_STRING,
                     },
                 },
                 BYTE_HASH_DICT_KEY: {
-                    TEST_COMMIT_HASH: TEST_DOCUMENT_HTML_HASH,
-                    SECOND_COMMIT_HASH: SECOND_COMMIT_TEST_HTML_HASH,
+                    TEST_COMMIT_IDENTIFIER: TEST_DOCUMENT_HTML_HASH,
+                    SECOND_COMMIT_IDENTIFIER: SECOND_COMMIT_TEST_HTML_HASH,
                 },
             },
         },
         COMMIT_MESSAGES_DICT_KEY: {
-            TEST_COMMIT_HASH: INIT_COMMIT_MESSAGE,
-            SECOND_COMMIT_HASH: TEST_STRING,
+            TEST_COMMIT_IDENTIFIER: INIT_COMMIT_MESSAGE,
+            SECOND_COMMIT_IDENTIFIER: TEST_STRING,
         },
         CURRENT_BRANCH_DICT_KEY: {
             CURRENT_BRANCH_DICT_KEY: MAIN_BRANCH_NAME,

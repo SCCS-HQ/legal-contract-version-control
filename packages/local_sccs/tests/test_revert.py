@@ -134,7 +134,7 @@ def test_revert_main_raises_for_each_missing_resource(
         missing_resource.unlink()
 
     with pytest.raises(SCCSException) as e:
-        revert.main(c, tc.TEST_COMMIT_HASH, rd, rp, rs, rw)
+        revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
 
     assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
@@ -192,7 +192,7 @@ def test_revert_main_staged_repository_creation_fails(
     monkeypatch.setattr(module, function, raise_exception)
 
     with pytest.raises(SCCSException) as e:
-        revert.main(c, tc.TEST_COMMIT_HASH, rd, rp, rs, rw)
+        revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
@@ -222,14 +222,14 @@ def test_revert_main_prints_success_message(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    monkeypatch.setattr(utils, "create_commit_identifier", lambda *args, **kwargs: tc.TEST_COMMIT_HASH)
+    monkeypatch.setattr(utils, "create_commit_identifier", lambda *args, **kwargs: tc.TEST_COMMIT_IDENTIFIER)
 
-    revert.main(c, tc.TEST_COMMIT_HASH, rd, rp, rs, rw)
+    revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
 
     assert (capsys.readouterr().out).startswith(
         tc.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
-            commit_identifier=tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
-            new_commit_identifier=tc.TEST_COMMIT_HASH[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            new_commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
         )
     )
 
@@ -250,7 +250,7 @@ def test_revert_main_resets_target_branch(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    revert.main(c, tc.TEST_COMMIT_HASH, rd, rp, rs, rw)
+    revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
 
     assert target.get() is None
 
@@ -275,7 +275,7 @@ def test_revert_main_reverts_to_specified_commit(
     with open(rs.paths.document_path(), "rb") as f:
         original_content = f.read()
 
-    revert.main(c, tc.TEST_COMMIT_HASH, rd, rp, rs, rw)
+    revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
 
     with open(rs.paths.document_path(), "rb") as f:
         reverted_content = f.read()
@@ -283,7 +283,7 @@ def test_revert_main_reverts_to_specified_commit(
     assert original_content != reverted_content
 
     with open(
-        rs.paths.objects_path() / tc.DOCUMENT_DIRECTORY / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION), "rb"
+        rs.paths.objects_path() / tc.DOCUMENT_DIRECTORY / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION), "rb"
     ) as f:
         commit_content = f.read()
 

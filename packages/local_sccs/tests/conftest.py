@@ -59,10 +59,10 @@ def initialized_repository(
     html_objects_root = objects_root / tc.HTML_DIRECTORY
     view_html_objects_root = objects_root / tc.VIEW_HTML_DIRECTORY
     test_document_path = Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
-    docx_object_path = docx_objects_root / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
-    html_object_path = html_objects_root / (tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION)
+    docx_object_path = docx_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
+    html_object_path = html_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION)
     view_html_object_path = (
-        view_html_objects_root / (tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION)
+        view_html_objects_root / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION)
     )
     metadata_path = sccs_root / tc.METADATA_JSON
 
@@ -124,7 +124,7 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
         f.write(tc.DEFAULT_HTML_STYLES + tc.SECOND_COMMIT_TEST_DOCUMENT_HTML)
 
@@ -133,7 +133,7 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION), "w", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
         f.write(
             tc.HTML_BOILERPLATE_TEMPLATE.format(
@@ -151,7 +151,7 @@ def repository_with_multiple_commits(initialized_repository: Path) -> Path:
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
     )
 
     return initialized_repository

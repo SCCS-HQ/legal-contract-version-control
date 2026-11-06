@@ -158,7 +158,7 @@ def test_publish_main_raises_for_uncommitted_changes(
     "commit_identifier, error_raised",
     [
         ("ef4a6cd9a3", False),
-        (SCCSTestConstants.TEST_COMMIT_HASH, False),
+        (SCCSTestConstants.TEST_COMMIT_IDENTIFIER, False),
         ("1" * 65, True),
     ],
 )
@@ -210,7 +210,7 @@ def test_open_main_staged_repository_creation_fails(
     monkeypatch.setattr(module, function, raise_exception)
 
     with pytest.raises(SCCSException) as e:
-        local_open.main(c, tc.TEST_COMMIT_HASH, rd, rs)
+        local_open.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rs)
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     staging_dirs = list(
@@ -236,13 +236,13 @@ def test_open_main_prints_success_message(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    local_open.main(c, tc.TEST_COMMIT_HASH, rd, rs)
+    local_open.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rs)
 
     assert capsys.readouterr().out == tc.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.TEST_COMMIT_HASH[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+        commit_identifier=tc.TEST_COMMIT_IDENTIFIER[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
         output_file=Path(
         c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
-            commit_identifier=tc.TEST_COMMIT_HASH[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            commit_identifier=tc.TEST_COMMIT_IDENTIFIER[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
         ).with_suffix(c.DOCUMENT_EXTENSION),
     )
@@ -266,7 +266,7 @@ def test_open_main_resets_target_branch_on_failure(
     monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
 
     with pytest.raises(SCCSException):
-        local_open.main(c, tc.TEST_COMMIT_HASH, rd, rs)
+        local_open.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rs)
 
     assert rd.target.get() is None
 
@@ -284,9 +284,9 @@ def test_open_main_opens_commit(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    local_open.main(c, tc.TEST_COMMIT_HASH, rd, rs)
+    local_open.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rs)
 
-    with open(initialized_repository / Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_identifier=tc.TEST_COMMIT_HASH[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH])).with_suffix(c.DOCUMENT_EXTENSION), "rb") as f:
+    with open(initialized_repository / Path(c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(commit_identifier=tc.TEST_COMMIT_IDENTIFIER[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH])).with_suffix(c.DOCUMENT_EXTENSION), "rb") as f:
         open_content = f.read()
 
-    assert open_content == rd.commit_identifier_to_full_path(tc.TEST_COMMIT_HASH, c.DOCUMENT_DIRECTORY).read_bytes()
+    assert open_content == rd.commit_identifier_to_full_path(tc.TEST_COMMIT_IDENTIFIER, c.DOCUMENT_DIRECTORY).read_bytes()

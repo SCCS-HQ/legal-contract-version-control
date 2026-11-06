@@ -220,7 +220,7 @@ def test_reset_main_resets_target_branch(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
     )
 
     print((repository_with_modified_document / tc.TEST_DOCUMENT_FILENAME).exists())

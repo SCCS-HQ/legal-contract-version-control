@@ -104,15 +104,15 @@ def test_zip_current_directory_zips_files(
         Path(tc.SCCS_DIRECTORY)
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         Path(tc.SCCS_DIRECTORY)
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         Path(tc.SCCS_DIRECTORY)
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
     }
     
 

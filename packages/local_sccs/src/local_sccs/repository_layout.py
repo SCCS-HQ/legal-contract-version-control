@@ -608,7 +608,7 @@ class RepositoryIO:
         """
         Write the entered HTML to the HTML objects directory prefixed with the default
         HTML styles and to the view HTML objects directory wrapped in the HTML
-        boilerplate, using the entered commit hash.
+        boilerplate, using the entered commit identifier.
         """
 
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)

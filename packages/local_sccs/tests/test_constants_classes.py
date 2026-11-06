@@ -250,7 +250,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     ),
     "INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE": (
         "Invalid commit file name. Please provide a shortened, 10 character commit "
-        "hash or the full 64 character commit hash as the commit identifier."
+        "identifier or the full 64 character commit identifier as the commit identifier."
     ),
     "INVALID_ENDING_ERROR_MESSAGE": (
         "Invalid remote URL provided. Please provide a valid URL ending with '/clone'."
@@ -313,7 +313,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     ),
     "MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE": (
         "Multiple commit files found matching '{commit_identifier}'. Please provide a "
-        "full, 64 character commit hash."
+        "full, 64 character commit identifier."
     ),
     "NAME_KEY": "name",
     "NEWLINE": "\n",

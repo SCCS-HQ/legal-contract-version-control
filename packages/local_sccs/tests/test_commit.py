@@ -19,7 +19,7 @@ import tempfile
 import os
 from types import FunctionType
 
-@pytest.mark.parametrize("commit_hash,expected_identifier", [
+@pytest.mark.parametrize("commit_identifier,expected_identifier", [
     (
         "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45",
         "f797d149c9"
@@ -28,9 +28,9 @@ from types import FunctionType
     ("abc", "abc"),
 ])
 def test_print_commit_success_message(
-    c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str], commit_hash: str, expected_identifier: str
+    c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str], commit_identifier: str, expected_identifier: str
 ) -> None:
-    commit.print_commit_success_message(c, commit_hash)
+    commit.print_commit_success_message(c, commit_identifier)
 
     assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=expected_identifier
@@ -138,7 +138,7 @@ def test_commit_main_creates_commit_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,
@@ -154,7 +154,7 @@ def test_commit_main_creates_commit_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,
@@ -172,7 +172,7 @@ def test_commit_main_creates_commit_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
         repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )
@@ -271,7 +271,7 @@ def test_commit_main_prints_success_message(
     commit.main(c, tc.TEST_STRING, rd, rs, rw)
     
     assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.SECOND_COMMIT_HASH[:tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+        commit_identifier=tc.SECOND_COMMIT_IDENTIFIER[:tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
     )
 
 

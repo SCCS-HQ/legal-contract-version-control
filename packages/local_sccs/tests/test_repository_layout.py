@@ -36,11 +36,11 @@ def test_repository_data_matching_commit_files_returns_correct_commit_files(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
     ]
 
     assert (
-        rd._matching_commit_files(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
+        rd._matching_commit_files(tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY)
         == expected
     )
 
@@ -103,13 +103,13 @@ def test_repository_data_commit_file_bytes_returns_correct_bytes(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
         "rb",
     ) as f:
         expected = f.read()
 
     assert (
-        rd.commit_file_bytes(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY) == expected
+        rd.commit_file_bytes(tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY) == expected
     )
 
 
@@ -128,12 +128,12 @@ def test_repository_data_commit_identifier_to_full_path_returns_correct_path(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION)
     )
 
     assert (
         rd.commit_identifier_to_full_path(
-            tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY
+            tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY
         )
         == expected
     )
@@ -175,10 +175,10 @@ def test_repository_data_commit_file_methods_raises_if_no_matching_commit_file_f
     )
 
     with pytest.raises(SCCSException) as e:
-        getattr(rd, method_name)(tc.SECOND_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
+        getattr(rd, method_name)(tc.SECOND_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY)
 
     assert str(e.value) == tc.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(
-        file_path=tc.SECOND_COMMIT_HASH
+        file_path=tc.SECOND_COMMIT_IDENTIFIER
     )
 
 
@@ -202,17 +202,17 @@ def test_repository_data_commit_file_methods_raises_if_multiple_matching_commit_
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_IDENTIFIER + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
     )
 
     with open(colliding_commit_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         f.write(tc.TEST_STRING)
 
     with pytest.raises(SCCSException) as e:
-        getattr(rd, method_name)(tc.TEST_COMMIT_HASH, tc.DOCUMENT_DIRECTORY)
+        getattr(rd, method_name)(tc.TEST_COMMIT_IDENTIFIER, tc.DOCUMENT_DIRECTORY)
 
     assert str(e.value) == tc.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.TEST_COMMIT_HASH
+        commit_identifier=tc.TEST_COMMIT_IDENTIFIER
     )
 
 
@@ -231,7 +231,7 @@ def test_repository_data_commit_file_bytes_raises_if_display_length_multiple_mat
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.TEST_COMMIT_HASH + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
+        / (tc.TEST_COMMIT_IDENTIFIER + uuid.uuid4().hex + tc.DOCUMENT_EXTENSION)
     )
 
     with open(colliding_commit_path, "w", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
@@ -239,12 +239,12 @@ def test_repository_data_commit_file_bytes_raises_if_display_length_multiple_mat
 
     with pytest.raises(SCCSException) as e:
         rd.commit_file_bytes(
-            tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            tc.TEST_COMMIT_IDENTIFIER[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
             tc.DOCUMENT_DIRECTORY,
         )
 
     assert str(e.value) == tc.MULTIPLE_COMMIT_FILES_FOUND_ERROR_MESSAGE_TEMPLATE.format(
-        commit_identifier=tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+        commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
     )
 
 
@@ -352,7 +352,7 @@ def test_repository_data_latest_commit_identifier_returns_correct_commit_identif
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    assert rd.latest_commit_identifier() == tc.TEST_COMMIT_HASH
+    assert rd.latest_commit_identifier() == tc.TEST_COMMIT_IDENTIFIER
 
 
 def test_repository_data_latest_commit_identifier_raises_if_latest_commit_identifier_is_missing(
@@ -437,9 +437,9 @@ def test_repository_data_short_commit_identifier_to_full_returns_full_commit_ide
 
     assert (
         rd.short_commit_identifier_to_full(
-            tc.TEST_COMMIT_HASH[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            tc.TEST_COMMIT_IDENTIFIER[: tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
         )
-        == tc.TEST_COMMIT_HASH
+        == tc.TEST_COMMIT_IDENTIFIER
     )
 
 
@@ -453,7 +453,7 @@ def test_repository_data_repository_objects_returns_correct_objects(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    expected = {tc.TEST_COMMIT_HASH}
+    expected = {tc.TEST_COMMIT_IDENTIFIER}
 
     assert rd.repository_objects() == expected
 
@@ -790,7 +790,7 @@ def test_repository_io_read_byte_hash_returns_target_branch_byte_hash(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    assert ri.read_byte_hash() == {tc.TEST_COMMIT_HASH: tc.TEST_DOCUMENT_HTML_HASH}
+    assert ri.read_byte_hash() == {tc.TEST_COMMIT_IDENTIFIER: tc.TEST_DOCUMENT_HTML_HASH}
 
 
 def test_repository_io_read_commit_messages_returns_commit_messages(
@@ -804,7 +804,7 @@ def test_repository_io_read_commit_messages_returns_commit_messages(
     )
 
     assert ri.read_commit_messages() == {
-        tc.TEST_COMMIT_HASH: tc.INIT_COMMIT_MESSAGE
+        tc.TEST_COMMIT_IDENTIFIER: tc.INIT_COMMIT_MESSAGE
     }
 
 
@@ -1098,9 +1098,9 @@ def test_repository_io_write_html_commit_writes_html_and_view_html_objects(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    ri.write_html_commit(tc.TEST_COMMIT_HASH, tc.TEST_DOCUMENT_HTML)
+    ri.write_html_commit(tc.TEST_COMMIT_IDENTIFIER, tc.TEST_DOCUMENT_HTML)
 
-    html_object_filename = tc.TEST_COMMIT_HASH + tc.HTML_EXTENSION
+    html_object_filename = tc.TEST_COMMIT_IDENTIFIER + tc.HTML_EXTENSION
 
     with open(
         initialized_repository
@@ -1585,7 +1585,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,
@@ -1601,7 +1601,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.VIEW_HTML_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.HTML_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.HTML_EXTENSION),
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,
@@ -1619,7 +1619,7 @@ def test_repository_write_commit_changes_commits_changes_and_updates_metadata(
         / tc.SCCS_DIRECTORY
         / tc.OBJECTS_DIRECTORY
         / tc.DOCUMENT_DIRECTORY
-        / (tc.SECOND_COMMIT_HASH + tc.DOCUMENT_EXTENSION),
+        / (tc.SECOND_COMMIT_IDENTIFIER + tc.DOCUMENT_EXTENSION),
         repository_with_multiple_commits / tc.TEST_DOCUMENT_FILENAME,
         shallow=False
     )

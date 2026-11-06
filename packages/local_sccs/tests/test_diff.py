@@ -138,7 +138,7 @@ def test_validate_diff_raises_if_commit_is_latest(
     )
 
     with pytest.raises(SCCSException) as e:
-        diff.validate_diff(c, rd, tc.TEST_COMMIT_HASH)
+        diff.validate_diff(c, rd, tc.TEST_COMMIT_IDENTIFIER)
     assert str(e.value) == tc.FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE
 
 
@@ -361,7 +361,7 @@ def test_generate_diff_output_generates_correct_diff(
     ri = RepositoryIO(repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     
     assert BeautifulSoup(
-        str(diff.generate_diff_output(c, tc.TEST_COMMIT_HASH, rd, ri)).strip(),
+        str(diff.generate_diff_output(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri)).strip(),
         tc.HTML_PARSER,
     ) == BeautifulSoup(
         tc.TEST_REPOSITORY_DIFF_HTML.strip(),
@@ -436,7 +436,7 @@ def test_diff_main_raises_if_uncommitted_changes_exist(
     )
 
     with pytest.raises(SCCSException) as e:
-        diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+        diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
     assert str(e.value) == tc.UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
 
 
@@ -463,7 +463,7 @@ def test_diff_main_prints_success_message(
     )
     rw.commit_changes(tc.TEST_STRING)
 
-    diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+    diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
 
     assert capsys.readouterr().out == tc.DIFF_SUCCESS_MESSAGE
 
@@ -533,7 +533,7 @@ def test_diff_main_generic_exception_resets_target(
     monkeypatch.setattr(diff, "generate_diff_output", raise_exception)
 
     with pytest.raises(SCCSException) as e:
-        diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+        diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
     assert str(e.value) == tc.STAGED_REPOSITORY_ERROR_MESSAGE
 
     assert target.get() is None
@@ -561,7 +561,7 @@ def test_diff_main_create_proper_diff_output(
     )
     rw.commit_changes(tc.TEST_STRING)
 
-    diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+    diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
 
     with open(
         repository_with_multiple_commits / tc.DIFF_HTML_FILE, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
@@ -590,6 +590,6 @@ def test_diff_main_resets_target_on_error(
     monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
 
     with pytest.raises(SCCSException):
-        diff.main(c, tc.TEST_COMMIT_HASH, rd, ri, rs)
+        diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
 
     assert target.get() is None
