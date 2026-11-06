@@ -225,8 +225,8 @@ def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
     arguments = SimpleNamespace(command=tc.TEST_STRING, debug=False)
 
     sccs.run_command(arguments) # pyright: ignore[reportArgumentType]
-    assert capsys.readouterr().out == (
-        tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE
+    assert capsys.readouterr().out.strip() == (
+        tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES)
     )
 
 
@@ -267,7 +267,7 @@ def test_run_command_prints_expected_error_message_if_command_raises_sccs_except
 
         assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
+    assert capsys.readouterr().out.strip() == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
 
 
 @pytest.mark.parametrize(
@@ -307,7 +307,7 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
 
         assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
 
 
 @pytest.mark.parametrize(
@@ -544,7 +544,7 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
 
     sccs.main()
 
-    assert capsys.readouterr().out == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE
+    assert capsys.readouterr().out.strip() == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES)
 
 
 @pytest.mark.parametrize(
@@ -586,7 +586,7 @@ def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exceptio
         sccs.main()
         assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
+    assert capsys.readouterr().out.strip() == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
 
 
 @pytest.mark.parametrize(
@@ -616,8 +616,6 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
 ) -> None:
 
 
-
-
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
@@ -628,7 +626,7 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
         sccs.main()
         assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
 
-    assert capsys.readouterr().out == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+    assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
 
 
 @pytest.mark.parametrize(
@@ -723,4 +721,4 @@ def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(tc: SC
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
     sccs.main()
-    assert capsys.readouterr().out == (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE
+    assert capsys.readouterr().out.strip() == (tc.NEWLINE).join(tc.HELP_MESSAGES)

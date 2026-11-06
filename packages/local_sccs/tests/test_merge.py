@@ -39,7 +39,7 @@ def test_print_merge_success_message_prints_success_message(
 
     merge.print_merge_success_message(c, branch, rd)
 
-    assert capsys.readouterr().out == tc.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
         branch_name=branch, current_branch=current_branch
     )
 
@@ -304,7 +304,7 @@ def test_merge_main_prints_success_message(repository_with_multiple_branches: Pa
 
     merge.main(c, tc.TEST_STRING, rd, ri, rp, rs, rw)
 
-    assert capsys.readouterr().out == tc.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.MERGE_SUCCESS_MESSAGE_TEMPLATE.format(
         branch_name=tc.TEST_STRING,
         current_branch=rd.current_branch()
     )

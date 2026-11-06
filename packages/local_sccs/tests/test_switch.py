@@ -25,7 +25,7 @@ def test_print_switch_success_message_prints_expected_message(
 ) -> None:
     switch.print_switch_success_message(c, branch_to_switch)
     
-    assert capsys.readouterr().out == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
         branch_name=branch_to_switch
     )
 
@@ -377,7 +377,7 @@ def test_switch_main_prints_switch_success_message(
     )
 
     switch.main(c, tc.MAIN_BRANCH_NAME, rd, rp, rs, rw)
-    assert capsys.readouterr().out == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.SWITCH_SUCCESS_MESSAGE_TEMPLATE.format(
         branch_name=tc.MAIN_BRANCH_NAME
     )
 

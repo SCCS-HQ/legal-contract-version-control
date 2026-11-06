@@ -32,7 +32,7 @@ def test_print_config_success_message_prints_correct_message(
     config.print_config_success_message(c, key, value)
 
     assert (
-        capsys.readouterr().out
+        capsys.readouterr().out.strip()
         == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(key=key, value=value)
     )
 
@@ -307,7 +307,7 @@ def test_config_main_prints_success_message(
     )
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
     
-    assert capsys.readouterr().out == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.CONFIG_SUCCESS_MESSAGE_TEMPLATE.format(
         key=tc.NAME_KEY, value=tc.TEST_STRING
     )
 

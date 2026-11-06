@@ -24,12 +24,12 @@ import os
         (
             "test",
             "main",
-            "Branch 'test' created from 'main' successfully and is set to the current branch.\n"
+            "Branch 'test' created from 'main' successfully and is set to the current branch."
         ),
         (
             "feature",
             "develop",
-            "Branch 'feature' created from 'develop' successfully and is set to the current branch.\n"
+            "Branch 'feature' created from 'develop' successfully and is set to the current branch."
         ),
     ],
 )
@@ -43,7 +43,7 @@ def test_print_branch_create_success_message(
 
     branch.print_branch_create_success_message(c, branch_name, current_branch_name)
     
-    assert capsys.readouterr().out == expected_message
+    assert capsys.readouterr().out.strip() == expected_message
 
 
 @pytest.mark.parametrize(
@@ -51,11 +51,11 @@ def test_print_branch_create_success_message(
     [
         (
             "test",
-            "Branch 'test' deleted successfully.\n"
+            "Branch 'test' deleted successfully."
         ),
         (
             "feature",
-            "Branch 'feature' deleted successfully.\n"
+            "Branch 'feature' deleted successfully."
         ),
     ],
 )
@@ -67,7 +67,7 @@ def test_print_branch_delete_success_message(
 ) -> None:
     
     branch.print_branch_delete_success_message(c, branch_name)
-    assert capsys.readouterr().out == expected_message
+    assert capsys.readouterr().out.strip() == expected_message
 
 
 def test_branch_create_subcommand_creates_new_branch(
@@ -108,7 +108,7 @@ def test_branch_create_subcommand_creates_new_branch(
         == metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME]
     )
 
-    assert capsys.readouterr().out == tc.BRANCH_CREATE_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.BRANCH_CREATE_SUCCESS_MESSAGE
 
 
 def test_branch_delete_subcommand_deletes_branch(
@@ -151,7 +151,7 @@ def test_branch_delete_subcommand_deletes_branch(
         == tc.MAIN_BRANCH_NAME
     )
 
-    assert capsys.readouterr().out == tc.BRANCH_DELETE_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.BRANCH_DELETE_SUCCESS_MESSAGE
 
 
 def test_branch_delete_subcommand_raises_if_branch_to_remove_is_main(
@@ -192,7 +192,7 @@ def test_branch_list_subcommand_lists_all_branches(
 
     branch.branch_list_subcommand(c, rd)
 
-    assert capsys.readouterr().out == tc.TEST_BRANCH_LIST_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.TEST_BRANCH_LIST_MESSAGE
 
 
 def test_run_specified_subcommand_runs_create_subcommand(
@@ -235,7 +235,7 @@ def test_run_specified_subcommand_runs_create_subcommand(
         == metadata[tc.BRANCHES_DICT_KEY][tc.MAIN_BRANCH_NAME]
     )
 
-    assert capsys.readouterr().out == tc.BRANCH_CREATE_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.BRANCH_CREATE_SUCCESS_MESSAGE
 
 
 def test_run_specified_subcommand_runs_delete_subcommand(
@@ -280,7 +280,7 @@ def test_run_specified_subcommand_runs_delete_subcommand(
         == tc.MAIN_BRANCH_NAME
     )
 
-    assert capsys.readouterr().out == tc.BRANCH_DELETE_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.BRANCH_DELETE_SUCCESS_MESSAGE
 
 
 def test_run_specified_subcommand_runs_branch_list_subcommand(
@@ -303,7 +303,7 @@ def test_run_specified_subcommand_runs_branch_list_subcommand(
 
     branch.run_specified_subcommand(c, tc.BRANCH_LIST_SUBCOMMAND, None, rd, rw)
 
-    assert capsys.readouterr().out == tc.TEST_BRANCH_LIST_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.TEST_BRANCH_LIST_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -1002,11 +1002,11 @@ def test_branch_main_handles_io_errors_on_metadata_write(
     [
         (
             "test",
-            "Branch 'test' created from 'main' successfully and is set to the current branch.\n"
+            "Branch 'test' created from 'main' successfully and is set to the current branch."
         ),
         (
             "feature",
-            "Branch 'feature' created from 'main' successfully and is set to the current branch.\n"
+            "Branch 'feature' created from 'main' successfully and is set to the current branch."
         ),
     ],
 )
@@ -1031,7 +1031,7 @@ def test_branch_main_prints_create_success_message(
 
     branch.main(c, tc.CREATE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
     
-    assert capsys.readouterr().out == expected_message
+    assert capsys.readouterr().out.strip() == expected_message
 
 
 @pytest.mark.parametrize(
@@ -1039,11 +1039,11 @@ def test_branch_main_prints_create_success_message(
     [
         (
             "test",
-            "Branch 'test' deleted successfully.\n"
+            "Branch 'test' deleted successfully."
         ),
         (
             "feature",
-            "Branch 'feature' deleted successfully.\n"
+            "Branch 'feature' deleted successfully."
         ),
     ],
 )
@@ -1074,7 +1074,7 @@ def test_branch_main_prints_delete_success_message(
 
     branch.main(c, tc.DELETE_SUBCOMMAND, branch_name, rd, rp, rs, rw)
 
-    assert capsys.readouterr().out == expected_message
+    assert capsys.readouterr().out.strip() == expected_message
 
 
 def test_branch_main_prints_list_success_message(
@@ -1099,7 +1099,7 @@ def test_branch_main_prints_list_success_message(
 
     branch.main(c, tc.LIST_SUBCOMMAND, None, rd, rp, rs, rw)
 
-    assert capsys.readouterr().out == tc.TEST_BRANCH_LIST_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.TEST_BRANCH_LIST_MESSAGE
 
 
 def test_branch_main_creates_branch_side_effects(

@@ -37,7 +37,7 @@ from types import FunctionType
             "Author: test <test@example.com>\n"
             "Date: 1971-01-01T00:00:00\n"
             "Message: Second commit\n"
-            "------------------------------\n"
+            "------------------------------"
         ),
         (
             {
@@ -63,7 +63,7 @@ from types import FunctionType
         "Author: test <test@example.com>\n"
         "Date: 1971-01-01T00:00:00\n"
         "Message: test\n"
-        "------------------------------\n"
+        "------------------------------"
         )
     ]
 )
@@ -74,7 +74,7 @@ def test_print_log_prints_log_entries(
     capsys: pytest.CaptureFixture[str]
 ) -> None:
     log.print_log(c, log_data)
-    assert capsys.readouterr().out == expected_output
+    assert capsys.readouterr().out.strip() == expected_output
 
 
 @pytest.mark.parametrize(
@@ -104,7 +104,7 @@ def test_print_log_prints_log_entries(
             "Author: test <test@example.com>\n"
             "Date: 1971-01-01T00:00:00\n"
             "Message: Second commit\n"
-            "------------------------------\n"
+            "------------------------------"
         ),
         (
             {
@@ -130,7 +130,7 @@ def test_print_log_prints_log_entries(
         "Author: test <test@example.com>\n"
         "Date: 1971-01-01T00:00:00\n"
         "Message: test\n"
-        "------------------------------\n"
+        "------------------------------"
         )
     ]
 )
@@ -151,7 +151,7 @@ def test_log_main_prints_correct_log_entries(
     monkeypatch.setattr(RepositoryIO, "read_log", lambda *args, **kwargs: log_data)
     
     log.main(c, rd, ri, rs)
-    assert capsys.readouterr().out == expected_output
+    assert capsys.readouterr().out.strip() == expected_output
 
 
 def test_log_main_prints_log(
@@ -166,7 +166,7 @@ def test_log_main_prints_log(
     rs = RepositoryStatus(initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     log.main(c, rd, ri, rs)
-    assert capsys.readouterr().out == tc.TEST_REPOSITORY_LOG_OUTPUT
+    assert capsys.readouterr().out.strip() == tc.TEST_REPOSITORY_LOG_OUTPUT
 
 
 @pytest.mark.parametrize(

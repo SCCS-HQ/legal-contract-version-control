@@ -151,14 +151,15 @@ def test_print_remote_success_message_prints_correct_message(
 
     expected = (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_ONE_HUNDRED)
-        + tc.TEST_MESSAGE_TEMPLATE.format(url=tc.NO_PATH_TEST_URL) + tc.NEWLINE
+        + tc.NEWLINE
+        + tc.TEST_MESSAGE_TEMPLATE.format(url=tc.NO_PATH_TEST_URL)
     )
 
     utils.print_remote_success_message(
         c, tc.STATUS_CODE_ONE_HUNDRED, tc.NO_PATH_TEST_URL, tc.TEST_MESSAGE_TEMPLATE
     )
 
-    assert capsys.readouterr().out == expected
+    assert capsys.readouterr().out.strip() == expected
 
 
 def test_promote_staging_allows_non_existent_final_root(

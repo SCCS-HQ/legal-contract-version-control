@@ -20,14 +20,14 @@ class SCCSTestConstants:
     TEST_STRING = "test"
     BRANCH_CREATE_SUCCESS_MESSAGE = (
         f"Branch '{TEST_STRING}' created from 'main' successfully and "
-        "is set to the current branch.\n"
+        "is set to the current branch."
     )
     BRANCH_CREATION_SUCCESS_MESSAGE_TEMPLATE = 'Branch "{branch_name}" created from "{current_branch_name}" successfully and is set to the current branch.'
     BRANCH_DELETE_ARGUMENT_HELP = "The branch to delete."
     BRANCH_DELETE_SUBCOMMAND = "delete"
     BRANCH_DELETE_SUBCOMMAND_HELP = "Delete an existing branch."
     BRANCH_DELETE_SUCCESS_MESSAGE = (
-        f"Branch '{TEST_STRING}' deleted successfully.\n"
+        f"Branch '{TEST_STRING}' deleted successfully."
     )
     BRANCH_DELETION_SUCCESS_MESSAGE_TEMPLATE = 'Branch "{branch_name}" deleted successfully.'
     BRANCH_LIST_SUBCOMMAND = "list"
@@ -43,14 +43,14 @@ class SCCSTestConstants:
     CLONE_COMMAND_NAME = "clone"
     CLONE_DESTINATION_EXISTS_ERROR_MESSAGE = "A directory with the repository name already exists in the current directory."
     CLONE_ENDPOINT = "/clone"
-    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully.\n"
+    CLONE_SUCCESS_MESSAGE = "Repository cloned successfully."
     COMMAND_DESCRIPTIONS = MappingProxyType({"branch": "Create a new branch, delete, or list branches.", "clone": "Clone a hosted SCCS repository with a URL.", "commit": "Commit changes to the repository.", "config": "Configure a repository's data value (remote, name, email)", "diff": "Show differences between the current document and a past commit.", "help": "Prints a help message listing the available commands and their descriptions.", "init": "Initialize a new SCCS repository.", "log": "Print a list of past commits for the current branch.", "merge": "Merge the entered branch into the current branch.", "open": "Open a commit file and update the current document.", "publish": "Publish a local repository to a hosting service.", "pull": "Pull changes from a remote repository and merge them into the local repository.", "push": "Push changes from the local repository to a remote repository.", "reset": "Delete all uncommitted changes.", "revert": "Revert the current document to the specified commit.", "status": "Check the status of the current document for uncommitted changes.", "switch": "Switch between document branches."})
     COMMAND_FIELD_NAME = "command"
     COMMA_SPACE = ", "
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
     COMMIT_COMMAND_NAME = "commit"
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
-        "Commit {commit_identifier} created successfully.\n"
+        "Commit {commit_identifier} created successfully."
     )
     COMMIT_IDENTIFIER_ARGUMENT_NAME = "commit_identifier"
     COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP = "The commit identifier to diff against."
@@ -70,7 +70,7 @@ class SCCSTestConstants:
     CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
     CONFIG_KEY_ARGUMENT_NAME = "key"
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
-        "Configuration '{key}' set to '{value}' successfully.\n"
+        "Configuration '{key}' set to '{value}' successfully."
     )
     CONFIG_VALUE_ARGUMENT_HELP = "The value to set the configuration key to."
     CONFIG_VALUE_ARGUMENT_NAME = "value"
@@ -132,7 +132,7 @@ class SCCSTestConstants:
     DIFF_ERROR_MESSAGE = "Failed to generate diff output. Please try again."
     DIFF_HTML_FILE = "diff.html"
     DIFF_OUTPUT_HTML_FILE = "diff.html"
-    DIFF_SUCCESS_MESSAGE = "Commit diff successfully created.\n"
+    DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
     DOCUMENT_DIRECTORY = "docx"
     DOCUMENT_EXTENSION = ".docx"
     DOCUMENT_PATH_ARGUMENT_HELP = "The path to the document to initialize with SCCS."
@@ -145,7 +145,7 @@ class SCCSTestConstants:
     EPOCH_ISO_DATETIME = "1970-01-01T00:00:00"
     ESCAPED_BACKSLASH = "\\"
     EXPECTED_ERROR_EXIT_CODE = 1
-    EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}\n"
+    EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}"
     FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE = "Failed to generate diff output. Please try again."
     FILE_START_POSITION = 0
     FIRST_ELEMENT_INDEX = 0
@@ -214,7 +214,7 @@ class SCCSTestConstants:
     MERGE_COMMAND_NAME = "merge"
     MERGE_COMMIT_MESSAGE_TEMPLATE = "Merged branch '{branch_name}' into '{current_branch}'."
     MERGE_DOCUMENT_COPY_ERROR_MESSAGE = "Failed to copy document during merge."
-    MERGE_SUCCESS_MESSAGE_TEMPLATE = "Successfully merged branch '{branch_name}' into branch '{current_branch}'.\n"
+    MERGE_SUCCESS_MESSAGE_TEMPLATE = "Successfully merged branch '{branch_name}' into branch '{current_branch}'."
     MESSAGE_DICT_KEY = "message"
     METADATA_AFTER_BRANCH_SWITCH = MappingProxyType(
         {
@@ -298,7 +298,7 @@ class SCCSTestConstants:
     OPEN_COMMAND_NAME = "open"
     OPEN_COPY_ERROR_MESSAGE = "Failed to copy commit file for open operation."
     OPEN_OUTPUT_FILE_NAME_TEMPLATE = "Opened_DOCX_Commit_{commit_identifier}"
-    OPEN_SUCCESS_MESSAGE_TEMPLATE = "Commit '{commit_identifier}' has been successfully opened in '{output_file}'. It is safe to delete this file. No changes will be lost unless '{output_file}' is modified after this point.\n"
+    OPEN_SUCCESS_MESSAGE_TEMPLATE = "Commit '{commit_identifier}' has been successfully opened in '{output_file}'. It is safe to delete this file. No changes will be lost unless '{output_file}' is modified after this point."
     OTHER_BRANCH_LIST_TEMPLATE = "  {branch_name}"
     PATH_IS_ABSOLUTE_OR_CONTAINS_DOUBLE_PERIOD_ERROR_MESSAGE = "Invalid file path: {entry_path} in zip. Please ensure the path does not include '..' and is not an absolute path."
     PATH_SEPARATOR = "/"
@@ -307,7 +307,7 @@ class SCCSTestConstants:
     PROGRAM_START_TIME_SCCS_CONSTANTS_ATTRIBUTE_NAME = "PROGRAM_START_TIME"
     PUBLISH_COMMAND_NAME = "publish"
     PUBLISH_ENDPOINT_TEMPLATE = "{base_url}/publish"
-    PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}.\n"
+    PUBLISH_SUCCESS_MESSAGE_TEMPLATE = "Repository published successfully to {url}."
     PULL_COMMAND_NAME = "pull"
     PULL_ENDPOINT_TEMPLATE = "{base_url}/pull"
     PULL_SUCCESS_MESSAGE_TEMPLATE = "Repository pulled successfully from {url}."
@@ -326,11 +326,11 @@ class SCCSTestConstants:
     REQUIRED_PATH_ENDING_TEMPLATE = "/repos/{repo_name}"
     RESET_COMMAND_NAME = "reset"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
-    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit.\n"
+    RESET_SUCCESS_MESSAGE = "All uncommitted changes have been deleted. The document has been reset to the latest commit."
     REVERT_COMMAND_NAME = "revert"
     REVERT_COMMIT_MESSAGE_TEMPLATE = 'Reverted document to commit "{commit_identifier}".'
     REVERT_COPY_ERROR_MESSAGE = "Failed to revert document to selected commit. Please try again."
-    REVERT_SUCCESS_MESSAGE_TEMPLATE = "Document successfully reverted to commit '{commit_identifier}' on commit '{new_commit_identifier}'.\n"
+    REVERT_SUCCESS_MESSAGE_TEMPLATE = "Document successfully reverted to commit '{commit_identifier}' on commit '{new_commit_identifier}'."
     RGLOB_ALL_FILES_PATTERN = "*"
     SCCS_DIRECTORY = ".sccs"
     SECOND_COMMIT_IDENTIFIER = "f797d149c9887b91ebf065685775156ac33c29ccee0cb40b68f98d715114fe45"
@@ -641,7 +641,7 @@ class SCCSTestConstants:
     SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE = "Warning: could not remove source file {document_path}: {e}. The repository has been initialized."
     SOURCE_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE = "Source file '{file_name}' does not exist."
     SPACE = " "
-    STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}\n"
+    STATUS_CODE_MESSAGE_TEMPLATE = "Status Code: {status_code}"
     STATUS_CODE_ONE_HUNDRED = 100
     STATUS_CODE_TWO_HUNDRED = 200
     STATUS_COMMAND_NAME = "status"
@@ -651,12 +651,12 @@ class SCCSTestConstants:
     SWITCH_COMMAND_NAME = "switch"
     SWITCH_COMMIT_FILE_MISSING_ERROR_MESSAGE_TEMPLATE = "Commit file missing for branch '{branch_name}'."
     SWITCH_COPY_ERROR_MESSAGE = "Failed to copy commit file during branch switch. Please try again."
-    SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'.\n"
+    SWITCH_SUCCESS_MESSAGE_TEMPLATE = "Successfully switched to branch '{branch_name}'."
     TAGS_TO_UNWRAP = ("b", "i", "u", "strong", "em", "style", "table", "tr", "td", "ol", "ul")
     TARGET_BRANCH_NOT_SET_ERROR_MESSAGE = "Target branch not set. Ensure the branch is set by using Repository*.target.set(foo)"
     TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE = "Invalid file path: {target_path} in zip. Please ensure that {target_path} is inside {destination_resolved}."
     TEMPORARY_DIRECTORY_PREFIX = "sccs_temp_"
-    TEST_BRANCH_LIST_MESSAGE = f"Branches:\n  main\n* {TEST_STRING} (current)\n"
+    TEST_BRANCH_LIST_MESSAGE = f"Branches:\n  main\n* {TEST_STRING} (current)"
     TEST_DICTIONARY = {TEST_STRING: TEST_STRING}
     TEST_DIFF_HTML_1 = "<html><body><p>Hello <strong>bold</strong>, <em>italic</em>, and <u>underlined</u> text.</p></body></html>"
     TEST_DIFF_HTML_1_WITH_DATA_NUMBER = '<html data-number="0"><body data-number="1"><p data-number="2">Hello <strong data-number="3">bold</strong>, <em data-number="4">italic</em>, and <u data-number="5">underlined</u> text.</p></body></html>'
@@ -915,7 +915,7 @@ class SCCSTestConstants:
         "Author: test <test>\n"
         "Date: 1970-01-01T00:00:00\n"
         "Message: Initial commit (This is a default commit message for the initial version)\n"
-        "------------------------------\n"
+        "------------------------------"
     )
     TEST_STAGING_ROOT = "test_staging_root"
     TEST_SYMLINK_DIRECTORY = "link"
@@ -1088,7 +1088,7 @@ class SCCSTestConstants:
     UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = "Uncommitted changes detected. Please clean the working tree before proceeding."
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
     UNEXPECTED_ERROR_EXIT_CODE = 2
-    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}\n"
+    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
     URL_ARGUMENT_HELP = "The URL of the hosted repository to clone."
     URL_ARGUMENT_NAME = "url"

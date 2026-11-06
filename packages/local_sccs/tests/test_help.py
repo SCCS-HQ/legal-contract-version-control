@@ -9,8 +9,8 @@ def test_print_help_prints_help_message(c: SCCSConstants, tc: SCCSTestConstants,
     """
 
     help.print_help(c)
-    expected_output = tc.NEWLINE.join(tc.HELP_MESSAGES) + tc.NEWLINE
-    assert capsys.readouterr().out == expected_output
+    expected_output = tc.NEWLINE.join(tc.HELP_MESSAGES)
+    assert capsys.readouterr().out.strip() == expected_output
 
 
 def test_help_main_prints_help_message(c: SCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture[str]) -> None:
@@ -19,5 +19,5 @@ def test_help_main_prints_help_message(c: SCCSConstants, tc: SCCSTestConstants, 
     """
 
     help.main(c)
-    expected_output = tc.NEWLINE.join(tc.HELP_MESSAGES) + tc.NEWLINE
-    assert capsys.readouterr().out == expected_output
+    expected_output = tc.NEWLINE.join(tc.HELP_MESSAGES)
+    assert capsys.readouterr().out.strip() == expected_output

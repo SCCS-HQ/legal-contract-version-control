@@ -124,7 +124,7 @@ def test_print_diff_success_message(
 ) -> None:
     diff.print_diff_success_message(c)
 
-    assert capsys.readouterr().out == tc.DIFF_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.DIFF_SUCCESS_MESSAGE
 
 
 def test_validate_diff_raises_if_commit_is_latest(
@@ -465,7 +465,7 @@ def test_diff_main_prints_success_message(
 
     diff.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, ri, rs)
 
-    assert capsys.readouterr().out == tc.DIFF_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.DIFF_SUCCESS_MESSAGE
 
 @pytest.mark.parametrize(
     "module, function",

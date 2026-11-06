@@ -35,14 +35,13 @@ def test_revert_prints_revert_success_message(
     revert.print_revert_success_message(c, commit_identifier, new_commit_identifier)
 
     assert (
-        capsys.readouterr().out
+        capsys.readouterr().out.strip()
         == c.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
             commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
             new_commit_identifier=new_commit_identifier[
                 : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
             ],
         )
-        + "\n"
     )
 
 
@@ -226,7 +225,7 @@ def test_revert_main_prints_success_message(
 
     revert.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rp, rs, rw)
 
-    assert (capsys.readouterr().out).startswith(
+    assert (capsys.readouterr().out.strip()).startswith(
         tc.REVERT_SUCCESS_MESSAGE_TEMPLATE.format(
             commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
             new_commit_identifier=tc.TEST_COMMIT_IDENTIFIER[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],

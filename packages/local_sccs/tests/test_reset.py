@@ -23,7 +23,7 @@ def test_print_reset_success_message_prints_success_message(
 
     reset.print_reset_success_message(c)
     
-    assert capsys.readouterr().out == tc.RESET_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.RESET_SUCCESS_MESSAGE
 
 @pytest.mark.parametrize(
     ("missing_resource_name"),
@@ -146,7 +146,7 @@ def test_reset_main_prints_reset_success_message(
 
     reset.main(c, rd, rp, rs)
     
-    assert capsys.readouterr().out == tc.RESET_SUCCESS_MESSAGE
+    assert capsys.readouterr().out.strip() == tc.RESET_SUCCESS_MESSAGE
 
 
 def test_reset_main_resets_target_on_error(

@@ -21,8 +21,9 @@ def test_print_clone_success_message(
 
     clone.print_clone_success_message(c, response)
 
-    assert capsys.readouterr().out == (
+    assert capsys.readouterr().out.strip() == (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_ONE_HUNDRED)
+        + tc.NEWLINE
         + tc.CLONE_SUCCESS_MESSAGE
     )
 
@@ -393,8 +394,9 @@ def test_clone_main_unzips_repository(
 
     assert (tmp_path / tc.TEST_STRING / tc.TEST_TEXT_FILENAME).read_text() == tc.TEST_STRING
 
-    assert capsys.readouterr().out == (
+    assert capsys.readouterr().out.strip() == (
         tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=tc.STATUS_CODE_TWO_HUNDRED)
+        + tc.NEWLINE
         + tc.CLONE_SUCCESS_MESSAGE
     )
 

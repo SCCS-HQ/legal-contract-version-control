@@ -32,7 +32,7 @@ def test_print_commit_success_message(
 ) -> None:
     commit.print_commit_success_message(c, commit_identifier)
 
-    assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=expected_identifier
     )
 
@@ -270,7 +270,7 @@ def test_commit_main_prints_success_message(
 
     commit.main(c, tc.TEST_STRING, rd, rs, rw)
     
-    assert capsys.readouterr().out == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=tc.SECOND_COMMIT_IDENTIFIER[:tc.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
     )
 

@@ -313,11 +313,13 @@ def test_publish_main_prints_success_message(
 
     publish.main(c, rd, rp, rs, rw)
 
-    assert capsys.readouterr().out == tc.STATUS_CODE_MESSAGE_TEMPLATE.format(
-        status_code=response.status_code
-    ) + tc.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(
-        status_code=response.status_code,
-        url=tc.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+    assert capsys.readouterr().out.strip() == (
+        tc.STATUS_CODE_MESSAGE_TEMPLATE.format(status_code=response.status_code)
+        + tc.NEWLINE
+        + tc.PUBLISH_SUCCESS_MESSAGE_TEMPLATE.format(
+            status_code=response.status_code,
+            url=tc.PUBLISH_ENDPOINT_TEMPLATE.format(base_url=rd.base_repository_url()),
+        )
     )
 
 

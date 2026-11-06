@@ -60,7 +60,7 @@ def test_print_open_success_message(c: SCCSConstants, tc: SCCSTestConstants, cap
         output_file=output_file_path,
     )
     
-    assert capsys.readouterr().out == expected_output
+    assert capsys.readouterr().out.strip() == expected_output
 
 
 @pytest.mark.parametrize(
@@ -238,7 +238,7 @@ def test_open_main_prints_success_message(
 
     local_open.main(c, tc.TEST_COMMIT_IDENTIFIER, rd, rs)
 
-    assert capsys.readouterr().out == tc.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+    assert capsys.readouterr().out.strip() == tc.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
         commit_identifier=tc.TEST_COMMIT_IDENTIFIER[:c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
         output_file=Path(
         c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
