@@ -335,7 +335,7 @@ def test_merge_main_resets_target_branch_on_failure(repository_with_multiple_bra
     assert rs.target.get() is None
 
 
-def test_merge_main_merges_branch_into_current_branch_and_commits_changes(repository_with_multiple_branches: Path, c: SCCSConstants, target: TargetBranch, tc: SCCSTestConstants) -> None:
+def test_merge_main_merges_branch_into_current_branch_and_commits_changes(repository_with_multiple_branches: Path, c: SCCSConstants, target: TargetBranch, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch) -> None:
     rd = RepositoryData(
         repository_with_multiple_branches, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
@@ -350,6 +350,12 @@ def test_merge_main_merges_branch_into_current_branch_and_commits_changes(reposi
     )
     rw = RepositoryWrite(
         repository_with_multiple_branches, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(
+        SCCSConstants,
+        tc.PROGRAM_START_TIME_SCCS_CONSTANTS_ATTRIBUTE_NAME,
+        tc.EPOCH_ISO_DATETIME
     )
 
     merge.main(c, tc.TEST_STRING, rd, ri, rp, rs, rw)

@@ -962,12 +962,10 @@ class RepositoryWrite:
         if self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data and isinstance(
             current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
         ):
-            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = list(
-                set(
-                    current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY]
-                    + [current_branch]
-                )
-            )
+            updated = list(current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY])
+            if current_branch not in updated:
+                updated.append(current_branch)
+            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated
         else:
             current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = [current_branch]
         self.io.write_current_branch_data(current_branch_data)
