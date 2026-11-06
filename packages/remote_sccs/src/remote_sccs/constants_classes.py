@@ -74,6 +74,7 @@ class RemoteSCCSConstants:
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
     INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
+    IP_RETRIEVAL_ERROR_MESSAGE_TEMPLATE = "Error retrieving private IP address: {e}"
     LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
         "Local repository has objects that the remote does not have. "
         "Run 'sccs push' to upload these objects before pulling."
@@ -102,6 +103,7 @@ class RemoteSCCSConstants:
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
     REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
+    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = "Error creating repositories directory: {e}"
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (

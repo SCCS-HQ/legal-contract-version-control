@@ -18,3 +18,5 @@ class SCCSTestConstants:
         "on your internet network can access.",
     )
     NEWLINE = "\n"
+    REPOSITORIES_BASE_DIRECTORY = "./repos"
+    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = "Error creating repositories directory: {e}"

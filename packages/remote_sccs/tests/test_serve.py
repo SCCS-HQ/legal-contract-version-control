@@ -1,0 +1,127 @@
+import pytest
+from remote_sccs.constants_classes import RemoteSCCSConstants
+from remote_sccs.exceptions import RemoteSCCSException
+from test_constants import SCCSTestConstants
+from remote_sccs import serve
+from pathlib import Path
+from types import FunctionType
+import socket
+from unittest import mock
+import uvicorn
+
+
+def test_create_repositories_directory_creates_directory(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants
+) -> None:
+    
+    serve.create_repositories_directory(rc)
+    assert Path(tc.REPOSITORIES_BASE_DIRECTORY).exists()
+
+
+def test_create_repositories_directory_raises_if_directory_creation_fails(
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType
+) -> None:
+
+
+    monkeypatch.setattr(Path, "mkdir", raise_exception)
+
+    with pytest.raises(RemoteSCCSException) as e:
+        serve.create_repositories_directory(rc)
+
+        assert str(e.value) == tc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
+
+
+def test_print_SCCS_server_startup_prints_startup_messages(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture, monkeypatch: pytest.MonkeyPatch
+) -> None:
+
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+
+    serve.print_SCCS_server_startup(rc)
+
+    assert capsys.readouterr().out.strip() == (
+        "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000".format(ip_address="127.0.0.1") + tc.NEWLINE + "Starting Uvicorn Server..."
+    )
+    
+
+def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
+    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+) -> None:
+
+    monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
+
+    with pytest.raises(RemoteSCCSException) as e:
+        serve.print_SCCS_server_startup(rc)
+
+        assert str(e.value) == "Error retrieving private IP address: {e}".format(e=OSError)
+
+
+def test_serve_main_creates_repositories_directory(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+) -> None:
+
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+    monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
+
+    serve.main(rc)
+
+    assert Path(tc.REPOSITORIES_BASE_DIRECTORY).exists()
+
+
+def test_serve_main_raises_if_repositories_directory_creation_fails(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+) -> None:
+    
+    monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
+    monkeypatch.setattr(Path, "mkdir", raise_exception)
+
+    with pytest.raises(RemoteSCCSException):
+        serve.main(rc)
+
+
+def test_serve_main_prints_startup_messages(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+
+    monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+
+    serve.main(rc)
+
+    assert capsys.readouterr().out.strip() == (
+        "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000".format(ip_address="127.0.0.1") + tc.NEWLINE + "Starting Uvicorn Server..."
+    )
+
+
+def test_serve_main_raises_if_ip_retrieval_fails(
+    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+) -> None:
+
+    monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
+
+    with pytest.raises(RemoteSCCSException) as e:
+        serve.main(rc)
+
+        assert str(e.value) == "Error retrieving private IP address: {e}".format(e=OSError)
+
+
+def test_main_starts_uvicorn_server(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+) -> None:
+
+    calls = 0
+
+    def increment_calls(*args, **kwargs) -> None:
+        nonlocal calls
+        calls += 1
+
+    monkeypatch.setattr(uvicorn, "run", increment_calls)
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+
+    serve.main(rc)
+
+    assert calls == 1
+
