@@ -7,7 +7,7 @@ import pytest
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.repository_layout import TargetBranch
 import requests
-from types import FunctionType
+from types import FunctionType, SimpleNamespace
 from test_constants import SCCSTestConstants
 
 
@@ -196,4 +196,18 @@ def raise_request_exception(*args: Any, **kwargs: Any) -> FunctionType:
         raise requests.RequestException()
 
     return _raise_request_exception
-    
+
+
+@pytest.fixture()
+def CustomSimpleNamespace(tc: SCCSTestConstants) -> Any:
+    """
+    Return a custom SimpleNamespace class that returns the test string for the 'document_path' attribute.
+    """
+
+    class _CustomSimpleNamespace(SimpleNamespace):
+        def __getattr__(self, name: str) -> Any:
+            if name == tc.DOCUMENT_PATH_ARGUMENT_NAME:
+                return tc.TEST_STRING
+            return None
+
+    return _CustomSimpleNamespace

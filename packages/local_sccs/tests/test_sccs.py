@@ -1,0 +1,576 @@
+import argparse
+from local_sccs.constants_classes import SCCSConstants
+from test_constants import SCCSTestConstants
+
+import sys
+from types import SimpleNamespace
+from unittest.mock import MagicMock
+
+import pytest
+from typing import Any, Callable
+
+
+from local_sccs.exceptions import SCCSException
+from local_sccs import (
+    branch,
+    clone,
+    commit,
+    config,
+    diff,
+    help,
+    init,
+    log,
+    merge,
+    open,
+    publish,
+    pull,
+    push,
+    reset,
+    revert,
+    sccs,
+    status,
+    switch,
+    utils
+)
+
+def test_sccs_COMMANDS_does_not_drift(tc: SCCSTestConstants) -> None:
+    assert sccs.COMMANDS == {
+        tc.BRANCH_COMMAND_NAME: branch.main,
+        tc.CLONE_COMMAND_NAME: clone.main,
+        tc.COMMIT_COMMAND_NAME: commit.main,
+        tc.CONFIG_COMMAND_NAME: config.main,
+        tc.DIFF_COMMAND_NAME: diff.main,
+        tc.HELP_COMMAND_NAME: help.main,
+        tc.INIT_COMMAND_NAME: init.main,
+        tc.LOG_COMMAND_NAME: log.main,
+        tc.MERGE_COMMAND_NAME: merge.main,
+        tc.OPEN_COMMAND_NAME: open.main,
+        tc.PUBLISH_COMMAND_NAME: publish.main,
+        tc.PULL_COMMAND_NAME: pull.main,
+        tc.PUSH_COMMAND_NAME: push.main,
+        tc.RESET_COMMAND_NAME: reset.main,
+        tc.REVERT_COMMAND_NAME: revert.main,
+        tc.STATUS_COMMAND_NAME: status.main,
+        tc.SWITCH_COMMAND_NAME: switch.main,
+    }
+
+
+def test_create_argument_parser(c: SCCSConstants, tc: SCCSTestConstants) -> None:
+    parser = argparse.ArgumentParser(
+        prog=tc.LOCAL_SCCS,
+        description=tc.LOCAL_SCCS_DESCRIPTION,
+    )
+
+    parser.add_argument(
+        tc.DEBUG_FLAG_SHORT,
+        tc.DEBUG_FLAG,
+        action=tc.STORE_TRUE_ACTION,
+        help=tc.FLAG_DESCRIPTIONS[tc.DEBUG_FLAG_GENERAL],
+    )
+
+    command_parser = parser.add_subparsers(dest=tc.COMMAND_FIELD_NAME)
+
+    branch_parser = command_parser.add_parser(
+        tc.BRANCH_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.BRANCH_COMMAND_NAME]
+    )
+
+    branch_subcommand_parser = branch_parser.add_subparsers(
+        dest=tc.SUBCOMMAND_FIELD_NAME, required=True
+    )
+
+    branch_create_parser = branch_subcommand_parser.add_parser(
+        tc.CREATE_SUBCOMMAND, help=tc.BRANCH_CREATE_SUBCOMMAND_HELP
+    )
+
+    branch_create_parser.add_argument(
+        tc.BRANCH_NAME_ARGUMENT_NAME, help=tc.BRANCH_CREATE_ARGUMENT_HELP
+    )
+
+    branch_delete_parser = branch_subcommand_parser.add_parser(
+        tc.DELETE_SUBCOMMAND, help=tc.BRANCH_DELETE_SUBCOMMAND_HELP
+    )
+
+    branch_delete_parser.add_argument(
+        tc.BRANCH_NAME_ARGUMENT_NAME, help=tc.BRANCH_DELETE_ARGUMENT_HELP
+    )
+
+    branch_subcommand_parser.add_parser(
+        tc.LIST_SUBCOMMAND, help=tc.BRANCH_LIST_SUBCOMMAND_HELP
+    )
+
+    clone_parser = command_parser.add_parser(
+        tc.CLONE_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.CLONE_COMMAND_NAME]
+    )
+
+    clone_parser.add_argument(tc.URL_ARGUMENT_NAME, help=tc.URL_ARGUMENT_HELP)
+
+    commit_parser = command_parser.add_parser(
+        tc.COMMIT_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.COMMIT_COMMAND_NAME]
+    )
+
+    commit_parser.add_argument(
+        tc.COMMIT_MESSAGE_ARGUMENT_NAME,
+        help=tc.COMMIT_MESSAGE_ARGUMENT_HELP,
+    )
+
+    config_parser = command_parser.add_parser(
+        tc.CONFIG_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.CONFIG_COMMAND_NAME]
+    )
+
+    config_parser.add_argument(
+        tc.CONFIG_KEY_ARGUMENT_NAME,
+        help=tc.CONFIG_KEY_ARGUMENT_HELP_TEMPLATE.format(
+            keys=tc.COMMA_SPACE.join(tc.ACCEPTED_CONFIG_KEYS)
+        ),
+    )
+
+    config_parser.add_argument(
+        tc.CONFIG_VALUE_ARGUMENT_NAME, help=tc.CONFIG_VALUE_ARGUMENT_HELP
+    )
+
+    diff_parser = command_parser.add_parser(
+        tc.DIFF_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.DIFF_COMMAND_NAME]
+    )
+
+    diff_parser.add_argument(
+        tc.COMMIT_IDENTIFIER_ARGUMENT_NAME,
+        help=tc.COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP,
+    )
+
+    command_parser.add_parser(
+        tc.HELP_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.HELP_COMMAND_NAME]
+    )
+
+    init_parser = command_parser.add_parser(
+        tc.INIT_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.INIT_COMMAND_NAME]
+    )
+
+    init_parser.add_argument(
+        tc.DOCUMENT_PATH_ARGUMENT_NAME, help=tc.DOCUMENT_PATH_ARGUMENT_HELP
+    )
+
+    command_parser.add_parser(
+        tc.LOG_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.LOG_COMMAND_NAME]
+    )
+
+    merge_parser = command_parser.add_parser(
+        tc.MERGE_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.MERGE_COMMAND_NAME]
+    )
+
+    merge_parser.add_argument(
+        tc.BRANCH_NAME_ARGUMENT_NAME, help=tc.BRANCH_MERGE_ARGUMENT_HELP
+    )
+
+    open_parser = command_parser.add_parser(
+        tc.OPEN_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.OPEN_COMMAND_NAME]
+    )
+
+    open_parser.add_argument(
+        tc.COMMIT_IDENTIFIER_ARGUMENT_NAME,
+        help=tc.COMMIT_IDENTIFIER_OPEN_ARGUMENT_HELP,
+    )
+
+    command_parser.add_parser(
+        tc.PUBLISH_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.PUBLISH_COMMAND_NAME]
+    )
+
+    command_parser.add_parser(
+        tc.PULL_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.PULL_COMMAND_NAME]
+    )
+
+    command_parser.add_parser(
+        tc.PUSH_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.PUSH_COMMAND_NAME]
+    )
+
+    command_parser.add_parser(
+        tc.RESET_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.RESET_COMMAND_NAME]
+    )
+
+    revert_parser = command_parser.add_parser(
+        tc.REVERT_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.REVERT_COMMAND_NAME]
+    )
+
+    revert_parser.add_argument(
+        tc.COMMIT_IDENTIFIER_ARGUMENT_NAME,
+        help=tc.COMMIT_IDENTIFIER_REVERT_ARGUMENT_HELP,
+    )
+
+    command_parser.add_parser(
+        tc.STATUS_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.STATUS_COMMAND_NAME]
+    )
+
+    switch_parser = command_parser.add_parser(
+        tc.SWITCH_COMMAND_NAME, help=tc.COMMAND_DESCRIPTIONS[tc.SWITCH_COMMAND_NAME]
+    )
+
+    switch_parser.add_argument(
+        tc.BRANCH_NAME_ARGUMENT_NAME, help=tc.BRANCH_SWITCH_ARGUMENT_HELP
+    )
+
+    assert repr(sccs.create_argument_parser(c)) == repr(parser)
+
+
+def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
+    tc: SCCSTestConstants, capsys: pytest.CaptureFixture
+) -> None:
+
+    arguments = SimpleNamespace(command=tc.TEST_STRING, debug=False)
+
+    sccs.run_command(arguments) # pyright: ignore[reportArgumentType]
+    assert capsys.readouterr().out == (
+        tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE
+    )
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_run_command_prints_expected_error_message_if_command_raises_sccs_exception_if_debug_is_false(
+    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+
+
+
+    e = SCCSException(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+
+    with pytest.raises(SystemExit) as exc_info:
+        sccs.run_command(CustomSimpleNamespace(command=command, debug=False)) # pyright: ignore[reportArgumentType]
+
+        assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
+
+    assert capsys.readouterr().out == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_run_command_prints_unexpected_error_message_if_command_raises_unexpected_exception_if_debug_is_false(
+    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+
+
+
+    e = Exception(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+
+    with pytest.raises(SystemExit) as exc_info:
+        sccs.run_command(CustomSimpleNamespace(command=command, debug=False)) # pyright: ignore[reportArgumentType]
+
+        assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
+
+    assert capsys.readouterr().out == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_run_command_does_not_except_exceptions_if_debug_is_true(
+    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+    
+
+
+    e = Exception(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+
+    with pytest.raises(Exception) as exc_info:
+        sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+
+        assert exc_info.value == e
+
+
+def test_COMMAND_ARGUMENTS_does_not_drift(tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]) -> None:
+
+    assert sccs.COMMAND_ARGUMENTS(CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)) # pyright: ignore[reportArgumentType]
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_run_command_calls_specified_local_sccs_module_main(
+    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+    
+
+
+    calls = 0
+        
+    def increment_calls(*args: Any, **kwargs: Any) -> None:
+        nonlocal calls
+        calls += 1
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
+    
+    sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+
+    assert calls == 1
+
+
+def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_command_does_not_exist(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, tc: SCCSTestConstants) -> None:
+
+    monkeypatch.setattr(utils, "entered_argument", lambda *args, **kwargs: tc.TEST_STRING)
+
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
+
+    sccs.main()
+
+    assert capsys.readouterr().out == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING) + tc.NEWLINE + (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exception_if_debug_is_false(
+    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+
+
+
+
+    e = SCCSException(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False))
+
+    with pytest.raises(SystemExit) as exc_info:
+        sccs.main()
+        assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
+
+    assert capsys.readouterr().out == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_exception_if_debug_is_false(
+    tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture, command: str, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+
+
+
+
+    e = Exception(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=False))
+
+    with pytest.raises(SystemExit) as exc_info:
+        sccs.main()
+        assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
+
+    assert capsys.readouterr().out == tc.UNEXPECTED_ERROR_TEMPLATE.format(e=e, type_name=type(e).__name__)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
+    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+    
+
+
+    e = Exception(tc.TEST_STRING)
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)})
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True))
+
+    with pytest.raises(Exception) as exc_info:
+        sccs.main() # pyright: ignore[reportArgumentType]
+
+        assert exc_info.value == e
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "branch",
+        "clone",
+        "commit",
+        "config",
+        "diff",
+        "help",
+        "init",
+        "log",
+        "merge",
+        "open",
+        "publish",
+        "pull",
+        "push",
+        "reset",
+        "revert",
+        "status",
+        "switch",
+    ],
+)
+def test_sccs_main_calls_specified_local_sccs_module_main(
+    monkeypatch: pytest.MonkeyPatch, command: str, tc: SCCSTestConstants, CustomSimpleNamespace: Callable[..., Any]
+) -> None:
+    
+
+
+    calls = 0
+        
+    def increment_calls(*args: Any, **kwargs: Any) -> None:
+        nonlocal calls
+        calls += 1
+
+    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args", lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True))
+
+    
+    sccs.run_command(CustomSimpleNamespace(command=command, debug=True)) # pyright: ignore[reportArgumentType]
+
+    assert calls == 1
+
+
+
+# fixture for CustomSimpleNamespace
+
+
+def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture) -> None:
+
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
+    sccs.main()
+    assert capsys.readouterr().out == (tc.NEWLINE).join(tc.HELP_MESSAGES) + tc.NEWLINE

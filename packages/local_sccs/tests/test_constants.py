@@ -145,6 +145,7 @@ class SCCSTestConstants:
     EPOCH_ISO_DATETIME = "1970-01-01T00:00:00"
     ESCAPED_BACKSLASH = "\\"
     EXPECTED_ERROR_EXIT_CODE = 1
+    EXPECTED_ERROR_TEMPLATE = "An error occurred: {e}\n"
     FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE = "Failed to generate diff output. Please try again."
     FILE_START_POSITION = 0
     FIRST_ELEMENT_INDEX = 0
@@ -1087,6 +1088,7 @@ class SCCSTestConstants:
     UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE = "Uncommitted changes detected. Please clean the working tree before proceeding."
     UNCOMMITTED_CHANGES_FOUND = "Status Report: Uncommitted changes detected."
     UNEXPECTED_ERROR_EXIT_CODE = 2
+    UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}\n"
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
     URL_ARGUMENT_HELP = "The URL of the hosted repository to clone."
     URL_ARGUMENT_NAME = "url"

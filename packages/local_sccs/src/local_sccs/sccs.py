@@ -1,6 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
+from typing import Callable
 
 from local_sccs import (
     branch,
@@ -53,6 +54,146 @@ COMMANDS = {
     c.STATUS_COMMAND_NAME: status.main,
     c.SWITCH_COMMAND_NAME: switch.main,
 }
+
+
+def COMMAND_ARGUMENTS(arguments: argparse.Namespace) -> dict[str, Callable[[], list[log.Any]]]:
+    
+    c = SCCSConstants()
+    error_wrappers = ErrorWrappers()
+    wd = utils.working_directory(c)
+    target = TargetBranch(c)
+    wd_repository_name = wd.name
+
+    wd_rd = RepositoryData(wd, wd_repository_name, c, target)
+    wd_rp = RepositoryPaths(wd, wd_repository_name, c)
+    wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
+    wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
+
+    cwd_ri = RepositoryIO(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c)
+    cwd_rs = RepositoryStatus(utils.working_directory(c), wd_repository_name, c, target)
+    cwd_rw = RepositoryWrite(utils.working_directory(c), wd_repository_name, c, target)
+
+    return {
+        c.BRANCH_COMMAND_NAME: lambda: [
+            c,
+            arguments.subcommand,
+            getattr(arguments, c.BRANCH_NAME_ARGUMENT_NAME, None),
+            wd_rd,
+            wd_rp,
+            wd_rs,
+            wd_rw,
+        ],
+        c.CLONE_COMMAND_NAME: lambda: [c, arguments.url],
+        c.COMMIT_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_message,
+            wd_rd,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.CONFIG_COMMAND_NAME: lambda: [
+            c,
+            arguments.key,
+            arguments.value,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.DIFF_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_ri,
+            cwd_rs,
+        ],
+        c.HELP_COMMAND_NAME: lambda: [
+            c,
+        ],
+        c.INIT_COMMAND_NAME: lambda: [
+            c,
+            document_path := Path(arguments.document_path),
+            RepositoryIO(
+                repository_root := document_path.with_suffix(c.EMPTY_STRING),
+                root_repository_name := repository_root.name,
+                c,
+                target,
+            ),
+            RepositoryPaths(repository_root, root_repository_name, c),
+            RepositoryStatus(repository_root, root_repository_name, c, target),
+            RepositoryWrite(repository_root, root_repository_name, c, target),
+        ],
+        c.LOG_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_ri,
+            cwd_rs,
+        ],
+        c.MERGE_COMMAND_NAME: lambda: [
+            c,
+            arguments.branch_name,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.OPEN_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_rs,
+        ],
+        c.PUBLISH_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.PULL_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.PUSH_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_ri,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.RESET_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+        ],
+        c.REVERT_COMMAND_NAME: lambda: [
+            c,
+            arguments.commit_identifier,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+        c.STATUS_COMMAND_NAME: lambda: [
+            c,
+            wd_rd,
+            cwd_rs,
+        ],
+        c.SWITCH_COMMAND_NAME: lambda: [
+            c,
+            arguments.branch_name,
+            wd_rd,
+            cwd_rp,
+            cwd_rs,
+            cwd_rw,
+        ],
+    }
 
 
 def create_argument_parser(c: SCCSConstants) -> argparse.ArgumentParser:
@@ -222,154 +363,21 @@ def run_command(arguments: argparse.Namespace) -> None:
     If and invalid command is provided, inform the user and run SCCS help.
     """
 
+    c = SCCSConstants()
+    error_wrappers = ErrorWrappers()
+
     if arguments.command not in COMMANDS:
-        c = SCCSConstants()
         print(
             c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
         )
         help.main(c)
         return
 
-    c = SCCSConstants()
-    error_wrappers = ErrorWrappers()
-    wd = utils.working_directory(c)
-    target = TargetBranch(c)
-    wd_repository_name = wd.name
-
-    wd_rd = RepositoryData(wd, wd_repository_name, c, target)
-    wd_rp = RepositoryPaths(wd, wd_repository_name, c)
-    wd_rs = RepositoryStatus(wd, wd_repository_name, c, target)
-    wd_rw = RepositoryWrite(wd, wd_repository_name, c, target)
-
-    cwd_ri = RepositoryIO(utils.working_directory(c), wd_repository_name, c, target)
-    cwd_rp = RepositoryPaths(utils.working_directory(c), wd_repository_name, c)
-    cwd_rs = RepositoryStatus(utils.working_directory(c), wd_repository_name, c, target)
-    cwd_rw = RepositoryWrite(utils.working_directory(c), wd_repository_name, c, target)
-
-    COMMAND_ARGUMENTS = {
-        c.BRANCH_COMMAND_NAME: lambda: [
-            c,
-            arguments.subcommand,
-            getattr(arguments, c.BRANCH_NAME_ARGUMENT_NAME, None),
-            wd_rd,
-            wd_rp,
-            wd_rs,
-            wd_rw,
-        ],
-        c.CLONE_COMMAND_NAME: lambda: [c, arguments.url],
-        c.COMMIT_COMMAND_NAME: lambda: [
-            c,
-            arguments.commit_message,
-            wd_rd,
-            cwd_rs,
-            cwd_rw,
-        ],
-        c.CONFIG_COMMAND_NAME: lambda: [
-            c,
-            arguments.key,
-            arguments.value,
-            wd_rd,
-            cwd_ri,
-            cwd_rp,
-            cwd_rs,
-            cwd_rw,
-        ],
-        c.DIFF_COMMAND_NAME: lambda: [
-            c,
-            arguments.commit_identifier,
-            wd_rd,
-            cwd_ri,
-            cwd_rs,
-        ],
-        c.HELP_COMMAND_NAME: lambda: [
-            c,
-        ],
-        c.INIT_COMMAND_NAME: lambda: [
-            c,
-            document_path := Path(arguments.document_path),
-            RepositoryIO(
-                repository_root := document_path.with_suffix(c.EMPTY_STRING),
-                root_repository_name := repository_root.name,
-                c,
-                target,
-            ),
-            RepositoryPaths(repository_root, root_repository_name, c),
-            RepositoryStatus(repository_root, root_repository_name, c, target),
-            RepositoryWrite(repository_root, root_repository_name, c, target),
-        ],
-        c.LOG_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_ri,
-            cwd_rs,
-        ],
-        c.MERGE_COMMAND_NAME: lambda: [
-            c,
-            arguments.branch_name,
-            wd_rd,
-            cwd_ri,
-            cwd_rp,
-            cwd_rs,
-            cwd_rw,
-        ],
-        c.OPEN_COMMAND_NAME: lambda: [
-            c,
-            arguments.commit_identifier,
-            wd_rd,
-            cwd_rs,
-        ],
-        c.PUBLISH_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_rp,
-            cwd_rs,
-            cwd_rw,
-        ],
-        c.PULL_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_rp,
-            cwd_rs,
-        ],
-        c.PUSH_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_ri,
-            cwd_rp,
-            cwd_rs,
-        ],
-        c.RESET_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_rp,
-            cwd_rs,
-        ],
-        c.REVERT_COMMAND_NAME: lambda: [
-            c,
-            arguments.commit_identifier,
-            wd_rd,
-            cwd_rp,
-            cwd_rs,
-            cwd_rw,
-        ],
-        c.STATUS_COMMAND_NAME: lambda: [
-            c,
-            wd_rd,
-            cwd_rs,
-        ],
-        c.SWITCH_COMMAND_NAME: lambda: [
-            c,
-            arguments.branch_name,
-            wd_rd,
-            cwd_rp,
-            cwd_rs,
-            cwd_rw,
-        ],
-    }
+    args = COMMAND_ARGUMENTS(arguments)[arguments.command]()
 
     if not arguments.debug:
         try:
-            COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
+            COMMANDS[arguments.command](*args)
         except SCCSException as e:
             print(error_wrappers.EXPECTED_ERROR_TEMPLATE.format(e=e))
             sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
@@ -383,7 +391,7 @@ def run_command(arguments: argparse.Namespace) -> None:
             sys.exit(c.UNEXPECTED_ERROR_EXIT_CODE)
 
     else:
-        COMMANDS[arguments.command](*COMMAND_ARGUMENTS[arguments.command]())
+        COMMANDS[arguments.command](*args)
 
 
 def main() -> None:
