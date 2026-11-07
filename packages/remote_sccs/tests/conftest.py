@@ -2,7 +2,7 @@ import pytest
 from remote_sccs.constants_classes import RemoteSCCSConstants
 from test_constants import SCCSTestConstants
 from typing import Any
-from types import FunctionType
+from types import FunctionType, SimpleNamespace
 
 
 @pytest.fixture()
@@ -15,6 +15,19 @@ def rc() -> RemoteSCCSConstants:
 def tc() -> SCCSTestConstants:
 
     return SCCSTestConstants()
+
+
+@pytest.fixture()
+def CustomSimpleNamespace(tc: SCCSTestConstants) -> Any:
+    """
+    Return a custom SimpleNamespace class that returns None for missing attributes.
+    """
+
+    class _CustomSimpleNamespace(SimpleNamespace):
+        def __getattr__(self, name: str) -> Any:
+            return None
+
+    return _CustomSimpleNamespace
 
 
 @pytest.fixture()
