@@ -264,7 +264,9 @@ def test_run_command_prints_expected_error_message_if_command_raises_sccs_except
     e = SCCSException(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
 
     with pytest.raises(SystemExit) as exc_info:
@@ -310,7 +312,9 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
 
     with pytest.raises(SystemExit) as exc_info:
@@ -357,7 +361,9 @@ def test_run_command_does_not_except_exceptions_if_debug_is_true(
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
 
     with pytest.raises(Exception) as exc_info:
@@ -558,7 +564,11 @@ def test_run_command_calls_specified_local_sccs_module_main(
         nonlocal calls
         calls += 1
 
-    monkeypatch.setattr(sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: increment_calls})
+    monkeypatch.setattr(
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: increment_calls},
+    )
 
     sccs_entrypoint.run_command(
         CustomSimpleNamespace(command=command, debug=True)
@@ -622,7 +632,9 @@ def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exceptio
     e = SCCSException(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -671,7 +683,9 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -721,7 +735,9 @@ def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)},
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -771,7 +787,11 @@ def test_sccs_main_calls_specified_local_sccs_module_main(
         nonlocal calls
         calls += 1
 
-    monkeypatch.setattr(sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: increment_calls})
+    monkeypatch.setattr(
+        sccs_entrypoint,
+        "COMMANDS",
+        {**sccs_entrypoint.COMMANDS, command: increment_calls},
+    )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
         argparse.ArgumentParser,
