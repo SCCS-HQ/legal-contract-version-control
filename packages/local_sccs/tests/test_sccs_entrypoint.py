@@ -22,7 +22,7 @@ from local_sccs import (
     push,
     reset,
     revert,
-    sccs,
+    sccs_entrypoint,
     status,
     switch,
     utils,
@@ -41,7 +41,7 @@ from test_constants import SCCSTestConstants
 
 
 def test_sccs_COMMANDS_does_not_drift(tc: SCCSTestConstants) -> None:
-    assert sccs.COMMANDS == {
+    assert sccs_entrypoint.COMMANDS == {
         tc.BRANCH_COMMAND_NAME: branch.main,
         tc.CLONE_COMMAND_NAME: clone.main,
         tc.COMMIT_COMMAND_NAME: commit.main,
@@ -214,7 +214,7 @@ def test_create_argument_parser(c: SCCSConstants, tc: SCCSTestConstants) -> None
         tc.BRANCH_NAME_ARGUMENT_NAME, help=tc.BRANCH_SWITCH_ARGUMENT_HELP
     )
 
-    assert repr(sccs.create_argument_parser(c)) == repr(parser)
+    assert repr(sccs_entrypoint.create_argument_parser(c)) == repr(parser)
 
 
 def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
@@ -223,7 +223,7 @@ def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
 
     arguments = SimpleNamespace(command=tc.TEST_STRING, debug=False)
 
-    sccs.run_command(arguments)  # pyright: ignore[reportArgumentType]
+    sccs_entrypoint.run_command(arguments)  # pyright: ignore[reportArgumentType]
     assert capsys.readouterr().out.strip() == (
         tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
         + tc.NEWLINE
@@ -264,11 +264,11 @@ def test_run_command_prints_expected_error_message_if_command_raises_sccs_except
     e = SCCSException(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.run_command(
+        sccs_entrypoint.run_command(
             CustomSimpleNamespace(command=command, debug=False)
         )  # pyright: ignore[reportArgumentType]
 
@@ -310,11 +310,11 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.run_command(
+        sccs_entrypoint.run_command(
             CustomSimpleNamespace(command=command, debug=False)
         )  # pyright: ignore[reportArgumentType]
 
@@ -357,11 +357,11 @@ def test_run_command_does_not_except_exceptions_if_debug_is_true(
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
 
     with pytest.raises(Exception) as exc_info:
-        sccs.run_command(
+        sccs_entrypoint.run_command(
             CustomSimpleNamespace(command=command, debug=True)
         )  # pyright: ignore[reportArgumentType]
 
@@ -510,7 +510,7 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
         ],
     }
 
-    result = sccs.COMMAND_ARGUMENTS(
+    result = sccs_entrypoint.COMMAND_ARGUMENTS(
         CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)
     )
 
@@ -558,9 +558,9 @@ def test_run_command_calls_specified_local_sccs_module_main(
         nonlocal calls
         calls += 1
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
+    monkeypatch.setattr(sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: increment_calls})
 
-    sccs.run_command(
+    sccs_entrypoint.run_command(
         CustomSimpleNamespace(command=command, debug=True)
     )  # pyright: ignore[reportArgumentType]
 
@@ -579,7 +579,7 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
 
-    sccs.main()
+    sccs_entrypoint.main()
 
     assert (
         capsys.readouterr().out.strip()
@@ -622,7 +622,7 @@ def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exceptio
     e = SCCSException(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -632,7 +632,7 @@ def test_sccs_main_prints_expected_error_message_if_command_raises_sccs_exceptio
     )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.main()
+        sccs_entrypoint.main()
         assert exc_info.value.code == tc.EXPECTED_ERROR_EXIT_CODE
 
     assert capsys.readouterr().out.strip() == tc.EXPECTED_ERROR_TEMPLATE.format(e=e)
@@ -671,7 +671,7 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -681,7 +681,7 @@ def test_sccs_main_prints_unexpected_error_message_if_command_raises_unexpected_
     )
 
     with pytest.raises(SystemExit) as exc_info:
-        sccs.main()
+        sccs_entrypoint.main()
         assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
 
     assert capsys.readouterr().out.strip() == tc.UNEXPECTED_ERROR_TEMPLATE.format(
@@ -721,7 +721,7 @@ def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        sccs, "COMMANDS", {**sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: MagicMock(side_effect=e)}
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -731,7 +731,7 @@ def test_sccs_main_does_not_except_exceptions_if_debug_is_true(
     )
 
     with pytest.raises(Exception) as exc_info:
-        sccs.main()  # pyright: ignore[reportArgumentType]
+        sccs_entrypoint.main()  # pyright: ignore[reportArgumentType]
 
         assert exc_info.value == e
 
@@ -771,7 +771,7 @@ def test_sccs_main_calls_specified_local_sccs_module_main(
         nonlocal calls
         calls += 1
 
-    monkeypatch.setattr(sccs, "COMMANDS", {**sccs.COMMANDS, command: increment_calls})
+    monkeypatch.setattr(sccs_entrypoint, "COMMANDS", {**sccs_entrypoint.COMMANDS, command: increment_calls})
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
         argparse.ArgumentParser,
@@ -779,7 +779,7 @@ def test_sccs_main_calls_specified_local_sccs_module_main(
         lambda *args, **kwargs: CustomSimpleNamespace(command=command, debug=True),
     )
 
-    sccs.run_command(
+    sccs_entrypoint.run_command(
         CustomSimpleNamespace(command=command, debug=True)
     )  # pyright: ignore[reportArgumentType]
 
@@ -796,5 +796,5 @@ def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(
 ) -> None:
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
-    sccs.main()
+    sccs_entrypoint.main()
     assert capsys.readouterr().out.strip() == (tc.NEWLINE).join(tc.HELP_MESSAGES)
