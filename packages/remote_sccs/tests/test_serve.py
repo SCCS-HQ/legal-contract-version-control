@@ -1,19 +1,20 @@
+import socket
+from pathlib import Path
+from types import FunctionType
+from unittest import mock
+
 import pytest
+import uvicorn
+from remote_sccs import serve
 from remote_sccs.constants_classes import RemoteSCCSConstants
 from remote_sccs.exceptions import RemoteSCCSException
 from test_constants import SCCSTestConstants
-from remote_sccs import serve
-from pathlib import Path
-from types import FunctionType
-import socket
-from unittest import mock
-import uvicorn
 
 
 def test_create_repositories_directory_creates_directory(
     rc: RemoteSCCSConstants, tc: SCCSTestConstants
 ) -> None:
-    
+
     serve.create_repositories_directory(rc)
     assert Path(tc.REPOSITORIES_BASE_DIRECTORY).exists()
 
@@ -22,33 +23,48 @@ def test_create_repositories_directory_raises_if_directory_creation_fails(
     rc: RemoteSCCSConstants,
     tc: SCCSTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType
+    raise_exception: FunctionType,
 ) -> None:
-
 
     monkeypatch.setattr(Path, "mkdir", raise_exception)
 
     with pytest.raises(RemoteSCCSException) as e:
         serve.create_repositories_directory(rc)
 
-        assert str(e.value) == tc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
+        assert str(
+            e.value
+        ) == tc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
 
 
 def test_print_SCCS_server_startup_prints_startup_messages(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture, monkeypatch: pytest.MonkeyPatch
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    capsys: pytest.CaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
+    monkeypatch.setattr(
+        socket.socket,
+        "getsockname",
+        lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT),
+    )
 
     serve.print_SCCS_server_startup(rc)
 
     assert capsys.readouterr().out.strip() == (
-        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(ip_address=tc.DEFAULT_IP_ADDRESS) + tc.NEWLINE + tc.STARTING_UVICORN_SERVER_MESSAGE
+        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(
+            ip_address=tc.DEFAULT_IP_ADDRESS
+        )
+        + tc.NEWLINE
+        + tc.STARTING_UVICORN_SERVER_MESSAGE
     )
-    
+
 
 def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
-    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType, tc: SCCSTestConstants
+    rc: RemoteSCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+    tc: SCCSTestConstants,
 ) -> None:
 
     monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
@@ -56,14 +72,20 @@ def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.print_SCCS_server_startup(rc)
 
-        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(
+            e=OSError
+        )
 
 
 def test_serve_main_creates_repositories_directory(
     rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
+    monkeypatch.setattr(
+        socket.socket,
+        "getsockname",
+        lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT),
+    )
     monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
 
     serve.main(rc)
@@ -72,9 +94,12 @@ def test_serve_main_creates_repositories_directory(
 
 
 def test_serve_main_raises_if_repositories_directory_creation_fails(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
 ) -> None:
-    
+
     monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
     monkeypatch.setattr(Path, "mkdir", raise_exception)
 
@@ -83,21 +108,35 @@ def test_serve_main_raises_if_repositories_directory_creation_fails(
 
 
 def test_serve_main_prints_startup_messages(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
 ) -> None:
 
     monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
+    monkeypatch.setattr(
+        socket.socket,
+        "getsockname",
+        lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT),
+    )
 
     serve.main(rc)
 
     assert capsys.readouterr().out.strip() == (
-        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(ip_address=tc.DEFAULT_IP_ADDRESS) + tc.NEWLINE + tc.STARTING_UVICORN_SERVER_MESSAGE
+        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(
+            ip_address=tc.DEFAULT_IP_ADDRESS
+        )
+        + tc.NEWLINE
+        + tc.STARTING_UVICORN_SERVER_MESSAGE
     )
 
 
 def test_serve_main_raises_if_ip_retrieval_fails(
-    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType, tc: SCCSTestConstants
+    rc: RemoteSCCSConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+    tc: SCCSTestConstants,
 ) -> None:
 
     monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
@@ -105,11 +144,16 @@ def test_serve_main_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.main(rc)
 
-        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(
+            e=OSError
+        )
 
 
 def test_main_starts_uvicorn_server(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
 ) -> None:
 
     calls = 0
@@ -119,9 +163,12 @@ def test_main_starts_uvicorn_server(
         calls += 1
 
     monkeypatch.setattr(uvicorn, "run", increment_calls)
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
+    monkeypatch.setattr(
+        socket.socket,
+        "getsockname",
+        lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT),
+    )
 
     serve.main(rc)
 
     assert calls == 1
-

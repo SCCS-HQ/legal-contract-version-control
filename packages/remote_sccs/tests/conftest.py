@@ -1,8 +1,9 @@
+from types import FunctionType, SimpleNamespace
+from typing import Any
+
 import pytest
 from remote_sccs.constants_classes import RemoteSCCSConstants
 from test_constants import SCCSTestConstants
-from typing import Any
-from types import FunctionType, SimpleNamespace
 
 
 @pytest.fixture()

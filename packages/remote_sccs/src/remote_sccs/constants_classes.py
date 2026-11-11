@@ -103,7 +103,9 @@ class RemoteSCCSConstants:
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
     REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
-    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = "Error creating repositories directory: {e}"
+    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = (
+        "Error creating repositories directory: {e}"
+    )
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (

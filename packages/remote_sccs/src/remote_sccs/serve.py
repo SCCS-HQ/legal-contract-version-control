@@ -2,8 +2,8 @@ import socket
 from pathlib import Path
 
 import uvicorn
-from remote_sccs.exceptions import RemoteSCCSException
 from remote_sccs.constants_classes import RemoteSCCSConstants
+from remote_sccs.exceptions import RemoteSCCSException
 from remote_sccs.main import app
 
 
@@ -16,7 +16,9 @@ def create_repositories_directory(rc: RemoteSCCSConstants) -> None:
     try:
         Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(exist_ok=True)
     except Exception as e:
-        raise RemoteSCCSException(rc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=e))
+        raise RemoteSCCSException(
+            rc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=e)
+        )
 
 
 def print_SCCS_server_startup(rc: RemoteSCCSConstants) -> None:

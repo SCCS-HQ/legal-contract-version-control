@@ -5,8 +5,9 @@ from typing import Any, Callable
 from unittest.mock import MagicMock
 
 import pytest
-from remote_sccs import help, serve
+from remote_sccs import help
 from remote_sccs import remote_sccs_entrypoint as remote_sccs
+from remote_sccs import serve
 from remote_sccs.constants_classes import RemoteSCCSConstants
 from test_constants import SCCSTestConstants
 
@@ -61,12 +62,16 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_exception
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        remote_sccs, "COMMANDS", {**remote_sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        remote_sccs,
+        "COMMANDS",
+        {**remote_sccs.COMMANDS, command: MagicMock(side_effect=e)},
     )
 
     with pytest.raises(SystemExit) as exc_info:
         remote_sccs.run_command(
-            CustomSimpleNamespace(command=command)  # pyright: ignore[reportArgumentType]
+            CustomSimpleNamespace(
+                command=command
+            )  # pyright: ignore[reportArgumentType]
         )
 
     assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
@@ -142,7 +147,9 @@ def test_remote_sccs_main_prints_unexpected_error_message_if_command_raises_exce
     e = Exception(tc.TEST_STRING)
 
     monkeypatch.setattr(
-        remote_sccs, "COMMANDS", {**remote_sccs.COMMANDS, command: MagicMock(side_effect=e)}
+        remote_sccs,
+        "COMMANDS",
+        {**remote_sccs.COMMANDS, command: MagicMock(side_effect=e)},
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
