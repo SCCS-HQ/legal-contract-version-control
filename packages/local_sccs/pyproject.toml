@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-sccs = "local_sccs.sccs:main"
+sccs = "local_sccs.sccs_entrypoint:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
