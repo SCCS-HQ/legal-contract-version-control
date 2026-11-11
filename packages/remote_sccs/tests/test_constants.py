@@ -48,9 +48,7 @@ class SCCSTestConstants:
     INVALID_JSON_DATA_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME = "../repo"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
-    IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE = (
-        "Error retrieving private IP address"
-    )
+    IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE = "Error retrieving private IP address"
     IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = (
         "Your Remote-SCCS server will be accessible on you internet network "
         "at http://{ip_address}:8000"
