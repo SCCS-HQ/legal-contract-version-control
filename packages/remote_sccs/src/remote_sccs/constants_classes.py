@@ -51,6 +51,7 @@ class RemoteSCCSConstants:
     FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
     FIRST_ITEM_INDEX = 0
 
+    @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
         """
         Return the help messages listing the available SCCS commands
@@ -73,6 +74,7 @@ class RemoteSCCSConstants:
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
     INVALID_ZIP_PATH_ERROR_MESSAGE = "Invalid file path in zip"
+    IP_RETRIEVAL_ERROR_MESSAGE = "Error retrieving private IP address"
     LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
         "Local repository has objects that the remote does not have. "
         "Run 'sccs push' to upload these objects before pulling."
@@ -95,12 +97,15 @@ class RemoteSCCSConstants:
     PUBLISH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/publish"
     PULL_ENDPOINT_TEMPLATE = "/repos/{repository_name}/pull"
     PUSH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/push"
-    PUSH_SUCCESS_MESSAGE = "changes pushed successfully"
+    PUSH_SUCCESS_MESSAGE = "Changes pushed successfully"
     REMOTE_KEY = "remote"
     REMOTE_SCCS = "remote_sccs"
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
     REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
+    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE = (
+        "Error creating repositories directory"
+    )
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
