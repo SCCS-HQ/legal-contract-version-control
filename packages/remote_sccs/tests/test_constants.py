@@ -77,9 +77,7 @@ class SCCSTestConstants:
         "Error creating repositories directory: {e}"
     )
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
-    REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = (
-        "Repository name does not match file name"
-    )
+    REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
         "Repository not found: {repository_name}"
     )

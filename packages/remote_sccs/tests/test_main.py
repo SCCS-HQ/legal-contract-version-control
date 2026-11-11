@@ -48,10 +48,7 @@ def test_validate_repository_name_returns_resolved_name(
         assert e.value.status_code == tc.STATUS_CODE_400
         assert e.value.detail == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
     else:
-        assert (
-            repository_name
-            == main.validate_repository_name(repository_name).value
-        )
+        assert repository_name == main.validate_repository_name(repository_name).value
 
 
 @pytest.mark.parametrize("directory", [("dir/dir2/dir3"), ("path/path")])
@@ -234,9 +231,7 @@ def test_safe_extract_zip_raises_if_target_path_escapes_via_symlink(
 ) -> None:
     """Verify ``safe_extract_zip`` rejects symlink escapes from the target."""
 
-    (tmp_path / tc.TEST_STRING).symlink_to(
-        tmp_path.parent, target_is_directory=True
-    )
+    (tmp_path / tc.TEST_STRING).symlink_to(tmp_path.parent, target_is_directory=True)
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, mode="w") as zf:
@@ -320,9 +315,7 @@ def test_safe_extract_zip_extracts_directory_members(
 
     assert (tmp_path / tc.TEST_STRING).is_dir()
     with open(
-        tmp_path
-        / tc.TEST_STRING
-        / (tc.SECOND_TEST_STRING + tc.TEXT_FILE_EXTENSION),
+        tmp_path / tc.TEST_STRING / (tc.SECOND_TEST_STRING + tc.TEXT_FILE_EXTENSION),
         "r",
     ) as f:
         assert f.read() == tc.SECOND_TEST_STRING
@@ -1168,6 +1161,7 @@ async def test_push_upload_raises_if_any_file_in_zf_infolist_is_larger_than_10mb
     assert e.value.detail == tc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
         filename=tc.TEST_STRING + tc.TEXT_FILE_EXTENSION
     )
+
 
 @pytest.mark.asyncio
 async def test_push_upload_raises_if_len_of_zf_infolist_is_greater_than_1000(

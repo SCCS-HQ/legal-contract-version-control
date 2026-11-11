@@ -23,9 +23,7 @@ def test_remote_sccs_COMMANDS_does_not_drift(rc: RemoteSCCSConstants) -> None:
     }
 
 
-def test_create_argument_parser(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants
-) -> None:
+def test_create_argument_parser(rc: RemoteSCCSConstants, tc: SCCSTestConstants) -> None:
     """Verify ``create_argument_parser`` returns the expected parser."""
 
     parser = argparse.ArgumentParser(
@@ -122,9 +120,7 @@ def test_run_command_calls_specified_remote_sccs_module_main(
     )
 
     remote_sccs.run_command(
-        CustomSimpleNamespace(  # pyright: ignore[reportArgumentType]
-            command=command
-        )
+        CustomSimpleNamespace(command=command)  # pyright: ignore[reportArgumentType]
     )
 
     assert calls == 1
