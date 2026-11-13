@@ -7,6 +7,7 @@ from pathlib import Path
 from types import FunctionType
 from typing import Any
 
+import platformdirs
 import pytest
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -812,6 +813,36 @@ def test_repository_io_read_config_returns_config(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
+    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+
+
+def test_repository_io_read_config_returns_local_config_when_global_config_missing_or_invalid(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+
+    test_config_dir.mkdir()
+    (test_config_dir / c.CONFIG_JSON_FILENAME).write_text(
+        "{", encoding=tc.UTF_8, newline=tc.NEWLINE
+    )
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
 
