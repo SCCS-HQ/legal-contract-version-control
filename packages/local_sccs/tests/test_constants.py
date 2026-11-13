@@ -271,6 +271,10 @@ class SCCSTestConstants:
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
         "File is not a .docx file. Please provide a valid .docx file."
     )
+    INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data. Please ensure the JSON is valid."
+    GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE = (
+        "Global config file does not exist."
+    )
     INVALID_KEY_ERROR_MESSAGE = "Invalid configuration key provided. Please provide one of the valid keys: remote, name, email."
     INVALID_PATH_ENDING_ERROR_MESSAGE = "API URL must end with '/repos/your-repo-name'."
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name. Please ensure the repository is properly initialized with a valid name."

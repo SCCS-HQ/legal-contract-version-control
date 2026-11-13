@@ -1027,7 +1027,7 @@ def test_repository_io_write_config_writes_config(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    ri.write_config(tc.TEST_DICTIONARY)
+    ri.write_local_config(tc.TEST_DICTIONARY)
 
     with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
         metadata = json.load(f)

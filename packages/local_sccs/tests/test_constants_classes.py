@@ -200,6 +200,9 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "FLAG_DESCRIPTIONS": MappingProxyType(
         {"debug": "Does not except Exception or SCCSException."}
     ),
+    "GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE": (
+        "Global config file does not exist."
+    ),
     "FULL_COMMIT_IDENTIFIER_LENGTH": 64,
     "HELP_COMMAND_NAME": "help",
     "HEX_DIGITS": "0123456789abcdef",
@@ -263,6 +266,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
         "Invalid configuration key provided. Please provide one of the valid keys: "
         "remote, name, email."
     ),
+    "INVALID_JSON_ERROR_MESSAGE": "Invalid JSON data. Please ensure the JSON is valid.",
     "INVALID_PATH_ENDING_ERROR_MESSAGE": (
         "API URL must end with '/repos/your-repo-name'."
     ),
