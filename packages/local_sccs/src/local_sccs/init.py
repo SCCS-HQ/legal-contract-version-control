@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 import mammoth
+import platformdirs
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -13,7 +14,6 @@ from local_sccs.repository_layout import (
     RepositoryStatus,
     RepositoryWrite,
 )
-import platformdirs
 
 
 def get_config_key(c: SCCSConstants, key: str) -> str:
@@ -22,10 +22,14 @@ def get_config_key(c: SCCSConstants, key: str) -> str:
     Raise an SCCSException if the value is empty.
     """
 
-    if (platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / c.CONFIG_JSON_FILENAME).is_file():
+    if (
+        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
+        / c.CONFIG_JSON_FILENAME
+    ).is_file():
 
         with open(
-            platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / c.CONFIG_JSON_FILENAME,
+            platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
+            / c.CONFIG_JSON_FILENAME,
             "r",
             encoding=c.UTF_8,
             newline=c.NEWLINE,
@@ -34,7 +38,7 @@ def get_config_key(c: SCCSConstants, key: str) -> str:
 
             if key in global_config and global_config[key]:
                 return global_config[key]
-            
+
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
     utils.raise_if_empty(c, data_value, key, capitalize=True)
 

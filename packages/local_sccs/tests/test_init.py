@@ -40,7 +40,9 @@ def test_get_config_key_raises_if_empty(
     "key, value",
     [("name", "John Doe"), ("email", "john.doe@example.com"), ("test", "test_value")],
 )
-def test_get_config_key_returns_input(c: SCCSConstants, key: str, value: str, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_config_key_returns_input(
+    c: SCCSConstants, key: str, value: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
 
     monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
 
@@ -746,7 +748,11 @@ def test_init_main_raises_if_write_to_commit_metadata_fails(
 
 
 def test_init_main_raises_if_name_is_empty(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    target: TargetBranch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
@@ -769,7 +775,11 @@ def test_init_main_raises_if_name_is_empty(
 
 
 def test_init_main_raises_if_email_is_empty(
-    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
+    monkeypatch: pytest.MonkeyPatch,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    target: TargetBranch,
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
@@ -792,7 +802,11 @@ def test_init_main_raises_if_email_is_empty(
 
 
 def test_init_main_raises_if_name_contains_invalid_characters(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    target: TargetBranch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
@@ -817,7 +831,11 @@ def test_init_main_raises_if_name_contains_invalid_characters(
 
 
 def test_init_main_raises_if_email_contains_invalid_characters(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    target: TargetBranch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
@@ -852,16 +870,10 @@ def test_init_main_raises_if_document_deletion_fails(
 ) -> None:
     repo_root = tmp_path / tc.TEST_STRING
     repo_root.mkdir(parents=True, exist_ok=True)
-    ri = RepositoryIO(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    ri = RepositoryIO(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rw = RepositoryWrite(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rs = RepositoryStatus(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rw = RepositoryWrite(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
 
@@ -897,16 +909,10 @@ def test_init_main_raises_if_staging_deletion_fails(
 ) -> None:
     repo_root = tmp_path / tc.TEST_STRING
     repo_root.mkdir(parents=True, exist_ok=True)
-    ri = RepositoryIO(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    ri = RepositoryIO(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rw = RepositoryWrite(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rs = RepositoryStatus(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rw = RepositoryWrite(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
 
@@ -934,16 +940,10 @@ def test_init_main_deletes_staging_directory_if_error_occurs(
 ) -> None:
     repo_root = tmp_path / tc.TEST_STRING
     repo_root.mkdir(parents=True, exist_ok=True)
-    ri = RepositoryIO(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    ri = RepositoryIO(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
-    rs = RepositoryStatus(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rw = RepositoryWrite(
-        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rs = RepositoryStatus(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rw = RepositoryWrite(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
 

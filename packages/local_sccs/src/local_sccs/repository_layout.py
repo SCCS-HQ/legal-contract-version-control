@@ -7,10 +7,10 @@ from pathlib import Path
 from typing import Any
 
 import mammoth
+import platformdirs
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
-import platformdirs
 
 
 class TargetBranch:
@@ -414,7 +414,9 @@ class RepositoryIO:
             / self.c.CONFIG_JSON_FILENAME
         )
         try:
-            with open(config_path, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+            with open(
+                config_path, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+            ) as f:
                 global_config = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             global_config = {}
@@ -1098,7 +1100,7 @@ class RepositoryWrite:
             config[key] = value
 
             self.io.write_config(config)
-        
+
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
 
             config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})

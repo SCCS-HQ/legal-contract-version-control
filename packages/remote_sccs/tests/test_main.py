@@ -1434,7 +1434,7 @@ async def test_pull_raises_if_data_is_invalid(
 
     with pytest.raises(HTTPException) as e:
         await main.pull(
-            tc.VALID_REPOSITORY_NAME, data # pyright: ignore[reportArgumentType]
+            tc.VALID_REPOSITORY_NAME, data  # pyright: ignore[reportArgumentType]
         )
 
     assert e.value.status_code == tc.STATUS_CODE_400

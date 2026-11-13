@@ -396,8 +396,9 @@ def test_safe_extract_zip_rejects_symlink_escape(
     with pytest.raises(SCCSException) as e:
         utils.safe_extract_zip(
             c,
-            None, # pyright: ignore[reportArgumentType]
-            tc.TEST_SYMLINK_DIRECTORY, destination_path
+            None,  # pyright: ignore[reportArgumentType]
+            tc.TEST_SYMLINK_DIRECTORY,
+            destination_path,
         )
     assert str(
         e.value

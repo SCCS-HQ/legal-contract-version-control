@@ -832,16 +832,20 @@ def test_repository_io_read_config_returns_local_config_when_global_config_missi
     test_config_dir = tmp_path / tc.TEST_STRING
 
     monkeypatch.setattr(
-        repository_layout.platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+        repository_layout.platformdirs,
+        "user_config_path",
+        lambda *args, **kwargs: test_config_dir,
     )
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
-    
+
     test_config_dir.mkdir()
     (test_config_dir / c.CONFIG_JSON_FILENAME).write_text(
         "{", encoding=tc.UTF_8, newline=tc.NEWLINE
     )
     monkeypatch.setattr(
-        repository_layout.platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+        repository_layout.platformdirs,
+        "user_config_path",
+        lambda *args, **kwargs: test_config_dir,
     )
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
