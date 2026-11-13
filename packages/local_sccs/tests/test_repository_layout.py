@@ -7,6 +7,7 @@ from pathlib import Path
 from types import FunctionType
 from typing import Any
 
+import platformdirs
 import pytest
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
@@ -19,7 +20,6 @@ from local_sccs.repository_layout import (
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
-import platformdirs
 
 
 def test_repository_data_matching_commit_files_returns_correct_commit_files(
@@ -824,7 +824,6 @@ def test_repository_io_read_config_returns_local_config_when_global_config_missi
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
