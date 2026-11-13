@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import shutil
@@ -5,7 +6,6 @@ import tempfile
 from pathlib import Path
 from types import FunctionType
 from unittest import mock
-import io
 
 import platformdirs
 import pytest
@@ -58,6 +58,7 @@ def test_get_config_key_raises_on_invalid_json(
     def mock_open(file, *args, **kwargs):
         if str(file).endswith(c.CONFIG_JSON_FILENAME):
             import io
+
             return io.StringIO("invalid json")
         return open(file, *args, **kwargs)
 
