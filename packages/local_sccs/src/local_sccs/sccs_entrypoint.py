@@ -98,7 +98,6 @@ def COMMAND_ARGUMENTS(
             arguments.key,
             arguments.value,
             wd_rd,
-            cwd_ri,
             cwd_rp,
             cwd_rs,
             cwd_rw,
@@ -408,13 +407,12 @@ def main() -> None:
         help.main(c)
         return
 
-    command = utils.entered_argument(c, c.SECOND_ELEMENT_INDEX)
-
-    if command not in COMMANDS:
-        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
+    arguments = create_argument_parser(c).parse_args()
+    if arguments.command not in COMMANDS:
+        print(
+            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
+        )
         help.main(c)
         return
-
-    arguments = create_argument_parser(c).parse_args()
 
     run_command(arguments)

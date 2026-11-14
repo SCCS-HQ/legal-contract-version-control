@@ -87,9 +87,8 @@ def main(
     """
 
     try:
-        rs.validate_repository_layout()
-
-        rs.target.set(rd.current_branch())
+        if key == c.REMOTE_KEY:
+            rs.validate_repository_layout()
 
         resolved_value = resolve_key_value(c, rp.repository_name, key, value)
 

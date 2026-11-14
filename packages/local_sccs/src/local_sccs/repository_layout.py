@@ -4,6 +4,7 @@ import json
 import shutil
 from collections.abc import Callable
 from pathlib import Path
+from re import A
 from typing import Any
 
 import mammoth
@@ -1102,6 +1103,32 @@ class RepositoryWrite:
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
 
-            config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
-            config[key] = value
-            self.io.write_local_config(config)
+            config_json = (
+                platformdirs.user_config_path(
+                    appname=self.c.LOCAL_SCCS, appauthor=False
+                )
+                / self.c.CONFIG_JSON_FILENAME
+            )
+
+            if config_json.exists():
+                try:
+                    with open(
+                        config_json, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                    ) as f:
+                        try:
+                            global_config = json.load(f)
+                        except json.JSONDecodeError:
+                            global_config = {}
+                except FileNotFoundError:
+                    global_config = {}
+            else:
+                global_config = {}
+
+            config_json.parent.mkdir(parents=True, exist_ok=True)
+
+            global_config[key] = value
+
+            with open(
+                config_json, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+            ) as f:
+                json.dump(global_config, f, indent=self.c.JSON_INDENT)
