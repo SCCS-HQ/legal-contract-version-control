@@ -96,7 +96,7 @@ class SCCSTestConstants:
     STAGED_REPOSITORY_ERROR_MESSAGE = (
         "Failed to create or promote the staged repository. Please try again."
     )
-    
+
     CONFIG_COMMAND_NAME = "config"
     CONFIG_DICT_KEY = "config"
     CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."

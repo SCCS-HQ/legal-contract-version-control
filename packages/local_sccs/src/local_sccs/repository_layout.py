@@ -3,10 +3,10 @@ import hashlib
 import json
 import os
 import shutil
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from re import A
-import tempfile
 from typing import Any
 
 import mammoth
@@ -413,7 +413,9 @@ class RepositoryIO:
         """
         try:
             config_path = (
-                platformdirs.user_config_path(appname=self.c.LOCAL_SCCS, appauthor=False)
+                platformdirs.user_config_path(
+                    appname=self.c.LOCAL_SCCS, appauthor=False
+                )
                 / self.c.CONFIG_JSON_FILENAME
             )
         except Exception as e:

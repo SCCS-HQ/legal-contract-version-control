@@ -2211,9 +2211,7 @@ def test_repository_write_write_key_to_config_handles_parent_creation_failure(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    monkeypatch.setattr(
-        Path, "mkdir", raise_exception
-    )
+    monkeypatch.setattr(Path, "mkdir", raise_exception)
 
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
@@ -2233,9 +2231,7 @@ def test_repository_write_write_key_to_config_handles_atomic_write_failure(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    monkeypatch.setattr(
-        os, "replace", raise_exception
-    )
+    monkeypatch.setattr(os, "replace", raise_exception)
 
     with pytest.raises(SCCSException) as e:
         rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
