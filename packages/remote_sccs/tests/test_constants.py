@@ -13,7 +13,7 @@ class SCCSTestConstants:
         "{module_name} is missing constant: {constant_name}"
     )
     IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE = "Error retrieving private IP address: {e}"
-    IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:tc.DEFAULT_PORT"
+    IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000"
     HELP_MESSAGES = (
         "Remote SCCS Help",
         "Available commands:",
