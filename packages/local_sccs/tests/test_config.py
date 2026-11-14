@@ -275,11 +275,12 @@ def test_config_main_writes_key_value_to_config(
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     with open(
-        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) /
-        c.CONFIG_JSON_FILENAME,
+        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
+        / c.CONFIG_JSON_FILENAME,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE) as f:
+        newline=tc.NEWLINE,
+    ) as f:
         metadata = json.load(f)
 
     assert metadata[tc.NAME_KEY] == tc.TEST_STRING

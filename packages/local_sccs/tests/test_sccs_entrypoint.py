@@ -597,7 +597,6 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
     with pytest.raises(SystemExit):
         sccs_entrypoint.main()
 
-
     assert (
         capsys.readouterr().out.strip()
         == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING)

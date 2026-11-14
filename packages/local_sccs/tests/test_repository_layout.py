@@ -809,17 +809,20 @@ def test_repository_io_read_config_returns_config(
     target: TargetBranch,
     tc: SCCSTestConstants,
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
     monkeypatch.setattr(
-        platformdirs, "user_config_path", lambda *args, **kwargs: tmp_path / tc.TEST_STRING
+        platformdirs,
+        "user_config_path",
+        lambda *args, **kwargs: tmp_path / tc.TEST_STRING,
     )
 
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+
 
 def test_repository_io_read_config_returns_local_config_when_global_config_missing_or_invalid(
     initialized_repository: Path,
@@ -1940,11 +1943,11 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
     rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
 
     with open(
-        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / 
-        c.CONFIG_JSON_FILENAME,
+        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
+        / c.CONFIG_JSON_FILENAME,
         "r",
         encoding=tc.UTF_8,
-        newline=tc.NEWLINE
+        newline=tc.NEWLINE,
     ) as f:
         metadata = json.load(f)
 
