@@ -1146,7 +1146,9 @@ class RepositoryWrite:
                     # suffix=".tmp",
                 )
                 try:
-                    with os.fdopen(fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+                    with os.fdopen(
+                        fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                    ) as f:
                         json.dump(global_config, f, indent=self.c.JSON_INDENT)
                     os.replace(temp_path, config_json)
                 except OSError:
