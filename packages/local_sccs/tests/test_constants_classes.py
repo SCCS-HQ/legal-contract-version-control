@@ -118,11 +118,21 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "{keys}.",
     "CONFIG_JSON_FILENAME": "config.json",
     "CONFIG_KEY_ARGUMENT_NAME": "key",
+    "CONFIG_PATH_RESOLUTION_ERROR_MESSAGE": (
+        "An error occurred while resolving the configuration file path."
+    ),
+    "CONFIG_READ_ERROR_MESSAGE": (
+        "Failed to read configuration from the config file. Please ensure the config "
+        "file is valid JSON and try again."
+    ),
     "CONFIG_SUCCESS_MESSAGE_TEMPLATE": (
         "Configuration '{key}' set to '{value}' successfully."
     ),
     "CONFIG_VALUE_ARGUMENT_HELP": "The value to set the configuration key to.",
     "CONFIG_VALUE_ARGUMENT_NAME": "value",
+    "CONFIG_WRITE_ERROR_MESSAGE": (
+        "Failed to write configuration to the config file atomically. Please try again."
+    ),
     "CONTENT_TYPE_ZIP": "application/zip",
     "CREATE_SUBCOMMAND": "create",
     "CURRENT_BRANCH_DELETION_ERROR_MESSAGE": (

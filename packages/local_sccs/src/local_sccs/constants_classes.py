@@ -31,6 +31,9 @@ class SCCSConstants:
         ")*+,;=%"
     )
     ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with SCCS."
+    CONFIG_WRITE_ERROR_MESSAGE = (
+        "Failed to write configuration to the config file atomically. Please try again."
+    )
     AUTHOR_DICT_KEY = "author"
     BRANCHES_DICT_KEY = "branches"
     BRANCHES_DIRECTORY_LIST_HEADER = "Branches:"
@@ -142,8 +145,15 @@ class SCCSConstants:
         "Failed to create or promote the staged repository. Please try again."
     )
     CONFIG_DICT_KEY = "config"
+    CONFIG_READ_ERROR_MESSAGE = (
+        "Failed to read configuration from the config file. Please ensure the config "
+        "file is valid JSON and try again."
+    )
     CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
     CONFIG_KEY_ARGUMENT_NAME = "key"
+    CONFIG_PATH_RESOLUTION_ERROR_MESSAGE = (
+        "An error occurred while resolving the configuration file path."
+    )
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
     )

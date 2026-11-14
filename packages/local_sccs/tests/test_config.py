@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 from types import FunctionType
 
+import platformdirs
 import pytest
 from local_sccs import config
 from local_sccs.constants_classes import SCCSConstants
@@ -114,7 +115,7 @@ def test_resolve_key_value_returns_correct_string_if_error_is_not_raised(
         "objects_path",
     ],
 )
-def test_config_main_raises_for_each_missing_resource(
+def test_config_main_raises_for_each_missing_resource_if_key_is_remote(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
@@ -143,7 +144,7 @@ def test_config_main_raises_for_each_missing_resource(
         missing_resource.unlink()
 
     with pytest.raises(SCCSException) as e:
-        config.main(c, tc.TEST_STRING, tc.TEST_STRING, rd, rp, rs, rw)
+        config.main(c, tc.REMOTE_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
@@ -253,13 +254,14 @@ def test_config_main_staged_repository_creation_fails(
     assert not staging_dirs
 
 
-def test_repository_write_write_key_to_config_writes_key_value_to_config(
+def test_config_main_writes_key_value_to_config(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -272,12 +274,22 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
+    config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: config_dir
+    )
+
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+    with open(
+        config_dir / c.CONFIG_JSON_FILENAME,
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.CONFIG_DICT_KEY][tc.NAME_KEY] == tc.TEST_STRING
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
 
 
 def test_config_main_prints_success_message(
@@ -327,6 +339,6 @@ def test_config_main_resets_target_on_error(
     monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
 
     with pytest.raises(SCCSException):
-        config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
+        config.main(c, tc.REMOTE_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     assert target.get() is None

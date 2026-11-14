@@ -1,7 +1,9 @@
 import copy
 import hashlib
 import json
+import os
 import shutil
+import tempfile
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -408,11 +410,15 @@ class RepositoryIO:
         """
         Return the configuration of the repository.
         """
-
-        config_path = (
-            platformdirs.user_config_path(appname=self.c.LOCAL_SCCS, appauthor=False)
-            / self.c.CONFIG_JSON_FILENAME
-        )
+        try:
+            config_path = (
+                platformdirs.user_config_path(
+                    appname=self.c.LOCAL_SCCS, appauthor=False
+                )
+                / self.c.CONFIG_JSON_FILENAME
+            )
+        except Exception as e:
+            raise SCCSException(self.c.CONFIG_PATH_RESOLUTION_ERROR_MESSAGE) from e
         try:
             with open(
                 config_path, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
@@ -1102,6 +1108,51 @@ class RepositoryWrite:
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
 
-            config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
-            config[key] = value
-            self.io.write_local_config(config)
+            config_json = (
+                platformdirs.user_config_path(
+                    appname=self.c.LOCAL_SCCS, appauthor=False
+                )
+                / self.c.CONFIG_JSON_FILENAME
+            )
+
+            if config_json.exists():
+                try:
+                    with open(
+                        config_json, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                    ) as f:
+                        try:
+                            global_config = json.load(f)
+                        except (json.JSONDecodeError, ValueError):
+                            global_config = {}
+                except OSError:
+                    global_config = {}
+            else:
+                global_config = {}
+
+            if not isinstance(global_config, dict):
+                raise SCCSException(self.c.CONFIG_READ_ERROR_MESSAGE)
+
+            try:
+                config_json.parent.mkdir(parents=True, exist_ok=True)
+            except OSError as e:
+                raise SCCSException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
+
+            global_config[key] = value
+
+            try:
+                fd, temp_path = tempfile.mkstemp(
+                    dir=config_json.parent,
+                    prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
+                    # suffix=".tmp",
+                )
+                try:
+                    with os.fdopen(
+                        fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                    ) as f:
+                        json.dump(global_config, f, indent=self.c.JSON_INDENT)
+                    os.replace(temp_path, config_json)
+                except OSError:
+                    os.unlink(temp_path)
+                    raise
+            except OSError as e:
+                raise SCCSException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e

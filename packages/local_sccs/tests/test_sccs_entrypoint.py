@@ -1,4 +1,5 @@
 import argparse
+import inspect
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -418,7 +419,6 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
             arguments.key,
             arguments.value,
             wd_rd,
-            cwd_ri,
             cwd_rp,
             cwd_rs,
             cwd_rw,
@@ -520,6 +520,10 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
         CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)
     )
 
+    for command_name, args_factory in result.items():
+        args = args_factory()
+        inspect.signature(sccs_entrypoint.COMMANDS[command_name]).bind(*args)
+
     assert set(result) == set(
         expected_command_arguments
     )  # pyright: ignore[reportArgumentType]
@@ -561,6 +565,7 @@ def test_run_command_calls_specified_local_sccs_module_main(
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        inspect.signature(sccs_entrypoint.COMMANDS[command]).bind(*args, **kwargs)
         nonlocal calls
         calls += 1
 
@@ -589,7 +594,8 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
 
-    sccs_entrypoint.main()
+    with pytest.raises(SystemExit):
+        sccs_entrypoint.main()
 
     assert (
         capsys.readouterr().out.strip()
@@ -784,6 +790,7 @@ def test_sccs_main_calls_specified_local_sccs_module_main(
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        inspect.signature(sccs_entrypoint.COMMANDS[command]).bind(*args, **kwargs)
         nonlocal calls
         calls += 1
 
@@ -818,3 +825,26 @@ def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
     sccs_entrypoint.main()
     assert capsys.readouterr().out.strip() == (tc.NEWLINE).join(tc.HELP_MESSAGES)
+
+
+def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_parsed_command_does_not_exist(
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.HELP_COMMAND_NAME])
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: SimpleNamespace(command=tc.TEST_STRING, debug=False),
+    )
+
+    with pytest.raises(SystemExit):
+        sccs_entrypoint.main()
+
+    assert (
+        capsys.readouterr().out.strip()
+        == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING)
+        + tc.NEWLINE
+        + (tc.NEWLINE).join(tc.HELP_MESSAGES)
+    )
