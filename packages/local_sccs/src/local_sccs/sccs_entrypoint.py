@@ -409,7 +409,9 @@ def main() -> None:
 
     arguments = create_argument_parser(c).parse_args()
     if arguments.command not in COMMANDS:
-        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command))
+        print(
+            c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
+        )
         help.main(c)
         return
 
