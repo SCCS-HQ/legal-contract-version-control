@@ -7,9 +7,13 @@ class SCCSTestConstants:
         "Constant: {module_name}.{constant_name}, Expected: {expected_value!r}, Actual: "
         "{actual_value!r}."
     )
+    DEFAULT_IP_ADDRESS = "127.0.0.1"
+    DEFAULT_PORT = 8000
     DELETED_CONSTANT_ERROR_MESSAGE = (
         "{module_name} is missing constant: {constant_name}"
     )
+    IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE = "Error retrieving private IP address: {e}"
+    IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:tc.DEFAULT_PORT"
     HELP_MESSAGES = (
         "Remote SCCS Help",
         "Available commands:",
@@ -24,6 +28,7 @@ class SCCSTestConstants:
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
     REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = "Error creating repositories directory: {e}"
+    STARTING_UVICORN_SERVER_MESSAGE = "Starting Uvicorn Server..."
     TEST_STRING = "test"
     UNEXPECTED_ERROR_EXIT_CODE = 2
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"

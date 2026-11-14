@@ -38,17 +38,17 @@ def test_print_SCCS_server_startup_prints_startup_messages(
     rc: RemoteSCCSConstants, tc: SCCSTestConstants, capsys: pytest.CaptureFixture, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
 
     serve.print_SCCS_server_startup(rc)
 
     assert capsys.readouterr().out.strip() == (
-        "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000".format(ip_address="127.0.0.1") + tc.NEWLINE + "Starting Uvicorn Server..."
+        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(ip_address=tc.DEFAULT_IP_ADDRESS) + tc.NEWLINE + tc.STARTING_UVICORN_SERVER_MESSAGE
     )
     
 
 def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
-    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType, tc: SCCSTestConstants
 ) -> None:
 
     monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
@@ -56,14 +56,14 @@ def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.print_SCCS_server_startup(rc)
 
-        assert str(e.value) == "Error retrieving private IP address: {e}".format(e=OSError)
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
 
 
 def test_serve_main_creates_repositories_directory(
     rc: RemoteSCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
     monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
 
     serve.main(rc)
@@ -87,17 +87,17 @@ def test_serve_main_prints_startup_messages(
 ) -> None:
 
     monkeypatch.setattr(uvicorn, "run", mock.MagicMock())
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
 
     serve.main(rc)
 
     assert capsys.readouterr().out.strip() == (
-        "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000".format(ip_address="127.0.0.1") + tc.NEWLINE + "Starting Uvicorn Server..."
+        tc.IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE.format(ip_address=tc.DEFAULT_IP_ADDRESS) + tc.NEWLINE + tc.STARTING_UVICORN_SERVER_MESSAGE
     )
 
 
 def test_serve_main_raises_if_ip_retrieval_fails(
-    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType
+    rc: RemoteSCCSConstants, monkeypatch: pytest.MonkeyPatch, raise_exception: FunctionType, tc: SCCSTestConstants
 ) -> None:
 
     monkeypatch.setattr(socket.socket, "getsockname", raise_exception)
@@ -105,7 +105,7 @@ def test_serve_main_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.main(rc)
 
-        assert str(e.value) == "Error retrieving private IP address: {e}".format(e=OSError)
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
 
 
 def test_main_starts_uvicorn_server(
@@ -119,7 +119,7 @@ def test_main_starts_uvicorn_server(
         calls += 1
 
     monkeypatch.setattr(uvicorn, "run", increment_calls)
-    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: ("127.0.0.1", 8000))
+    monkeypatch.setattr(socket.socket, "getsockname", lambda *args, **kwargs: (tc.DEFAULT_IP_ADDRESS, tc.DEFAULT_PORT))
 
     serve.main(rc)
 
