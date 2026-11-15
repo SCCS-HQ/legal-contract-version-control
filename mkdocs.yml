@@ -1,0 +1,63 @@
+site_name: SCCS documentation
+site_description: Documentation for the SCCS project
+site_author: Daniel Phillion
+site_url: https://sccs-hq.github.io/legal-contract-version-control/
+repo_url: https://github.com/SCCS-HQ/legal-contract-version-control
+repo_name: SCCS-HQ/legal-contract-version-control
+
+strict: true
+
+use_directory_urls: true
+
+exclude_docs: drafts/
+
+theme:
+  name: material
+  language: en
+
+  palette:
+    # Light mode
+    - scheme: default
+      primary: cyan
+      accent: light-blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Dark mode
+    - scheme: slate
+      primary: cyan
+      accent: light-blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+
+not_in_nav: |
+  /PR_REVIEWER.md
+  /pull_request_template.md
+
+nav:
+  - Home: README.md
+  - Local SCCS:
+      - Overview: local_sccs/README.md
+      - Installation: local_sccs/installation.md
+      - Usage: local_sccs/usage.md
+  - Remote SCCS:
+      - Overview: remote_sccs/README.md
+      - Installation: remote_sccs/installation.md
+      - Usage: remote_sccs/usage.md
+  - Contributing:
+      - Code of Conduct: contributing/CODE_OF_CONDUCT.md
+      - Contributing Guide: contributing/CONTRIBUTING.md
+  - Changelog: changelog.md
