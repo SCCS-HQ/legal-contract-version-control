@@ -383,6 +383,10 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "REQUIRED_PATH_ENDING_TEMPLATE": "/repos/{repo_name}",
     "RESET_COMMAND_NAME": "reset",
     "RESET_ERROR_MESSAGE": "Failed to reset the document. Please try again.",
+    "ROLLBACK_FAILED_ERROR_MESSAGE": (
+        "Failed to roll back repository promotion. The repository may be in an "
+        "inconsistent state. Please check the repository directory."
+    ),
     "RESET_SUCCESS_MESSAGE": (
         "All uncommitted changes have been deleted. The document has been reset to the "
         "latest commit."
