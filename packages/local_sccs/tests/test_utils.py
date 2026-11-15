@@ -1,9 +1,9 @@
+import errno
 import hashlib
 import io
-import errno
 import os
-import shutil
 import re
+import shutil
 import sys
 import unittest
 import unittest.mock
@@ -388,9 +388,7 @@ def test_promote_staging_cross_device_partial_copy_rollback_restores_old_root(
 
     def failing_copytree(src: Any, dst: Any, **kwargs: Any) -> None:
         tmp_dst.mkdir()
-        (tmp_dst / tc.TEST_TEXT_FILENAME).write_text(
-            tc.TEST_STRING, encoding=tc.UTF_8
-        )
+        (tmp_dst / tc.TEST_TEXT_FILENAME).write_text(tc.TEST_STRING, encoding=tc.UTF_8)
         raise OSError(errno.EIO, "input/output error")
 
     monkeypatch.setattr(
