@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 from types import FunctionType
 
+import platformdirs
 import pytest
 from local_sccs import commit
 from local_sccs.constants_classes import SCCSConstants
@@ -18,6 +19,26 @@ from local_sccs.repository_layout import (
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
+
+
+@pytest.fixture()
+def global_config_with_name_email(
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    config_root = tmp_path / "global_config"
+    config_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(platformdirs, "user_config_path", lambda *args, **kwargs: config_root)
+
+    with open(
+        config_root / c.CONFIG_JSON_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        json.dump({c.NAME_KEY: tc.TEST_STRING, c.EMAIL_KEY: tc.TEST_STRING}, f)
 
 
 @pytest.mark.parametrize(
@@ -123,6 +144,7 @@ def test_commit_main_creates_commit_and_updates_metadata(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    global_config_with_name_email: None,
 ) -> None:
     metadata_path = (
         repository_with_multiple_commits / tc.SCCS_DIRECTORY / tc.METADATA_JSON
@@ -218,6 +240,7 @@ def test_commit_main_when_updated_branches_is_missing(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    global_config_with_name_email: None,
 ) -> None:
     rd = RepositoryData(
         repository_with_multiple_commits, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -258,6 +281,7 @@ def test_commit_main_prints_success_message(
     target: TargetBranch,
     tc: SCCSTestConstants,
     capsys: pytest.CaptureFixture[str],
+    global_config_with_name_email: None,
 ) -> None:
 
     rd = RepositoryData(
