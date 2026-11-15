@@ -8,7 +8,7 @@ import re
 from types import FunctionType, MappingProxyType
 
 import pytest
-from remote_avora.constants_classes import RemoteErrorWrappers, RemoteAvoraConstants
+from remote_avora.constants_classes import RemoteAvoraConstants, RemoteErrorWrappers
 from test_constants import AvoraTestConstants
 
 REMOTE_ERROR_WRAPPERS_SNAPSHOT: dict[str, object] = {

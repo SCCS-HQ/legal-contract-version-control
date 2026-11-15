@@ -23,7 +23,9 @@ def test_remote_avora_COMMANDS_does_not_drift(rc: RemoteAvoraConstants) -> None:
     }
 
 
-def test_create_argument_parser(rc: RemoteAvoraConstants, tc: AvoraTestConstants) -> None:
+def test_create_argument_parser(
+    rc: RemoteAvoraConstants, tc: AvoraTestConstants
+) -> None:
     """Verify ``create_argument_parser`` returns the expected parser."""
 
     parser = argparse.ArgumentParser(

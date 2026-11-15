@@ -352,7 +352,10 @@ def test_clone_main_raises_if_repository_name_cannot_be_retrieved(
     ["", "my repo", "repo/name", ".", ".."],
 )
 def test_clone_main_raises_if_repository_name_is_invalid(
-    c: AvoraConstants, tc: AvoraTestConstants, name: str, monkeypatch: pytest.MonkeyPatch
+    c: AvoraConstants,
+    tc: AvoraTestConstants,
+    name: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     response = requests.Response()

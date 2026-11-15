@@ -30,7 +30,9 @@ class AvoraConstants:
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&'("
         ")*+,;=%"
     )
-    ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with Avora."
+    ALREADY_INIT_ERROR_MESSAGE = (
+        "This document has already been initialized with Avora."
+    )
     CONFIG_WRITE_ERROR_MESSAGE = (
         "Failed to write configuration to the config file atomically. Please try again."
     )

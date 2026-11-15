@@ -1091,7 +1091,9 @@ class RepositoryWrite:
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
             i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
         ):
-            raise AvoraException(self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE)
+            raise AvoraException(
+                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
+            )
         if key == self.c.REMOTE_KEY and not all(
             i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
         ):

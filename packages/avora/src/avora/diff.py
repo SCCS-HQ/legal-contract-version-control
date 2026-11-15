@@ -2,7 +2,6 @@ import copy
 import difflib
 import filecmp
 
-from bs4 import BeautifulSoup
 from avora import utils
 from avora.constants_classes import AvoraConstants
 from avora.exceptions import AvoraException
@@ -11,6 +10,7 @@ from avora.repository_layout import (
     RepositoryIO,
     RepositoryStatus,
 )
+from bs4 import BeautifulSoup
 
 
 def delete_tag(
@@ -281,7 +281,9 @@ def tags_to_list(soup: BeautifulSoup) -> list[str]:
     return [str(i) for i in soup.find_all()]
 
 
-def validate_diff(c: AvoraConstants, rd: RepositoryData, commit_identifier: str) -> None:
+def validate_diff(
+    c: AvoraConstants, rd: RepositoryData, commit_identifier: str
+) -> None:
     """
     Validate the specified commit identifier by checking if it exists in the repository
     and if the document at that commit is different from the current version.

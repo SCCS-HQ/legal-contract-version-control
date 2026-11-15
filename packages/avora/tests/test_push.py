@@ -70,7 +70,9 @@ def test_clear_updated_branches_clears_updated_branches(
 ) -> None:
     ri = RepositoryIO(initialized_repository, tc.TEST_STRING, c, target)
 
-    with open(initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+") as f:
+    with open(
+        initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+"
+    ) as f:
         metadata = json.load(f)
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY].append(
             tc.TEST_STRING
@@ -727,7 +729,9 @@ def test_push_main_clears_updated_branches_on_success(
         lambda *args, **kwargs: tc.TEST_REPOSITORY_URL_ENDING,
     )
 
-    with open(initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+") as f:
+    with open(
+        initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+"
+    ) as f:
         metadata = json.load(f)
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY].append(
             tc.TEST_STRING
@@ -781,7 +785,9 @@ def test_push_main_does_not_clear_updated_branches_on_failure(
         lambda *args, **kwargs: tc.TEST_REPOSITORY_URL_ENDING,
     )
 
-    with open(initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+") as f:
+    with open(
+        initialized_repository / tc.AVORA_DIRECTORY / tc.METADATA_JSON, "r+"
+    ) as f:
         metadata = json.load(f)
         metadata[tc.CURRENT_BRANCH_DICT_KEY][tc.UPDATED_BRANCHES_DICT_KEY].append(
             tc.TEST_STRING

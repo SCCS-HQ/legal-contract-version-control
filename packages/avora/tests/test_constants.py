@@ -9,7 +9,9 @@ class AvoraTestConstants:
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-@"
     )
     ALLOWED_REMOTE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&"()*+,;=%'
-    ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with Avora."
+    ALREADY_INIT_ERROR_MESSAGE = (
+        "This document has already been initialized with Avora."
+    )
     ARGV_OBJECT_NAME = "argv"
     AUTHOR_DICT_KEY = "author"
     BRANCHES_DICT_KEY = "branches"

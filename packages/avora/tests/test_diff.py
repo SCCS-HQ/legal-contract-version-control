@@ -5,7 +5,6 @@ from pathlib import Path
 from types import FunctionType
 
 import pytest
-from bs4 import BeautifulSoup
 from avora import diff
 from avora.constants_classes import AvoraConstants
 from avora.exceptions import AvoraException
@@ -16,6 +15,7 @@ from avora.repository_layout import (
     RepositoryWrite,
     TargetBranch,
 )
+from bs4 import BeautifulSoup
 from test_constants import AvoraTestConstants
 
 

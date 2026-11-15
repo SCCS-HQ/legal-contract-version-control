@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from remote_avora import help, serve
-from remote_avora.constants_classes import RemoteErrorWrappers, RemoteAvoraConstants
+from remote_avora.constants_classes import RemoteAvoraConstants, RemoteErrorWrappers
 
 rc = RemoteAvoraConstants()
 COMMANDS = {rc.SERVE_COMMAND_NAME: serve.main, rc.HELP_COMMAND_NAME: help.main}

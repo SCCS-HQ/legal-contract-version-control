@@ -23,7 +23,7 @@ from avora import (
     switch,
     utils,
 )
-from avora.constants_classes import ErrorWrappers, AvoraConstants
+from avora.constants_classes import AvoraConstants, ErrorWrappers
 from avora.exceptions import AvoraException
 from avora.repository_layout import (
     RepositoryData,

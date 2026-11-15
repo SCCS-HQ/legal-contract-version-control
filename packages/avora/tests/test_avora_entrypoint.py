@@ -8,6 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from avora import (
+    avora_entrypoint,
     branch,
     clone,
     commit,
@@ -23,7 +24,6 @@ from avora import (
     push,
     reset,
     revert,
-    avora_entrypoint,
     status,
     switch,
     utils,
