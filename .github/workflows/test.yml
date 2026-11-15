@@ -1,0 +1,57 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-local-sccs:
+    name: Local SCCS Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/local_sccs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install .
+          pip install ".[dev]"
+
+      - name: Run local SCCS tests
+        run: python -m pytest tests/ -v
+
+  test-remote-sccs:
+    name: Remote SCCS Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/remote_sccs
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install .
+          pip install ".[dev]"
+
+      - name: Run remote SCCS tests
+        run: python -m pytest tests/ -v

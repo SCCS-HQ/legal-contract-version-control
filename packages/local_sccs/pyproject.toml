@@ -12,6 +12,13 @@ dependencies = [
     "mammoth",
     "requests",
     "beautifulsoup4",
+    "platformdirs",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio"
 ]
 
 [project.scripts]
