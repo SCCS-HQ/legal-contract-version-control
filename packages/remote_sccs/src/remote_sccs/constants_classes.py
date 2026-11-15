@@ -97,7 +97,7 @@ class RemoteSCCSConstants:
     PUBLISH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/publish"
     PULL_ENDPOINT_TEMPLATE = "/repos/{repository_name}/pull"
     PUSH_ENDPOINT_TEMPLATE = "/repos/{repository_name}/push"
-    PUSH_SUCCESS_MESSAGE = "changes pushed successfully"
+    PUSH_SUCCESS_MESSAGE = "Changes pushed successfully"
     REMOTE_KEY = "remote"
     REMOTE_SCCS = "remote_sccs"
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"

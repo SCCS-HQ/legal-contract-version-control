@@ -1,4 +1,6 @@
 class SCCSTestConstants:
+    ABSOLUTE_PATH = "/absolute/path/file.txt"
+    ABSOLUTE_PATH_WITH_DOUBLE_PERIOD = "/absolute/path/../file.txt"
     COMMAND_FIELD_NAME = "command"
     CONSTANTS_CLASSES_ADDED_OR_REMOVED_MESSAGE = (
         "{module_name} has been modified. Added: {added}, Removed: {removed}."
@@ -7,11 +9,21 @@ class SCCSTestConstants:
         "Constant: {module_name}.{constant_name}, Expected: {expected_value!r}, Actual: "
         "{actual_value!r}."
     )
+    CURRENT_BRANCH_DICT_KEY = "current_branch"
     DEFAULT_IP_ADDRESS = "127.0.0.1"
     DEFAULT_PORT = 8000
     DELETED_CONSTANT_ERROR_MESSAGE = (
         "{module_name} is missing constant: {constant_name}"
     )
+    DOUBLE_PERIOD = ".."
+    EASTER_EGG_MESSAGE = "Boo!"
+    EMPTY_STRING = ""
+    FILE_PUBLISHED_MESSAGE = "File published successfully"
+    FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE = "File {filename} is too large"
+    INVALID_FILE_PATH_IN_ZIP_ERROR_MESSAGE = "Invalid file path in zip"
+    INVALID_JSON_DATA_ERROR_MESSAGE = "Invalid JSON data"
+    INVALID_REPOSITORY_NAME = "../repo"
+    INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
     IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE = "Error retrieving private IP address: {e}"
     IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = "Your Remote-SCCS server will be accessible on you internet network at http://{ip_address}:8000"
     HELP_MESSAGES = (
@@ -22,15 +34,43 @@ class SCCSTestConstants:
         "  sccs serve - Hosts a Remote-SCCS server on your computer anyone "
         "on your internet network can access.",
     )
+    LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE = (
+        "Local repository has objects that the remote does not have. "
+        "Run 'sccs push' to upload these objects before pulling."
+    )
+    MESSAGE_DICT_KEY = "message"
+    METADATA_JSON = "metadata.json"
     MINIMUM_ARGUMENTS = 2
     NEWLINE = "\n"
+    REMOTE_DICT_KEY = "remote"
     REMOTE_SCCS = "remote_sccs"
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
+    REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
     REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = "Error creating repositories directory: {e}"
+    REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
+    REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
+    REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = "Repository not found: {repository_name}"
+    REPOSITORY_URL_DICT_KEY = "repository_url"
     STARTING_UVICORN_SERVER_MESSAGE = "Starting Uvicorn Server..."
+    OBJECTS_DICT_KEY = "objects"
+    OBJECTS_DIRECTORY = "objects"
+    OBJECTS_NOT_FOUND_ERROR_MESSAGE = "Repository objects not found"
+    PATH_SEPARATOR = "/"
+    PUSH_SUCCESS_MESSAGE = "Changes pushed successfully"
+    SCCS_DIRECTORY = ".sccs"
+    SCCS_TEMP_DIRECTORY_GLOB_PATTERN = "sccs_temp_*"
+    STATUS_CODE_400 = 400
+    STATUS_CODE_404 = 404
+    SECOND_TEST_STRING = "test2"
     TEST_STRING = "test"
+    TEST_ZIP_FILE_NAME = "test.zip"
+    TEXT_FILE_EXTENSION = ".txt"
+    TOO_MANY_FILES_ERROR_MESSAGE = "Too many files in the uploaded zip"
     UNEXPECTED_ERROR_EXIT_CODE = 2
     UNEXPECTED_ERROR_TEMPLATE = "An unexpected error occurred: {type_name}: {e}"
     UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE = "Unknown command: {command}"
-    
+    UPDATED_BRANCHES_DICT_KEY = "updated_branches"
+    UPLOAD_TOO_LARGE_ERROR_MESSAGE = "Uploaded file is too large"
+    VALID_REPOSITORY_NAME = "repo"
+    ZIP_FILE_EXTENSION = ".zip"

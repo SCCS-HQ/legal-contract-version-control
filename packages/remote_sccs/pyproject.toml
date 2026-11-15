@@ -17,3 +17,6 @@ remote-sccs = "remote_sccs.remote_sccs:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"

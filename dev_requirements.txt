@@ -5,3 +5,4 @@ requests
 beautifulsoup4
 fastapi[standard]
 uvicorn
+pytest-asyncio
