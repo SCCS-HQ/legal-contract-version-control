@@ -146,7 +146,7 @@ Keep changes consistent with the surrounding code, use descriptive names, and in
 
 ## Find Something to Do
 
-The easiest way to get started is to browse the [Issues](https://github.com/SCCS-HQ/legal-contract-version-control/issues) tab:
+The easiest way to get started is to browse the [Issues](https://github.com/Avora-Docx/Avora-Docx/issues) tab:
 
 - Look for issues labeled **good first issue** if you're new to the project.
 - Check for issues labeled **help wanted** for tasks we'd love community help with.

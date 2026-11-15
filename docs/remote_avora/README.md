@@ -25,7 +25,7 @@ The `remote-avora` command provides 2 subcommands:
 
 - [Installation](installation.md) — how to install `remote-avora` and start a server
 - [Usage](usage.md) — endpoints, configuration, and operational details
-- [Avora Documentation](https://sccs-hq.github.io/legal-contract-version-control/) — full project documentation
+- [Avora Documentation](https://avora-docx.github.io/Avora-Docx/) — full project documentation
 
 ## License
 
