@@ -1,8 +1,8 @@
-# Contributing to SCCS
+# Contributing to Avora
 
-> **Pre-Alpha.** SCCS (Simple Contracts Communication System) is still in early development and likely has many bugs or missing features. If you discover a bug or would like to suggest a feature, please open an issue with the relevant label. Contributions of all kinds — code, documentation, bug reports, and ideas — are greatly appreciated!
+> **Pre-Alpha.** Avora is still in early development and likely has many bugs or missing features. If you discover a bug or would like to suggest a feature, please open an issue with the relevant label. Contributions of all kinds — code, documentation, bug reports, and ideas — are greatly appreciated!
 
-Thank you for your interest in contributing to SCCS, a version-control system purpose-built for legal contracts. This guide explains how to set up a development environment, the conventions we follow, and how to submit changes.
+Thank you for your interest in contributing to Avora, a version-control system purpose-built for legal contracts. This guide explains how to set up a development environment, the conventions we follow, and how to submit changes.
 
 ## Table of Contents
 
@@ -26,17 +26,17 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 
 ## Repository Layout
 
-SCCS is a Python monorepo. Each package is independently buildable and published to PyPI.
+Avora is a Python monorepo. Each package is independently buildable and published to PyPI.
 
 ```
 legal-contract-version-control/
 ├── packages/
-│   ├── local_sccs/      # `sccs` CLI — distributed as the `sccs` package
-│   │   ├── src/local_sccs/
+│   ├── avora/      # `avora` CLI — distributed as the `avora` package
+│   │   ├── src/avora/
 │   │   ├── tests/
 │   │   └── pyproject.toml
-│   └── remote_sccs/     # `remote-sccs` FastAPI server — distributed as `remote-sccs`
-│       ├── src/remote_sccs/
+│   └── remote_avora/     # `remote-avora` FastAPI server — distributed as `remote-avora`
+│       ├── src/remote_avora/
 │       ├── tests/
 │       └── pyproject.toml
 ├── docs/                # MkDocs (Material) documentation source
@@ -44,12 +44,12 @@ legal-contract-version-control/
 └── dev_requirements.txt # Shared development/test dependencies
 ```
 
-- **`local_sccs`** — the command-line client used to initialize repositories, commit changes, branch, merge, and push/pull from a remote host. Entry point: `local_sccs.sccs_entrypoint:main`.
-- **`remote_sccs`** — a self-hosted FastAPI server that stores repositories and serves them over HTTP so multiple users can clone, push, and pull. Entry point: `remote_sccs.remote_sccs:main`.
+- **`avora`** — the command-line client used to initialize repositories, commit changes, branch, merge, and push/pull from a remote host. Entry point: `avora.avora_entrypoint:main`.
+- **`remote_avora`** — a self-hosted FastAPI server that stores repositories and serves them over HTTP so multiple users can clone, push, and pull. Entry point: `remote_avora.remote_avora_entrypoint:main`.
 
 ## Requirements
 
-- **Python 3.12 or higher.** SCCS uses modern typing syntax (e.g. PEP 695 generics); older versions will not run. Download from [python.org](https://www.python.org/downloads/).
+- **Python 3.12 or higher.** Avora uses modern typing syntax (e.g. PEP 695 generics); older versions will not run. Download from [python.org](https://www.python.org/downloads/).
 - **Git** — for version control and submitting changes.
 - A **GitHub account** — to open issues and submit pull requests.
 
@@ -78,8 +78,8 @@ legal-contract-version-control/
 4. **Install the packages in editable mode** so your changes are reflected without reinstalling:
 
    ```bash
-   pip install -e packages/local_sccs
-   pip install -e packages/remote_sccs
+   pip install -e packages/avora
+   pip install -e packages/remote_avora
    ```
 
 ## Running the CLI
@@ -87,13 +87,13 @@ legal-contract-version-control/
 With the packages installed (editable or otherwise), the console scripts are available on your `PATH`:
 
 ```bash
-sccs help              # list all local_sccs commands
-remote-sccs serve      # start the remote server (serves from the current directory)
+avora help              # list all avora commands
+remote-avora serve      # start the remote server (serves from the current directory)
 ```
 
-`sccs` provides 17 subcommands covering the full version-control lifecycle: `init`, `commit`, `branch`, `merge`, `switch`, `clone`, `push`, `pull`, `publish`, `log`, `diff`, `open`, `revert`, `reset`, `status`, `config`, `help`.
+`avora` provides 17 subcommands covering the full version-control lifecycle: `init`, `commit`, `branch`, `merge`, `switch`, `clone`, `push`, `pull`, `publish`, `log`, `diff`, `open`, `revert`, `reset`, `status`, `config`, `help`.
 
-`remote-sccs` provides `serve` and `help`.
+`remote-avora` provides `serve` and `help`.
 
 ## Testing
 
@@ -108,27 +108,27 @@ pytest
 Run a single package's tests:
 
 ```bash
-# local_sccs (CLI)
-pytest packages/local_sccs/tests
+# avora (CLI)
+pytest packages/avora/tests
 
-# remote_sccs (server)
-pytest packages/remote_sccs/tests
+# remote_avora (server)
+pytest packages/remote_avora/tests
 ```
 
 Run a single test file or test:
 
 ```bash
-pytest packages/local_sccs/tests/test_commit.py
-pytest packages/local_sccs/tests/test_commit.py::test_commit_main_raises_if_commit_message_is_empty
+pytest packages/avora/tests/test_commit.py
+pytest packages/avora/tests/test_commit.py::test_commit_main_raises_if_commit_message_is_empty
 ```
 
 Generate a coverage report:
 
 ```bash
-pytest --cov=local_sccs --cov=remote_sccs
+pytest --cov=avora --cov=remote_avora
 ```
 
-When working in `packages/local_sccs/tests`, note that `conftest.py` imports shared test constants via `from test_constants import ...`. Run tests with that directory on the path (the default `pytest` invocation from the repo root handles this) if you hit import errors.
+When working in `packages/avora/tests`, note that `conftest.py` imports shared test constants via `from test_constants import ...`. Run tests with that directory on the path (the default `pytest` invocation from the repo root handles this) if you hit import errors.
 
 ## Code Style & Formatting
 
@@ -175,7 +175,7 @@ The easiest way to get started is to browse the [Issues](https://github.com/SCCS
 
 ## Commit Guidelines
 
-SCCS uses the [Conventional Commits](https://www.conventionalcommits.org/) format. A commit message template is provided in `.git_commit_template` — enable it locally with:
+Avora uses the [Conventional Commits](https://www.conventionalcommits.org/) format. A commit message template is provided in `.git_commit_template` — enable it locally with:
 
 ```bash
 git config commit.template .git_commit_template
@@ -215,7 +215,7 @@ Format:
 feat(commit): add diff command for tracked files
 fix(config): handle empty config on first read
 tests(push): update push tests for new remote layout
-docs(readme): document remote_sccs setup
+docs(readme): document remote_avora setup
 ```
 
 Guidelines:
@@ -258,4 +258,4 @@ Apply the appropriate label (`bug` or `enhancement`) when creating the issue.
 
 If you get stuck or have questions, feel free to open an issue or reach out. We're happy to help you get your contribution merged!
 
-Thank you for helping make SCCS better!
+Thank you for helping make Avora better!

@@ -1,0 +1,297 @@
+import json
+import os
+import shutil
+from pathlib import Path
+
+import mammoth
+import platformdirs
+from avora import utils
+from avora.constants_classes import AvoraConstants
+from avora.exceptions import AvoraException
+from avora.repository_layout import (
+    RepositoryIO,
+    RepositoryPaths,
+    RepositoryStatus,
+    RepositoryWrite,
+)
+
+
+def get_config_key(c: AvoraConstants, key: str) -> str:
+    """
+    Prompt the user for the entered configuration key and return the entered value.
+    Raise an AvoraException if the value is empty.
+    """
+
+    if (
+        platformdirs.user_config_path(appname=c.LOCAL_AVORA, appauthor=False)
+        / c.CONFIG_JSON_FILENAME
+    ).is_file():
+        try:
+            with open(
+                platformdirs.user_config_path(appname=c.LOCAL_AVORA, appauthor=False)
+                / c.CONFIG_JSON_FILENAME,
+                "r",
+                encoding=c.UTF_8,
+                newline=c.NEWLINE,
+            ) as f:
+                try:
+                    global_config = json.load(f)
+                except json.JSONDecodeError:
+                    raise AvoraException(c.INVALID_JSON_ERROR_MESSAGE)
+
+                if key in global_config and global_config[key]:
+                    return global_config[key]
+        except FileNotFoundError:
+            raise AvoraException(c.GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE)
+
+    data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
+    utils.raise_if_empty(c, data_value, key, capitalize=True)
+
+    return data_value
+
+
+def copy_document_to_objects_as_document_and_html(
+    c: AvoraConstants, document_path: Path, commit_identifier: str, rp: RepositoryPaths
+) -> None:
+    """
+    Copy the document to the document objects directory, convert it to HTML, and write
+    the HTML to the HTML and view HTML objects directories. Raise an AvoraException if
+    the document cannot be converted or copied.
+    """
+
+    try:
+        with open(document_path, "rb") as f:
+            result = mammoth.convert_to_html(f).value
+
+        shutil.copy2(
+            document_path,
+            (rp.document_objects_path() / commit_identifier).with_suffix(
+                c.DOCUMENT_EXTENSION
+            ),
+        )
+
+        with open(
+            (rp.html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
+            "w",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
+        ) as f:
+            f.write(c.DEFAULT_HTML_STYLES + result)
+
+        with open(
+            (rp.view_html_objects_path() / commit_identifier).with_suffix(
+                c.HTML_EXTENSION
+            ),
+            "w",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
+        ) as f:
+            f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
+    except Exception as e:
+        raise AvoraException(c.INIT_COPY_ERROR_MESSAGE) from e
+
+
+def copy_document_to_repository_directory(
+    c: AvoraConstants, repository_path: Path, document_path: Path
+) -> None:
+    """
+    Copy the document to the repository directory.
+    """
+    try:
+        shutil.copy2(document_path, repository_path)
+    except Exception as e:
+        raise AvoraException(c.INIT_COPY_ERROR_MESSAGE) from e
+
+
+def create_avora_directory_layout(
+    c: AvoraConstants, rp: RepositoryPaths, rs: RepositoryStatus
+) -> None:
+    """
+    Create the Avora directory layout for the repository, including the objects,
+    document, and HTML directories. Raise an AvoraException if the directories cannot be
+    created.
+    """
+
+    rs.target.set(c.MAIN_BRANCH_NAME)
+
+    paths = [
+        rp.avora_path(),
+        rp.objects_path(),
+        rp.document_objects_path(),
+        rp.html_objects_path(),
+        rp.view_html_objects_path(),
+    ]
+
+    try:
+        rp.root.mkdir(parents=True, exist_ok=True)
+
+        for i in paths:
+            (i).mkdir(parents=True, exist_ok=True)
+
+    except Exception as e:
+        raise AvoraException(c.INIT_CREATE_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()
+
+
+def finalize_repository_creation(
+    c: AvoraConstants,
+    document_path: Path,
+    rp: RepositoryPaths,
+    staging_rp: RepositoryPaths,
+) -> None:
+    """
+    Promote the staging directory to the repository root and remove the original
+    document from the parent directory. Print a warning if the source document cannot be
+    removed.
+    """
+
+    utils.promote_staging(c, staging_rp.root, rp.root)
+
+    try:
+        os.remove(document_path)
+    except OSError:
+        print(
+            c.SOURCE_FILE_DELETION_ERROR_WARNING_TEMPLATE.format(
+                document_path=document_path
+            )
+        )
+
+
+def print_init_success_message(c: AvoraConstants) -> None:
+    """
+    Print a success message after a successful init operation.
+    """
+
+    print(c.INIT_SUCCESS_MESSAGE)
+
+
+def validate_file_requirements(c: AvoraConstants, file: Path) -> None:
+    """
+    Validate the entered document by checking that it has the expected document
+    extension and exists. Raise an AvoraException if the file type or path is invalid.
+    """
+
+    if file.suffix.lower() != c.DOCUMENT_EXTENSION:
+        raise AvoraException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
+
+    if not os.path.isfile(file):
+        raise AvoraException(
+            c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
+        )
+
+
+def validate_no_prev_init(c: AvoraConstants, rp: RepositoryPaths) -> None:
+    """
+    Validate that the repository has not already been initialized by checking for an
+    existing Avora directory. Raise an AvoraException if the repository is already
+    initialized.
+    """
+
+    if (rp.avora_path()).is_dir():
+        raise AvoraException(c.ALREADY_INIT_ERROR_MESSAGE)
+
+
+def write_starting_metadata(
+    c: AvoraConstants, commit_identifier: str, name: str, email: str, ri: RepositoryIO
+) -> None:
+    """
+    Write the starting metadata of the repository, including the initial commit history,
+    log, byte hash, commit messages, and default branch data.
+    """
+
+    ri.target.set(c.MAIN_BRANCH_NAME)
+
+    try:
+        ri.write_metadata(
+            {
+                c.BRANCHES_DICT_KEY: {
+                    c.MAIN_BRANCH_NAME: {
+                        c.HISTORY_DICT_KEY: {
+                            c.INITIAL_COMMIT_DICT_KEY: commit_identifier,
+                            c.LATEST_COMMIT_DICT_KEY: commit_identifier,
+                            c.LATEST_COMMIT_NUMBER_DICT_KEY: c.INITIAL_COMMIT_NUMBER,
+                            c.COMMIT_ORDER_DICT_KEY: {
+                                c.INITIAL_COMMIT_NUMBER_DICT_KEY: commit_identifier
+                            },
+                        },
+                        c.LOG_DICT_KEY: {
+                            commit_identifier: {
+                                c.TIMESTAMP_DICT_KEY: c.PROGRAM_START_TIME,
+                                c.AUTHOR_DICT_KEY: c.COMMIT_AUTHOR_TEMPLATE.format(
+                                    name=name, email=email
+                                ),
+                                c.MESSAGE_DICT_KEY: c.INIT_COMMIT_MESSAGE,
+                            }
+                        },
+                        c.BYTE_HASH_DICT_KEY: {
+                            commit_identifier: ri.document_html_byte_hash()
+                        },
+                    }
+                },
+                c.COMMIT_MESSAGES_DICT_KEY: {commit_identifier: c.INIT_COMMIT_MESSAGE},
+                c.CURRENT_BRANCH_DICT_KEY: dict(c.DEFAULT_BRANCH_DATA),
+            }
+        )
+    except Exception as e:
+        raise AvoraException(c.INIT_COPY_ERROR_MESSAGE) from e
+
+
+def main(
+    c: AvoraConstants,
+    document_path: Path,
+    ri: RepositoryIO,
+    rp: RepositoryPaths,
+    rs: RepositoryStatus,
+    rw: RepositoryWrite,
+) -> None:
+    """
+    Run the init command by validating that the repository is not already initialized
+    and that the entered document exists, and by prompting for the name and email
+    configuration values.
+
+    Create the repository on a copy in a staging directory, promote it to the repository
+    root, print a success message, and reset the target branch when the operation
+    completes.
+    """
+
+    validate_no_prev_init(c, rp)
+
+    validate_file_requirements(c, document_path)
+
+    name = get_config_key(c, c.NAME_KEY)
+    email = get_config_key(c, c.EMAIL_KEY)
+
+    staging_root = utils.create_staging_directory(c, rp.root)
+
+    try:
+        staging_ri = RepositoryIO(staging_root, ri.repository_name, c, ri.target)
+        staging_rp = RepositoryPaths(staging_root, rp.repository_name, c)
+        staging_rs = RepositoryStatus(staging_root, rs.repository_name, c, rs.target)
+        staging_rw = RepositoryWrite(staging_root, rw.repository_name, c, rw.target)
+
+        create_avora_directory_layout(c, staging_rp, staging_rs)
+
+        commit_identifier = utils.create_commit_identifier(
+            c,
+            [c.PROGRAM_START_TIME, c.INIT_COMMIT_MESSAGE, name, email],
+        )
+
+        copy_document_to_objects_as_document_and_html(
+            c, document_path, commit_identifier, staging_rp
+        )
+
+        copy_document_to_repository_directory(c, staging_rp.root, document_path)
+
+        write_starting_metadata(c, commit_identifier, name, email, staging_ri)
+
+        staging_rw.write_key_to_config(c.NAME_KEY, name)
+        staging_rw.write_key_to_config(c.EMAIL_KEY, email)
+
+        finalize_repository_creation(c, document_path, rp, staging_rp)
+
+    except Exception:
+        utils.cleanup_staging(staging_root)
+        raise
+
+    print_init_success_message(c)

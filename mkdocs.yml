@@ -1,5 +1,5 @@
-site_name: SCCS documentation
-site_description: Documentation for the SCCS project
+site_name: Avora documentation
+site_description: Documentation for the Avora project
 site_author: Daniel Phillion
 site_url: https://sccs-hq.github.io/legal-contract-version-control/
 repo_url: https://github.com/SCCS-HQ/legal-contract-version-control
@@ -49,14 +49,14 @@ not_in_nav: |
 
 nav:
   - Home: README.md
-  - Local SCCS:
-      - Overview: local_sccs/README.md
-      - Installation: local_sccs/installation.md
-      - Usage: local_sccs/usage.md
-  - Remote SCCS:
-      - Overview: remote_sccs/README.md
-      - Installation: remote_sccs/installation.md
-      - Usage: remote_sccs/usage.md
+  - Local Avora:
+      - Overview: avora/README.md
+      - Installation: avora/installation.md
+      - Usage: avora/usage.md
+  - Remote Avora:
+      - Overview: remote_avora/README.md
+      - Installation: remote_avora/installation.md
+      - Usage: remote_avora/usage.md
   - Contributing:
       - Code of Conduct: contributing/CODE_OF_CONDUCT.md
       - Contributing Guide: contributing/CONTRIBUTING.md

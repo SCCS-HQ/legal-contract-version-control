@@ -1,0 +1,53 @@
+from typing import Any
+
+from avora.constants_classes import AvoraConstants
+from avora.exceptions import AvoraException
+from avora.repository_layout import (
+    RepositoryData,
+    RepositoryIO,
+    RepositoryStatus,
+)
+
+
+def print_log(c: AvoraConstants, log_data: dict[str, Any]) -> None:
+    """
+    Print the log entries of the entered log data, including the commit identifier,
+    author, timestamp, and commit message of each commit.
+    """
+
+    for i in log_data:
+        print(
+            c.LOG_SEPARATOR + c.NEWLINE,
+            c.LOG_COMMIT_FILE_LABEL
+            + i[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH]
+            + c.NEWLINE,
+            (c.LOG_AUTHOR_LABEL + log_data[i][c.AUTHOR_DICT_KEY] + c.NEWLINE),
+            (c.LOG_DATE_LABEL + log_data[i][c.TIMESTAMP_DICT_KEY] + c.NEWLINE),
+            (c.LOG_MESSAGE_LABEL + log_data[i][c.MESSAGE_DICT_KEY] + c.NEWLINE),
+            c.LOG_SEPARATOR,
+            sep=c.EMPTY_STRING,
+        )
+
+
+def main(
+    c: AvoraConstants,
+    rd: RepositoryData,
+    ri: RepositoryIO,
+    rs: RepositoryStatus,
+) -> None:
+    """
+    Run the log command by setting the current branch as the target, validating the
+    repository layout, and printing the log entries of the current branch.
+    """
+
+    try:
+        rs.validate_repository_layout()
+        rs.target.set(rd.current_branch())
+
+        print_log(c, ri.read_log())
+    except AvoraException:
+        raise
+    except Exception as e:
+        raise
+    finally:
+        rs.target.reset()

@@ -1,0 +1,100 @@
+import shutil
+from pathlib import Path
+
+from avora import utils
+from avora.constants_classes import AvoraConstants
+from avora.exceptions import AvoraException
+from avora.repository_layout import (
+    RepositoryData,
+    RepositoryStatus,
+)
+
+
+def copy_commit_file(
+    c: AvoraConstants, commit_path: Path, output_file_path: Path
+) -> None:
+    """
+    Copy the commit file to the output file name. Raise an AvoraException if the commit
+    file cannot be copied.
+    """
+
+    try:
+        shutil.copy2(commit_path, output_file_path)
+    except Exception as e:
+        raise AvoraException(c.OPEN_COPY_ERROR_MESSAGE) from e
+
+
+def print_open_success_message(
+    c: AvoraConstants, commit_identifier: str, output_file_path: Path
+) -> None:
+    """
+    Print a success message indicating that the entered commit has been opened as the
+    output file.
+    """
+
+    print(
+        c.OPEN_SUCCESS_MESSAGE_TEMPLATE.format(
+            commit_identifier=commit_identifier[: c.COMMIT_IDENTIFIER_DISPLAY_LENGTH],
+            output_file=output_file_path,
+        )
+    )
+
+
+def validate_commit_identifier(
+    c: AvoraConstants, commit_identifier: str, rd: RepositoryData
+) -> None:
+    """
+    Validate the entered commit identifier by checking that it has a valid commit
+    identifier length and contains only hexadecimal digits. Raise an AvoraException if
+    the commit identifier is invalid.
+    """
+
+    rd.raise_for_commit_identifier_length(commit_identifier)
+
+    if not all(i in c.HEX_DIGITS for i in commit_identifier):
+        raise AvoraException(c.INVALID_COMMIT_IDENTIFIER_ERROR_MESSAGE)
+
+
+def main(
+    c: AvoraConstants, commit_identifier: str, rd: RepositoryData, rs: RepositoryStatus
+) -> None:
+    """
+    Run the open command by setting the current branch as the target, validating the
+    repository layout and entered commit identifier, and copying the commit document to
+    the current directory.
+
+    Promote the staging directory to the current directory, print a success message, and
+    reset the target branch when the operation completes.
+    """
+
+    try:
+        rs.validate_repository_layout()
+
+        rs.target.set(rd.current_branch())
+
+        rs.raise_for_uncommitted_changes()
+
+        commit_path = rd.commit_identifier_to_full_path(
+            commit_identifier, c.DOCUMENT_DIRECTORY
+        )
+
+        full_commit_identifier = rd.short_commit_identifier_to_full(commit_identifier)
+
+        output_file_path = Path(
+            c.OPEN_OUTPUT_FILE_NAME_TEMPLATE.format(
+                commit_identifier=full_commit_identifier[
+                    : c.COMMIT_IDENTIFIER_DISPLAY_LENGTH
+                ]
+            )
+        ).with_suffix(c.DOCUMENT_EXTENSION)
+
+        with utils.staged_repository(c, rd.root, rd.root, rd.root) as staging_root:
+            copy_commit_file(c, commit_path, staging_root / output_file_path.name)
+
+        print_open_success_message(c, full_commit_identifier, output_file_path)
+    except AvoraException:
+        raise
+    except Exception as e:
+        raise AvoraException(c.STAGED_REPOSITORY_ERROR_MESSAGE) from e
+    finally:
+        rs.target.reset()

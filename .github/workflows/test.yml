@@ -10,12 +10,12 @@ permissions:
   contents: read
 
 jobs:
-  test-local-sccs:
-    name: Local SCCS Tests
+  test-avora:
+    name: Avora Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/local_sccs
+        working-directory: packages/avora
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,15 +30,15 @@ jobs:
           pip install .
           pip install ".[dev]"
 
-      - name: Run local SCCS tests
+      - name: Run avora tests
         run: python -m pytest tests/ -v
 
-  test-remote-sccs:
-    name: Remote SCCS Tests
+  test-remote-avora:
+    name: Remote Avora Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/remote_sccs
+        working-directory: packages/remote_avora
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,5 +53,5 @@ jobs:
           pip install .
           pip install ".[dev]"
 
-      - name: Run remote SCCS tests
+      - name: Run remote avora tests
         run: python -m pytest tests/ -v
