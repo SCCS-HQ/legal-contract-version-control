@@ -1,7 +1,9 @@
+import errno
 import hashlib
 import io
 import os
 import re
+import shutil
 import sys
 import unittest
 import unittest.mock
@@ -279,6 +281,171 @@ def test_promote_staging_restores_final_root_if_promotion_raises(
         final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
         assert f.read() == tc.SECOND_TEST_STRING
+
+
+def _make_rename_that_raises_exdev_for_source(
+    original_rename: Any, source: Path
+) -> Any:
+    def rename(src: Any, dst: Any) -> None:
+        if Path(src) == source:
+            raise OSError(errno.EXDEV, "cross-device link")
+        original_rename(src, dst)
+
+    return rename
+
+
+def test_promote_staging_cross_device_falls_back_to_copy(
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    staging_root.mkdir()
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    monkeypatch.setattr(
+        os,
+        tc.RENAME_FUNCTION_NAME,
+        _make_rename_that_raises_exdev_for_source(os.rename, staging_root),
+    )
+
+    utils.promote_staging(c, staging_root, final_root)
+
+    assert not staging_root.exists()
+    assert not (tmp_path / (final_root.name + ".tmp")).exists()
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.TEST_STRING
+
+
+def test_promote_staging_cross_device_copy_failure_propagates_and_cleans_tmp(
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    final_root.mkdir()
+    staging_root.mkdir()
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    monkeypatch.setattr(
+        os,
+        tc.RENAME_FUNCTION_NAME,
+        _make_rename_that_raises_exdev_for_source(os.rename, staging_root),
+    )
+    monkeypatch.setattr(
+        shutil,
+        "copytree",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            OSError(errno.EIO, "input/output error")
+        ),
+    )
+
+    with pytest.raises(OSError, match="input/output error"):
+        utils.promote_staging(c, staging_root, final_root)
+
+    assert not (tmp_path / (final_root.name + ".tmp")).exists()
+    assert final_root.exists()
+
+
+def test_promote_staging_cross_device_partial_copy_rollback_restores_old_root(
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    final_root.mkdir()
+    staging_root.mkdir()
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.SECOND_TEST_STRING)
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    created_tmp_dirs: list[Path] = []
+
+    def failing_copytree(src: Any, dst: Any, **kwargs: Any) -> None:
+        created_tmp_dirs.append(Path(dst))
+        Path(dst).mkdir(parents=True, exist_ok=True)
+        (Path(dst) / tc.TEST_TEXT_FILENAME).write_text(
+            tc.TEST_STRING, encoding=tc.UTF_8
+        )
+        raise OSError(errno.EIO, "input/output error")
+
+    monkeypatch.setattr(
+        os,
+        tc.RENAME_FUNCTION_NAME,
+        _make_rename_that_raises_exdev_for_source(os.rename, staging_root),
+    )
+    monkeypatch.setattr(shutil, "copytree", failing_copytree)
+
+    with pytest.raises(OSError, match="input/output error"):
+        utils.promote_staging(c, staging_root, final_root)
+
+    for tmp_dir in created_tmp_dirs:
+        assert not tmp_dir.exists()
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.SECOND_TEST_STRING
+
+
+def test_promote_staging_cross_device_cleans_preexisting_tmp_dst(
+    tmp_path: Path,
+    c: SCCSConstants,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    final_root.mkdir()
+    staging_root.mkdir()
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    monkeypatch.setattr(
+        os,
+        tc.RENAME_FUNCTION_NAME,
+        _make_rename_that_raises_exdev_for_source(os.rename, staging_root),
+    )
+
+    utils.promote_staging(c, staging_root, final_root)
+
+    assert not staging_root.exists()
+    # No stale temporary directories should remain in the parent directory.
+    for entry in tmp_path.iterdir():
+        if entry.name.startswith(c.TEMPORARY_DIRECTORY_PREFIX):
+            assert not entry.exists()
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
+    ) as f:
+        assert f.read() == tc.TEST_STRING
 
 
 def test_raise_if_empty_raises_if_value_is_empty(

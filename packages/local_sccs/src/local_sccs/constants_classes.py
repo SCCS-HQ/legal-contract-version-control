@@ -439,6 +439,10 @@ class SCCSConstants:
     REPOSITORY_NAME_PATH_INDEX = -2
     REQUIRED_PATH_ENDING_TEMPLATE = f"/{REPOSITORIES_PATH_SEGMENT}/{{repo_name}}"
     RESET_ERROR_MESSAGE = "Failed to reset the document. Please try again."
+    ROLLBACK_FAILED_ERROR_MESSAGE = (
+        "Failed to roll back repository promotion. The repository may be in an "
+        "inconsistent state. Please check the repository directory."
+    )
     RESET_SUCCESS_MESSAGE = (
         "All uncommitted changes have been deleted. The document has been reset to the "
         "latest commit."
