@@ -27,8 +27,8 @@ The `avora` command provides 17 subcommands covering the full version-control li
 
 ## Documentation
 
-- [Installation](installation.md) — how to install `avora` and set up your environment
-- [Usage](usage.md) — command reference, examples, and workflows
+- [Installation](https://avora-docx.github.io/Avora-Docx/avora/installation/) — how to install `avora` and set up your environment
+- [Usage](https://avora-docx.github.io/Avora-Docx/avora/usage/) — command reference, examples, and workflows
 - [Avora Documentation](https://avora-docx.github.io/Avora-Docx/) — full project documentation
 
 ## License
