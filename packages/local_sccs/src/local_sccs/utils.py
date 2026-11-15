@@ -126,16 +126,16 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
                 raise
 
     if not final_root.exists():
-        _rename_or_copy(staging_root, final_root)
+        os.rename(staging_root, final_root)
         return
 
     old_root = final_root.with_name(
         c.OLD_ROOT_TEMPLATE.format(repository_name=final_root.name)
     )
 
-    _rename_or_copy(final_root, old_root)
+    os.rename(final_root, old_root)
     try:
-        _rename_or_copy(staging_root, final_root)
+        os.rename(staging_root, final_root)
     except Exception:
         if final_root.exists():
             shutil.rmtree(final_root, ignore_errors=True)
