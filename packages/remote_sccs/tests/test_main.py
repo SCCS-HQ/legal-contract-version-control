@@ -1160,7 +1160,7 @@ async def test_pull_raises_if_branches_directory_is_outside_base_directory(
     
 
 @pytest.mark.asyncio
-async def test_pull_returns_missing_repository_objects(
+async def test_pull_returns_missing_repository_objects_and_metadata_json(
     tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
 
@@ -1177,9 +1177,12 @@ async def test_pull_returns_missing_repository_objects(
         with open(objects_path / i, "w") as f:
             f.write(tc.TEST_STRING)
 
+    Path(repository_path / tc.SCCS_DIRECTORY / tc.METADATA_JSON).write_text(tc.TEST_STRING)
+
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.write(filename=repository_path / tc.SCCS_DIRECTORY / tc.OBJECTS_DIRECTORY / tc.TEST_STRING, arcname=(repository_path / tc.SCCS_DIRECTORY / tc.OBJECTS_DIRECTORY / tc.TEST_STRING).relative_to(repository_path))
+        zf.write(filename=repository_path / tc.SCCS_DIRECTORY / tc.METADATA_JSON, arcname=(repository_path / tc.SCCS_DIRECTORY / tc.METADATA_JSON).relative_to(repository_path))
 
     response = await main.pull(tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: [tc.SECOND_TEST_STRING]})
 
@@ -1188,7 +1191,6 @@ async def test_pull_returns_missing_repository_objects(
         response_body += chunk # pyright: ignore[reportOperatorIssue]
 
     assert response_body == zip_buffer.getvalue()
-
 
 @pytest.mark.asyncio
 async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
@@ -1220,3 +1222,5 @@ def test_import_time_code_creates_repositories_directory_if_it_does_not_exist(
     importlib.reload(main)
 
     assert (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).exists()
+
+
