@@ -30,7 +30,9 @@ def global_config_with_name_email(
 ) -> None:
     config_root = tmp_path / "global_config"
     config_root.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setattr(platformdirs, "user_config_path", lambda *args, **kwargs: config_root)
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: config_root
+    )
 
     with open(
         config_root / c.CONFIG_JSON_FILENAME,
