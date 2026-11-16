@@ -72,7 +72,9 @@ def copy_document_to_objects_as_document_and_html(
 
         with rp.lock:
             with open(
-                (rp.html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
+                (rp.html_objects_path() / commit_identifier).with_suffix(
+                    c.HTML_EXTENSION
+                ),
                 "w",
                 encoding=c.UTF_8,
                 newline=c.NEWLINE,

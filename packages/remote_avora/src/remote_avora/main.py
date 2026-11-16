@@ -96,9 +96,7 @@ def repository_lock(rc: RemoteAvoraConstants, repository_path: Path):
     Acquire an exclusive file lock for the given repository.
     """
 
-    lock_directory = (
-        repository_base_directory(rc) / rc.LOCKS_DIRECTORY_NAME
-    ).resolve()
+    lock_directory = (repository_base_directory(rc) / rc.LOCKS_DIRECTORY_NAME).resolve()
     lock_directory.mkdir(parents=True, exist_ok=True)
     lock = FileLock(lock_directory / f"{repository_path.name}{rc.LOCKFILE_NAME}")
     with lock:
@@ -247,7 +245,8 @@ async def clone(repository_name: str) -> StreamingResponse:
                 for i in files:
                     file_path = Path(root) / i
                     zf.write(
-                        filename=file_path, arcname=file_path.relative_to(repository_path)
+                        filename=file_path,
+                        arcname=file_path.relative_to(repository_path),
                     )
 
             if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
@@ -440,7 +439,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
             ) from e
 
         remote_objects = {
-            i.stem for i in (objects_paths).rglob(rc.RGLOB_ALL_FILES_PATTERN) if i.is_file()
+            i.stem
+            for i in (objects_paths).rglob(rc.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
         }
 
         if local_objects - remote_objects:

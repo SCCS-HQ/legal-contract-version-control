@@ -8,12 +8,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from filelock import FileLock
 import mammoth
 import platformdirs
 from avora import utils
 from avora.constants_classes import AvoraConstants
 from avora.exceptions import AvoraException
+from filelock import FileLock
 
 
 class TargetBranch:
@@ -734,9 +734,7 @@ class RepositoryPaths:
         self.c = c
         self.lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
         self.global_config_lock = FileLock(
-            platformdirs.user_config_path(
-                appname=self.c.LOCAL_AVORA, appauthor=False
-            )
+            platformdirs.user_config_path(appname=self.c.LOCAL_AVORA, appauthor=False)
             / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
         )
 
