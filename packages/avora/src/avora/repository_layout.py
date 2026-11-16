@@ -6,7 +6,7 @@ import shutil
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import mammoth
 import platformdirs
@@ -14,7 +14,6 @@ from avora import utils
 from avora.constants_classes import AvoraConstants
 from avora.exceptions import AvoraException
 from filelock import FileLock
-from typing import Self
 
 
 class TargetBranch:
@@ -280,7 +279,7 @@ class RepositoryIO:
         and rewrite the file mid-read, which would otherwise expose a torn or
         partially written document to this reader.
         """
-        
+
         with self.paths.lock:
             with open(
                 self.paths.metadata_path(),
@@ -289,7 +288,7 @@ class RepositoryIO:
                 newline=self.c.NEWLINE,
             ) as f:
                 data = json.load(f)
-        return data # pyright: ignore[reportPossiblyUnboundVariable]
+        return data  # pyright: ignore[reportPossiblyUnboundVariable]
 
     def _write_metadata_json(self, data: dict[str, Any]) -> None:
         """
