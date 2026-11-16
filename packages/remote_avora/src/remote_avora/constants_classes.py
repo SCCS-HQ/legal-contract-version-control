@@ -79,6 +79,8 @@ class RemoteAvoraConstants:
         "Local repository has objects that the remote does not have. "
         "Run 'avora push' to upload these objects before pulling."
     )
+    LOCKS_DIRECTORY_NAME = ".remote_avora"
+    LOCKFILE_NAME = "remote_avora.lock"
     MAX_FILES_IN_ZIP = 1000
     MAX_INDIVIDUAL_FILE_SIZE = 10 * BYTES_PER_MEGABYTE
     MAX_TOTAL_UPLOAD_SIZE = 100 * BYTES_PER_MEGABYTE

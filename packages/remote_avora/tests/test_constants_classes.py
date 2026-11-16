@@ -57,6 +57,8 @@ REMOTE_AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
         "Local repository has objects that the remote does not have. "
         "Run 'avora push' to upload these objects before pulling."
     ),
+    "LOCKFILE_NAME": "remote_avora.lock",
+    "LOCKS_DIRECTORY_NAME": ".remote_avora",
     "MAX_FILES_IN_ZIP": 1000,
     "MAX_INDIVIDUAL_FILE_SIZE": 10485760,
     "MAX_TOTAL_UPLOAD_SIZE": 104857600,
