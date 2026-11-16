@@ -395,8 +395,10 @@ def test_safe_extract_zip_rejects_symlink_escape(
 
     with pytest.raises(SCCSException) as e:
         utils.safe_extract_zip(
-            c, None, tc.TEST_SYMLINK_DIRECTORY, destination_path
-        )  # pyright: ignore[reportArgumentType]
+            c,
+            None, # pyright: ignore[reportArgumentType]
+            tc.TEST_SYMLINK_DIRECTORY, destination_path
+        )
     assert str(
         e.value
     ) == tc.TARGET_PATH_NOT_RELATIVE_TO_PARENT_DIRECTORY_ERROR_MESSAGE.format(
