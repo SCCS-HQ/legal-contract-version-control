@@ -8,12 +8,14 @@ from test_constants import SCCSTestConstants
 
 @pytest.fixture()
 def rc() -> RemoteSCCSConstants:
+    """Return a ``RemoteSCCSConstants`` instance for use in tests."""
 
     return RemoteSCCSConstants()
 
 
 @pytest.fixture()
 def tc() -> SCCSTestConstants:
+    """Return an ``SCCSTestConstants`` instance for use in tests."""
 
     return SCCSTestConstants()
 
@@ -25,7 +27,11 @@ def CustomSimpleNamespace(tc: SCCSTestConstants) -> Any:
     """
 
     class _CustomSimpleNamespace(SimpleNamespace):
+        """A SimpleNamespace subclass that returns ``None`` for missing attributes."""
+
         def __getattr__(self, name: str) -> Any:
+            """Return ``None`` for any missing attribute access."""
+
             return None
 
     return _CustomSimpleNamespace
@@ -38,6 +44,8 @@ def raise_exception() -> FunctionType:
     """
 
     def _raise_exception(*args: Any, **kwargs: Any) -> None:
+        """Raise ``OSError`` when called."""
+
         raise OSError
 
     return _raise_exception

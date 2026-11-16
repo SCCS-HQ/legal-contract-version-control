@@ -1,3 +1,5 @@
+"""Tests for the FastAPI application in ``remote_sccs.main``."""
+
 import importlib
 import io
 import json
@@ -6,6 +8,7 @@ import shutil
 import zipfile
 from pathlib import Path
 from types import FunctionType
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -32,8 +35,11 @@ from test_constants import SCCSTestConstants
     ],
 )
 def test_validate_repository_name_returns_resolved_name(
-    repository_name: str, error_raised: bool, tc: SCCSTestConstants
+    repository_name: str,
+    error_raised: bool,
+    tc: SCCSTestConstants,
 ) -> None:
+    """Validate repository names against the allowed pattern."""
 
     if error_raised:
         with pytest.raises(HTTPException) as e:
@@ -42,7 +48,10 @@ def test_validate_repository_name_returns_resolved_name(
         assert e.value.status_code == tc.STATUS_CODE_400
         assert e.value.detail == tc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE
     else:
-        assert repository_name == main.validate_repository_name(repository_name).value
+        assert (
+            repository_name
+            == main.validate_repository_name(repository_name).value
+        )
 
 
 @pytest.mark.parametrize("directory", [("dir/dir2/dir3"), ("path/path")])
@@ -53,6 +62,7 @@ def test_repository_base_directory_returns_resolved_path(
     directory: str,
     tmp_path: Path,
 ) -> None:
+    """Verify ``repository_base_directory`` returns the resolved base path."""
 
     nest_path = tmp_path / directory
     nest_path.mkdir(parents=True, exist_ok=True)
@@ -86,6 +96,7 @@ def test_repository_directory_raises_if_repository_name_is_invalid(
     tc: SCCSTestConstants,
     rc: RemoteSCCSConstants,
 ) -> None:
+    """Verify ``repository_directory`` rejects invalid repository names."""
 
     if error_raised:
         with pytest.raises(HTTPException) as e:
@@ -98,8 +109,10 @@ def test_repository_directory_raises_if_repository_name_is_invalid(
 
 
 def test_repository_directory_raises_if_repository_path_is_outside_base_directory(
-    tc: SCCSTestConstants, rc: RemoteSCCSConstants
+    tc: SCCSTestConstants,
+    rc: RemoteSCCSConstants,
 ) -> None:
+    """Verify ``repository_directory`` rejects paths outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         main.repository_directory(rc, tc.INVALID_REPOSITORY_NAME)
@@ -109,8 +122,10 @@ def test_repository_directory_raises_if_repository_path_is_outside_base_director
 
 
 def test_repository_directory_returns_resolved_path(
-    tc: SCCSTestConstants, rc: RemoteSCCSConstants
+    tc: SCCSTestConstants,
+    rc: RemoteSCCSConstants,
 ) -> None:
+    """Verify ``repository_directory`` returns the resolved repository path."""
 
     expected = (
         Path(tc.REPOSITORIES_BASE_DIRECTORY) / tc.VALID_REPOSITORY_NAME
@@ -125,6 +140,7 @@ def test_repository_directory_raises_if_resolved_path_escapes_via_symlink(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``repository_directory`` rejects symlink escapes from the base."""
 
     base = tmp_path / tc.REPOSITORIES_BASE_DIRECTORY
     base.mkdir(parents=True, exist_ok=True)
@@ -140,8 +156,10 @@ def test_repository_directory_raises_if_resolved_path_escapes_via_symlink(
 
 
 def test_ensure_repository_exists_raises_if_repository_directory_does_not_exist(
-    tc: SCCSTestConstants, rc: RemoteSCCSConstants
+    tc: SCCSTestConstants,
+    rc: RemoteSCCSConstants,
 ) -> None:
+    """Verify ``ensure_repository_exists`` raises for missing repositories."""
 
     with pytest.raises(HTTPException) as e:
         main.ensure_repository_exists(rc, Path(tc.VALID_REPOSITORY_NAME))
@@ -153,8 +171,11 @@ def test_ensure_repository_exists_raises_if_repository_directory_does_not_exist(
 
 
 def test_safe_extract_zip_raises_if_member_path_is_absolute_path(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` rejects absolute member paths."""
 
     with pytest.raises(HTTPException) as e:
         main.safe_extract_zip(
@@ -169,8 +190,11 @@ def test_safe_extract_zip_raises_if_member_path_is_absolute_path(
 
 
 def test_safe_extract_zip_raises_if_member_path_contains_double_period(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` rejects member paths containing ``..``."""
 
     with pytest.raises(HTTPException) as e:
         main.safe_extract_zip(
@@ -185,8 +209,11 @@ def test_safe_extract_zip_raises_if_member_path_contains_double_period(
 
 
 def test_safe_extract_zip_raises_if_target_path_is_outside_base_directory(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` rejects targets outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         main.safe_extract_zip(
@@ -201,15 +228,21 @@ def test_safe_extract_zip_raises_if_target_path_is_outside_base_directory(
 
 
 def test_safe_extract_zip_raises_if_target_path_escapes_via_symlink(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` rejects symlink escapes from the target."""
 
-    (tmp_path / tc.TEST_STRING).symlink_to(tmp_path.parent, target_is_directory=True)
+    (tmp_path / tc.TEST_STRING).symlink_to(
+        tmp_path.parent, target_is_directory=True
+    )
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, mode="w") as zf:
         zf.writestr(
-            tc.TEST_STRING + tc.PATH_SEPARATOR + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING
+            tc.TEST_STRING + tc.PATH_SEPARATOR + tc.TEXT_FILE_EXTENSION,
+            tc.TEST_STRING,
         )
     buffer.seek(0)
 
@@ -227,8 +260,11 @@ def test_safe_extract_zip_raises_if_target_path_escapes_via_symlink(
 
 
 def test_safe_extract_zip_extracts_files_to_target_directory(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` extracts file members to the target."""
 
     buffer = io.BytesIO()
 
@@ -245,8 +281,8 @@ def test_safe_extract_zip_extracts_files_to_target_directory(
     buffer.seek(0)
 
     with zipfile.ZipFile(buffer, mode="r") as zf:
-        for member in zf.infolist():
-            main.safe_extract_zip(rc, zf, member.filename, tmp_path)
+        for i in zf.infolist():
+            main.safe_extract_zip(rc, zf, i.filename, tmp_path)
 
     with open(tmp_path / (tc.TEST_STRING + tc.TEXT_FILE_EXTENSION), "r") as f:
         assert f.read() == tc.TEST_STRING
@@ -259,8 +295,11 @@ def test_safe_extract_zip_extracts_files_to_target_directory(
 
 
 def test_safe_extract_zip_extracts_directory_members(
-    rc: RemoteSCCSConstants, tc: SCCSTestConstants, tmp_path: Path
+    rc: RemoteSCCSConstants,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
 ) -> None:
+    """Verify ``safe_extract_zip`` extracts directory members correctly."""
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, mode="w") as zf:
@@ -276,12 +315,14 @@ def test_safe_extract_zip_extracts_directory_members(
     buffer.seek(0)
 
     with zipfile.ZipFile(buffer, mode="r") as zf:
-        for member in zf.infolist():
-            main.safe_extract_zip(rc, zf, member.filename, tmp_path)
+        for i in zf.infolist():
+            main.safe_extract_zip(rc, zf, i.filename, tmp_path)
 
     assert (tmp_path / tc.TEST_STRING).is_dir()
     with open(
-        tmp_path / tc.TEST_STRING / (tc.SECOND_TEST_STRING + tc.TEXT_FILE_EXTENSION),
+        tmp_path
+        / tc.TEST_STRING
+        / (tc.SECOND_TEST_STRING + tc.TEXT_FILE_EXTENSION),
         "r",
     ) as f:
         assert f.read() == tc.SECOND_TEST_STRING
@@ -289,6 +330,7 @@ def test_safe_extract_zip_extracts_directory_members(
 
 @pytest.mark.asyncio
 async def test_root_returns_easter_egg_message(tc: SCCSTestConstants) -> None:
+    """Verify the root endpoint returns the easter egg message."""
 
     assert await main.root() == {tc.MESSAGE_DICT_KEY: tc.EASTER_EGG_MESSAGE}
 
@@ -297,6 +339,7 @@ async def test_root_returns_easter_egg_message(tc: SCCSTestConstants) -> None:
 async def test_publish_raises_if_repository_name_is_outside_base_directory(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``publish`` rejects repository names outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         await main.publish(tc.INVALID_REPOSITORY_NAME)
@@ -312,10 +355,12 @@ async def test_publish_raises_if_repository_already_exists(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects publishing to an existing repository."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     zip_buffer = io.BytesIO()
@@ -323,7 +368,8 @@ async def test_publish_raises_if_repository_already_exists(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = json.dumps({rc.REMOTE_KEY: tc.TEST_STRING})
 
@@ -336,8 +382,11 @@ async def test_publish_raises_if_repository_already_exists(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_json_loads_fails(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects invalid JSON data."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -347,7 +396,8 @@ async def test_publish_raises_if_json_loads_fails(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = tc.TEST_STRING
 
@@ -360,8 +410,11 @@ async def test_publish_raises_if_json_loads_fails(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_remote_is_empty(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects an empty remote URL."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -371,7 +424,8 @@ async def test_publish_raises_if_remote_is_empty(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = json.dumps({tc.REMOTE_DICT_KEY: tc.EMPTY_STRING})
 
@@ -384,8 +438,11 @@ async def test_publish_raises_if_remote_is_empty(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_filename_is_empty(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects an empty upload filename."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -406,8 +463,11 @@ async def test_publish_raises_if_filename_is_empty(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_filename_stem_is_not_repository_name(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects filenames whose stem differs from the repo name."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -428,8 +488,11 @@ async def test_publish_raises_if_filename_stem_is_not_repository_name(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_len_of_zf_infolist_is_greater_than_1000(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects zips with more than 1000 files."""
 
     monkeypatch.setattr(
         zipfile.ZipFile, "infolist", lambda *args, **kwargs: [None] * 1001
@@ -443,7 +506,8 @@ async def test_publish_raises_if_len_of_zf_infolist_is_greater_than_1000(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = json.dumps({tc.REMOTE_DICT_KEY: tc.TEST_STRING})
 
@@ -456,8 +520,11 @@ async def test_publish_raises_if_len_of_zf_infolist_is_greater_than_1000(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_zf_infolist_total_upload_size_is_greater_than_100mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects uploads exceeding 100MB total."""
 
     infolist = zipfile.ZipInfo()
     infolist.file_size = 101 * 1024 * 1024
@@ -472,7 +539,8 @@ async def test_publish_raises_if_zf_infolist_total_upload_size_is_greater_than_1
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = json.dumps({tc.REMOTE_DICT_KEY: tc.TEST_STRING})
 
@@ -485,8 +553,11 @@ async def test_publish_raises_if_zf_infolist_total_upload_size_is_greater_than_1
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_any_file_in_zf_infolist_is_larger_than_10mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects individual files larger than 10MB."""
 
     infolist_acceptable_item = zipfile.ZipInfo()
     infolist_acceptable_item.file_size = 1 * 1024 * 1024
@@ -508,7 +579,8 @@ async def test_publish_raises_if_any_file_in_zf_infolist_is_larger_than_10mb(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
     mock_file = UploadFile(
-        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+        filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+        file=zip_buffer,
     )
     mock_data = json.dumps({tc.REMOTE_DICT_KEY: tc.TEST_STRING})
 
@@ -523,8 +595,11 @@ async def test_publish_raises_if_any_file_in_zf_infolist_is_larger_than_10mb(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_member_path_is_absolute_path(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects zips with absolute member paths."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -532,7 +607,8 @@ async def test_publish_raises_if_member_path_is_absolute_path(
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, mode="w") as zf:
         zf.writestr(
-            tc.PATH_SEPARATOR + tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING
+            tc.PATH_SEPARATOR + tc.TEST_STRING + tc.TEXT_FILE_EXTENSION,
+            tc.TEST_STRING,
         )
     zip_buffer.seek(0)
 
@@ -552,8 +628,11 @@ async def test_publish_raises_if_member_path_is_absolute_path(
 
 @pytest.mark.asyncio
 async def test_publish_raises_if_member_path_contains_double_period(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` rejects zips with ``..`` in member paths."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -587,8 +666,11 @@ async def test_publish_raises_if_member_path_contains_double_period(
 
 @pytest.mark.asyncio
 async def test_publish_publishes_files_to_repositories_directory(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` extracts uploaded files to the repositories directory."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -601,7 +683,8 @@ async def test_publish_publishes_files_to_repositories_directory(
     await main.publish(
         tc.VALID_REPOSITORY_NAME,
         UploadFile(
-            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+            file=zip_buffer,
         ),
         json.dumps({tc.REMOTE_DICT_KEY: tc.TEST_STRING}),
     )
@@ -618,8 +701,11 @@ async def test_publish_publishes_files_to_repositories_directory(
 
 @pytest.mark.asyncio
 async def test_publish_returns_success_message(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``publish`` returns a success message with the remote URL."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -635,7 +721,8 @@ async def test_publish_returns_success_message(
     } == await main.publish(
         tc.VALID_REPOSITORY_NAME,
         UploadFile(
-            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+            file=zip_buffer,
         ),
         json.dumps({tc.REMOTE_DICT_KEY: tc.TEST_STRING}),
     )
@@ -648,6 +735,7 @@ async def test_publish_deletes_staging_root_if_exception_occurs(
     monkeypatch: pytest.MonkeyPatch,
     raise_exception: FunctionType,
 ) -> None:
+    """Verify ``publish`` cleans up the staging root on exception."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
@@ -659,7 +747,7 @@ async def test_publish_deletes_staging_root_if_exception_occurs(
         zf.writestr(tc.TEST_STRING + tc.TEXT_FILE_EXTENSION, tc.TEST_STRING)
     zip_buffer.seek(0)
 
-    with pytest.raises(OSError) as e:
+    with pytest.raises(OSError):
         await main.publish(
             tc.VALID_REPOSITORY_NAME,
             UploadFile(
@@ -678,6 +766,7 @@ async def test_publish_deletes_staging_root_if_exception_occurs(
 async def test_clone_raises_if_repository_name_is_outside_base_directory(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``clone`` rejects repository names outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         await main.clone(tc.INVALID_REPOSITORY_NAME)
@@ -687,7 +776,10 @@ async def test_clone_raises_if_repository_name_is_outside_base_directory(
 
 
 @pytest.mark.asyncio
-async def test_clone_raises_if_repository_does_not_exist(tc: SCCSTestConstants) -> None:
+async def test_clone_raises_if_repository_does_not_exist(
+    tc: SCCSTestConstants,
+) -> None:
+    """Verify ``clone`` raises for missing repositories."""
 
     with pytest.raises(HTTPException) as e:
         await main.clone(tc.VALID_REPOSITORY_NAME)
@@ -700,8 +792,11 @@ async def test_clone_raises_if_repository_does_not_exist(tc: SCCSTestConstants) 
 
 @pytest.mark.asyncio
 async def test_clone_raises_if_total_number_of_files_in_repository_is_greater_than_1000(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``clone`` rejects repositories with more than 1000 files."""
 
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(
@@ -724,9 +819,12 @@ async def test_clone_raises_if_total_number_of_files_in_repository_is_greater_th
 
 
 @pytest.mark.asyncio
-async def test_clone_raises_if_total_upload_size_of_files_in_repository_is_greater_than_100mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+async def test_clone_raises_if_total_upload_size_is_greater_than_100mb(
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``clone`` rejects repositories exceeding 100MB total."""
 
     monkeypatch.chdir(tmp_path)
     infolist = zipfile.ZipInfo()
@@ -751,8 +849,11 @@ async def test_clone_raises_if_total_upload_size_of_files_in_repository_is_great
 
 @pytest.mark.asyncio
 async def test_clone_raises_if_any_file_in_repository_is_larger_than_10mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``clone`` rejects repositories with individual files larger than 10MB."""
 
     monkeypatch.chdir(tmp_path)
     infolist_acceptable_item = zipfile.ZipInfo()
@@ -786,8 +887,11 @@ async def test_clone_raises_if_any_file_in_repository_is_larger_than_10mb(
 
 @pytest.mark.asyncio
 async def test_clone_returns_repository(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``clone`` returns a zip archive of the repository."""
 
     monkeypatch.chdir(tmp_path)
 
@@ -816,6 +920,7 @@ async def test_clone_returns_repository(
 async def test_push_raises_is_repository_name_is_outside_base_directory(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``push`` rejects repository names outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         await main.push(tc.INVALID_REPOSITORY_NAME)
@@ -825,7 +930,10 @@ async def test_push_raises_is_repository_name_is_outside_base_directory(
 
 
 @pytest.mark.asyncio
-async def test_push_raises_if_repository_does_not_exist(tc: SCCSTestConstants) -> None:
+async def test_push_raises_if_repository_does_not_exist(
+    tc: SCCSTestConstants,
+) -> None:
+    """Verify ``push`` raises for missing repositories."""
 
     with pytest.raises(HTTPException) as e:
         await main.push(tc.VALID_REPOSITORY_NAME)
@@ -838,8 +946,12 @@ async def test_push_raises_if_repository_does_not_exist(tc: SCCSTestConstants) -
 
 @pytest.mark.asyncio
 async def test_push_raises_if_objects_directory_does_not_exist(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push`` raises when the objects directory is missing."""
+
     monkeypatch.chdir(tmp_path)
 
     repository_path = (
@@ -856,8 +968,12 @@ async def test_push_raises_if_objects_directory_does_not_exist(
 
 @pytest.mark.asyncio
 async def test_push_returns_list_of_repository_objects(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push`` returns the list of repository object stems."""
+
     monkeypatch.chdir(tmp_path)
 
     objects_path = (
@@ -887,6 +1003,7 @@ async def test_push_returns_list_of_repository_objects(
 async def test_push_upload_raises_if_repository_path_is_outside_base_directory(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``push_upload`` rejects repository names outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         await main.push_upload(
@@ -905,6 +1022,7 @@ async def test_push_upload_raises_if_repository_path_is_outside_base_directory(
 async def test_push_upload_raises_if_repository_does_not_exist(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``push_upload`` raises for missing repositories."""
 
     with pytest.raises(HTTPException) as e:
         await main.push_upload(
@@ -923,17 +1041,22 @@ async def test_push_upload_raises_if_repository_does_not_exist(
 
 @pytest.mark.asyncio
 async def test_push_upload_raises_zip_filename_is_empty(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rejects an empty upload filename."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     with pytest.raises(HTTPException) as e:
         await main.push_upload(
-            tc.VALID_REPOSITORY_NAME, UploadFile(filename="", file=io.BytesIO())
+            tc.VALID_REPOSITORY_NAME,
+            UploadFile(filename="", file=io.BytesIO()),
         )
 
     assert e.value.status_code == tc.STATUS_CODE_400
@@ -942,12 +1065,16 @@ async def test_push_upload_raises_zip_filename_is_empty(
 
 @pytest.mark.asyncio
 async def test_push_upload_raises_if_zip_filename_stem_is_not_repository_name(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rejects filenames with a stem differing from the repo."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     with pytest.raises(HTTPException) as e:
@@ -961,13 +1088,17 @@ async def test_push_upload_raises_if_zip_filename_stem_is_not_repository_name(
 
 
 @pytest.mark.asyncio
-async def test_push_upload_raises_if_zf_infolist_total_upload_size_is_greater_than_100mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+async def test_push_upload_raises_if_total_upload_size_is_greater_than_100mb(
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rejects uploads exceeding 100MB total."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     infolist = zipfile.ZipInfo()
@@ -995,12 +1126,16 @@ async def test_push_upload_raises_if_zf_infolist_total_upload_size_is_greater_th
 
 @pytest.mark.asyncio
 async def test_push_upload_raises_if_any_file_in_zf_infolist_is_larger_than_10mb(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rejects individual files larger than 10MB."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     infolist_acceptable_item = zipfile.ZipInfo()
@@ -1034,15 +1169,18 @@ async def test_push_upload_raises_if_any_file_in_zf_infolist_is_larger_than_10mb
         filename=tc.TEST_STRING + tc.TEXT_FILE_EXTENSION
     )
 
-
 @pytest.mark.asyncio
 async def test_push_upload_raises_if_len_of_zf_infolist_is_greater_than_1000(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rejects zips with more than 1000 files."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     infolist = [zipfile.ZipInfo() for _ in range(1001)]
@@ -1074,11 +1212,13 @@ async def test_push_upload_deletes_staging_root_if_exception_occurs(
     monkeypatch: pytest.MonkeyPatch,
     raise_exception: FunctionType,
 ) -> None:
+    """Verify ``push_upload`` cleans up the staging root on exception."""
 
     monkeypatch.setattr(shutil, "copytree", raise_exception)
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     with pytest.raises(OSError):
@@ -1097,8 +1237,11 @@ async def test_push_upload_deletes_staging_root_if_exception_occurs(
 
 @pytest.mark.asyncio
 async def test_push_upload_rolls_back_repository_if_replace_staging_fails(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` rolls back the repository on replace failure."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1120,7 +1263,9 @@ async def test_push_upload_rolls_back_repository_if_replace_staging_fails(
     original_replace = os.replace
     replace_calls = 0
 
-    def failing_replace(src, dst):
+    def failing_replace(src: Any, dst: Any) -> None:
+        """Fail the first ``os.replace`` call, then delegate to the original."""
+
         nonlocal replace_calls
         replace_calls += 1
         if replace_calls == 1:
@@ -1155,8 +1300,11 @@ async def test_push_upload_rolls_back_repository_if_replace_staging_fails(
 
 @pytest.mark.asyncio
 async def test_push_upload_returns_success_message(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` returns a success message."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1183,7 +1331,8 @@ async def test_push_upload_returns_success_message(
     response = await main.push_upload(
         tc.VALID_REPOSITORY_NAME,
         UploadFile(
-            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+            file=zip_buffer,
         ),
     )
 
@@ -1191,9 +1340,12 @@ async def test_push_upload_returns_success_message(
 
 
 @pytest.mark.asyncio
-async def test_push_upload_updates_repository_objects_directory_with_uploaded_files_and_repository_document(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+async def test_push_upload_updates_repository_with_uploaded_files(
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``push_upload`` updates the repository with uploaded files."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1220,12 +1372,14 @@ async def test_push_upload_updates_repository_objects_directory_with_uploaded_fi
     await main.push_upload(
         tc.VALID_REPOSITORY_NAME,
         UploadFile(
-            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION, file=zip_buffer
+            filename=tc.VALID_REPOSITORY_NAME + tc.ZIP_FILE_EXTENSION,
+            file=zip_buffer,
         ),
     )
 
     with open(
-        (repository_path / tc.TEST_STRING).with_suffix(tc.TEXT_FILE_EXTENSION), "r"
+        (repository_path / tc.TEST_STRING).with_suffix(tc.TEXT_FILE_EXTENSION),
+        "r",
     ) as f:
         assert f.read() == tc.TEST_STRING
 
@@ -1234,6 +1388,7 @@ async def test_push_upload_updates_repository_objects_directory_with_uploaded_fi
 async def test_pull_raises_if_repository_name_is_outside_base_directory(
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``pull`` rejects repository names outside the base directory."""
 
     with pytest.raises(HTTPException) as e:
         await main.pull(tc.INVALID_REPOSITORY_NAME, {})
@@ -1243,7 +1398,10 @@ async def test_pull_raises_if_repository_name_is_outside_base_directory(
 
 
 @pytest.mark.asyncio
-async def test_pull_raises_if_repository_does_not_exist(tc: SCCSTestConstants) -> None:
+async def test_pull_raises_if_repository_does_not_exist(
+    tc: SCCSTestConstants,
+) -> None:
+    """Verify ``pull`` raises for missing repositories."""
 
     with pytest.raises(HTTPException) as e:
         await main.pull(tc.VALID_REPOSITORY_NAME, {})
@@ -1273,10 +1431,12 @@ async def test_pull_raises_if_data_is_invalid(
     monkeypatch: pytest.MonkeyPatch,
     data: dict | str,
 ) -> None:
+    """Verify ``pull`` rejects invalid pull request data."""
 
     monkeypatch.chdir(tmp_path)
     (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY / tc.VALID_REPOSITORY_NAME).mkdir(
-        parents=True, exist_ok=True
+        parents=True,
+        exist_ok=True,
     )
 
     with pytest.raises(HTTPException) as e:
@@ -1295,6 +1455,7 @@ async def test_pull_raises_if_objects_directory_is_outside_base_directory(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``pull`` rejects repositories with an objects dir outside the base."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1322,7 +1483,8 @@ async def test_pull_raises_if_objects_directory_is_outside_base_directory(
 
     with pytest.raises(HTTPException) as e:
         await main.pull(
-            tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: [tc.TEST_STRING]}
+            tc.VALID_REPOSITORY_NAME,
+            {tc.OBJECTS_DICT_KEY: [tc.TEST_STRING]},
         )
 
     assert e.value.status_code == tc.STATUS_CODE_400
@@ -1336,6 +1498,7 @@ async def test_pull_raises_if_branches_directory_is_outside_base_directory(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``pull`` rejects repositories with a branches dir outside the base."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1360,7 +1523,8 @@ async def test_pull_raises_if_branches_directory_is_outside_base_directory(
 
     with pytest.raises(HTTPException) as e:
         await main.pull(
-            tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: [tc.TEST_STRING]}
+            tc.VALID_REPOSITORY_NAME,
+            {tc.OBJECTS_DICT_KEY: [tc.TEST_STRING]},
         )
 
     assert e.value.status_code == tc.STATUS_CODE_400
@@ -1369,8 +1533,11 @@ async def test_pull_raises_if_branches_directory_is_outside_base_directory(
 
 @pytest.mark.asyncio
 async def test_pull_returns_missing_repository_objects_and_metadata_json(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``pull`` returns missing objects and the metadata file."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1413,7 +1580,8 @@ async def test_pull_returns_missing_repository_objects_and_metadata_json(
         )
 
     response = await main.pull(
-        tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: [tc.SECOND_TEST_STRING]}
+        tc.VALID_REPOSITORY_NAME,
+        {tc.OBJECTS_DICT_KEY: [tc.SECOND_TEST_STRING]},
     )
 
     response_body = tc.EMPTY_STRING.encode()
@@ -1425,8 +1593,11 @@ async def test_pull_returns_missing_repository_objects_and_metadata_json(
 
 @pytest.mark.asyncio
 async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify ``pull`` raises when the remote is missing local commits."""
 
     monkeypatch.chdir(tmp_path)
     repository_path = (
@@ -1439,7 +1610,8 @@ async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
 
     with pytest.raises(HTTPException) as e:
         await main.pull(
-            tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: [tc.SECOND_TEST_STRING]}
+            tc.VALID_REPOSITORY_NAME,
+            {tc.OBJECTS_DICT_KEY: [tc.SECOND_TEST_STRING]},
         )
 
     assert e.value.status_code == tc.STATUS_CODE_400
@@ -1447,8 +1619,11 @@ async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
 
 
 def test_import_time_code_creates_repositories_directory_if_it_does_not_exist(
-    tc: SCCSTestConstants, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify importing ``main`` creates the repositories directory if absent."""
 
     monkeypatch.chdir(tmp_path)
 

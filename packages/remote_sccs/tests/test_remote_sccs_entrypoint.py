@@ -1,3 +1,5 @@
+"""Tests for ``remote_sccs.remote_sccs_entrypoint`` (CLI)."""
+
 import argparse
 import sys
 from types import SimpleNamespace
@@ -13,13 +15,19 @@ from test_constants import SCCSTestConstants
 
 
 def test_remote_sccs_COMMANDS_does_not_drift(rc: RemoteSCCSConstants) -> None:
+    """Verify the ``COMMANDS`` dict maps each command to its module main."""
+
     assert remote_sccs.COMMANDS == {
         rc.SERVE_COMMAND_NAME: serve.main,
         rc.HELP_COMMAND_NAME: help.main,
     }
 
 
-def test_create_argument_parser(rc: RemoteSCCSConstants, tc: SCCSTestConstants) -> None:
+def test_create_argument_parser(
+    rc: RemoteSCCSConstants, tc: SCCSTestConstants
+) -> None:
+    """Verify ``create_argument_parser`` returns the expected parser."""
+
     parser = argparse.ArgumentParser(
         prog=tc.REMOTE_SCCS,
         description=tc.REMOTE_SCCS_DESCRIPTION,
@@ -31,8 +39,10 @@ def test_create_argument_parser(rc: RemoteSCCSConstants, tc: SCCSTestConstants) 
 
 
 def test_run_command_prints_error_and_help_message_if_command_does_not_exist(
-    tc: SCCSTestConstants, capsys: pytest.CaptureFixture
+    tc: SCCSTestConstants,
+    capsys: pytest.CaptureFixture,
 ) -> None:
+    """Verify ``run_command`` prints an error and help for unknown commands."""
 
     arguments = SimpleNamespace(command=tc.TEST_STRING)
 
@@ -58,6 +68,7 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_exception
     command: str,
     CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
+    """Verify ``run_command`` prints an unexpected error and exits on exception."""
 
     e = Exception(tc.TEST_STRING)
 
@@ -69,9 +80,9 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_exception
 
     with pytest.raises(SystemExit) as exc_info:
         remote_sccs.run_command(
-            CustomSimpleNamespace(
+            CustomSimpleNamespace(  # pyright: ignore[reportArgumentType]
                 command=command
-            )  # pyright: ignore[reportArgumentType]
+            )
         )
 
     assert exc_info.value.code == tc.UNEXPECTED_ERROR_EXIT_CODE
@@ -94,29 +105,37 @@ def test_run_command_calls_specified_remote_sccs_module_main(
     tc: SCCSTestConstants,
     CustomSimpleNamespace: Callable[..., Any],
 ) -> None:
+    """Verify ``run_command`` calls the specified command's main once."""
 
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        """Increment the call counter each time the command's main is called."""
+
         nonlocal calls
         calls += 1
 
     monkeypatch.setattr(
-        remote_sccs, "COMMANDS", {**remote_sccs.COMMANDS, command: increment_calls}
+        remote_sccs,
+        "COMMANDS",
+        {**remote_sccs.COMMANDS, command: increment_calls},
     )
 
     remote_sccs.run_command(
-        CustomSimpleNamespace(command=command)  # pyright: ignore[reportArgumentType]
+        CustomSimpleNamespace(  # pyright: ignore[reportArgumentType]
+            command=command
+        )
     )
 
     assert calls == 1
 
 
-def test_remote_sccs_main_prints_unknown_command_error_message_and_help_message_if_command_does_not_exist(
+def test_main_prints_unknown_command_error_and_help_message_if_command_does_not_exist(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture,
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``main`` prints an error and help for unknown commands."""
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
 
@@ -143,6 +162,7 @@ def test_remote_sccs_main_prints_unexpected_error_message_if_command_raises_exce
     capsys: pytest.CaptureFixture,
     command: str,
 ) -> None:
+    """Verify ``main`` prints an unexpected error and exits on exception."""
 
     e = Exception(tc.TEST_STRING)
 
@@ -180,15 +200,20 @@ def test_remote_sccs_main_calls_specified_remote_sccs_module_main(
     command: str,
     tc: SCCSTestConstants,
 ) -> None:
+    """Verify ``main`` calls the specified command's main once."""
 
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        """Increment the call counter each time the command's main is called."""
+
         nonlocal calls
         calls += 1
 
     monkeypatch.setattr(
-        remote_sccs, "COMMANDS", {**remote_sccs.COMMANDS, command: increment_calls}
+        remote_sccs,
+        "COMMANDS",
+        {**remote_sccs.COMMANDS, command: increment_calls},
     )
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, command])
     monkeypatch.setattr(
@@ -207,6 +232,7 @@ def test_remote_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture,
 ) -> None:
+    """Verify ``main`` prints help when fewer than two arguments are provided."""
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
     remote_sccs.main()

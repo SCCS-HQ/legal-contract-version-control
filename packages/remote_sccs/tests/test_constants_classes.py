@@ -1,3 +1,9 @@
+"""Snapshot tests for ``RemoteSCCSConstants`` and ``RemoteErrorWrappers``.
+
+These tests use a golden-master / snapshot pattern to prevent constant drift
+between the production constants classes and their expected values.
+"""
+
 import re
 from types import FunctionType, MappingProxyType
 
@@ -79,7 +85,9 @@ REMOTE_SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
         "Error creating repositories directory: {e}"
     ),
     "REPOSITORY_EXISTS_ERROR_MESSAGE": "Repository already exists",
-    "REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE": "Repository name does not match file name",
+    "REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE": (
+        "Repository name does not match file name"
+    ),
     "REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE": (
         "Repository not found: {repository_name}"
     ),
@@ -108,6 +116,7 @@ REMOTE_SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
 def test_remote_sccs_constants_help_messages_returns_correct_help_message(
     rc: RemoteSCCSConstants,
 ) -> None:
+    """Verify the ``HELP_MESSAGES`` property returns the expected tuple."""
 
     assert rc.HELP_MESSAGES == (
         "Remote SCCS Help",
@@ -133,8 +142,12 @@ def test_remote_sccs_constants_help_messages_returns_correct_help_message(
     ],
 )
 def test_remote_sccs_constants_match_snapshot(
-    module: type, constant_name: str, expected_value: object, tc: SCCSTestConstants
+    module: type,
+    constant_name: str,
+    expected_value: object,
+    tc: SCCSTestConstants,
 ) -> None:
+    """Verify every snapshot constant exists on the class and matches its value."""
 
     try:
         actual_value = getattr(module, constant_name)
@@ -173,8 +186,11 @@ def test_remote_sccs_constants_match_snapshot(
     ],
 )
 def test_remote_snapshot_covers_every_constant(
-    constants_class: type, snapshot: dict[str, object], tc: SCCSTestConstants
+    constants_class: type,
+    snapshot: dict[str, object],
+    tc: SCCSTestConstants,
 ) -> None:
+    """Verify the snapshot and class definitions are in sync (no drift)."""
 
     actual_names = {
         name
