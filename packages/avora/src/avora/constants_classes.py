@@ -369,6 +369,8 @@ class AvoraConstants:
     LIST_SUBCOMMAND = "list"
     LOCAL_AVORA = "avora"
     LOCAL_AVORA_DESCRIPTION = "Avora Version Control System"
+    LOCKFILE_NAME = "avora.lock"
+    GLOBAL_CONFIG_LOCKFILE_NAME = "avora.config.lock"
     LOG_AUTHOR_LABEL = "Author: "
     LOG_COMMIT_FILE_LABEL = "Commit File: "
     LOG_DATE_LABEL = "Date: "

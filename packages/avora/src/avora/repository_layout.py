@@ -8,6 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from filelock import FileLock
 import mammoth
 import platformdirs
 from avora import utils
@@ -273,29 +274,35 @@ class RepositoryIO:
     def _read_metadata_json(self) -> dict[str, Any]:
         """
         Return the parsed repository metadata JSON file.
+
+        The repository lock is acquired so that a concurrent writer cannot truncate
+        and rewrite the file mid-read, which would otherwise expose a torn or
+        partially written document to this reader.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "r",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            return json.load(f)
+        with self.paths.lock:
+            with open(
+                self.paths.metadata_path(),
+                "r",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                return json.load(f)
 
     def _write_metadata_json(self, data: dict[str, Any]) -> None:
         """
         Write the entered data to the repository metadata JSON file.
         """
 
-        with open(
-            self.paths.metadata_path(),
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            json.dump(data, f, indent=self.c.JSON_INDENT)
-            f.truncate()
+        with self.paths.lock:
+            with open(
+                self.paths.metadata_path(),
+                "w",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                json.dump(data, f, indent=self.c.JSON_INDENT)
+                f.truncate()
 
     def create_document_commit(self, commit_identifier: str) -> None:
         """
@@ -612,14 +619,15 @@ class RepositoryIO:
         Write the entered diff output to the diff output file in the repository root.
         """
 
-        with open(
-            self.root / self.c.DIFF_OUTPUT_HTML_FILE,
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            f.write(diff)
-            f.truncate()
+        with self.paths.lock:
+            with open(
+                self.root / self.c.DIFF_OUTPUT_HTML_FILE,
+                "w",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                f.write(diff)
+                f.truncate()
 
     def write_history(self, data: dict[str, Any]) -> None:
         """
@@ -657,21 +665,23 @@ class RepositoryIO:
 
         name = Path(commit_hash).with_suffix(self.c.HTML_EXTENSION)
 
-        with open(
-            self.paths.html_objects_path() / name,
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            f.write(self.c.DEFAULT_HTML_STYLES + html)
+        with self.paths.lock:
+            with open(
+                self.paths.html_objects_path() / name,
+                "w",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                f.write(self.c.DEFAULT_HTML_STYLES + html)
 
-        with open(
-            self.paths.view_html_objects_path() / name,
-            "w",
-            encoding=self.c.UTF_8,
-            newline=self.c.NEWLINE,
-        ) as f:
-            f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
+        with self.paths.lock:
+            with open(
+                self.paths.view_html_objects_path() / name,
+                "w",
+                encoding=self.c.UTF_8,
+                newline=self.c.NEWLINE,
+            ) as f:
+                f.write(utils.wrap_html(self.c, html, self.c.DEFAULT_HTML_STYLES))
 
     def write_log(self, data: dict[str, Any]) -> None:
         """
@@ -722,6 +732,13 @@ class RepositoryPaths:
         self.root = root
         self.repository_name = repository_name
         self.c = c
+        self.lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
+        self.global_config_lock = FileLock(
+            platformdirs.user_config_path(
+                appname=self.c.LOCAL_AVORA, appauthor=False
+            )
+            / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
+        )
 
     def document_objects_path(self) -> Path:
         """
@@ -1117,44 +1134,48 @@ class RepositoryWrite:
                 / self.c.CONFIG_JSON_FILENAME
             )
 
-            if config_json.exists():
-                try:
-                    with open(
-                        config_json, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
-                    ) as f:
-                        try:
-                            global_config = json.load(f)
-                        except (json.JSONDecodeError, ValueError):
-                            global_config = {}
-                except OSError:
-                    global_config = {}
-            else:
-                global_config = {}
-
-            if not isinstance(global_config, dict):
-                raise AvoraException(self.c.CONFIG_READ_ERROR_MESSAGE)
-
             try:
                 config_json.parent.mkdir(parents=True, exist_ok=True)
             except OSError as e:
                 raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
 
-            global_config[key] = value
+            with self.paths.global_config_lock:
+                if config_json.exists():
+                    try:
+                        with open(
+                            config_json,
+                            "r",
+                            encoding=self.c.UTF_8,
+                            newline=self.c.NEWLINE,
+                        ) as f:
+                            try:
+                                global_config = json.load(f)
+                            except (json.JSONDecodeError, ValueError):
+                                global_config = {}
+                    except OSError:
+                        global_config = {}
+                else:
+                    global_config = {}
 
-            try:
-                fd, temp_path = tempfile.mkstemp(
-                    dir=config_json.parent,
-                    prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
-                    # suffix=".tmp",
-                )
+                if not isinstance(global_config, dict):
+                    raise AvoraException(self.c.CONFIG_READ_ERROR_MESSAGE)
+
+                global_config[key] = value
+
                 try:
-                    with os.fdopen(
-                        fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
-                    ) as f:
-                        json.dump(global_config, f, indent=self.c.JSON_INDENT)
-                    os.replace(temp_path, config_json)
-                except OSError:
-                    os.unlink(temp_path)
-                    raise
-            except OSError as e:
-                raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
+                    fd, temp_path = tempfile.mkstemp(
+                        dir=config_json.parent,
+                        prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
+                        # suffix=".tmp",
+                    )
+                    try:
+                        with os.fdopen(
+                            fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                        ) as f:
+                            json.dump(global_config, f, indent=self.c.JSON_INDENT)
+                        os.replace(temp_path, config_json)
+                    except OSError:
+                        os.unlink(temp_path)
+                        raise
+                except OSError as e:
+                    raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
