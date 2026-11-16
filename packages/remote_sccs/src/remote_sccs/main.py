@@ -12,7 +12,6 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from remote_sccs.constants_classes import RemoteSCCSConstants
 
 
@@ -469,11 +468,4 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     )
 
 
-if not Path(rc.REPOSITORIES_BASE_DIRECTORY).exists():
-    Path(rc.REPOSITORIES_BASE_DIRECTORY).mkdir(parents=True, exist_ok=True)
 
-app.mount(
-    rc.REPOS_MOUNT_ENDPOINT,
-    StaticFiles(directory=rc.REPOSITORIES_BASE_DIRECTORY),
-    name=rc.STATIC_FILES_NAME,
-)

@@ -1,6 +1,5 @@
 """Tests for the FastAPI application in ``remote_sccs.main``."""
 
-import importlib
 import io
 import json
 import os
@@ -1610,19 +1609,3 @@ async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
 
     assert e.value.status_code == tc.STATUS_CODE_400
     assert e.value.detail == tc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE
-
-
-def test_import_time_code_creates_repositories_directory_if_it_does_not_exist(
-    tc: SCCSTestConstants,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Verify importing ``main`` creates the repositories directory if absent."""
-
-    monkeypatch.chdir(tmp_path)
-
-    assert not (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).exists()
-
-    importlib.reload(main)
-
-    assert (tmp_path / tc.REPOSITORIES_BASE_DIRECTORY).exists()

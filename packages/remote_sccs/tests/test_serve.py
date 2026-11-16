@@ -37,9 +37,7 @@ def test_create_repositories_directory_raises_if_directory_creation_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.create_repositories_directory(rc)
 
-        assert str(
-            e.value
-        ) == tc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE.format(e=OSError)
+        assert str(e.value) == tc.REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE
 
 
 def test_print_SCCS_server_startup_prints_startup_messages(
@@ -80,9 +78,7 @@ def test_print_SCCS_server_startup_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.print_SCCS_server_startup(rc)
 
-        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(
-            e=OSError
-        )
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE
 
 
 def test_serve_main_creates_repositories_directory(
@@ -158,9 +154,7 @@ def test_serve_main_raises_if_ip_retrieval_fails(
     with pytest.raises(RemoteSCCSException) as e:
         serve.main(rc)
 
-        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE.format(
-            e=OSError
-        )
+        assert str(e.value) == tc.IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE
 
 
 def test_main_starts_uvicorn_server(

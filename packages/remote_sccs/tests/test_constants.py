@@ -48,8 +48,8 @@ class SCCSTestConstants:
     INVALID_JSON_DATA_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME = "../repo"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
-    IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE_TEMPLATE = (
-        "Error retrieving private IP address: {e}"
+    IP_ADDRESS_RETRIEVAL_ERROR_MESSAGE = (
+        "Error retrieving private IP address"
     )
     IP_ADDRESS_RETRIEVAL_SUCCESS_MESSAGE_TEMPLATE = (
         "Your Remote-SCCS server will be accessible on you internet network "
@@ -73,8 +73,8 @@ class SCCSTestConstants:
     REMOTE_SCCS_DESCRIPTION = "Remote API for Self-Hosting of SCCS"
     REMOTE_URL_REQUIRED_ERROR_MESSAGE = "Remote URL is required"
     REPOSITORIES_BASE_DIRECTORY = "./repos"
-    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE_TEMPLATE = (
-        "Error creating repositories directory: {e}"
+    REPOSITORIES_DIRECTORY_CREATION_ERROR_MESSAGE = (
+        "Error creating repositories directory"
     )
     REPOSITORY_EXISTS_ERROR_MESSAGE = "Repository already exists"
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
