@@ -1413,7 +1413,9 @@ async def test_pull_raises_if_repository_does_not_exist(
     monkeypatch.chdir(tmp_path)
 
     with pytest.raises(HTTPException) as e:
-        await main.pull(tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: ["some_object"]})
+        await main.pull(
+            tc.VALID_REPOSITORY_NAME, {tc.OBJECTS_DICT_KEY: ["some_object"]}
+        )
 
     assert e.value.status_code == tc.STATUS_CODE_404
     assert e.value.detail == tc.REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
