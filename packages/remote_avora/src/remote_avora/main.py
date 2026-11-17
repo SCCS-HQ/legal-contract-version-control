@@ -122,7 +122,9 @@ def _publish(rc, repository_name, file_bytes, filename, data):
                 detail=rc.REPOSITORY_EXISTS_ERROR_MESSAGE,
             )
         staging_root = Path(
-            tempfile.mkdtemp(prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent)
+            tempfile.mkdtemp(
+                prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent
+            )
         )
         try:
             try:
@@ -143,6 +145,7 @@ def _publish(rc, repository_name, file_bytes, filename, data):
                     detail=rc.REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE,
                 )
             import io as _io
+
             with zipfile.ZipFile(_io.BytesIO(file_bytes), "r") as zf:
                 if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
                     raise HTTPException(
@@ -158,7 +161,9 @@ def _publish(rc, repository_name, file_bytes, filename, data):
                     if i.file_size > rc.MAX_INDIVIDUAL_FILE_SIZE:
                         raise HTTPException(
                             status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                            detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(filename=i.filename),
+                            detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                                filename=i.filename
+                            ),
                         )
                     safe_extract_zip(rc, zf, i.filename, staging_root)
             os.replace(staging_root, repository_path)
@@ -172,10 +177,14 @@ def _publish(rc, repository_name, file_bytes, filename, data):
 
 
 @app.post(rc.PUBLISH_ENDPOINT_TEMPLATE)
-async def publish(repository_name: str, file: UploadFile = File(...), data: str = Form(...)) -> dict:
+async def publish(
+    repository_name: str, file: UploadFile = File(...), data: str = Form(...)
+) -> dict:
     repository_directory(rc, repository_name)
     contents = await file.read()
-    return await asyncio.to_thread(_publish, rc, repository_name, contents, file.filename, data)
+    return await asyncio.to_thread(
+        _publish, rc, repository_name, contents, file.filename, data
+    )
 
 
 def _clone(rc, repository_name):
@@ -187,14 +196,28 @@ def _clone(rc, repository_name):
             for root, dirs, files in os.walk(repository_path):
                 for i in files:
                     file_path = Path(root) / i
-                    zf.write(filename=file_path, arcname=file_path.relative_to(repository_path))
+                    zf.write(
+                        filename=file_path,
+                        arcname=file_path.relative_to(repository_path),
+                    )
             if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
-                raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.TOO_MANY_FILES_ERROR_MESSAGE)
+                raise HTTPException(
+                    status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=rc.TOO_MANY_FILES_ERROR_MESSAGE,
+                )
             if sum(i.file_size for i in zf.infolist()) > rc.MAX_TOTAL_UPLOAD_SIZE:
-                raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+                raise HTTPException(
+                    status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                    detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+                )
             for i in zf.infolist():
                 if i.file_size > rc.MAX_INDIVIDUAL_FILE_SIZE:
-                    raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(filename=i.filename))
+                    raise HTTPException(
+                        status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                        detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                            filename=i.filename
+                        ),
+                    )
         buffer.seek(rc.FILE_START_POSITION)
         return buffer.getvalue(), repository_name
 
@@ -218,10 +241,21 @@ def _push_get(rc, repository_name):
     repository_path = repository_directory(rc, repository_name)
     with repository_lock(rc, repository_path):
         ensure_repository_exists(rc, repository_path)
-        objects_directory = (repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY).resolve()
+        objects_directory = (
+            repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
+        ).resolve()
         if not objects_directory.exists() or not objects_directory.is_dir():
-            raise HTTPException(status_code=rc.HTTP_NOT_FOUND_STATUS_CODE, detail=rc.OBJECTS_NOT_FOUND_ERROR_MESSAGE)
-        return {rc.OBJECTS_DICT_KEY: {i.stem for i in objects_directory.rglob(rc.RGLOB_ALL_FILES_PATTERN) if i.is_file()}}
+            raise HTTPException(
+                status_code=rc.HTTP_NOT_FOUND_STATUS_CODE,
+                detail=rc.OBJECTS_NOT_FOUND_ERROR_MESSAGE,
+            )
+        return {
+            rc.OBJECTS_DICT_KEY: {
+                i.stem
+                for i in objects_directory.rglob(rc.RGLOB_ALL_FILES_PATTERN)
+                if i.is_file()
+            }
+        }
 
 
 @app.get(rc.PUSH_ENDPOINT_TEMPLATE)
@@ -232,30 +266,56 @@ async def push(repository_name: str) -> dict:
 def _push_upload(rc, repository_name, file_bytes, filename):
     repository_path = repository_directory(rc, repository_name)
     if not filename or Path(filename).stem != repository_name:
-        raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE,
+        )
     with repository_lock(rc, repository_path):
         ensure_repository_exists(rc, repository_path)
-        staging_root = Path(tempfile.mkdtemp(prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent))
+        staging_root = Path(
+            tempfile.mkdtemp(
+                prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent
+            )
+        )
         try:
             shutil.copytree(repository_path, staging_root, dirs_exist_ok=True)
             import io as _io
+
             with zipfile.ZipFile(_io.BytesIO(file_bytes), "r") as zf:
                 if sum(i.file_size for i in zf.infolist()) > rc.MAX_TOTAL_UPLOAD_SIZE:
-                    raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE)
+                    raise HTTPException(
+                        status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                        detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+                    )
                 if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
-                    raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.TOO_MANY_FILES_ERROR_MESSAGE)
+                    raise HTTPException(
+                        status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                        detail=rc.TOO_MANY_FILES_ERROR_MESSAGE,
+                    )
                 for i in zf.infolist():
                     if i.file_size > rc.MAX_INDIVIDUAL_FILE_SIZE:
-                        raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(filename=i.filename))
+                        raise HTTPException(
+                            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                            detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                                filename=i.filename
+                            ),
+                        )
                 for i in zf.infolist():
                     safe_extract_zip(rc, zf, i.filename, staging_root)
-            with open((staging_root / rc.AVORA_DIRECTORY / rc.METADATA_JSON).resolve(), "r+", encoding=rc.UTF_8, newline=rc.NEWLINE) as f:
+            with open(
+                (staging_root / rc.AVORA_DIRECTORY / rc.METADATA_JSON).resolve(),
+                "r+",
+                encoding=rc.UTF_8,
+                newline=rc.NEWLINE,
+            ) as f:
                 data = json.load(f)
                 data[rc.CURRENT_BRANCH_DICT_KEY][rc.UPDATED_BRANCHES_DICT_KEY] = []
                 f.seek(rc.FILE_START_POSITION)
                 json.dump(data, f)
                 f.truncate()
-            old_root = repository_path.with_name(rc.OLD_ROOT_TEMPLATE.format(repository_name=repository_path.name))
+            old_root = repository_path.with_name(
+                rc.OLD_ROOT_TEMPLATE.format(repository_name=repository_path.name)
+            )
             os.rename(repository_path, old_root)
             try:
                 os.replace(staging_root, repository_path)
@@ -271,7 +331,9 @@ def _push_upload(rc, repository_name, file_bytes, filename):
 @app.post(rc.PUSH_ENDPOINT_TEMPLATE)
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
     contents = await file.read()
-    return await asyncio.to_thread(_push_upload, rc, repository_name, contents, file.filename)
+    return await asyncio.to_thread(
+        _push_upload, rc, repository_name, contents, file.filename
+    )
 
 
 def _pull(rc, repository_name, data):
@@ -283,24 +345,44 @@ def _pull(rc, repository_name, data):
         or not all(isinstance(i, str) for i in data[rc.OBJECTS_DICT_KEY])
         or not data[rc.OBJECTS_DICT_KEY]
     ):
-        raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.INVALID_JSON_ERROR_MESSAGE)
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.INVALID_JSON_ERROR_MESSAGE,
+        )
     repository_path = repository_directory(rc, repository_name)
     with repository_lock(rc, repository_path):
         ensure_repository_exists(rc, repository_path)
         local_objects = set(data[rc.OBJECTS_DICT_KEY])
-        objects_paths = (repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY).resolve()
+        objects_paths = (
+            repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
+        ).resolve()
         try:
             objects_paths.relative_to(repository_path)
         except ValueError as e:
-            raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE) from e
-        remote_objects = {i.stem for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN) if i.is_file()}
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
+            ) from e
+        remote_objects = {
+            i.stem
+            for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
+        }
         if local_objects - remote_objects:
-            raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE)
-        branches_path = (repository_path / rc.AVORA_DIRECTORY / rc.BRANCHES_DIRECTORY).resolve()
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
+            )
+        branches_path = (
+            repository_path / rc.AVORA_DIRECTORY / rc.BRANCHES_DIRECTORY
+        ).resolve()
         try:
             branches_path.relative_to(repository_path)
         except ValueError as e:
-            raise HTTPException(status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE, detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE) from e
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
+            ) from e
         files_to_upload = [
             i
             for i in [
@@ -328,7 +410,9 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         media_type=rc.CONTENT_TYPE_ZIP,
         headers={
             rc.CONTENT_DISPOSITION_HEADER_TITLE: (
-                rc.CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(repository_name=name)
+                rc.CONTENT_DISPOSITION_HEADER_SPACED_TEMPLATE.format(
+                    repository_name=name
+                )
             )
         },
     )
