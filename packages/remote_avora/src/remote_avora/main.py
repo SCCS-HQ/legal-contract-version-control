@@ -368,9 +368,7 @@ def _pull(rc, repository_name, data):
             detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
         ) from e
     remote_objects = {
-        i.stem
-        for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN)
-        if i.is_file()
+        i.stem for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN) if i.is_file()
     }
     if local_objects - remote_objects:
         raise HTTPException(
