@@ -114,7 +114,7 @@ def test_resolve_key_value_returns_correct_string_if_error_is_not_raised(
         "objects_path",
     ],
 )
-def test_config_main_raises_for_each_missing_resource(
+def test_config_main_raises_for_each_missing_resource_if_key_is_remote(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
@@ -143,7 +143,7 @@ def test_config_main_raises_for_each_missing_resource(
         missing_resource.unlink()
 
     with pytest.raises(SCCSException) as e:
-        config.main(c, tc.TEST_STRING, tc.TEST_STRING, rd, rp, rs, rw)
+        config.main(c, tc.REMOTE_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     assert str(e.value) == tc.MISSING_RESOURCE_ERROR_MESSAGE_TEMPLATE.format(
         resource_name=expected_reported_resource
@@ -327,6 +327,6 @@ def test_config_main_resets_target_on_error(
     monkeypatch.setattr(RepositoryStatus, "validate_repository_layout", raise_exception)
 
     with pytest.raises(SCCSException):
-        config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
+        config.main(c, tc.REMOTE_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     assert target.get() is None

@@ -1,4 +1,5 @@
 import argparse
+import inspect
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -418,7 +419,6 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
             arguments.key,
             arguments.value,
             wd_rd,
-            cwd_ri,
             cwd_rp,
             cwd_rs,
             cwd_rw,
@@ -520,6 +520,10 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
         CustomSimpleNamespace(command=tc.TEST_STRING, debug=False)
     )
 
+    for command_name, args_factory in result.items():
+        args = args_factory()
+        inspect.signature(sccs_entrypoint.COMMANDS[command_name]).bind(*args)
+
     assert set(result) == set(
         expected_command_arguments
     )  # pyright: ignore[reportArgumentType]
@@ -561,6 +565,7 @@ def test_run_command_calls_specified_local_sccs_module_main(
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        inspect.signature(sccs_entrypoint.COMMANDS[command]).bind(*args, **kwargs)
         nonlocal calls
         calls += 1
 
@@ -784,6 +789,7 @@ def test_sccs_main_calls_specified_local_sccs_module_main(
     calls = 0
 
     def increment_calls(*args: Any, **kwargs: Any) -> None:
+        inspect.signature(sccs_entrypoint.COMMANDS[command]).bind(*args, **kwargs)
         nonlocal calls
         calls += 1
 
