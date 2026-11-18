@@ -7,7 +7,6 @@ from pathlib import Path
 from types import FunctionType
 from unittest import mock
 
-import platformdirs
 import pytest
 from local_sccs import init, utils
 from local_sccs.constants_classes import SCCSConstants
