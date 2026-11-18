@@ -2,6 +2,8 @@ import filecmp
 import json
 import os
 import shutil
+import threading
+import time
 import uuid
 from collections.abc import Callable
 from pathlib import Path
@@ -19,7 +21,9 @@ from avora.repository_layout import (
     RepositoryStatus,
     RepositoryWrite,
     TargetBranch,
+    _ReentrantFileLock,
 )
+from filelock import FileLock
 from test_constants import AvoraTestConstants
 
 
@@ -1222,8 +1226,9 @@ def test_repository_io_write_metadata_writes_repository_metadata(
 def test_repository_paths_document_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1236,8 +1241,9 @@ def test_repository_paths_document_objects_path_returns_correct_path(
 def test_repository_paths_document_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1250,8 +1256,9 @@ def test_repository_paths_document_path_returns_correct_path(
 def test_repository_paths_html_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1264,8 +1271,9 @@ def test_repository_paths_html_objects_path_returns_correct_path(
 def test_repository_paths_metadata_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1278,8 +1286,9 @@ def test_repository_paths_metadata_path_returns_correct_path(
 def test_repository_paths_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1292,8 +1301,9 @@ def test_repository_paths_objects_path_returns_correct_path(
 def test_repository_paths_avora_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1306,8 +1316,9 @@ def test_repository_paths_avora_path_returns_correct_path(
 def test_repository_paths_view_html_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -2238,13 +2249,23 @@ def test_repository_write_write_key_to_config_handles_parent_creation_failure(
     target: TargetBranch,
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
-    raise_exception: FunctionType,
+    tmp_path: Path,
 ) -> None:
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    monkeypatch.setattr(Path, "mkdir", raise_exception)
+    config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(platformdirs, "user_config_path", lambda *a, **k: config_dir)
+
+    original_mkdir = Path.mkdir
+
+    def selective_mkdir(self: Path, *args: Any, **kwargs: Any) -> None:
+        if self == config_dir:
+            raise OSError
+        return original_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", selective_mkdir)
 
     with pytest.raises(AvoraException) as e:
         rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
@@ -2270,3 +2291,167 @@ def test_repository_write_write_key_to_config_handles_atomic_write_failure(
         rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
 
     assert str(e.value) == tc.CONFIG_WRITE_ERROR_MESSAGE
+
+
+def test_reentrant_file_lock_enter_creates_mkdir_path_if_it_does_not_exist(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    mkdir_path = tmp_path / tc.SECOND_TEST_STRING
+    reentrant_lock = _ReentrantFileLock(filelock, mkdir_path)
+
+    _ReentrantFileLock.__enter__(reentrant_lock)
+
+    assert mkdir_path.exists() and mkdir_path.is_dir()
+
+
+def test_reentrant_file_lock_enter_attempts_to_acquire_filelock_if_depth_is_zero(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+
+    _ReentrantFileLock.__enter__(reentrant_lock)
+
+    assert filelock.is_locked
+
+
+def test_reentrant_file_lock_enter_does_not_attempt_to_acquire_filelock_if_depth_is_not_zero(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+    reentrant_lock._depth = 1
+
+    _ReentrantFileLock.__enter__(reentrant_lock)
+
+    assert not filelock.is_locked
+
+
+def test_reentrant_file_lock_enter_increments_depth(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+
+    _ReentrantFileLock.__enter__(reentrant_lock)
+
+    assert filelock.is_locked
+    assert reentrant_lock._depth == 1
+
+
+def test_reentrant_file_lock_enter_returns_self(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+
+    enter = _ReentrantFileLock.__enter__(reentrant_lock)
+
+    assert enter is reentrant_lock
+
+
+def test_reentrant_file_lock_exit_decrements_depth(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+    reentrant_lock._depth = 1
+
+    assert _ReentrantFileLock.__exit__(reentrant_lock) is False
+
+    assert reentrant_lock._depth == 0
+
+
+def test_reentrant_file_lock_exit_releases_filelock_if_depth_is_zero(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+    reentrant_lock._depth = 1
+
+    filelock.acquire()
+
+    assert _ReentrantFileLock.__exit__(reentrant_lock) is False
+
+    assert not filelock.is_locked
+
+
+def test_reentrant_file_lock_exit_does_not_release_filelock_if_depth_is_not_zero(
+    tmp_path: Path, tc: AvoraTestConstants
+) -> None:
+    filelock = FileLock(tmp_path / tc.TEST_STRING)
+    reentrant_lock = _ReentrantFileLock(filelock, tmp_path)
+
+    filelock.acquire()
+
+    assert _ReentrantFileLock.__exit__(reentrant_lock) is False
+
+    assert filelock.is_locked
+
+
+def test_repository_io_read_metadata_never_observes_torn_write(
+    initialized_repository: Path,
+    c: AvoraConstants,
+    target: TargetBranch,
+    tc: AvoraTestConstants,
+) -> None:
+    """Verify a reader cannot observe torn metadata while a concurrent writer holds the lock."""
+
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    stop = threading.Event()
+    errors: list[Exception] = []
+
+    def writer() -> None:
+        while not stop.is_set():
+            ri.write_metadata(tc.TEST_DICTIONARY)
+            ri.write_metadata(tc.TEST_INITIALIZATION_METADATA)
+
+    def reader() -> None:
+        while not stop.is_set():
+            try:
+                result = ri.read_metadata()
+                assert isinstance(result, dict)
+            except Exception as exc:
+                errors.append(exc)
+
+    writer_thread = threading.Thread(target=writer)
+    reader_thread = threading.Thread(target=reader)
+    writer_thread.start()
+    reader_thread.start()
+    time.sleep(0.5)
+    stop.set()
+    writer_thread.join(timeout=5)
+    reader_thread.join(timeout=5)
+
+    assert not errors
+
+
+def test_repository_io_write_metadata_holds_lock_for_entire_write(
+    initialized_repository: Path,
+    c: AvoraConstants,
+    target: TargetBranch,
+    tc: AvoraTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify ``_write_metadata_json`` holds the repository lock for the whole write."""
+
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    depths_during_dump = []
+    original_dump = json.dump
+
+    def spy_dump(obj, f, *args, **kwargs):
+        depths_during_dump.append(ri.paths.lock._depth)
+        return original_dump(obj, f, *args, **kwargs)
+
+    monkeypatch.setattr(json, "dump", spy_dump)
+
+    ri.write_metadata(tc.TEST_DICTIONARY)
+
+    assert depths_during_dump == [1]

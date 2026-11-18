@@ -70,23 +70,26 @@ def copy_document_to_objects_as_document_and_html(
             ),
         )
 
-        with open(
-            (rp.html_objects_path() / commit_identifier).with_suffix(c.HTML_EXTENSION),
-            "w",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            f.write(c.DEFAULT_HTML_STYLES + result)
+        with rp.lock:
+            with open(
+                (rp.html_objects_path() / commit_identifier).with_suffix(
+                    c.HTML_EXTENSION
+                ),
+                "w",
+                encoding=c.UTF_8,
+                newline=c.NEWLINE,
+            ) as f:
+                f.write(c.DEFAULT_HTML_STYLES + result)
 
-        with open(
-            (rp.view_html_objects_path() / commit_identifier).with_suffix(
-                c.HTML_EXTENSION
-            ),
-            "w",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
+            with open(
+                (rp.view_html_objects_path() / commit_identifier).with_suffix(
+                    c.HTML_EXTENSION
+                ),
+                "w",
+                encoding=c.UTF_8,
+                newline=c.NEWLINE,
+            ) as f:
+                f.write(utils.wrap_html(c, result, c.DEFAULT_HTML_STYLES))
     except Exception as e:
         raise AvoraException(c.INIT_COPY_ERROR_MESSAGE) from e
 

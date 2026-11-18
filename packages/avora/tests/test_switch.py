@@ -40,11 +40,14 @@ def test_print_switch_success_message_prints_expected_message(
 
 
 def test_validate_branch_to_switch_raises_for_empty_branch_name(
-    c: AvoraConstants, tc: AvoraTestConstants, target: TargetBranch
+    c: AvoraConstants,
+    tc: AvoraTestConstants,
+    target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
 
     rs = RepositoryStatus(
-        Path(tc.TEST_DOCUMENT_REPOSITORY_NAME),
+        tmp_path,
         tc.TEST_DOCUMENT_REPOSITORY_NAME,
         c,
         target,

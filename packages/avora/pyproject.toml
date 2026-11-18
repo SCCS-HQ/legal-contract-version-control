@@ -13,6 +13,7 @@ dependencies = [
     "requests",
     "beautifulsoup4",
     "platformdirs",
+    "filelock",
 ]
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]

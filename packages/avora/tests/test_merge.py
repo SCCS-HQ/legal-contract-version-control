@@ -56,10 +56,9 @@ def test_print_merge_success_message_prints_success_message(
     monkeypatch: pytest.MonkeyPatch,
     branch: str,
     current_branch: str,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     monkeypatch.setattr(
         RepositoryData, "current_branch", lambda *args, **kwargs: current_branch

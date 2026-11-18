@@ -260,7 +260,10 @@ def test_run_command_prints_expected_error_message_if_command_raises_avora_excep
     capsys: pytest.CaptureFixture,
     command: str,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = AvoraException(tc.TEST_STRING)
 
@@ -308,7 +311,10 @@ def test_run_command_prints_unexpected_error_message_if_command_raises_unexpecte
     capsys: pytest.CaptureFixture,
     command: str,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = Exception(tc.TEST_STRING)
 
@@ -357,7 +363,10 @@ def test_run_command_does_not_except_exceptions_if_debug_is_true(
     command: str,
     tc: AvoraTestConstants,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = Exception(tc.TEST_STRING)
 
@@ -380,7 +389,11 @@ def test_COMMAND_ARGUMENTS_does_not_drift(
     CustomSimpleNamespace: Callable[..., Any],
     c: AvoraConstants,
     target: TargetBranch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     wd = utils.working_directory(c)
     wd_repository_name = wd.name
@@ -560,7 +573,10 @@ def test_run_command_calls_specified_avora_module_main(
     command: str,
     tc: AvoraTestConstants,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     calls = 0
 
@@ -633,7 +649,10 @@ def test_avora_main_prints_expected_error_message_if_command_raises_avora_except
     capsys: pytest.CaptureFixture,
     command: str,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = AvoraException(tc.TEST_STRING)
 
@@ -684,7 +703,10 @@ def test_avora_main_prints_unexpected_error_message_if_command_raises_unexpected
     capsys: pytest.CaptureFixture,
     command: str,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = Exception(tc.TEST_STRING)
 
@@ -736,7 +758,10 @@ def test_avora_main_does_not_except_exceptions_if_debug_is_true(
     command: str,
     tc: AvoraTestConstants,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     e = Exception(tc.TEST_STRING)
 
@@ -785,7 +810,10 @@ def test_avora_main_calls_specified_avora_module_main(
     command: str,
     tc: AvoraTestConstants,
     CustomSimpleNamespace: Callable[..., Any],
+    tmp_path: Path,
 ) -> None:
+
+    monkeypatch.chdir(tmp_path)
 
     calls = 0
 
