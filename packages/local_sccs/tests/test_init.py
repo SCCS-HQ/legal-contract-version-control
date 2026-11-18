@@ -21,13 +21,15 @@ from test_constants import SCCSTestConstants
 
 
 @pytest.mark.parametrize("key", ["name", "email", "test"])
-def test_ask_config_input_raises_if_empty(
-    key: str, c: SCCSConstants, tc: SCCSTestConstants
+def test_get_config_key_raises_if_empty(
+    key: str, c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
 
     with mock.patch("builtins.input", return_value=""):
         with pytest.raises(SCCSException) as e:
-            init.ask_config_input(c, key)
+            init.get_config_key(c, key)
 
     assert str(e.value) == tc.EMPTY_VALUE_ERROR_MESSAGE_TEMPLATE.format(
         field=key.capitalize()
@@ -38,10 +40,12 @@ def test_ask_config_input_raises_if_empty(
     "key, value",
     [("name", "John Doe"), ("email", "john.doe@example.com"), ("test", "test_value")],
 )
-def test_ask_config_input_returns_input(c: SCCSConstants, key: str, value: str) -> None:
+def test_get_config_key_returns_input(c: SCCSConstants, key: str, value: str, monkeypatch: pytest.MonkeyPatch) -> None:
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
 
     with mock.patch("builtins.input", return_value=value):
-        assert init.ask_config_input(c, key) == value
+        assert init.get_config_key(c, key) == value
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_document_read_fails(
@@ -694,11 +698,21 @@ def test_init_main_raises_if_document_read_fails(
     rs = RepositoryStatus(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = tmp_path / tc.TEST_DOCUMENT_FILENAME
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
-    monkeypatch.setattr("builtins.open", raise_exception)
+    original_open = open
+
+    def mock_open(file, *args, **kwargs):
+        if file == document_path:
+            raise OSError("Mocked read failure")
+        return original_open(file, *args, **kwargs)
+
+    monkeypatch.setattr("builtins.open", mock_open)
 
     with mock.patch("builtins.input", return_value=tc.TEST_STRING):
         with pytest.raises(SCCSException) as e:
@@ -732,15 +746,20 @@ def test_init_main_raises_if_write_to_commit_metadata_fails(
 
 
 def test_init_main_raises_if_name_is_empty(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
+    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = tmp_path / tc.TEST_DOCUMENT_FILENAME
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     with mock.patch("builtins.input", side_effect=["", tc.TEST_STRING]):
@@ -750,15 +769,20 @@ def test_init_main_raises_if_name_is_empty(
 
 
 def test_init_main_raises_if_email_is_empty(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
+    monkeypatch: pytest.MonkeyPatch, c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = tmp_path / tc.TEST_DOCUMENT_FILENAME
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     with mock.patch("builtins.input", side_effect=[tc.TEST_STRING, ""]):
@@ -768,15 +792,20 @@ def test_init_main_raises_if_email_is_empty(
 
 
 def test_init_main_raises_if_name_contains_invalid_characters(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
+    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = tmp_path / tc.TEST_DOCUMENT_FILENAME
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     with mock.patch(
@@ -788,15 +817,20 @@ def test_init_main_raises_if_name_contains_invalid_characters(
 
 
 def test_init_main_raises_if_email_contains_invalid_characters(
-    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch
+    c: SCCSConstants, tc: SCCSTestConstants, tmp_path: Path, target: TargetBranch, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
     rw = RepositoryWrite(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = tmp_path / tc.TEST_DOCUMENT_FILENAME
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: False)
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     with mock.patch(
@@ -816,19 +850,24 @@ def test_init_main_raises_if_document_deletion_fails(
     raise_exception: FunctionType,
     capsys: pytest.CaptureFixture,
 ) -> None:
+    repo_root = tmp_path / tc.TEST_STRING
+    repo_root.mkdir(parents=True, exist_ok=True)
     ri = RepositoryIO(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     monkeypatch.setattr(os, "remove", raise_exception)
@@ -856,19 +895,24 @@ def test_init_main_raises_if_staging_deletion_fails(
     raise_exception: FunctionType,
     capsys: pytest.CaptureFixture,
 ) -> None:
+    repo_root = tmp_path / tc.TEST_STRING
+    repo_root.mkdir(parents=True, exist_ok=True)
     ri = RepositoryIO(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     monkeypatch.setattr(os, "rename", raise_exception)
@@ -888,19 +932,24 @@ def test_init_main_deletes_staging_directory_if_error_occurs(
     raise_exception: FunctionType,
     capsys: pytest.CaptureFixture,
 ) -> None:
+    repo_root = tmp_path / tc.TEST_STRING
+    repo_root.mkdir(parents=True, exist_ok=True)
     ri = RepositoryIO(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
-    rp = RepositoryPaths(tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
     rs = RepositoryStatus(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
     rw = RepositoryWrite(
-        tmp_path / tc.TEST_STRING, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+        repo_root, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    document_path = (
-        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
+    document_path = repo_root / tc.TEST_DOCUMENT_FILENAME
+
+    shutil.copy(
+        Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME,
+        document_path,
     )
 
     monkeypatch.setattr(os, "rename", raise_exception)

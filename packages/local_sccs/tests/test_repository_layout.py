@@ -815,6 +815,37 @@ def test_repository_io_read_config_returns_config(
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
 
+def test_repository_io_read_config_returns_local_config_when_global_config_missing_or_invalid(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import local_sccs.repository_layout as repository_layout
+
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+
+    monkeypatch.setattr(
+        repository_layout.platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+    
+    test_config_dir.mkdir()
+    (test_config_dir / c.CONFIG_JSON_FILENAME).write_text(
+        "{", encoding=tc.UTF_8, newline=tc.NEWLINE
+    )
+    monkeypatch.setattr(
+        repository_layout.platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+
+
 def test_repository_io_read_current_branch_data_returns_current_branch_data(
     initialized_repository: Path,
     c: SCCSConstants,

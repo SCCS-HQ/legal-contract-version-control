@@ -15,7 +15,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "ACCEPTED_SCHEMES": ("http", "https"),
     "ACCEPTED_SUBCOMMANDS": ("create", "delete", "list"),
     "ALLOWED_NAME_AND_EMAIL_CHARACTERS": (
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-"
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-@"
     ),
     "ALLOWED_REMOTE_CHARACTERS": (
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -116,6 +116,7 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "CONFIG_DICT_KEY": "config",
     "CONFIG_KEY_ARGUMENT_HELP_TEMPLATE": "The configuration key to set. One of: "
     "{keys}.",
+    "CONFIG_JSON_FILENAME": "config.json",
     "CONFIG_KEY_ARGUMENT_NAME": "key",
     "CONFIG_SUCCESS_MESSAGE_TEMPLATE": (
         "Configuration '{key}' set to '{value}' successfully."

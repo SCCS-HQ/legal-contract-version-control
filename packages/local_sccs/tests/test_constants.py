@@ -6,7 +6,7 @@ class SCCSTestConstants:
     ACCEPTED_SCHEMES = ("http", "https")
     ACCEPTED_SUBCOMMANDS = ("create", "delete", "list")
     ALLOWED_NAME_AND_EMAIL_CHARACTERS = (
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-"
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._%+-@"
     )
     ALLOWED_REMOTE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~:/?#[]@!$&"()*+,;=%'
     ALREADY_INIT_ERROR_MESSAGE = "This document has already been initialized with SCCS."
