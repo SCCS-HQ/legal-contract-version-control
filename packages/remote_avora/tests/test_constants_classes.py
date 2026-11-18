@@ -48,6 +48,7 @@ REMOTE_AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE": "File {filename} is too large",
     "FIRST_ITEM_INDEX": 0,
     "HTTP_BAD_REQUEST_STATUS_CODE": 400,
+    "HTTP_INTERNAL_SERVER_ERROR_STATUS_CODE": 500,
     "HTTP_NOT_FOUND_STATUS_CODE": 404,
     "INVALID_JSON_ERROR_MESSAGE": "Invalid JSON data",
     "INVALID_REPOSITORY_NAME_ERROR_MESSAGE": "Invalid repository name",
@@ -57,6 +58,8 @@ REMOTE_AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
         "Local repository has objects that the remote does not have. "
         "Run 'avora push' to upload these objects before pulling."
     ),
+    "LOCKFILE_NAME": "remote_avora.lock",
+    "LOCKS_DIRECTORY_NAME": ".remote_avora",
     "MAX_FILES_IN_ZIP": 1000,
     "MAX_INDIVIDUAL_FILE_SIZE": 10485760,
     "MAX_TOTAL_UPLOAD_SIZE": 104857600,
@@ -90,6 +93,9 @@ REMOTE_AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     ),
     "REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE": (
         "Repository not found: {repository_name}"
+    ),
+    "REPOSITORY_RESTORE_FAILED_ERROR_MESSAGE": (
+        "Failed to restore repository from backup."
     ),
     "REPOSITORY_URL_DICT_KEY": "repository_url",
     "REPOS_MOUNT_ENDPOINT": "/repos",

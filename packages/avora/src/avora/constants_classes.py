@@ -125,6 +125,7 @@ class AvoraConstants:
     COMMAND_FIELD_NAME = "command"
     COMMA_SPACE = ", "
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
+    COMMIT_CREATION_FAILED_ERROR_MESSAGE = "Failed to create commit for unknown reason."
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
         "Commit {commit_identifier} created successfully."
     )
@@ -369,6 +370,8 @@ class AvoraConstants:
     LIST_SUBCOMMAND = "list"
     LOCAL_AVORA = "avora"
     LOCAL_AVORA_DESCRIPTION = "Avora Version Control System"
+    LOCKFILE_NAME = "avora.lock"
+    GLOBAL_CONFIG_LOCKFILE_NAME = "avora.config.lock"
     LOG_AUTHOR_LABEL = "Author: "
     LOG_COMMIT_FILE_LABEL = "Commit File: "
     LOG_DATE_LABEL = "Date: "

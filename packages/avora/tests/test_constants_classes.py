@@ -95,6 +95,9 @@ AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE": (
         "Commit {commit_identifier} created successfully."
     ),
+    "COMMIT_CREATION_FAILED_ERROR_MESSAGE": (
+        "Failed to create commit for unknown reason."
+    ),
     "COMMIT_IDENTIFIER_ARGUMENT_NAME": "commit_identifier",
     "COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP": "The commit identifier to diff against.",
     "COMMIT_IDENTIFIER_DISPLAY_LENGTH": 10,
@@ -213,6 +216,7 @@ AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE": (
         "Global config file does not exist."
     ),
+    "GLOBAL_CONFIG_LOCKFILE_NAME": "avora.config.lock",
     "FULL_COMMIT_IDENTIFIER_LENGTH": 64,
     "HELP_COMMAND_NAME": "help",
     "HEX_DIGITS": "0123456789abcdef",
@@ -298,6 +302,7 @@ AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "LATEST_COMMIT_DICT_KEY": "latest_commit",
     "LATEST_COMMIT_NUMBER_DICT_KEY": "latest_commit_number",
     "LIST_SUBCOMMAND": "list",
+    "LOCKFILE_NAME": "avora.lock",
     "LOCAL_AVORA": "avora",
     "LOCAL_AVORA_DESCRIPTION": "Avora Version Control System",
     "LOG_AUTHOR_LABEL": "Author: ",

@@ -70,6 +70,7 @@ class RemoteAvoraConstants:
         )
 
     HTTP_BAD_REQUEST_STATUS_CODE = 400
+    HTTP_INTERNAL_SERVER_ERROR_STATUS_CODE = 500
     HTTP_NOT_FOUND_STATUS_CODE = 404
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
@@ -79,6 +80,8 @@ class RemoteAvoraConstants:
         "Local repository has objects that the remote does not have. "
         "Run 'avora push' to upload these objects before pulling."
     )
+    LOCKS_DIRECTORY_NAME = ".remote_avora"
+    LOCKFILE_NAME = "remote_avora.lock"
     MAX_FILES_IN_ZIP = 1000
     MAX_INDIVIDUAL_FILE_SIZE = 10 * BYTES_PER_MEGABYTE
     MAX_TOTAL_UPLOAD_SIZE = 100 * BYTES_PER_MEGABYTE
@@ -110,6 +113,9 @@ class RemoteAvoraConstants:
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
         "Repository not found: {repository_name}"
+    )
+    REPOSITORY_RESTORE_FAILED_ERROR_MESSAGE = (
+        "Failed to restore repository from backup."
     )
     REPOSITORY_URL_DICT_KEY = "repository_url"
     REPOS_MOUNT_ENDPOINT = "/repos"

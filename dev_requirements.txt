@@ -7,3 +7,4 @@ fastapi[standard]
 uvicorn
 pytest-asyncio
 platformdirs
+filelock
