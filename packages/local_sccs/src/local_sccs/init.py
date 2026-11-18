@@ -26,18 +26,23 @@ def get_config_key(c: SCCSConstants, key: str) -> str:
         platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
         / c.CONFIG_JSON_FILENAME
     ).is_file():
+        try:
+            with open(
+                platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
+                / c.CONFIG_JSON_FILENAME,
+                "r",
+                encoding=c.UTF_8,
+                newline=c.NEWLINE,
+            ) as f:
+                try:
+                    global_config = json.load(f)
+                except json.JSONDecodeError:
+                    raise SCCSException(c.INVALID_JSON_ERROR_MESSAGE)
 
-        with open(
-            platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
-            / c.CONFIG_JSON_FILENAME,
-            "r",
-            encoding=c.UTF_8,
-            newline=c.NEWLINE,
-        ) as f:
-            global_config = json.load(f)
-
-            if key in global_config and global_config[key]:
-                return global_config[key]
+                if key in global_config and global_config[key]:
+                    return global_config[key]
+        except FileNotFoundError:
+            raise SCCSException(c.GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE)
 
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
     utils.raise_if_empty(c, data_value, key, capitalize=True)

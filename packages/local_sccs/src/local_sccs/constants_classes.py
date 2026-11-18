@@ -227,6 +227,9 @@ class SCCSConstants:
         {DEBUG_FLAG_GENERAL: "Does not except Exception or SCCSException."}
     )
     FULL_COMMIT_IDENTIFIER_LENGTH = 64
+    GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE = (
+        "Global config file does not exist."
+    )
 
     @property
     def HELP_MESSAGES(self) -> tuple[str, ...]:
@@ -328,6 +331,7 @@ class SCCSConstants:
     INVALID_FILE_TYPE_ERROR_MESSAGE = (
         "File is not a .docx file. Please provide a valid .docx file."
     )
+    INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data. Please ensure the JSON is valid."
     INVALID_KEY_ERROR_MESSAGE = (
         "Invalid configuration key provided. Please provide one of the valid keys: "
         "remote, name, email."

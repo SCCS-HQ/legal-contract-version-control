@@ -581,7 +581,7 @@ class RepositoryIO:
 
         self._write_metadata_json(full_metadata)
 
-    def write_config(self, data: dict[str, str]) -> None:
+    def write_local_config(self, data: dict[str, str]) -> None:
         """
         Write the entered configuration to the repository.
         """
@@ -1096,13 +1096,12 @@ class RepositoryWrite:
 
         if key == self.c.REMOTE_KEY and value.strip():
 
-            config = self.io.read_config()
+            config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
             config[key] = value
-
-            self.io.write_config(config)
+            self.io.write_local_config(config)
 
         if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
 
             config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
             config[key] = value
-            self.io.write_config(config)
+            self.io.write_local_config(config)
