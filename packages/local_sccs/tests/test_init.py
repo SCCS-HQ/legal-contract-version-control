@@ -5,7 +5,9 @@ import tempfile
 from pathlib import Path
 from types import FunctionType
 from unittest import mock
+import io
 
+import platformdirs
 import pytest
 from local_sccs import init, utils
 from local_sccs.constants_classes import SCCSConstants
@@ -48,6 +50,57 @@ def test_get_config_key_returns_input(
 
     with mock.patch("builtins.input", return_value=value):
         assert init.get_config_key(c, key) == value
+
+
+def test_get_config_key_raises_on_invalid_json(
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def mock_open(file, *args, **kwargs):
+        if str(file).endswith(c.CONFIG_JSON_FILENAME):
+            import io
+            return io.StringIO("invalid json")
+        return open(file, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: True)
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    with pytest.raises(SCCSException) as e:
+        init.get_config_key(c, tc.NAME_KEY)
+
+    assert str(e.value) == tc.INVALID_JSON_ERROR_MESSAGE
+
+
+def test_get_config_key_raises_on_file_not_found(
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original_open = open
+
+    def mock_open(file, *args, **kwargs):
+        if str(file).endswith(c.CONFIG_JSON_FILENAME):
+            raise FileNotFoundError
+        return original_open(file, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: True)
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    with pytest.raises(SCCSException) as e:
+        init.get_config_key(c, tc.NAME_KEY)
+
+    assert str(e.value) == tc.GLOBAL_CONFIG_FILE_DOES_NOT_EXIST_ERROR_MESSAGE
+
+
+def test_get_config_key_returns_value_from_config_file(
+    c: SCCSConstants, tc: SCCSTestConstants, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def mock_open(file, *args, **kwargs) -> io.StringIO:
+        if str(file).endswith(c.CONFIG_JSON_FILENAME):
+            return io.StringIO(json.dumps({tc.NAME_KEY: "config_value"}))
+        return open(file, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_file", lambda *args, **kwargs: True)
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    assert init.get_config_key(c, tc.NAME_KEY) == "config_value"
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_document_read_fails(
