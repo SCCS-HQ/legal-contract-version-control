@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 from pathlib import Path
@@ -12,14 +13,28 @@ from local_sccs.repository_layout import (
     RepositoryStatus,
     RepositoryWrite,
 )
+import platformdirs
 
 
-def ask_config_input(c: SCCSConstants, key: str) -> str:
+def get_config_key(c: SCCSConstants, key: str) -> str:
     """
     Prompt the user for the entered configuration key and return the entered value.
     Raise an SCCSException if the value is empty.
     """
 
+    if (platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / c.CONFIG_JSON_FILENAME).is_file():
+
+        with open(
+            platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / c.CONFIG_JSON_FILENAME,
+            "r",
+            encoding=c.UTF_8,
+            newline=c.NEWLINE,
+        ) as f:
+            global_config = json.load(f)
+
+            if key in global_config and global_config[key]:
+                return global_config[key]
+            
     data_value = input(c.INPUT_CONFIG_VALUE_TEMPLATE.format(config_key=key)).strip()
     utils.raise_if_empty(c, data_value, key, capitalize=True)
 
@@ -151,7 +166,7 @@ def validate_file_requirements(c: SCCSConstants, file: Path) -> None:
     if file.suffix.lower() != c.DOCUMENT_EXTENSION:
         raise SCCSException(c.INVALID_FILE_TYPE_ERROR_MESSAGE)
 
-    if not file.is_file():
+    if not os.path.isfile(file):
         raise SCCSException(
             c.ENTERED_FILE_DOES_NOT_EXIST_ERROR_MESSAGE_TEMPLATE.format(file_path=file)
         )
@@ -235,8 +250,8 @@ def main(
 
     validate_file_requirements(c, document_path)
 
-    name = ask_config_input(c, c.NAME_KEY)
-    email = ask_config_input(c, c.EMAIL_KEY)
+    name = get_config_key(c, c.NAME_KEY)
+    email = get_config_key(c, c.EMAIL_KEY)
 
     staging_root = utils.create_staging_directory(c, rp.root)
 

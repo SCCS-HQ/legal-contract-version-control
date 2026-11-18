@@ -10,6 +10,7 @@ import mammoth
 from local_sccs import utils
 from local_sccs.constants_classes import SCCSConstants
 from local_sccs.exceptions import SCCSException
+import platformdirs
 
 
 class TargetBranch:
@@ -408,7 +409,19 @@ class RepositoryIO:
         Return the configuration of the repository.
         """
 
-        return self._read_metadata_json().setdefault(self.c.CONFIG_DICT_KEY, {})
+        config_path = (
+            platformdirs.user_config_path(appname=self.c.LOCAL_SCCS, appauthor=False)
+            / self.c.CONFIG_JSON_FILENAME
+        )
+        try:
+            with open(config_path, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+                global_config = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            global_config = {}
+
+        local_config = self._read_metadata_json().setdefault(self.c.CONFIG_DICT_KEY, {})
+
+        return {**global_config, **local_config}
 
     def read_current_branch_data(self) -> dict[str, Any]:
         """
@@ -1079,7 +1092,15 @@ class RepositoryWrite:
         if key not in self.c.ACCEPTED_CONFIG_KEYS:
             raise SCCSException(self.c.INVALID_KEY_ERROR_MESSAGE)
 
-        config = self.io.read_config()
-        config[key] = value
+        if key == self.c.REMOTE_KEY and value.strip():
 
-        self.io.write_config(config)
+            config = self.io.read_config()
+            config[key] = value
+
+            self.io.write_config(config)
+        
+        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
+
+            config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
+            config[key] = value
+            self.io.write_config(config)
