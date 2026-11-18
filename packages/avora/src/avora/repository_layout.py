@@ -275,8 +275,8 @@ class RepositoryIO:
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = paths if paths is not None else RepositoryPaths(
-            root, repository_name, c
+        self.paths = (
+            paths if paths is not None else RepositoryPaths(root, repository_name, c)
         )
 
     def _read_metadata_json(self) -> dict[str, Any]:
@@ -1003,21 +1003,25 @@ class RepositoryWrite:
         identifier. Raise an AvoraException if the target branch is not set or if there
         are no uncommitted changes and empty commits are not allowed.
         """
-        
+
         with self.paths.lock:
             self.target.require()
 
             current_branch = self.io.read_current_branch_data()[
                 self.c.CURRENT_BRANCH_DICT_KEY
             ].lower()
-            latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
+            latest_commit_identifier = self.io.read_history()[
+                self.c.LATEST_COMMIT_DICT_KEY
+            ]
             byte_hash_data = self.io.read_byte_hash()
 
             latest_byte_hash = byte_hash_data[latest_commit_identifier]
             document_byte_hash = self.io.document_html_byte_hash()
 
             if not allow_empty_commit and latest_byte_hash == document_byte_hash:
-                raise AvoraException(self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
+                raise AvoraException(
+                    self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE
+                )
 
             config = self.io.read_config()
             name = config[self.c.NAME_KEY]
@@ -1077,7 +1081,6 @@ class RepositoryWrite:
             return commit_identifier
 
         raise RuntimeError(self.c.COMMIT_CREATION_FAILED_ERROR_MESSAGE)
-        
 
     def remove_branch_metadata(
         self, branch_name: str, current_branch_name: str

@@ -23,8 +23,8 @@ from avora.repository_layout import (
     TargetBranch,
     _ReentrantFileLock,
 )
-from test_constants import AvoraTestConstants
 from filelock import FileLock
+from test_constants import AvoraTestConstants
 
 
 def test_repository_data_matching_commit_files_returns_correct_commit_files(
