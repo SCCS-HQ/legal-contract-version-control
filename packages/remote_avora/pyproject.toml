@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "remote-avora"
-version = "0.1.2"
+version = "0.2.0.dev1"
 description = "Remote API for Self-Hosting of Avora"
 readme = "README.md"
 requires-python = ">=3.12"
