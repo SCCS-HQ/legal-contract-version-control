@@ -19,6 +19,7 @@ from local_sccs.repository_layout import (
     TargetBranch,
 )
 from test_constants import SCCSTestConstants
+import platformdirs
 
 
 def test_repository_data_matching_commit_files_returns_correct_commit_files(
@@ -823,7 +824,7 @@ def test_repository_io_read_config_returns_local_config_when_global_config_missi
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    import local_sccs.repository_layout as repository_layout
+    
 
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -832,9 +833,7 @@ def test_repository_io_read_config_returns_local_config_when_global_config_missi
     test_config_dir = tmp_path / tc.TEST_STRING
 
     monkeypatch.setattr(
-        repository_layout.platformdirs,
-        "user_config_path",
-        lambda *args, **kwargs: test_config_dir,
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
     )
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
@@ -843,9 +842,7 @@ def test_repository_io_read_config_returns_local_config_when_global_config_missi
         "{", encoding=tc.UTF_8, newline=tc.NEWLINE
     )
     monkeypatch.setattr(
-        repository_layout.platformdirs,
-        "user_config_path",
-        lambda *args, **kwargs: test_config_dir,
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
     )
     assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
