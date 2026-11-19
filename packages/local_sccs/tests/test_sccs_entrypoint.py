@@ -594,7 +594,9 @@ def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_comm
 
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.TEST_STRING])
 
-    sccs_entrypoint.main()
+    with pytest.raises(SystemExit):
+        sccs_entrypoint.main()
+
 
     assert (
         capsys.readouterr().out.strip()
@@ -824,3 +826,26 @@ def test_sccs_main_prints_help_message_if_length_of_argv_is_less_than_two(
     monkeypatch.setattr(sys, "argv", [tc.TEST_STRING])
     sccs_entrypoint.main()
     assert capsys.readouterr().out.strip() == (tc.NEWLINE).join(tc.HELP_MESSAGES)
+
+
+def test_sccs_main_prints_unknown_command_error_message_and_help_message_if_parsed_command_does_not_exist(
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    monkeypatch.setattr(sys, "argv", [tc.TEST_STRING, tc.HELP_COMMAND_NAME])
+    monkeypatch.setattr(
+        argparse.ArgumentParser,
+        "parse_args",
+        lambda *args, **kwargs: SimpleNamespace(command=tc.TEST_STRING, debug=False),
+    )
+
+    with pytest.raises(SystemExit):
+        sccs_entrypoint.main()
+
+    assert (
+        capsys.readouterr().out.strip()
+        == tc.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=tc.TEST_STRING)
+        + tc.NEWLINE
+        + (tc.NEWLINE).join(tc.HELP_MESSAGES)
+    )

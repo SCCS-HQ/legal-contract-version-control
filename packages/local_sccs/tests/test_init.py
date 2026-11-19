@@ -1095,7 +1095,7 @@ def test_init_main_properly_initializes_repository_with_expected_files_and_direc
         encoding=c.UTF_8,
     ) as f:
         metadata = json.load(f)
-        metadata[tc.CONFIG_DICT_KEY].pop(tc.REMOTE_KEY, None)
+        metadata.pop(tc.CONFIG_DICT_KEY, None)
         f.seek(0)
         f.truncate()
         json.dump(metadata, f, indent=tc.JSON_INDENT)

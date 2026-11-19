@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 from types import FunctionType
 
+import platformdirs
 import pytest
 from local_sccs import config
 from local_sccs.constants_classes import SCCSConstants
@@ -253,13 +254,12 @@ def test_config_main_staged_repository_creation_fails(
     assert not staging_dirs
 
 
-def test_repository_write_write_key_to_config_writes_key_value_to_config(
+def test_config_main_writes_key_value_to_config(
     initialized_repository: Path,
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rd = RepositoryData(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -274,10 +274,15 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
 
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+    with open(
+        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) /
+        c.CONFIG_JSON_FILENAME,
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.CONFIG_DICT_KEY][tc.NAME_KEY] == tc.TEST_STRING
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
 
 
 def test_config_main_prints_success_message(

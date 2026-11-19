@@ -808,13 +808,18 @@ def test_repository_io_read_config_returns_config(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch
 ) -> None:
     ri = RepositoryIO(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
-    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: tmp_path / tc.TEST_STRING
+    )
 
+    assert ri.read_config() == tc.TEST_INITIALIZATION_METADATA[tc.CONFIG_DICT_KEY]
 
 def test_repository_io_read_config_returns_local_config_when_global_config_missing_or_invalid(
     initialized_repository: Path,
@@ -1934,10 +1939,16 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
 
     rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
 
-    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+    with open(
+        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False) / 
+        c.CONFIG_JSON_FILENAME,
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE
+    ) as f:
         metadata = json.load(f)
 
-    assert metadata[tc.CONFIG_DICT_KEY][tc.NAME_KEY] == tc.TEST_STRING
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
 
 
 def test_repository_write_write_key_to_config_raises_if_value_is_a_space(
@@ -2006,3 +2017,160 @@ def test_repository_write_write_key_to_config_raises_if_remote_contains_invalid_
         rw.write_key_to_config(tc.REMOTE_KEY, tc.ESCAPED_BACKSLASH)
 
     assert str(e.value) == tc.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE
+
+
+def test_repository_write_write_key_to_config_handles_existing_invalid_json_global_config(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+    test_config_dir.mkdir()
+    config_json_path = test_config_dir / c.CONFIG_JSON_FILENAME
+    config_json_path.write_text("{invalid json", encoding=tc.UTF_8, newline=tc.NEWLINE)
+
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+
+    rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    with open(config_json_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_handles_missing_global_config(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+
+    rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    config_json_path = test_config_dir / c.CONFIG_JSON_FILENAME
+
+    assert config_json_path.exists()
+
+    with open(config_json_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_handles_existing_valid_json_global_config(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+    test_config_dir.mkdir()
+    config_json_path = test_config_dir / c.CONFIG_JSON_FILENAME
+    config_json_path.write_text(
+        json.dumps({tc.EMAIL_KEY: tc.TEST_STRING}, indent=tc.JSON_INDENT)
+    )
+
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+
+    rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    with open(config_json_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING
+    assert metadata[tc.EMAIL_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_writes_remote_key_to_local_config(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+) -> None:
+    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
+
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    rw.write_key_to_config(tc.REMOTE_KEY, tc.TEST_STRING)
+
+    with open(metadata_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata[tc.CONFIG_DICT_KEY][tc.REMOTE_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_handles_file_not_found_after_exists_check(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    test_config_dir = tmp_path / tc.TEST_STRING
+    test_config_dir.mkdir()
+    config_json_path = test_config_dir / c.CONFIG_JSON_FILENAME
+    config_json_path.write_text(
+        json.dumps({tc.EMAIL_KEY: tc.TEST_STRING}, indent=tc.JSON_INDENT),
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    )
+
+    original_open = open
+
+    raise_count = [0]
+
+    def mock_open(*args, **kwargs):
+        if len(args) >= 2 and args[0] == config_json_path and args[1] == "r":
+            raise_count[0] += 1
+            if raise_count[0] == 1:
+                raise FileNotFoundError
+        return original_open(*args, **kwargs)
+
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: test_config_dir
+    )
+    monkeypatch.setattr("builtins.open", mock_open)
+
+    rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    monkeypatch.undo()
+
+    with open(config_json_path, "r", encoding=tc.UTF_8, newline=tc.NEWLINE) as f:
+        metadata = json.load(f)
+
+    assert metadata[tc.NAME_KEY] == tc.TEST_STRING

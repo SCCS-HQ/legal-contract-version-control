@@ -358,8 +358,6 @@ class SCCSTestConstants:
                 "updated_branches": ["test", "main"],
             },
             "config": {
-                "name": "test",
-                "email": "test",
                 "remote": "http://127.0.0.1:8000/test/test/clone",
             },
         }
@@ -715,8 +713,6 @@ class SCCSTestConstants:
             UPDATED_BRANCHES_DICT_KEY: [MAIN_BRANCH_NAME],
         },
         CONFIG_DICT_KEY: {
-            NAME_KEY: TEST_STRING,
-            EMAIL_KEY: TEST_STRING,
             REMOTE_KEY: "http://127.0.0.1:8000/test/test/clone",
         },
     }
@@ -997,8 +993,6 @@ class SCCSTestConstants:
             UPDATED_BRANCHES_DICT_KEY: [],
         },
         CONFIG_DICT_KEY: {
-            NAME_KEY: TEST_STRING,
-            EMAIL_KEY: TEST_STRING,
             REMOTE_KEY: "http://127.0.0.1:8000/test/test/clone",
         },
     }

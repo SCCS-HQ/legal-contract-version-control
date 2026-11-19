@@ -407,12 +407,18 @@ def main() -> None:
         help.main(c)
         return
 
+    command = next((arg for arg in sys.argv[1:] if not arg.startswith("-")), None)
+    if command is not None and command not in COMMANDS:
+        print(c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=command))
+        help.main(c)
+        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
+
     arguments = create_argument_parser(c).parse_args()
     if arguments.command not in COMMANDS:
         print(
             c.UNKNOWN_COMMAND_ERROR_MESSAGE_TEMPLATE.format(command=arguments.command)
         )
         help.main(c)
-        return
+        sys.exit(c.EXPECTED_ERROR_EXIT_CODE)
 
     run_command(arguments)
