@@ -1,5 +1,6 @@
 import filecmp
 import json
+import os
 import shutil
 import uuid
 from collections.abc import Callable
@@ -801,6 +802,26 @@ def test_repository_io_read_commit_messages_returns_commit_messages(
     assert ri.read_commit_messages() == {
         tc.TEST_COMMIT_IDENTIFIER: tc.INIT_COMMIT_MESSAGE
     }
+
+
+def test_repository_io_read_config_raises_if_platformdirs_user_config_path_raises(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+) -> None:
+    ri = RepositoryIO(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(platformdirs, "user_config_path", raise_exception)
+
+    with pytest.raises(SCCSException) as e:
+        ri.read_config()
+
+    assert str(e.value) == tc.CONFIG_PATH_RESOLUTION_ERROR_MESSAGE
 
 
 def test_repository_io_read_config_returns_config(
@@ -1934,7 +1955,6 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
     target: TargetBranch,
     tc: SCCSTestConstants,
 ) -> None:
-    metadata_path = initialized_repository / tc.SCCS_DIRECTORY / tc.METADATA_JSON
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
@@ -2177,3 +2197,47 @@ def test_repository_write_write_key_to_config_handles_file_not_found_after_exist
         metadata = json.load(f)
 
     assert metadata[tc.NAME_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_handles_parent_creation_failure(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(
+        Path, "mkdir", raise_exception
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    assert str(e.value) == tc.CONFIG_WRITE_ERROR_MESSAGE
+
+
+def test_repository_write_write_key_to_config_handles_atomic_write_failure(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+    raise_exception: FunctionType,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    monkeypatch.setattr(
+        os, "replace", raise_exception
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    assert str(e.value) == tc.CONFIG_WRITE_ERROR_MESSAGE

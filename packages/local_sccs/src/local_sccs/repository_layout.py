@@ -1,10 +1,12 @@
 import copy
 import hashlib
 import json
+import os
 import shutil
 from collections.abc import Callable
 from pathlib import Path
 from re import A
+import tempfile
 from typing import Any
 
 import mammoth
@@ -409,11 +411,13 @@ class RepositoryIO:
         """
         Return the configuration of the repository.
         """
-
-        config_path = (
-            platformdirs.user_config_path(appname=self.c.LOCAL_SCCS, appauthor=False)
-            / self.c.CONFIG_JSON_FILENAME
-        )
+        try:
+            config_path = (
+                platformdirs.user_config_path(appname=self.c.LOCAL_SCCS, appauthor=False)
+                / self.c.CONFIG_JSON_FILENAME
+            )
+        except Exception as e:
+            raise SCCSException(self.c.CONFIG_PATH_RESOLUTION_ERROR_MESSAGE) from e
         try:
             with open(
                 config_path, "r", encoding=self.c.UTF_8, newline=self.c.NEWLINE
@@ -1119,16 +1123,32 @@ class RepositoryWrite:
                             global_config = json.load(f)
                         except json.JSONDecodeError:
                             global_config = {}
-                except FileNotFoundError:
+                except OSError:
                     global_config = {}
             else:
                 global_config = {}
 
-            config_json.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                config_json.parent.mkdir(parents=True, exist_ok=True)
+            except OSError as e:
+                raise SCCSException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
 
             global_config[key] = value
 
-            with open(
-                config_json, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
-            ) as f:
-                json.dump(global_config, f, indent=self.c.JSON_INDENT)
+            temp_dir = tempfile.mkdtemp(prefix=self.c.TEMPORARY_DIRECTORY_PREFIX)
+            temp_config = Path(temp_dir) / self.c.CONFIG_JSON_FILENAME
+
+            try:
+                with open(
+                    temp_config,
+                    "w",
+                    encoding=self.c.UTF_8,
+                    newline=self.c.NEWLINE,
+                ) as f:
+                    json.dump(global_config, f, indent=self.c.JSON_INDENT)
+
+                os.replace(temp_config, config_json)
+            except OSError as e:
+                raise SCCSException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
+            finally:
+                shutil.rmtree(temp_dir, ignore_errors=True)

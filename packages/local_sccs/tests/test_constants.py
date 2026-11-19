@@ -96,6 +96,7 @@ class SCCSTestConstants:
     STAGED_REPOSITORY_ERROR_MESSAGE = (
         "Failed to create or promote the staged repository. Please try again."
     )
+    
     CONFIG_COMMAND_NAME = "config"
     CONFIG_DICT_KEY = "config"
     CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
@@ -103,8 +104,14 @@ class SCCSTestConstants:
     CONFIG_SUCCESS_MESSAGE_TEMPLATE = (
         "Configuration '{key}' set to '{value}' successfully."
     )
+    CONFIG_PATH_RESOLUTION_ERROR_MESSAGE = (
+        "An error occurred while resolving the configuration file path."
+    )
     CONFIG_VALUE_ARGUMENT_HELP = "The value to set the configuration key to."
     CONFIG_VALUE_ARGUMENT_NAME = "value"
+    CONFIG_WRITE_ERROR_MESSAGE = (
+        "Failed to write configuration to the config file atomically. Please try again."
+    )
     CONSTANTS_CLASSES_ADDED_OR_REMOVED_MESSAGE = (
         "{module_name} has been modified. Added: {added}, Removed: {removed}."
     )
