@@ -1954,17 +1954,23 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     rw = RepositoryWrite(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
+    config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: config_dir
+    )
+
     rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
 
     with open(
-        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
-        / c.CONFIG_JSON_FILENAME,
+        config_dir / c.CONFIG_JSON_FILENAME,
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,
@@ -1972,6 +1978,33 @@ def test_repository_write_write_key_to_config_writes_key_value_to_config(
         metadata = json.load(f)
 
     assert metadata[tc.NAME_KEY] == tc.TEST_STRING
+
+
+def test_repository_write_write_key_to_config_raises_if_global_config_not_dict(
+    initialized_repository: Path,
+    c: SCCSConstants,
+    target: TargetBranch,
+    tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rw = RepositoryWrite(
+        initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
+    )
+
+    config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: config_dir
+    )
+    config_dir.mkdir()
+    (config_dir / c.CONFIG_JSON_FILENAME).write_text(
+        "[]", encoding=tc.UTF_8, newline=tc.NEWLINE
+    )
+
+    with pytest.raises(SCCSException) as e:
+        rw.write_key_to_config(tc.NAME_KEY, tc.TEST_STRING)
+
+    assert str(e.value) == tc.CONFIG_READ_ERROR_MESSAGE
 
 
 def test_repository_write_write_key_to_config_raises_if_value_is_a_space(

@@ -107,6 +107,10 @@ class SCCSTestConstants:
     CONFIG_PATH_RESOLUTION_ERROR_MESSAGE = (
         "An error occurred while resolving the configuration file path."
     )
+    CONFIG_READ_ERROR_MESSAGE = (
+        "Failed to read configuration from the config file. Please ensure the config "
+        "file is valid JSON and try again."
+    )
     CONFIG_VALUE_ARGUMENT_HELP = "The value to set the configuration key to."
     CONFIG_VALUE_ARGUMENT_NAME = "value"
     CONFIG_WRITE_ERROR_MESSAGE = (

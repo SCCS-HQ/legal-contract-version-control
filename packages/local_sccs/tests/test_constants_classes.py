@@ -121,6 +121,10 @@ SCCS_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "CONFIG_PATH_RESOLUTION_ERROR_MESSAGE": (
         "An error occurred while resolving the configuration file path."
     ),
+    "CONFIG_READ_ERROR_MESSAGE": (
+        "Failed to read configuration from the config file. Please ensure the config "
+        "file is valid JSON and try again."
+    ),
     "CONFIG_SUCCESS_MESSAGE_TEMPLATE": (
         "Configuration '{key}' set to '{value}' successfully."
     ),

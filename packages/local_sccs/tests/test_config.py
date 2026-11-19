@@ -259,6 +259,8 @@ def test_config_main_writes_key_value_to_config(
     c: SCCSConstants,
     target: TargetBranch,
     tc: SCCSTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
 
     rd = RepositoryData(
@@ -272,11 +274,15 @@ def test_config_main_writes_key_value_to_config(
         initialized_repository, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
     )
 
+    config_dir = tmp_path / tc.TEST_STRING
+    monkeypatch.setattr(
+        platformdirs, "user_config_path", lambda *args, **kwargs: config_dir
+    )
+
     config.main(c, tc.NAME_KEY, tc.TEST_STRING, rd, rp, rs, rw)
 
     with open(
-        platformdirs.user_config_path(appname=c.LOCAL_SCCS, appauthor=False)
-        / c.CONFIG_JSON_FILENAME,
+        config_dir / c.CONFIG_JSON_FILENAME,
         "r",
         encoding=tc.UTF_8,
         newline=tc.NEWLINE,

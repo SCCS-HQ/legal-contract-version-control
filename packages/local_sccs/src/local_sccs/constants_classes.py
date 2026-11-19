@@ -145,6 +145,10 @@ class SCCSConstants:
         "Failed to create or promote the staged repository. Please try again."
     )
     CONFIG_DICT_KEY = "config"
+    CONFIG_READ_ERROR_MESSAGE = (
+        "Failed to read configuration from the config file. Please ensure the config "
+        "file is valid JSON and try again."
+    )
     CONFIG_KEY_ARGUMENT_HELP_TEMPLATE = "The configuration key to set. One of: {keys}."
     CONFIG_KEY_ARGUMENT_NAME = "key"
     CONFIG_PATH_RESOLUTION_ERROR_MESSAGE = (

@@ -6,7 +6,6 @@ import shutil
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
-from re import A
 from typing import Any
 
 import mammoth
@@ -1123,12 +1122,15 @@ class RepositoryWrite:
                     ) as f:
                         try:
                             global_config = json.load(f)
-                        except json.JSONDecodeError:
+                        except (json.JSONDecodeError, ValueError):
                             global_config = {}
                 except OSError:
                     global_config = {}
             else:
                 global_config = {}
+
+            if not isinstance(global_config, dict):
+                raise SCCSException(self.c.CONFIG_READ_ERROR_MESSAGE)
 
             try:
                 config_json.parent.mkdir(parents=True, exist_ok=True)
@@ -1137,20 +1139,18 @@ class RepositoryWrite:
 
             global_config[key] = value
 
-            temp_dir = tempfile.mkdtemp(prefix=self.c.TEMPORARY_DIRECTORY_PREFIX)
-            temp_config = Path(temp_dir) / self.c.CONFIG_JSON_FILENAME
-
             try:
-                with open(
-                    temp_config,
-                    "w",
-                    encoding=self.c.UTF_8,
-                    newline=self.c.NEWLINE,
-                ) as f:
-                    json.dump(global_config, f, indent=self.c.JSON_INDENT)
-
-                os.replace(temp_config, config_json)
+                fd, temp_path = tempfile.mkstemp(
+                    dir=config_json.parent,
+                    prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
+                    # suffix=".tmp",
+                )
+                try:
+                    with os.fdopen(fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE) as f:
+                        json.dump(global_config, f, indent=self.c.JSON_INDENT)
+                    os.replace(temp_path, config_json)
+                except OSError:
+                    os.unlink(temp_path)
+                    raise
             except OSError as e:
                 raise SCCSException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
-            finally:
-                shutil.rmtree(temp_dir, ignore_errors=True)
