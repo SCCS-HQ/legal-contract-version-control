@@ -384,11 +384,14 @@ def test_promote_staging_cross_device_partial_copy_rollback_restores_old_root(
     ) as f:
         f.write(tc.TEST_STRING)
 
-    tmp_dst = final_root.with_name(final_root.name + ".tmp")
+    created_tmp_dirs: list[Path] = []
 
     def failing_copytree(src: Any, dst: Any, **kwargs: Any) -> None:
-        tmp_dst.mkdir()
-        (tmp_dst / tc.TEST_TEXT_FILENAME).write_text(tc.TEST_STRING, encoding=tc.UTF_8)
+        created_tmp_dirs.append(Path(dst))
+        Path(dst).mkdir(parents=True, exist_ok=True)
+        (Path(dst) / tc.TEST_TEXT_FILENAME).write_text(
+            tc.TEST_STRING, encoding=tc.UTF_8
+        )
         raise OSError(errno.EIO, "input/output error")
 
     monkeypatch.setattr(
@@ -401,8 +404,8 @@ def test_promote_staging_cross_device_partial_copy_rollback_restores_old_root(
     with pytest.raises(OSError, match="input/output error"):
         utils.promote_staging(c, staging_root, final_root)
 
-    assert not tmp_dst.exists()
-    assert not (tmp_path / (final_root.name + ".tmp")).exists()
+    for tmp_dir in created_tmp_dirs:
+        assert not tmp_dir.exists()
     with open(
         final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
@@ -421,9 +424,6 @@ def test_promote_staging_cross_device_cleans_preexisting_tmp_dst(
 
     final_root.mkdir()
     staging_root.mkdir()
-    tmp_dst = final_root.with_name(final_root.name + ".tmp")
-    tmp_dst.mkdir()
-    (tmp_dst / "stale_file").write_text("stale", encoding=tc.UTF_8)
     with open(
         staging_root / tc.TEST_TEXT_FILENAME, "w", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:
@@ -438,8 +438,10 @@ def test_promote_staging_cross_device_cleans_preexisting_tmp_dst(
     utils.promote_staging(c, staging_root, final_root)
 
     assert not staging_root.exists()
-    assert not tmp_dst.exists()
-    assert not (tmp_path / (final_root.name + ".tmp")).exists()
+    # No stale temporary directories should remain in the parent directory.
+    for entry in tmp_path.iterdir():
+        if entry.name.startswith(c.TEMPORARY_DIRECTORY_PREFIX):
+            assert not entry.exists()
     with open(
         final_root / tc.TEST_TEXT_FILENAME, "r", encoding=tc.UTF_8, newline=tc.NEWLINE
     ) as f:

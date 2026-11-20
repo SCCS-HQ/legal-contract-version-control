@@ -107,23 +107,37 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
     implementation, and will be addressed in a future version.
     """
 
+    def _quarantine(path: Path) -> None:
+        """Best-effort removal of a stale source. Quarantine if rmtree fails."""
+        try:
+            shutil.rmtree(path)
+        except Exception:
+            quarantine = path.with_name(path.name + ".quarantined")
+            try:
+                os.rename(path, quarantine)
+            except Exception:
+                pass
+
     def _rename_or_copy(src: Path, dst: Path) -> None:
         try:
             os.rename(src, dst)
+            return
         except OSError as e:
             if e.errno != errno.EXDEV:
                 raise
-            tmp_dst = dst.with_name(dst.name + ".tmp")
-            try:
-                if tmp_dst.exists():
-                    shutil.rmtree(tmp_dst, ignore_errors=True)
-                shutil.copytree(src, tmp_dst)
-                os.rename(tmp_dst, dst)
-                shutil.rmtree(src)
-            except Exception:
-                if tmp_dst.exists():
-                    shutil.rmtree(tmp_dst, ignore_errors=True)
-                raise
+
+        tmp_dst = Path(
+            tempfile.mkdtemp(prefix=c.TEMPORARY_DIRECTORY_PREFIX, dir=dst.parent)
+        )
+        try:
+            shutil.copytree(src, tmp_dst, symlinks=True, dirs_exist_ok=True)
+            os.rename(tmp_dst, dst)
+        except Exception:
+            if tmp_dst.exists():
+                shutil.rmtree(tmp_dst, ignore_errors=True)
+            raise
+
+        _quarantine(src)
 
     if not final_root.exists():
         _rename_or_copy(staging_root, final_root)
@@ -138,11 +152,18 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
         _rename_or_copy(staging_root, final_root)
     except Exception:
         if final_root.exists():
-            shutil.rmtree(final_root, ignore_errors=True)
+            try:
+                shutil.rmtree(final_root)
+            except OSError:
+                raise SCCSException(
+                    c.ROLLBACK_FAILED_ERROR_MESSAGE.format(
+                        repository_name=final_root.name
+                    )
+                ) from None
         _rename_or_copy(old_root, final_root)
         raise
 
-    shutil.rmtree(old_root, ignore_errors=True)
+    _quarantine(old_root)
 
 
 def raise_if_empty(
