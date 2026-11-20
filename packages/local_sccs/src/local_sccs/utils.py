@@ -106,19 +106,29 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
     implementation, and will be addressed in a future version.
     """
 
+    def _rename_or_copy(src: Path, dst: Path) -> None:
+        try:
+            os.rename(src, dst)
+        except OSError as e:
+            if e.errno == 18:
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+                shutil.rmtree(src, ignore_errors=True)
+            else:
+                raise
+
     if not final_root.exists():
-        os.rename(staging_root, final_root)
+        _rename_or_copy(staging_root, final_root)
         return
 
     old_root = final_root.with_name(
         c.OLD_ROOT_TEMPLATE.format(repository_name=final_root.name)
     )
 
-    os.rename(final_root, old_root)
+    _rename_or_copy(final_root, old_root)
     try:
-        os.rename(staging_root, final_root)
+        _rename_or_copy(staging_root, final_root)
     except Exception:
-        os.rename(old_root, final_root)
+        _rename_or_copy(old_root, final_root)
         raise
 
     shutil.rmtree(old_root, ignore_errors=True)
