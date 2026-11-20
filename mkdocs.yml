@@ -2,8 +2,8 @@ site_name: Avora documentation
 site_description: Documentation for the Avora project
 site_author: Daniel Phillion
 site_url: https://avora-docx.github.io/Avora-Docx/
-repo_url: https://github.com/SCCS-HQ/legal-contract-version-control
-repo_name: SCCS-HQ/legal-contract-version-control
+repo_url: https://github.com/Avora-Docx/Avora-Docx/
+repo_name: Avora-Docx/Avora-Docx
 
 strict: true
 

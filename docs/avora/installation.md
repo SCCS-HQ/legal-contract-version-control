@@ -36,7 +36,7 @@ This prints the list of available commands and flags.
 To install from source for development:
 
 ```bash
-git clone https://github.com/SCCS-HQ/legal-contract-version-control
+git clone https://github.com/Avora-Docx/Avora-Docx
 cd legal-contract-version-control
 pip install -e packages/avora
 ```
