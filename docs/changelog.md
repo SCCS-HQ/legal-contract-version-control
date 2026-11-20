@@ -4,12 +4,8 @@ All notable changes to Avora are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-No versions have been released yet. Both packages (`avora` and `remote-avora`) are currently at `0.1.0.dev1` and under active development.
+## [v0.1.0](https://github.com/SCCS-HQ/legal-contract-version-control/releases/tag/0.1.0) - 2026-11-15
 
 ### Added
 
 - Initial project scaffolding for the `avora` CLI and `remote_avora` server packages.
-
-[Unreleased]: https://github.com/SCCS-HQ/legal-contract-version-control/
