@@ -12,6 +12,7 @@ dependencies = [
     "mammoth",
     "requests",
     "beautifulsoup4",
+    "platformdirs",
 ]
 
 [project.optional-dependencies]
