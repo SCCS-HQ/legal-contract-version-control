@@ -1,0 +1,70 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-avora:
+    name: Publish avora
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Clean build artifacts
+        run: rm -rf dist .build *.egg-info
+        working-directory: packages/avora
+
+      - name: Build avora
+        run: python -m build
+        working-directory: packages/avora
+
+      - name: Publish avora
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
+        working-directory: packages/avora
+
+  publish-remote-avora:
+    name: Publish remote-avora
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Clean build artifacts
+        run: rm -rf dist .build *.egg-info
+        working-directory: packages/remote_avora
+
+      - name: Build remote-avora
+        run: python -m build
+        working-directory: packages/remote_avora
+
+      - name: Publish remote-avora
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
+        working-directory: packages/remote_avora
