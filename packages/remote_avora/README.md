@@ -23,8 +23,8 @@ The `remote-avora` command provides 2 subcommands:
 
 ## Documentation
 
-- [Installation](installation.md) — how to install `remote-avora` and start a server
-- [Usage](usage.md) — endpoints, configuration, and operational details
+- [Installation](https://avora-docx.github.io/Avora-Docx/remote_avora/installation/) — how to install `remote-avora` and start a server
+- [Usage](https://avora-docx.github.io/Avora-Docx/remote_avora/usage/) — endpoints, configuration, and operational details
 - [Avora Documentation](https://avora-docx.github.io/Avora-Docx/) — full project documentation
 
 ## License
