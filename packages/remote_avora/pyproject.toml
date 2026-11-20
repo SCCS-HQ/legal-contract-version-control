@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "remote-avora"
+version = "0.1.0.dev1"
+description = "Remote API for Self-Hosting of Avora"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+   "fastapi[standard]"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio"
+]
+
+[project.scripts]
+remote-avora = "remote_avora.remote_avora_entrypoint:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"

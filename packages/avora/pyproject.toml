@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "avora"
+version = "0.1.0.dev1"
+description = "Local Avora Version Control System"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mammoth",
+    "requests",
+    "beautifulsoup4",
+    "platformdirs",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio"
+]
+
+[project.scripts]
+avora = "avora.avora_entrypoint:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
