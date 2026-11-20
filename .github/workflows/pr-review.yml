@@ -28,7 +28,7 @@ jobs:
         run: |
           {
             echo 'PROMPT<<EOF'
-            cat PR_REVIEWER.md
+            cat docs/PR_REVIEWER.md
             echo 'EOF'
           } >> "$GITHUB_ENV"
 
