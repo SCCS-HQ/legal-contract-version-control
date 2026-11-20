@@ -29,7 +29,7 @@ The `avora` command provides 17 subcommands covering the full version-control li
 
 - [Installation](installation.md) — how to install `avora` and set up your environment
 - [Usage](usage.md) — command reference, examples, and workflows
-- [Avora Documentation](https://sccs-hq.github.io/legal-contract-version-control/) — full project documentation
+- [Avora Documentation](https://avora-docx.github.io/Avora-Docx/) — full project documentation
 
 ## License
 

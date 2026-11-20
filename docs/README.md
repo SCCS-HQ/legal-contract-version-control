@@ -88,7 +88,7 @@ Each initialized Avora repository contains a `.avora/` directory with:
 
 ## Documentation
 
-Full documentation is available at [Avora Documentation](https://sccs-hq.github.io/legal-contract-version-control/).
+Full documentation is available at [Avora Documentation](https://avora-docx.github.io/Avora-Docx/).
 
 ## Dependencies
 
