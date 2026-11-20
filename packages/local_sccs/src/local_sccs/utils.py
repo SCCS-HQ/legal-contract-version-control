@@ -1,4 +1,5 @@
 import contextlib
+import errno
 import hashlib
 import io
 import os
@@ -110,10 +111,18 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
         try:
             os.rename(src, dst)
         except OSError as e:
-            if e.errno == 18:
-                shutil.copytree(src, dst, dirs_exist_ok=True)
-                shutil.rmtree(src, ignore_errors=True)
-            else:
+            if e.errno != errno.EXDEV:
+                raise
+            tmp_dst = dst.with_name(dst.name + ".tmp")
+            try:
+                if tmp_dst.exists():
+                    shutil.rmtree(tmp_dst, ignore_errors=True)
+                shutil.copytree(src, tmp_dst)
+                os.rename(tmp_dst, dst)
+                shutil.rmtree(src)
+            except Exception:
+                if tmp_dst.exists():
+                    shutil.rmtree(tmp_dst, ignore_errors=True)
                 raise
 
     if not final_root.exists():
@@ -128,6 +137,8 @@ def promote_staging(c: SCCSConstants, staging_root: Path, final_root: Path) -> N
     try:
         _rename_or_copy(staging_root, final_root)
     except Exception:
+        if final_root.exists():
+            shutil.rmtree(final_root, ignore_errors=True)
         _rename_or_copy(old_root, final_root)
         raise
 
