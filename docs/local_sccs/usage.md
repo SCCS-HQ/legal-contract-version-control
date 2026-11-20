@@ -6,7 +6,7 @@ All commands are run from within an SCCS repository directory (the directory cre
 
 ### `sccs init <document_path>`
 
-Initialize a new SCCS repository from a `.docx` file. The original document is copied into the repository and the first commit is created automatically. You will be prompted for your name and email.
+Initialize a new SCCS repository from a `.docx` file. The original document is copied into the repository and the first commit is created automatically with the message "Initial commit (This is a default commit message for the initial version)". You will be prompted for your name and email.
 
 ```bash
 sccs init contract.docx
@@ -62,7 +62,7 @@ sccs log
 
 ### `sccs diff <commit_identifier>`
 
-Show differences between the current document and a past commit. The diff is rendered as HTML and opened in a browser. Accepts a 10-character short identifier or a full 64-character hash.
+Show differences between the current document and a past commit. The diff is rendered as HTML and written to `diff.html` in the repository root. Accepts a 10-character short identifier or a full 64-character hash.
 
 ```bash
 sccs diff a1b2c3d4e5
@@ -106,9 +106,9 @@ Configure repository settings. Accepted keys:
 
 | Key | Description |
 |-----|-------------|
-| `remote` | The base URL of the remote SCCS server |
-| `name` | The author name for commits |
-| `email` | The author email for commits |
+| `remote` | The base URL of the remote SCCS server (stored per-repository) |
+| `name` | The author name for commits (stored globally in `~/.config/local_sccs/config.json`) |
+| `email` | The author email for commits (stored globally in `~/.config/local_sccs/config.json`) |
 
 ```bash
 sccs config name "Jane Doe"
@@ -116,11 +116,11 @@ sccs config email "jane@example.com"
 sccs config remote "http://192.168.1.10"
 ```
 
-The remote URL must use `http` or `https` and will be automatically appended with `/repos/<repository-name>/`.
+The remote URL must use `http` or `https` and will be automatically appended with `/repos/<repository-name>/`. The `name` and `email` values are stored globally and shared across all repositories.
 
 ### `sccs clone <url>`
 
-Clone a hosted SCCS repository. The URL must end with `/repos/<repository-name>/clone`.
+Clone a hosted SCCS repository. The URL must end with `/clone` (e.g., `http://host:8000/repos/<repository-name>/clone`).
 
 ```bash
 sccs clone http://192.168.1.10/repos/my-repo/clone
@@ -136,7 +136,7 @@ sccs push
 
 ### `sccs pull`
 
-Pull changes from the configured remote repository and merge them into the local repository.
+Pull changes from the configured remote repository and merge them into the local repository. Fails if there are uncommitted changes in the working tree.
 
 ```bash
 sccs pull
@@ -166,22 +166,21 @@ sccs help
 
 ## Commit Identifiers
 
-Commit identifiers are SHA-256 hashes derived from the commit timestamp, message, and author. Two forms are accepted:
+Commit identifiers are SHA-256 hashes derived from the program start timestamp, commit message, and author. Two forms are accepted:
 
 - **Short** — the first 10 characters, sufficient for most commands
 - **Full** — the complete 64-character hash, required when short identifiers are ambiguous
+
+Note: The timestamp component is the program start time (when the `sccs` command was invoked), not the individual commit time.
 
 ## Repository Layout
 
 Each SCCS repository contains a `.sccs/` directory:
 
 - `metadata.json` — branch information, current branch, and commit order
-- `config.json` — repository configuration (remote URL, author name/email)
-- `branches/` — one commit file per branch
 - `objects/docx/` — stored document versions keyed by commit identifier
 - `objects/html/` — HTML versions for diffing
 - `objects/view_html/` — standalone HTML pages for viewing commits
-- `history/` — per-branch commit logs
 
 ## Workflow Example
 
@@ -221,4 +220,4 @@ sccs push
 |------|---------|
 | 0 | Success |
 | 1 | Expected error (invalid command, missing file, etc.) |
-| 2 | Unexpected error (only when running without `--debug`) |
+| 2 | Unexpected error (also occurs without `--debug`) |

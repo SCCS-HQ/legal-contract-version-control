@@ -82,10 +82,9 @@ sccs clone http://<server-ip>/repos/my-repo/clone
 Each initialized SCCS repository contains a `.sccs/` directory with:
 
 - `metadata.json` — branch information, current branch, and commit order
-- `config.json` — repository configuration (remote URL, author name/email)
-- `branches/` — one commit file per branch
-- `objects/` — stored document versions keyed by byte hash
-- `history/` — per-branch commit logs
+- `objects/docx/` — stored document versions keyed by commit identifier
+- `objects/html/` — HTML versions for diffing
+- `objects/view_html/` — standalone HTML pages for viewing commits
 
 ## Documentation
 

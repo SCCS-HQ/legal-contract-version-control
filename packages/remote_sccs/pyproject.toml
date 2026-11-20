@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-remote-sccs = "remote_sccs.remote_sccs:main"
+remote-sccs = "remote_sccs.remote_sccs_entrypoint:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

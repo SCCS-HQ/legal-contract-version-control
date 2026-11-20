@@ -81,10 +81,6 @@ Repository names must match the pattern `^[A-Za-z0-9._-]+$` and cannot be `.` or
 | Max total upload size | 100 MB |
 | Max individual file size | 10 MB |
 
-## Server Configuration
-
-The server uses sensible defaults. To customize, edit `packages/remote_sccs/src/remote_sccs/constants_classes.py`:
-
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `REPOSITORIES_BASE_DIRECTORY` | `./repos` | Directory where repositories are stored |
