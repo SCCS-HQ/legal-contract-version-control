@@ -410,20 +410,20 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
 
     repository_path = repository_directory(rc, repository_name)
 
+    if (
+        not isinstance(data, dict)
+        or rc.OBJECTS_DICT_KEY not in data
+        or not isinstance(data[rc.OBJECTS_DICT_KEY], list)
+        or not all(isinstance(i, str) for i in data[rc.OBJECTS_DICT_KEY])
+        or not data[rc.OBJECTS_DICT_KEY]
+    ):
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.INVALID_JSON_ERROR_MESSAGE,
+        )
+
     with repository_lock(rc, repository_path):
         ensure_repository_exists(rc, repository_path)
-
-        if (
-            not isinstance(data, dict)
-            or rc.OBJECTS_DICT_KEY not in data
-            or not isinstance(data[rc.OBJECTS_DICT_KEY], list)
-            or not all(isinstance(i, str) for i in data[rc.OBJECTS_DICT_KEY])
-            or not data[rc.OBJECTS_DICT_KEY]
-        ):
-            raise HTTPException(
-                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                detail=rc.INVALID_JSON_ERROR_MESSAGE,
-            )
 
         local_objects = set(data[rc.OBJECTS_DICT_KEY])
 

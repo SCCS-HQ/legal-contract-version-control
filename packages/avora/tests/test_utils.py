@@ -448,6 +448,110 @@ def test_promote_staging_cross_device_cleans_preexisting_tmp_dst(
         assert f.read() == tc.TEST_STRING
 
 
+def test_promote_staging_quarantine_swallows_when_rmtree_and_rename_fail(
+    tmp_path: Path,
+    c: AvoraConstants,
+    tc: AvoraTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """_quarantine swallows exceptions when both rmtree and rename fail (lines 114-119)."""
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    staging_root.mkdir()
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    monkeypatch.setattr(
+        os,
+        tc.RENAME_FUNCTION_NAME,
+        _make_rename_that_raises_exdev_for_source(os.rename, staging_root),
+    )
+
+    original_rmtree = shutil.rmtree
+
+    def failing_rmtree(path: Any, *args: Any, **kwargs: Any) -> None:
+        if Path(path) == staging_root:
+            raise OSError(errno.EIO, "input/output error")
+        original_rmtree(path, *args, **kwargs)
+
+    monkeypatch.setattr(shutil, "rmtree", failing_rmtree)
+
+    utils.promote_staging(c, staging_root, final_root)
+
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME,
+        "r",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        assert f.read() == tc.TEST_STRING
+
+
+def test_promote_staging_raises_rollback_failed_when_rmtree_of_final_root_fails(
+    tmp_path: Path,
+    c: AvoraConstants,
+    tc: AvoraTestConstants,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Rollback raises AvoraException when rmtree of final_root fails (lines 157-158)."""
+
+    final_root = tmp_path / tc.TEST_FINAL_ROOT
+    staging_root = tmp_path / tc.TEST_STAGING_ROOT
+
+    final_root.mkdir()
+    staging_root.mkdir()
+    with open(
+        final_root / tc.TEST_TEXT_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        f.write(tc.SECOND_TEST_STRING)
+    with open(
+        staging_root / tc.TEST_TEXT_FILENAME,
+        "w",
+        encoding=tc.UTF_8,
+        newline=tc.NEWLINE,
+    ) as f:
+        f.write(tc.TEST_STRING)
+
+    real_rename = os.rename
+    real_copytree = shutil.copytree
+    real_rmtree = shutil.rmtree
+
+    def failing_rename(src: Any, dst: Any) -> None:
+        if Path(src) in (final_root, staging_root):
+            raise OSError(errno.EXDEV, "cross-device link")
+        real_rename(src, dst)
+
+    def failing_copytree(src: Any, dst: Any, **kwargs: Any) -> None:
+        if Path(src) == staging_root:
+            raise OSError(errno.EIO, "input/output error")
+        real_copytree(src, dst, **kwargs)
+
+    def failing_rmtree(path: Any, *args: Any, **kwargs: Any) -> None:
+        if Path(path) == final_root:
+            raise OSError(errno.EIO, "input/output error")
+        real_rmtree(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, tc.RENAME_FUNCTION_NAME, failing_rename)
+    monkeypatch.setattr(shutil, "copytree", failing_copytree)
+    monkeypatch.setattr(shutil, "rmtree", failing_rmtree)
+
+    with pytest.raises(AvoraException) as e:
+        utils.promote_staging(c, staging_root, final_root)
+    assert str(e.value) == c.ROLLBACK_FAILED_ERROR_MESSAGE.format(
+        repository_name=final_root.name
+    )
+
+
 def test_raise_if_empty_raises_if_value_is_empty(
     c: AvoraConstants, tc: AvoraTestConstants
 ) -> None:

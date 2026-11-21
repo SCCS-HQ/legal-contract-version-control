@@ -280,6 +280,7 @@ class RepositoryIO:
         partially written document to this reader.
         """
 
+        data = {}
         with self.paths.lock:
             with open(
                 self.paths.metadata_path(),
@@ -288,7 +289,7 @@ class RepositoryIO:
                 newline=self.c.NEWLINE,
             ) as f:
                 data = json.load(f)
-        return data  # pyright: ignore[reportPossiblyUnboundVariable]
+        return data
 
     def _write_metadata_json(self, data: dict[str, Any]) -> None:
         """
