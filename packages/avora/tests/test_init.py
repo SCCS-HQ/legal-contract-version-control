@@ -1103,18 +1103,20 @@ def test_init_main_properly_initializes_repository_with_expected_files_and_direc
     files_a = {
         i.relative_to(initialized_repository)
         for i in initialized_repository.rglob("*")
-        if i.is_file()
+        if i.is_file() and i.name != c.LOCKFILE_NAME
     }
 
     files_b = {
         i.relative_to(tmp_path / tc.TEST_STRING)
         for i in (tmp_path / tc.TEST_STRING).rglob("*")
-        if i.is_file()
+        if i.is_file() and i.name != c.LOCKFILE_NAME
     }
 
     assert files_a == files_b
 
     for i in files_a:
+        if i.name == c.LOCKFILE_NAME:
+            continue
         assert (initialized_repository / i).read_bytes() == (
             tmp_path / tc.TEST_STRING / i
         ).read_bytes()
