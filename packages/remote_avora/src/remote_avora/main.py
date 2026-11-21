@@ -236,9 +236,9 @@ async def clone(repository_name: str) -> StreamingResponse:
     """Return a zipped version of a requested repository"""
 
     repository_path = repository_directory(rc, repository_name)
-    ensure_repository_exists(rc, repository_path)
 
     with repository_lock(rc, repository_path):
+        ensure_repository_exists(rc, repository_path)
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
             for root, dirs, files in os.walk(repository_path):
@@ -291,9 +291,9 @@ async def push(repository_name: str) -> dict:
     """
 
     repository_path = repository_directory(rc, repository_name)
-    ensure_repository_exists(rc, repository_path)
 
     with repository_lock(rc, repository_path):
+        ensure_repository_exists(rc, repository_path)
         objects_directory = (
             repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
         ).resolve()
@@ -326,7 +326,6 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
     """
 
     repository_path = repository_directory(rc, repository_name)
-    ensure_repository_exists(rc, repository_path)
 
     if not file.filename or Path(file.filename).stem != repository_name:
         raise HTTPException(
@@ -335,6 +334,7 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
         )
 
     with repository_lock(rc, repository_path):
+        ensure_repository_exists(rc, repository_path)
         staging_root = Path(
             tempfile.mkdtemp(
                 prefix=rc.TEMPORARY_DIRECTORY_PREFIX, dir=repository_path.parent
@@ -409,7 +409,6 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
     """
 
     repository_path = repository_directory(rc, repository_name)
-    ensure_repository_exists(rc, repository_path)
 
     if (
         not isinstance(data, dict)
@@ -424,6 +423,7 @@ async def pull(repository_name: str, data: dict) -> StreamingResponse:
         )
 
     with repository_lock(rc, repository_path):
+        ensure_repository_exists(rc, repository_path)
         local_objects = set(data[rc.OBJECTS_DICT_KEY])
 
         objects_paths = (

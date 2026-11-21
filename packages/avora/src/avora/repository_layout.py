@@ -14,6 +14,7 @@ from avora import utils
 from avora.constants_classes import AvoraConstants
 from avora.exceptions import AvoraException
 from filelock import FileLock
+from typing import Self
 
 
 class TargetBranch:
@@ -279,7 +280,7 @@ class RepositoryIO:
         and rewrite the file mid-read, which would otherwise expose a torn or
         partially written document to this reader.
         """
-
+        
         with self.paths.lock:
             with open(
                 self.paths.metadata_path(),
@@ -287,7 +288,8 @@ class RepositoryIO:
                 encoding=self.c.UTF_8,
                 newline=self.c.NEWLINE,
             ) as f:
-                return json.load(f)
+                data = json.load(f)
+        return data # pyright: ignore[reportPossiblyUnboundVariable]
 
     def _write_metadata_json(self, data: dict[str, Any]) -> None:
         """
@@ -718,6 +720,26 @@ class RepositoryIO:
         self._write_metadata_json(data)
 
 
+class _ReentrantFileLock:
+    """A process-local reentrant wrapper around a FileLock."""
+
+    def __init__(self, paths, file_lock) -> None:
+        self._paths = paths
+        self._file_lock = file_lock
+
+    def __enter__(self) -> Self:
+        if self._paths._lock_depth == 0:
+            self._file_lock.acquire()
+        self._paths._lock_depth += 1
+        return self
+
+    def __exit__(self, *exc) -> bool:
+        self._paths._lock_depth -= 1
+        if self._paths._lock_depth == 0:
+            self._file_lock.release()
+        return False
+
+
 class RepositoryPaths:
     """
     A class to resolve the paths of the files and directories within a repository.
@@ -732,7 +754,10 @@ class RepositoryPaths:
         self.root = root
         self.repository_name = repository_name
         self.c = c
-        self.lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
+        self.avora_path().mkdir(parents=True, exist_ok=True)
+        self._lock_depth = 0
+        self._file_lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
+        self.lock = _ReentrantFileLock(self, self._file_lock)
         self.global_config_lock = FileLock(
             platformdirs.user_config_path(appname=self.c.LOCAL_AVORA, appauthor=False)
             / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
