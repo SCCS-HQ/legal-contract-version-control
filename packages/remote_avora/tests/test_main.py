@@ -770,8 +770,12 @@ async def test_clone_raises_if_repository_name_is_outside_base_directory(
 @pytest.mark.asyncio
 async def test_clone_raises_if_repository_does_not_exist(
     tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify ``clone`` raises for missing repositories."""
+
+    monkeypatch.chdir(tmp_path)
 
     with pytest.raises(HTTPException) as e:
         await main.clone(tc.VALID_REPOSITORY_NAME)
@@ -924,8 +928,12 @@ async def test_push_raises_is_repository_name_is_outside_base_directory(
 @pytest.mark.asyncio
 async def test_push_raises_if_repository_does_not_exist(
     tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify ``push`` raises for missing repositories."""
+
+    monkeypatch.chdir(tmp_path)
 
     with pytest.raises(HTTPException) as e:
         await main.push(tc.VALID_REPOSITORY_NAME)
@@ -1013,8 +1021,12 @@ async def test_push_upload_raises_if_repository_path_is_outside_base_directory(
 @pytest.mark.asyncio
 async def test_push_upload_raises_if_repository_does_not_exist(
     tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify ``push_upload`` raises for missing repositories."""
+
+    monkeypatch.chdir(tmp_path)
 
     with pytest.raises(HTTPException) as e:
         await main.push_upload(
@@ -1393,11 +1405,15 @@ async def test_pull_raises_if_repository_name_is_outside_base_directory(
 @pytest.mark.asyncio
 async def test_pull_raises_if_repository_does_not_exist(
     tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Verify ``pull`` raises for missing repositories."""
 
+    monkeypatch.chdir(tmp_path)
+
     with pytest.raises(HTTPException) as e:
-        await main.pull(tc.VALID_REPOSITORY_NAME, {})
+        await main.pull(tc.VALID_REPOSITORY_NAME, {"test": "test"})
 
     assert e.value.status_code == tc.STATUS_CODE_404
     assert e.value.detail == tc.REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE.format(
