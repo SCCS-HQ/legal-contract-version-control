@@ -722,11 +722,13 @@ class RepositoryIO:
 class _ReentrantFileLock:
     """A process-local reentrant wrapper around a FileLock."""
 
-    def __init__(self, paths, file_lock) -> None:
+    def __init__(self, paths, file_lock, avora_path) -> None:
         self._paths = paths
         self._file_lock = file_lock
+        self._avora_path = avora_path
 
     def __enter__(self) -> Self:
+        self._avora_path.mkdir(parents=True, exist_ok=True)
         if self._paths._lock_depth == 0:
             self._file_lock.acquire()
         self._paths._lock_depth += 1
@@ -753,10 +755,9 @@ class RepositoryPaths:
         self.root = root
         self.repository_name = repository_name
         self.c = c
-        self.avora_path().mkdir(parents=True, exist_ok=True)
         self._lock_depth = 0
         self._file_lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
-        self.lock = _ReentrantFileLock(self, self._file_lock)
+        self.lock = _ReentrantFileLock(self, self._file_lock, self.avora_path())
         self.global_config_lock = FileLock(
             platformdirs.user_config_path(appname=self.c.LOCAL_AVORA, appauthor=False)
             / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
