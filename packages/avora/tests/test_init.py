@@ -104,9 +104,9 @@ def test_get_config_key_returns_value_from_config_file(
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_document_read_fails(
-    c: AvoraConstants, tc: AvoraTestConstants
+    c: AvoraConstants, tc: AvoraTestConstants, tmp_path: Path
 ) -> None:
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     document_path = (
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
@@ -121,9 +121,9 @@ def test_copy_document_to_objects_as_document_and_html_raises_document_read_fail
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_if_copy_fails(
-    c: AvoraConstants, tc: AvoraTestConstants
+    c: AvoraConstants, tc: AvoraTestConstants, tmp_path: Path
 ) -> None:
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     document_path = (
         Path(__file__).parent / tc.TEST_DOCUMENTS_DIRECTORY / tc.TEST_DOCUMENT_FILENAME
@@ -138,9 +138,9 @@ def test_copy_document_to_objects_as_document_and_html_raises_if_copy_fails(
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_if_html_write_fails(
-    c: AvoraConstants, tc: AvoraTestConstants
+    c: AvoraConstants, tc: AvoraTestConstants, tmp_path: Path
 ) -> None:
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     with mock.patch("builtins.open", side_effect=[tc.TEST_STRING, Exception]):
         with pytest.raises(AvoraException) as e:
@@ -151,9 +151,9 @@ def test_copy_document_to_objects_as_document_and_html_raises_if_html_write_fail
 
 
 def test_copy_document_to_objects_as_document_and_html_raises_if_view_html_write_fails(
-    c: AvoraConstants, tc: AvoraTestConstants
+    c: AvoraConstants, tc: AvoraTestConstants, tmp_path: Path
 ) -> None:
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     with mock.patch(
         "builtins.open", side_effect=[tc.TEST_STRING, tc.TEST_STRING, Exception]
@@ -546,8 +546,9 @@ def test_write_starting_metadata_raises_if_write_to_commit_metadata_fails(
     monkeypatch: pytest.MonkeyPatch,
     raise_exception: FunctionType,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    ri = RepositoryIO(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    ri = RepositoryIO(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     monkeypatch.setattr(
         ri, "document_html_byte_hash", lambda *args, **kwargs: tc.TEST_STRING

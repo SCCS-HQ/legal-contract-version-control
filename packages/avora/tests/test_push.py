@@ -93,10 +93,9 @@ def test_compare_commit_identifier_lists_returns_objects_to_upload(
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     local_objects = ["a", "b", "c"]
     remote_objects = ["a", "b"]
@@ -115,10 +114,9 @@ def test_compare_commit_identifier_lists_raises_exception_if_local_objects_is_mi
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     local_objects = ["a", "b"]
     remote_objects = ["a", "b", "c"]
@@ -138,10 +136,9 @@ def test_fetch_remote_objects_returns_response(
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     response = requests.Response()
     response.status_code = 200
@@ -161,10 +158,9 @@ def test_fetch_remote_objects_raises_exception_on_request_failure(
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
     raise_exception: FunctionType,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
 
     monkeypatch.setattr(requests, "get", lambda *args, **kwargs: raise_exception())
     monkeypatch.setattr(
@@ -182,11 +178,10 @@ def test_upload_objects_makes_post_request_of_buffer_to_remote_repository(
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     monkeypatch.setattr(
         RepositoryData,
@@ -209,11 +204,10 @@ def test_upload_objects_raises_exception_on_request_failure(
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
     raise_exception: FunctionType,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     monkeypatch.setattr(
         RepositoryData,
@@ -237,11 +231,10 @@ def test_upload_objects_raises_exception_if_remote_has_invalid_ending(
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     monkeypatch.setattr(
         RepositoryData, "base_repository_url", lambda *args, **kwargs: tc.TEST_STRING
@@ -261,11 +254,10 @@ def test_upload_objects_returns_response_on_success(
     tc: AvoraTestConstants,
     monkeypatch: pytest.MonkeyPatch,
     target: TargetBranch,
+    tmp_path: Path,
 ) -> None:
-    rd = RepositoryData(
-        Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target
-    )
-    rp = RepositoryPaths(Path(tc.TEST_STRING), tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
+    rd = RepositoryData(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c, target)
+    rp = RepositoryPaths(tmp_path, tc.TEST_DOCUMENT_REPOSITORY_NAME, c)
 
     response = requests.Response()
     response.status_code = 200

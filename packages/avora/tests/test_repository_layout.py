@@ -1222,8 +1222,9 @@ def test_repository_io_write_metadata_writes_repository_metadata(
 def test_repository_paths_document_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1236,8 +1237,9 @@ def test_repository_paths_document_objects_path_returns_correct_path(
 def test_repository_paths_document_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1250,8 +1252,9 @@ def test_repository_paths_document_path_returns_correct_path(
 def test_repository_paths_html_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1264,8 +1267,9 @@ def test_repository_paths_html_objects_path_returns_correct_path(
 def test_repository_paths_metadata_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1278,8 +1282,9 @@ def test_repository_paths_metadata_path_returns_correct_path(
 def test_repository_paths_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1292,8 +1297,9 @@ def test_repository_paths_objects_path_returns_correct_path(
 def test_repository_paths_avora_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
@@ -1306,8 +1312,9 @@ def test_repository_paths_avora_path_returns_correct_path(
 def test_repository_paths_view_html_objects_path_returns_correct_path(
     c: AvoraConstants,
     tc: AvoraTestConstants,
+    tmp_path: Path,
 ) -> None:
-    root = Path(tc.TEST_STRING)
+    root = tmp_path
     repository_name = tc.TEST_STRING
 
     rp = RepositoryPaths(root, repository_name, c)
