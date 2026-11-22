@@ -337,7 +337,6 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
 
 def _pull(rc, repository_name, data):
-    repository_path = repository_directory(rc, repository_name)
     if (
         not isinstance(data, dict)
         or rc.OBJECTS_DICT_KEY not in data
