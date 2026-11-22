@@ -189,37 +189,36 @@ async def publish(
 
 def _clone(rc, repository_name):
     repository_path = repository_directory(rc, repository_name)
-    with repository_lock(rc, repository_path):
-        ensure_repository_exists(rc, repository_path)
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for root, dirs, files in os.walk(repository_path):
-                for i in files:
-                    file_path = Path(root) / i
-                    zf.write(
-                        filename=file_path,
-                        arcname=file_path.relative_to(repository_path),
-                    )
-            if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
+    ensure_repository_exists(rc, repository_path)
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(repository_path):
+            for i in files:
+                file_path = Path(root) / i
+                zf.write(
+                    filename=file_path,
+                    arcname=file_path.relative_to(repository_path),
+                )
+        if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.TOO_MANY_FILES_ERROR_MESSAGE,
+            )
+        if sum(i.file_size for i in zf.infolist()) > rc.MAX_TOTAL_UPLOAD_SIZE:
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+            )
+        for i in zf.infolist():
+            if i.file_size > rc.MAX_INDIVIDUAL_FILE_SIZE:
                 raise HTTPException(
                     status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                    detail=rc.TOO_MANY_FILES_ERROR_MESSAGE,
+                    detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
+                        filename=i.filename
+                    ),
                 )
-            if sum(i.file_size for i in zf.infolist()) > rc.MAX_TOTAL_UPLOAD_SIZE:
-                raise HTTPException(
-                    status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                    detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
-                )
-            for i in zf.infolist():
-                if i.file_size > rc.MAX_INDIVIDUAL_FILE_SIZE:
-                    raise HTTPException(
-                        status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                        detail=rc.FILE_TOO_LARGE_ERROR_MESSAGE_TEMPLATE.format(
-                            filename=i.filename
-                        ),
-                    )
-        buffer.seek(rc.FILE_START_POSITION)
-        return buffer.getvalue(), repository_name
+    buffer.seek(rc.FILE_START_POSITION)
+    return buffer.getvalue(), repository_name
 
 
 @app.get(rc.CLONE_ENDPOINT_TEMPLATE)
@@ -239,23 +238,22 @@ async def clone(repository_name: str) -> StreamingResponse:
 
 def _push_get(rc, repository_name):
     repository_path = repository_directory(rc, repository_name)
-    with repository_lock(rc, repository_path):
-        ensure_repository_exists(rc, repository_path)
-        objects_directory = (
-            repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
-        ).resolve()
-        if not objects_directory.exists() or not objects_directory.is_dir():
-            raise HTTPException(
-                status_code=rc.HTTP_NOT_FOUND_STATUS_CODE,
-                detail=rc.OBJECTS_NOT_FOUND_ERROR_MESSAGE,
-            )
-        return {
-            rc.OBJECTS_DICT_KEY: {
-                i.stem
-                for i in objects_directory.rglob(rc.RGLOB_ALL_FILES_PATTERN)
-                if i.is_file()
-            }
+    ensure_repository_exists(rc, repository_path)
+    objects_directory = (
+        repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
+    ).resolve()
+    if not objects_directory.exists() or not objects_directory.is_dir():
+        raise HTTPException(
+            status_code=rc.HTTP_NOT_FOUND_STATUS_CODE,
+            detail=rc.OBJECTS_NOT_FOUND_ERROR_MESSAGE,
+        )
+    return {
+        rc.OBJECTS_DICT_KEY: {
+            i.stem
+            for i in objects_directory.rglob(rc.RGLOB_ALL_FILES_PATTERN)
+            if i.is_file()
         }
+    }
 
 
 @app.get(rc.PUSH_ENDPOINT_TEMPLATE)
@@ -320,8 +318,16 @@ def _push_upload(rc, repository_name, file_bytes, filename):
             try:
                 os.replace(staging_root, repository_path)
             except Exception:
-                os.replace(old_root, repository_path)
-            shutil.rmtree(old_root)
+                try:
+                    os.replace(old_root, repository_path)
+                except Exception:
+                    raise HTTPException(
+                        status_code=rc.HTTP_INTERNAL_SERVER_ERROR_STATUS_CODE,
+                        detail=rc.REPOSITORY_RESTORE_FAILED_ERROR_MESSAGE,
+                    )
+                raise
+            else:
+                shutil.rmtree(old_root, ignore_errors=True)
         except Exception:
             shutil.rmtree(staging_root, ignore_errors=True)
             raise
@@ -337,6 +343,8 @@ async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dic
 
 
 def _pull(rc, repository_name, data):
+    repository_path = repository_directory(rc, repository_name)
+    ensure_repository_exists(rc, repository_path)
     if (
         not isinstance(data, dict)
         or rc.OBJECTS_DICT_KEY not in data
@@ -348,56 +356,53 @@ def _pull(rc, repository_name, data):
             status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
             detail=rc.INVALID_JSON_ERROR_MESSAGE,
         )
-    repository_path = repository_directory(rc, repository_name)
-    with repository_lock(rc, repository_path):
-        ensure_repository_exists(rc, repository_path)
-        local_objects = set(data[rc.OBJECTS_DICT_KEY])
-        objects_paths = (
-            repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
-        ).resolve()
-        try:
-            objects_paths.relative_to(repository_path)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
-            ) from e
-        remote_objects = {
-            i.stem
+    local_objects = set(data[rc.OBJECTS_DICT_KEY])
+    objects_paths = (
+        repository_path / rc.AVORA_DIRECTORY / rc.OBJECTS_DIRECTORY
+    ).resolve()
+    try:
+        objects_paths.relative_to(repository_path)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
+        ) from e
+    remote_objects = {
+        i.stem
+        for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN)
+        if i.is_file()
+    }
+    if local_objects - remote_objects:
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
+        )
+    branches_path = (
+        repository_path / rc.AVORA_DIRECTORY / rc.BRANCHES_DIRECTORY
+    ).resolve()
+    try:
+        branches_path.relative_to(repository_path)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
+        ) from e
+    files_to_upload = [
+        i
+        for i in [
+            i.resolve()
             for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN)
-            if i.is_file()
-        }
-        if local_objects - remote_objects:
-            raise HTTPException(
-                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                detail=rc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE,
-            )
-        branches_path = (
-            repository_path / rc.AVORA_DIRECTORY / rc.BRANCHES_DIRECTORY
-        ).resolve()
-        try:
-            branches_path.relative_to(repository_path)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
-                detail=rc.INVALID_REPOSITORY_NAME_ERROR_MESSAGE,
-            ) from e
-        files_to_upload = [
-            i
-            for i in [
-                i.resolve()
-                for i in objects_paths.rglob(rc.RGLOB_ALL_FILES_PATTERN)
-                if i.is_file() and i.stem in remote_objects - local_objects
-            ]
-            + [(repository_path / rc.AVORA_DIRECTORY / rc.METADATA_JSON).resolve()]
-            if i.is_file()
+            if i.is_file() and i.stem in remote_objects - local_objects
         ]
-        buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-            for i in files_to_upload:
-                zf.write(filename=i, arcname=i.relative_to(repository_path))
-        buffer.seek(rc.FILE_START_POSITION)
-        return buffer.getvalue(), repository_name
+        + [(repository_path / rc.AVORA_DIRECTORY / rc.METADATA_JSON).resolve()]
+        if i.is_file()
+    ]
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for i in files_to_upload:
+            zf.write(filename=i, arcname=i.relative_to(repository_path))
+    buffer.seek(rc.FILE_START_POSITION)
+    return buffer.getvalue(), repository_name
 
 
 @app.post(rc.PULL_ENDPOINT_TEMPLATE)

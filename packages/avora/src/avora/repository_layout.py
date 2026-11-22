@@ -313,9 +313,10 @@ class RepositoryIO:
         """
 
         name = Path(commit_identifier).with_suffix(self.c.DOCUMENT_EXTENSION)
-        shutil.copy2(
-            self.paths.document_path(), self.paths.document_objects_path() / name
-        )
+        with self.paths.lock:
+            shutil.copy2(
+                self.paths.document_path(), self.paths.document_objects_path() / name
+            )
 
     def document_html(self) -> str:
         """
@@ -676,7 +677,6 @@ class RepositoryIO:
             ) as f:
                 f.write(self.c.DEFAULT_HTML_STYLES + html)
 
-        with self.paths.lock:
             with open(
                 self.paths.view_html_objects_path() / name,
                 "w",
@@ -723,21 +723,22 @@ class RepositoryIO:
 class _ReentrantFileLock:
     """A process-local reentrant wrapper around a FileLock."""
 
-    def __init__(self, paths, file_lock, avora_path) -> None:
-        self._paths = paths
+    def __init__(self, file_lock, mkdir_path=None) -> None:
         self._file_lock = file_lock
-        self._avora_path = avora_path
+        self._mkdir_path = mkdir_path
+        self._depth = 0
 
     def __enter__(self) -> Self:
-        self._avora_path.mkdir(parents=True, exist_ok=True)
-        if self._paths._lock_depth == 0:
+        if self._mkdir_path is not None:
+            self._mkdir_path.mkdir(parents=True, exist_ok=True)
+        if self._depth == 0:
             self._file_lock.acquire()
-        self._paths._lock_depth += 1
+        self._depth += 1
         return self
 
     def __exit__(self, *exc) -> bool:
-        self._paths._lock_depth -= 1
-        if self._paths._lock_depth == 0:
+        self._depth -= 1
+        if self._depth == 0:
             self._file_lock.release()
         return False
 
@@ -758,10 +759,15 @@ class RepositoryPaths:
         self.c = c
         self._lock_depth = 0
         self._file_lock = FileLock(self.avora_path() / self.c.LOCKFILE_NAME)
-        self.lock = _ReentrantFileLock(self, self._file_lock, self.avora_path())
-        self.global_config_lock = FileLock(
-            platformdirs.user_config_path(appname=self.c.LOCAL_AVORA, appauthor=False)
-            / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
+        self.lock = _ReentrantFileLock(self._file_lock, self.avora_path())
+        _global_config_dir = platformdirs.user_config_path(
+            appname=self.c.LOCAL_AVORA, appauthor=False
+        )
+        self._global_config_file_lock = FileLock(
+            _global_config_dir / self.c.GLOBAL_CONFIG_LOCKFILE_NAME
+        )
+        self.global_config_lock = _ReentrantFileLock(
+            self._global_config_file_lock, _global_config_dir
         )
 
     def document_objects_path(self) -> Path:

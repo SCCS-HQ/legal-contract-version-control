@@ -81,7 +81,6 @@ def copy_document_to_objects_as_document_and_html(
             ) as f:
                 f.write(c.DEFAULT_HTML_STYLES + result)
 
-        with rp.lock:
             with open(
                 (rp.view_html_objects_path() / commit_identifier).with_suffix(
                     c.HTML_EXTENSION
