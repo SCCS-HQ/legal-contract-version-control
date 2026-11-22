@@ -4,6 +4,7 @@ import io
 import json
 import os
 import shutil
+import threading
 import zipfile
 from pathlib import Path
 from types import FunctionType
@@ -1627,3 +1628,129 @@ async def test_pull_raises_if_remote_is_missing_commits_from_local_repository(
 
     assert e.value.status_code == tc.STATUS_CODE_400
     assert e.value.detail == tc.LOCAL_UNKNOWN_OBJECTS_ERROR_MESSAGE
+
+
+def test_repository_lock_creates_per_repository_lock_file(
+    rc: RemoteAvoraConstants,
+    tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify ``repository_lock`` creates a per-repository lock file under .remote_avora."""
+
+    monkeypatch.chdir(tmp_path)
+    base_directory = tmp_path / tc.REPOSITORIES_BASE_DIRECTORY
+    base_directory.mkdir(parents=True)
+    repository_path = base_directory / tc.VALID_REPOSITORY_NAME
+    repository_path.mkdir(parents=True)
+
+    lock_directory = base_directory / rc.LOCKS_DIRECTORY_NAME
+    lock_file = lock_directory / (tc.VALID_REPOSITORY_NAME + rc.LOCKFILE_NAME)
+
+    assert not lock_directory.exists()
+    assert not lock_file.exists()
+
+    with main.repository_lock(rc, repository_path):
+        assert lock_directory.is_dir()
+        assert lock_file.exists()
+
+    assert lock_file.exists()
+
+
+def test_repository_lock_blocks_second_concurrent_holder(
+    rc: RemoteAvoraConstants,
+    tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify ``repository_lock`` serializes concurrent holders for the same repository."""
+
+    monkeypatch.chdir(tmp_path)
+    base_directory = tmp_path / tc.REPOSITORIES_BASE_DIRECTORY
+    base_directory.mkdir(parents=True)
+    repository_path = base_directory / tc.VALID_REPOSITORY_NAME
+    repository_path.mkdir(parents=True)
+
+    lock_directory = base_directory / rc.LOCKS_DIRECTORY_NAME
+    lock_directory.mkdir(parents=True, exist_ok=True)
+
+    mutex = threading.Lock()
+    first_entered = threading.Event()
+    first_released = threading.Event()
+    second_entered = threading.Event()
+    errors: list[Exception] = []
+
+    class FakeFileLock:
+        def __init__(self, path, timeout=-1):
+            self.path = path
+
+        def acquire(self, *args, **kwargs):
+            mutex.acquire()
+            first_entered.set()
+
+        def release(self, *args, **kwargs):
+            mutex.release()
+            first_released.set()
+
+        def __enter__(self):
+            self.acquire()
+            return self
+
+        def __exit__(self, *args):
+            self.release()
+            return False
+
+    monkeypatch.setattr(main, "FileLock", FakeFileLock)
+
+    def first_holder() -> None:
+        try:
+            with main.repository_lock(rc, repository_path):
+                first_released.wait(timeout=5)
+        except Exception as exc:
+            errors.append(exc)
+
+    def second_holder() -> None:
+        try:
+            first_entered.wait(timeout=5)
+            with main.repository_lock(rc, repository_path):
+                second_entered.set()
+        except Exception as exc:
+            errors.append(exc)
+
+    thread_one = threading.Thread(target=first_holder)
+    thread_two = threading.Thread(target=second_holder)
+    thread_one.start()
+    thread_two.start()
+
+    assert first_entered.wait(timeout=5)
+    assert not second_entered.is_set()
+    first_released.set()
+    assert second_entered.wait(timeout=5)
+
+    thread_one.join(timeout=5)
+    thread_two.join(timeout=5)
+
+    assert not errors
+
+
+def test_repository_lock_creates_lock_directory(
+    rc: RemoteAvoraConstants,
+    tc: AvoraTestConstants,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Verify ``repository_lock`` creates the .remote_avora lock directory."""
+
+    monkeypatch.chdir(tmp_path)
+    base_directory = tmp_path / tc.REPOSITORIES_BASE_DIRECTORY
+    base_directory.mkdir(parents=True)
+    repository_path = base_directory / tc.VALID_REPOSITORY_NAME
+    repository_path.mkdir(parents=True)
+
+    lock_directory = base_directory / rc.LOCKS_DIRECTORY_NAME
+    assert not lock_directory.exists()
+
+    with main.repository_lock(rc, repository_path):
+        assert lock_directory.is_dir()
+
+    assert lock_directory.is_dir()

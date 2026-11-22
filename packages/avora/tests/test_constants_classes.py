@@ -95,6 +95,9 @@ AVORA_CONSTANTS_SNAPSHOT: dict[str, object] = {
     "COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE": (
         "Commit {commit_identifier} created successfully."
     ),
+    "COMMIT_CREATION_FAILED_ERROR_MESSAGE": (
+        "Failed to create commit for unknown reason."
+    ),
     "COMMIT_IDENTIFIER_ARGUMENT_NAME": "commit_identifier",
     "COMMIT_IDENTIFIER_DIFF_ARGUMENT_HELP": "The commit identifier to diff against.",
     "COMMIT_IDENTIFIER_DISPLAY_LENGTH": 10,

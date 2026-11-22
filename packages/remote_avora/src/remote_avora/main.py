@@ -80,7 +80,52 @@ def repository_lock(rc: RemoteAvoraConstants, repository_path: Path):
         yield
 
 
-def safe_extract_zip(rc, zip_archive, member_path, destination_directory):
+async def _read_upload_bounded(file: UploadFile, max_size: int) -> bytes:
+    """
+    Read an uploaded file in bounded chunks, aborting once the running total
+    exceeds max_size so a single request cannot buffer an unbounded body in RAM.
+
+    Rejects early when the Content-Length header advertises a body larger than
+    max_size.
+    """
+
+    if file.size is not None and file.size > max_size:
+        raise HTTPException(
+            status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+            detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+        )
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = await file.read(rc.BYTES_PER_MEGABYTE)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_size:
+            raise HTTPException(
+                status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
+                detail=rc.UPLOAD_TOO_LARGE_ERROR_MESSAGE,
+            )
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
+def safe_extract_zip(
+    rc: RemoteAvoraConstants,
+    zip_archive: zipfile.ZipFile,
+    member_path: str,
+    destination_directory: Path,
+) -> None:
+    """
+    Safely extract a single member from a zip archive into the destination
+    directory.
+
+    Guards against zip slip attacks by rejecting absolute paths and any path
+    containing parent-directory components, and by verifying the resolved
+    target path stays inside the destination directory. Creates intermediate
+    directories as needed for directory and file members.
+    """
+
     destination_resolved = destination_directory.resolve()
     entry_path = Path(member_path)
     if entry_path.is_absolute() or rc.DOUBLE_PERIOD in entry_path.parts:
@@ -113,7 +158,21 @@ async def root() -> dict:
     return {rc.MESSAGE_DICT_KEY: rc.EASTER_EGG_MESSAGE}
 
 
-def _publish(rc, repository_name, file_bytes, filename, data):
+def _publish(
+    rc: RemoteAvoraConstants,
+    repository_name: str,
+    file_bytes: bytes,
+    filename: str | None,
+    data: str,
+) -> dict:
+    """
+    Publish a new repository from an uploaded zip archive.
+
+    Validates the remote URL and filename, extracts the zip into a staging
+    directory (defending against zip slip attacks), enforces the file-count and
+    size limits, then atomically replaces the repository directory.
+    """
+
     repository_path = repository_directory(rc, repository_name)
     with repository_lock(rc, repository_path):
         if repository_path.exists():
@@ -144,9 +203,7 @@ def _publish(rc, repository_name, file_bytes, filename, data):
                     status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
                     detail=rc.REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE,
                 )
-            import io as _io
-
-            with zipfile.ZipFile(_io.BytesIO(file_bytes), "r") as zf:
+            with zipfile.ZipFile(io.BytesIO(file_bytes), "r") as zf:
                 if len(zf.infolist()) > rc.MAX_FILES_IN_ZIP:
                     raise HTTPException(
                         status_code=rc.HTTP_BAD_REQUEST_STATUS_CODE,
@@ -180,14 +237,24 @@ def _publish(rc, repository_name, file_bytes, filename, data):
 async def publish(
     repository_name: str, file: UploadFile = File(...), data: str = Form(...)
 ) -> dict:
+    """Publish a repository to the hosted API."""
+
     repository_directory(rc, repository_name)
-    contents = await file.read()
+    contents = await _read_upload_bounded(file, rc.MAX_TOTAL_UPLOAD_SIZE)
     return await asyncio.to_thread(
         _publish, rc, repository_name, contents, file.filename, data
     )
 
 
-def _clone(rc, repository_name):
+def _clone(rc: RemoteAvoraConstants, repository_name: str) -> tuple[bytes, str]:
+    """
+    Build a zip archive of an existing repository.
+
+    Walks the repository directory, writes each file into an in-memory zip,
+    enforces the file-count and size limits, and returns the zip bytes together
+    with the repository name.
+    """
+
     repository_path = repository_directory(rc, repository_name)
     ensure_repository_exists(rc, repository_path)
     buffer = io.BytesIO()
@@ -223,6 +290,8 @@ def _clone(rc, repository_name):
 
 @app.get(rc.CLONE_ENDPOINT_TEMPLATE)
 async def clone(repository_name: str) -> StreamingResponse:
+    """Return a zipped version of a requested repository."""
+
     data, name = await asyncio.to_thread(_clone, rc, repository_name)
     buffer = io.BytesIO(data)
     return StreamingResponse(
@@ -236,7 +305,12 @@ async def clone(repository_name: str) -> StreamingResponse:
     )
 
 
-def _push_get(rc, repository_name):
+def _push_get(rc: RemoteAvoraConstants, repository_name: str) -> dict:
+    """
+    Return the set of object stems in a repository so the client only needs to
+    upload changed and new files.
+    """
+
     repository_path = repository_directory(rc, repository_name)
     ensure_repository_exists(rc, repository_path)
     objects_directory = (
@@ -258,6 +332,11 @@ def _push_get(rc, repository_name):
 
 @app.get(rc.PUSH_ENDPOINT_TEMPLATE)
 async def push(repository_name: str) -> dict:
+    """
+    Return the folder layout of a requested repository so that the client only needs to
+    upload changed files and new files.
+    """
+
     return await asyncio.to_thread(_push_get, rc, repository_name)
 
 

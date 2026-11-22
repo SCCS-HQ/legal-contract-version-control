@@ -258,18 +258,26 @@ class RepositoryIO:
     """
 
     def __init__(
-        self, root: Path, repository_name: str, c: AvoraConstants, target: TargetBranch
+        self,
+        root: Path,
+        repository_name: str,
+        c: AvoraConstants,
+        target: TargetBranch,
+        paths: RepositoryPaths | None = None,
     ) -> None:
         """
         Initialize the repository IO with the entered root, repository name, constants,
-        and target branch.
+        and target branch. Optionally accept an existing ``RepositoryPaths`` instance so
+        the caller can share the same repository lock across IO and command operations.
         """
 
         self.root = root
         self.repository_name = repository_name
         self.c = c
         self.target = target
-        self.paths = RepositoryPaths(root, repository_name, c)
+        self.paths = paths if paths is not None else RepositoryPaths(
+            root, repository_name, c
+        )
 
     def _read_metadata_json(self) -> dict[str, Any]:
         """
@@ -933,7 +941,7 @@ class RepositoryWrite:
         self.c = c
         self.target = target
         self.paths = RepositoryPaths(root, repository_name, c)
-        self.io = RepositoryIO(root, repository_name, c, self.target)
+        self.io = RepositoryIO(root, repository_name, c, self.target, self.paths)
 
     def add_branch_metadata(self, branch_name: str) -> None:
         """
@@ -941,48 +949,51 @@ class RepositoryWrite:
         to the branches list and updated branches, and setting it as the current branch.
         """
 
-        current_branch_name = self.target.require()
-        self.target.require()
-        branch_name = branch_name.lower()
+        with self.paths.lock:
+            current_branch_name = self.target.require()
+            self.target.require()
+            branch_name = branch_name.lower()
 
-        branches_metadata = self.io.read_branches_data()
-        current_branch_metadata = branches_metadata[current_branch_name]
+            branches_metadata = self.io.read_branches_data()
+            current_branch_metadata = branches_metadata[current_branch_name]
 
-        branches_metadata[branch_name] = copy.deepcopy(current_branch_metadata)
+            branches_metadata[branch_name] = copy.deepcopy(current_branch_metadata)
 
-        self.io.write_branches_data(branches_metadata)
+            self.io.write_branches_data(branches_metadata)
 
-        self.add_to_branches_list(branch_name)
-        self.add_to_updated_branches(branch_name)
-        self.add_to_updated_branches(current_branch_name)
-        self.set_current_branch(branch_name)
+            self.add_to_branches_list(branch_name)
+            self.add_to_updated_branches(branch_name)
+            self.add_to_updated_branches(current_branch_name)
+            self.set_current_branch(branch_name)
 
     def add_to_branches_list(self, branch_name: str) -> None:
         """
         Add the entered branch to the list of branches in the current branch metadata.
         """
 
-        branch_name = branch_name.lower()
+        with self.paths.lock:
+            branch_name = branch_name.lower()
 
-        branch_data = self.io.read_current_branch_data()
-        if branch_name not in branch_data[self.c.BRANCHES_DICT_KEY]:
-            branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
-        self.io.write_current_branch_data(branch_data)
+            branch_data = self.io.read_current_branch_data()
+            if branch_name not in branch_data[self.c.BRANCHES_DICT_KEY]:
+                branch_data[self.c.BRANCHES_DICT_KEY].append(branch_name)
+            self.io.write_current_branch_data(branch_data)
 
     def add_to_updated_branches(self, branch_name: str) -> None:
         """
         Add the entered branch to the updated branches in the current branch metadata.
         """
 
-        branch_name = branch_name.lower()
+        with self.paths.lock:
+            branch_name = branch_name.lower()
 
-        def add(updated: list[str]) -> bool:
-            if branch_name not in updated:
-                updated.append(branch_name)
-                return True
-            return False
+            def add(updated: list[str]) -> bool:
+                if branch_name not in updated:
+                    updated.append(branch_name)
+                    return True
+                return False
 
-        self.io.mutate_updated_branches(add)
+            self.io.mutate_updated_branches(add)
 
     def commit_changes(
         self, commit_message: str, allow_empty_commit: bool = False
@@ -992,77 +1003,81 @@ class RepositoryWrite:
         identifier. Raise an AvoraException if the target branch is not set or if there
         are no uncommitted changes and empty commits are not allowed.
         """
+        
+        with self.paths.lock:
+            self.target.require()
 
-        self.target.require()
+            current_branch = self.io.read_current_branch_data()[
+                self.c.CURRENT_BRANCH_DICT_KEY
+            ].lower()
+            latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
+            byte_hash_data = self.io.read_byte_hash()
 
-        current_branch = self.io.read_current_branch_data()[
-            self.c.CURRENT_BRANCH_DICT_KEY
-        ].lower()
-        latest_commit_identifier = self.io.read_history()[self.c.LATEST_COMMIT_DICT_KEY]
-        byte_hash_data = self.io.read_byte_hash()
+            latest_byte_hash = byte_hash_data[latest_commit_identifier]
+            document_byte_hash = self.io.document_html_byte_hash()
 
-        latest_byte_hash = byte_hash_data[latest_commit_identifier]
-        document_byte_hash = self.io.document_html_byte_hash()
+            if not allow_empty_commit and latest_byte_hash == document_byte_hash:
+                raise AvoraException(self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
 
-        if not allow_empty_commit and latest_byte_hash == document_byte_hash:
-            raise AvoraException(self.c.NO_UNCOMMITTED_CHANGES_DETECTED_ERROR_MESSAGE)
+            config = self.io.read_config()
+            name = config[self.c.NAME_KEY]
+            email = config[self.c.EMAIL_KEY]
 
-        config = self.io.read_config()
-        name = config[self.c.NAME_KEY]
-        email = config[self.c.EMAIL_KEY]
+            commit_identifier = utils.create_commit_identifier(
+                self.c,
+                [self.c.PROGRAM_START_TIME, commit_message, name, email],
+            )
 
-        commit_identifier = utils.create_commit_identifier(
-            self.c,
-            [self.c.PROGRAM_START_TIME, commit_message, name, email],
-        )
+            document_as_html = self.io.document_html()
 
-        document_as_html = self.io.document_html()
+            self.io.create_document_commit(commit_identifier)
+            self.io.write_html_commit(commit_identifier, document_as_html)
 
-        self.io.create_document_commit(commit_identifier)
-        self.io.write_html_commit(commit_identifier, document_as_html)
+            byte_hash_data = self.io.read_byte_hash()
+            byte_hash_data[commit_identifier] = document_byte_hash
+            self.io.write_byte_hash(byte_hash_data)
 
-        byte_hash_data = self.io.read_byte_hash()
-        byte_hash_data[commit_identifier] = document_byte_hash
-        self.io.write_byte_hash(byte_hash_data)
+            commit_messages = self.io.read_commit_messages()
+            commit_messages[commit_identifier] = commit_message
+            self.io.write_commit_messages(commit_messages)
 
-        commit_messages = self.io.read_commit_messages()
-        commit_messages[commit_identifier] = commit_message
-        self.io.write_commit_messages(commit_messages)
+            history = self.io.read_history()
+            history[self.c.LATEST_COMMIT_DICT_KEY] = commit_identifier
+            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
+                history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
+                + self.c.COMMIT_NUMBER_INCREMENT
+            )
+            history[self.c.COMMIT_ORDER_DICT_KEY][
+                history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
+            ] = commit_identifier
+            self.io.write_history(history)
 
-        history = self.io.read_history()
-        history[self.c.LATEST_COMMIT_DICT_KEY] = commit_identifier
-        history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY] = (
-            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
-            + self.c.COMMIT_NUMBER_INCREMENT
-        )
-        history[self.c.COMMIT_ORDER_DICT_KEY][
-            history[self.c.LATEST_COMMIT_NUMBER_DICT_KEY]
-        ] = commit_identifier
-        self.io.write_history(history)
+            log = self.io.read_log()
+            log[commit_identifier] = {
+                self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
+                self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
+                    name=name, email=email
+                ),
+                self.c.MESSAGE_DICT_KEY: commit_message,
+            }
+            self.io.write_log(log)
 
-        log = self.io.read_log()
-        log[commit_identifier] = {
-            self.c.TIMESTAMP_DICT_KEY: self.c.PROGRAM_START_TIME,
-            self.c.AUTHOR_DICT_KEY: self.c.COMMIT_AUTHOR_TEMPLATE.format(
-                name=name, email=email
-            ),
-            self.c.MESSAGE_DICT_KEY: commit_message,
-        }
-        self.io.write_log(log)
+            current_branch_data = self.io.read_current_branch_data()
+            if self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data and isinstance(
+                current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
+            ):
+                updated = list(current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY])
+                if current_branch not in updated:
+                    updated.append(current_branch)
+                current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated
+            else:
+                current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = [current_branch]
+            self.io.write_current_branch_data(current_branch_data)
 
-        current_branch_data = self.io.read_current_branch_data()
-        if self.c.UPDATED_BRANCHES_DICT_KEY in current_branch_data and isinstance(
-            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY], list
-        ):
-            updated = list(current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY])
-            if current_branch not in updated:
-                updated.append(current_branch)
-            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = updated
-        else:
-            current_branch_data[self.c.UPDATED_BRANCHES_DICT_KEY] = [current_branch]
-        self.io.write_current_branch_data(current_branch_data)
+            return commit_identifier
 
-        return commit_identifier
+        raise RuntimeError(self.c.COMMIT_CREATION_FAILED_ERROR_MESSAGE)
+        
 
     def remove_branch_metadata(
         self, branch_name: str, current_branch_name: str
@@ -1073,18 +1088,19 @@ class RepositoryWrite:
         branch if the removed branch was the current branch.
         """
 
-        branch_name = branch_name.lower()
+        with self.paths.lock:
+            branch_name = branch_name.lower()
 
-        branches_metadata = self.io.read_branches_data()
-        if branch_name in branches_metadata:
-            del branches_metadata[branch_name]
-        self.io.write_branches_data(branches_metadata)
+            branches_metadata = self.io.read_branches_data()
+            if branch_name in branches_metadata:
+                del branches_metadata[branch_name]
+            self.io.write_branches_data(branches_metadata)
 
-        self.remove_from_branches_list(branch_name)
-        self.remove_from_updated_branch(branch_name)
+            self.remove_from_branches_list(branch_name)
+            self.remove_from_updated_branch(branch_name)
 
-        if branch_name == current_branch_name:
-            self.set_current_branch(self.c.MAIN_BRANCH_NAME)
+            if branch_name == current_branch_name:
+                self.set_current_branch(self.c.MAIN_BRANCH_NAME)
 
     def remove_from_branches_list(self, branch_name: str) -> None:
         """
@@ -1092,14 +1108,15 @@ class RepositoryWrite:
         metadata. Raise an AvoraException if the branch is not in the branches list.
         """
 
-        lowercase_branch_name = branch_name.lower()
+        with self.paths.lock:
+            lowercase_branch_name = branch_name.lower()
 
-        branch_data = self.io.read_current_branch_data()
-        if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
-            branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
-        else:
-            raise AvoraException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
-        self.io.write_current_branch_data(branch_data)
+            branch_data = self.io.read_current_branch_data()
+            if lowercase_branch_name in branch_data[self.c.BRANCHES_DICT_KEY]:
+                branch_data[self.c.BRANCHES_DICT_KEY].remove(lowercase_branch_name)
+            else:
+                raise AvoraException(self.c.INVALID_BRANCH_DATA_ERROR_MESSAGE)
+            self.io.write_current_branch_data(branch_data)
 
     def remove_from_updated_branch(self, branch_name: str) -> None:
         """
@@ -1107,24 +1124,26 @@ class RepositoryWrite:
         metadata.
         """
 
-        branch_name = branch_name.lower()
+        with self.paths.lock:
+            branch_name = branch_name.lower()
 
-        def remove(updated: list[str]) -> bool:
-            if branch_name in updated:
-                updated.remove(branch_name)
-                return True
-            return False
+            def remove(updated: list[str]) -> bool:
+                if branch_name in updated:
+                    updated.remove(branch_name)
+                    return True
+                return False
 
-        self.io.mutate_updated_branches(remove)
+            self.io.mutate_updated_branches(remove)
 
     def set_current_branch(self, branch_name: str) -> None:
         """
         Set the entered branch as the current branch of the repository.
         """
 
-        branch_data = self.io.read_current_branch_data()
-        branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
-        self.io.write_current_branch_data(branch_data)
+        with self.paths.lock:
+            branch_data = self.io.read_current_branch_data()
+            branch_data[self.c.CURRENT_BRANCH_DICT_KEY] = branch_name.lower()
+            self.io.write_current_branch_data(branch_data)
 
     def write_key_to_config(self, key: str, value: str) -> None:
         """
@@ -1133,79 +1152,80 @@ class RepositoryWrite:
         not accepted.
         """
 
-        utils.raise_if_empty(self.c, value.strip(), key)
+        with self.paths.lock:
+            utils.raise_if_empty(self.c, value.strip(), key)
 
-        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
-            i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
-        ):
-            raise AvoraException(
-                self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
-            )
-        if key == self.c.REMOTE_KEY and not all(
-            i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
-        ):
-            raise AvoraException(self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE)
-
-        if key not in self.c.ACCEPTED_CONFIG_KEYS:
-            raise AvoraException(self.c.INVALID_KEY_ERROR_MESSAGE)
-
-        if key == self.c.REMOTE_KEY and value.strip():
-
-            config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
-            config[key] = value
-            self.io.write_local_config(config)
-
-        if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
-
-            config_json = (
-                platformdirs.user_config_path(
-                    appname=self.c.LOCAL_AVORA, appauthor=False
+            if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and not all(
+                i in self.c.ALLOWED_NAME_AND_EMAIL_CHARACTERS for i in value
+            ):
+                raise AvoraException(
+                    self.c.INVALID_CHARACTER_IN_NAME_OR_EMAIL_ERROR_MESSAGE
                 )
-                / self.c.CONFIG_JSON_FILENAME
-            )
+            if key == self.c.REMOTE_KEY and not all(
+                i in self.c.ALLOWED_REMOTE_CHARACTERS for i in value
+            ):
+                raise AvoraException(self.c.INVALID_CHARACTER_IN_REMOTE_ERROR_MESSAGE)
 
-            try:
-                config_json.parent.mkdir(parents=True, exist_ok=True)
-            except OSError as e:
-                raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
+            if key not in self.c.ACCEPTED_CONFIG_KEYS:
+                raise AvoraException(self.c.INVALID_KEY_ERROR_MESSAGE)
 
-            with self.paths.global_config_lock:
-                if config_json.exists():
-                    try:
-                        with open(
-                            config_json,
-                            "r",
-                            encoding=self.c.UTF_8,
-                            newline=self.c.NEWLINE,
-                        ) as f:
-                            try:
-                                global_config = json.load(f)
-                            except (json.JSONDecodeError, ValueError):
-                                global_config = {}
-                    except OSError:
-                        global_config = {}
-                else:
-                    global_config = {}
+            if key == self.c.REMOTE_KEY and value.strip():
 
-                if not isinstance(global_config, dict):
-                    raise AvoraException(self.c.CONFIG_READ_ERROR_MESSAGE)
+                config = self.io.read_metadata().setdefault(self.c.CONFIG_DICT_KEY, {})
+                config[key] = value
+                self.io.write_local_config(config)
 
-                global_config[key] = value
+            if key in [self.c.NAME_KEY, self.c.EMAIL_KEY] and value.strip():
+
+                config_json = (
+                    platformdirs.user_config_path(
+                        appname=self.c.LOCAL_AVORA, appauthor=False
+                    )
+                    / self.c.CONFIG_JSON_FILENAME
+                )
 
                 try:
-                    fd, temp_path = tempfile.mkstemp(
-                        dir=config_json.parent,
-                        prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
-                        # suffix=".tmp",
-                    )
-                    try:
-                        with os.fdopen(
-                            fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
-                        ) as f:
-                            json.dump(global_config, f, indent=self.c.JSON_INDENT)
-                        os.replace(temp_path, config_json)
-                    except OSError:
-                        os.unlink(temp_path)
-                        raise
+                    config_json.parent.mkdir(parents=True, exist_ok=True)
                 except OSError as e:
                     raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e
+
+                with self.paths.global_config_lock:
+                    if config_json.exists():
+                        try:
+                            with open(
+                                config_json,
+                                "r",
+                                encoding=self.c.UTF_8,
+                                newline=self.c.NEWLINE,
+                            ) as f:
+                                try:
+                                    global_config = json.load(f)
+                                except (json.JSONDecodeError, ValueError):
+                                    global_config = {}
+                        except OSError:
+                            global_config = {}
+                    else:
+                        global_config = {}
+
+                    if not isinstance(global_config, dict):
+                        raise AvoraException(self.c.CONFIG_READ_ERROR_MESSAGE)
+
+                    global_config[key] = value
+
+                    try:
+                        fd, temp_path = tempfile.mkstemp(
+                            dir=config_json.parent,
+                            prefix=self.c.TEMPORARY_DIRECTORY_PREFIX,
+                            # suffix=".tmp",
+                        )
+                        try:
+                            with os.fdopen(
+                                fd, "w", encoding=self.c.UTF_8, newline=self.c.NEWLINE
+                            ) as f:
+                                json.dump(global_config, f, indent=self.c.JSON_INDENT)
+                            os.replace(temp_path, config_json)
+                        except OSError:
+                            os.unlink(temp_path)
+                            raise
+                    except OSError as e:
+                        raise AvoraException(self.c.CONFIG_WRITE_ERROR_MESSAGE) from e

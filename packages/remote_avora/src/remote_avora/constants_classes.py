@@ -70,6 +70,7 @@ class RemoteAvoraConstants:
         )
 
     HTTP_BAD_REQUEST_STATUS_CODE = 400
+    HTTP_INTERNAL_SERVER_ERROR_STATUS_CODE = 500
     HTTP_NOT_FOUND_STATUS_CODE = 404
     INVALID_JSON_ERROR_MESSAGE = "Invalid JSON data"
     INVALID_REPOSITORY_NAME_ERROR_MESSAGE = "Invalid repository name"
@@ -112,6 +113,9 @@ class RemoteAvoraConstants:
     REPOSITORY_NAME_MISMATCH_ERROR_MESSAGE = "Repository name does not match file name"
     REPOSITORY_NOT_FOUND_ERROR_MESSAGE_TEMPLATE = (
         "Repository not found: {repository_name}"
+    )
+    REPOSITORY_RESTORE_FAILED_ERROR_MESSAGE = (
+        "Failed to restore repository from backup."
     )
     REPOSITORY_URL_DICT_KEY = "repository_url"
     REPOS_MOUNT_ENDPOINT = "/repos"

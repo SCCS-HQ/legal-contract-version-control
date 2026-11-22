@@ -125,6 +125,9 @@ class AvoraConstants:
     COMMAND_FIELD_NAME = "command"
     COMMA_SPACE = ", "
     COMMIT_AUTHOR_TEMPLATE = "{name} <{email}>"
+    COMMIT_CREATION_FAILED_ERROR_MESSAGE = (
+        "Failed to create commit for unknown reason."
+    )
     COMMIT_CREATED_SUCCESS_MESSAGE_TEMPLATE = (
         "Commit {commit_identifier} created successfully."
     )
