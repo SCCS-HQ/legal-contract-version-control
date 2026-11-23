@@ -415,7 +415,7 @@ def _push_upload(rc, repository_name, file_bytes, filename):
 
 @app.post(rc.PUSH_ENDPOINT_TEMPLATE)
 async def push_upload(repository_name: str, file: UploadFile = File(...)) -> dict:
-    contents = await file.read()
+    contents = await _read_upload_bounded(file, rc.MAX_TOTAL_UPLOAD_SIZE)
     return await asyncio.to_thread(
         _push_upload, rc, repository_name, contents, file.filename
     )
