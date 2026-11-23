@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import tempfile
+import threading
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Self
@@ -731,12 +732,26 @@ class RepositoryIO:
 
 
 class _ReentrantFileLock:
-    """A process-local reentrant wrapper around a FileLock."""
+    """A process-local reentrant wrapper around a FileLock.
+
+    The reentrancy depth is tracked per thread so that a lock held by one thread
+    does not cause another thread to skip acquiring the underlying file lock. The
+    underlying ``FileLock`` provides cross-thread mutual exclusion through the lock
+    file, while the thread-local depth allows a single thread to nest acquisitions.
+    """
 
     def __init__(self, file_lock, mkdir_path=None) -> None:
         self._file_lock = file_lock
         self._mkdir_path = mkdir_path
-        self._depth = 0
+        self._local = threading.local()
+
+    @property
+    def _depth(self) -> int:
+        return getattr(self._local, "depth", 0)
+
+    @_depth.setter
+    def _depth(self, value: int) -> None:
+        self._local.depth = value
 
     def __enter__(self) -> Self:
         if self._mkdir_path is not None:
