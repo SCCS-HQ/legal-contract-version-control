@@ -114,22 +114,22 @@ def generate_diff_output(
     )
 
 
-def get_data_number(c: AvoraConstants, tag_list: list[str]) -> set[str]:
+def get_data_number(c: AvoraConstants, tag_list: list[str]) -> list[str]:
     """
-    Retrieve the set of data-number attributes from the provided list of tags. This
-    function parses each tag in the list and extracts the data-number attribute, if
-    present, adding it to a set to ensure uniqueness. The function returns the set of
-    data-number attributes found in the tags.
+    Retrieve the data-number attributes from the provided list of tags in the order
+    they are encountered. This function parses each tag in the list and extracts the
+    data-number attribute, if present, adding it to a list. The function returns the
+    list of data-number attributes found in the tags.
     """
 
-    data_number = set()
+    data_number = []
     for i in tag_list:
         parsed_tag = BeautifulSoup(i, c.HTML_PARSER).find()
         if (
             parsed_tag is not None
             and parsed_tag.get(c.DATA_NUMBER_HTML_ATTRIBUTE) is not None
         ):
-            data_number.add(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
+            data_number.append(parsed_tag[c.DATA_NUMBER_HTML_ATTRIBUTE])
     return data_number
 
 
@@ -297,7 +297,7 @@ def validate_diff(
     )
 
     if filecmp.cmp(commit_path, rd.paths.document_path()):
-        raise AvoraException(c.DIFF_ERROR_MESSAGE)
+        raise AvoraException(c.DIFF_NO_CHANGES_ERROR_MESSAGE)
 
 
 def main(

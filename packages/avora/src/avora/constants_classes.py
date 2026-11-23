@@ -217,6 +217,9 @@ class AvoraConstants:
         "You cannot delete 'main'. Please try deleting another branch."
     )
     DIFF_ERROR_MESSAGE = "Failed to generate diff output. Please try again."
+    DIFF_NO_CHANGES_ERROR_MESSAGE = (
+        "No differences found between the current document and the entered commit."
+    )
     DIFF_OUTPUT_HTML_FILE = "diff.html"
     DIFF_SUCCESS_MESSAGE = "Commit diff successfully created."
     DOCUMENT_DIRECTORY = "docx"

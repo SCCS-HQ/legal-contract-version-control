@@ -141,7 +141,7 @@ def test_validate_diff_raises_if_commit_is_latest(
 
     with pytest.raises(AvoraException) as e:
         diff.validate_diff(c, rd, tc.TEST_COMMIT_IDENTIFIER)
-    assert str(e.value) == tc.FAILED_TO_GENERATE_DIFF_OUTPUT_MESSAGE
+    assert str(e.value) == tc.DIFF_NO_CHANGES_ERROR_MESSAGE
 
 
 @pytest.mark.parametrize(
@@ -283,7 +283,7 @@ def test_replace_tag_adds_correct_tags_and_classes(
                 '<em data-number="4">italic</em>',
                 '<u data-number="5">underlined</u>',
             ],
-            {"0", "1", "2", "3", "5", "4"},
+            ["0", "1", "2", "3", "4","5"],
         ),
         (
             [
@@ -294,12 +294,12 @@ def test_replace_tag_adds_correct_tags_and_classes(
                 '<i data-number="4">italic</i>',
                 '<u data-number="5">underline</u>',
             ],
-            {"4", "2", "3", "0", "5", "1"},
+            ["0", "1", "2", "3", "4", "5"],
         ),
     ],
 )
 def test_get_data_number_returns_set_of_data_numbers(
-    c: AvoraConstants, tag_list: list[str], expected_value: set[str]
+    c: AvoraConstants, tag_list: list[str], expected_value: list[str]
 ) -> None:
     assert diff.get_data_number(c, tag_list) == expected_value
 
