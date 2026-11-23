@@ -145,11 +145,12 @@ def insert_tag(
     place and returns it.
     """
 
-    for i in soup.find_all():
+    tags = soup.find_all()
+
+    for i in tags:
         if i.name == c.STYLE_TAG_NAME:
             i.decompose()
             continue
-    tags = soup.find_all()
     html_fragment = BeautifulSoup(
         c.EMPTY_STRING.join(new_changed_strings), c.HTML_PARSER
     )
